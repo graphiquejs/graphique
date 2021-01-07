@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-smooth",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "description": "For local smoothing with standard errors",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
@@ -9,7 +9,7 @@
   "author": "Matt Adams",
   "license": "MIT",
   "dependencies": {
-    "@graphique/util": "0.0.1",
+    "@graphique/util": "^0.0.1-alpha.0",
     "@visx/curve": "^1.0.0",
     "@visx/scale": "^1.3.0",
     "@visx/shape": "^1.3.0",
