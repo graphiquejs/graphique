@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-line",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "description": "For line charts and other lines",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
@@ -23,9 +23,9 @@
     "watch": "bili --watch --config ../../.bilirc.js"
   },
   "peerDependencies": {
+    "@graphique/gg": "0.0.1",
     "react": "16 - 17",
-    "react-dom": "16 - 17",
-    "@graphique/gg": "0.0.1"
+    "react-dom": "16 - 17"
   },
   "devDependencies": {
     "@types/d3-array": "^2.8.0",
