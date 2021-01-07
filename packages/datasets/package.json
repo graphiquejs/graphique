@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "description": "A collection of datasets used in Graphique examples",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
