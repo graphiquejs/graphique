@@ -1,0 +1,23 @@
+{
+  "name": "@graphique/util",
+  "version": "0.0.1",
+  "description": "Utilities used throughout Graphique",
+  "main": "lib/index.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/index.d.ts",
+  "repository": "https://github.com/graphiquejs/graphique.git",
+  "author": "Matt Adams",
+  "license": "MIT",
+  "dependencies": {
+    "d3-scale-chromatic": "^2.0.0",
+    "d3-time-format": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/d3-scale-chromatic": "^2.0.0",
+    "@types/d3-time-format": "^3.0.0"
+  },
+  "scripts": {
+    "build": "bili --config ../../.bilirc.js",
+    "watch": "bili --watch --config ../../.bilirc.js"
+  }
+}

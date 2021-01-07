@@ -1,0 +1,15 @@
+{
+  "name": "@graphique/datasets",
+  "version": "0.0.1",
+  "description": "A collection of datasets used in Graphique examples",
+  "main": "lib/index.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/index.d.ts",
+  "repository": "https://github.com/graphiquejs/graphique.git",
+  "author": "Matt Adams",
+  "license": "MIT",
+  "scripts": {
+    "build": "bili --config ../../.bilirc.js",
+    "watch": "bili --watch --config ../../.bilirc.js"
+  }
+}

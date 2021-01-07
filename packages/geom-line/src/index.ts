@@ -1,0 +1,1 @@
+export { GeomLine } from "./geomLine"
