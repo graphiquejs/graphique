@@ -8,6 +8,9 @@
   "repository": "https://github.com/graphiquejs/graphique.git",
   "author": "Matt Adams",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "d3-scale-chromatic": "^2.0.0",
     "d3-time-format": "^3.0.0"

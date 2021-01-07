@@ -8,6 +8,9 @@
   "repository": "https://github.com/graphiquejs/graphique.git",
   "author": "Matt Adams",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bili --config ../../.bilirc.js",
     "watch": "bili --watch --config ../../.bilirc.js"
