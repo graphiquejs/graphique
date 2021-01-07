@@ -1,0 +1,1 @@
+export { GeomPoint } from "./geomPoint";

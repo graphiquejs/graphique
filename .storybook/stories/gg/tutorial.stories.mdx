@@ -1,0 +1,390 @@
+import { Meta, Canvas, Story, ArgsTable } from "@storybook/addon-docs/blocks"
+import { GG, Labels } from "@graphique/gg"
+import { GeomPoint } from "@graphique/geom-point"
+import { GeomSmooth } from "@graphique/geom-smooth"
+import { penguins } from "@graphique/datasets"
+
+
+<Meta
+  title="Getting Started/Tutorial"
+  component={GG}
+/>
+
+# Graphique tutorial
+
+This is a quick tutorial that shows how to get started using Graphique. If you haven't already, first install the necessary dependencies for our example.
+
+```bash
+npm install @graphique/gg @graphique/datasets @graphique/geom-point @graphique/geom-smooth
+# yarn add @graphique/gg @graphique/datasets @graphique/geom-point @graphique/geom-smooth
+```
+
+Lets start with a dataset that contains information on individual penguins that looks like this:
+
+```json
+[
+  {
+    species: "Adelie",
+    island: "Torgersen",
+    beakLength: 39.1,
+    beakDepth: 18.7,
+    flipperLength: 181,
+    bodyMass: 3750,
+    sex: "Male",
+  },
+  {
+    species: "Gentoo",
+    island: "Biscoe",
+    beakLength: 41.7,
+    beakDepth: 14.7,
+    flipperLength: 210,
+    bodyMass: 4700,
+    sex: "Female",
+  },
+  ...
+]
+```
+
+## A layered approach
+
+For this simple example, we're interested in the typical relationship between the length of flippers and the length of beaks by penguin species. We'll start with the basics and build our way up to a useful interactive graphic.
+
+<br />
+
+### The base
+
+This is what you get for free when plugging in your data and mapping a coordinate system (`x` , `y` Aesthetics):
+
+```jsx
+import { GG } from "@graphique/gg"
+import { penguins } from "@graphique/datasets"
+
+<GG
+  data={penguins}
+  aes={{
+    x: d => d.flipperLength,
+    y: d => d.beakLength
+  }}
+/>
+```
+
+<GG
+  data={penguins}
+  aes={{
+    x: d => d.flipperLength,
+    y: d => d.beakLength
+  }}
+/>
+
+<br />
+
+Using the defaults, our (empty) graphic gets:
+- a coordinate system with a grid
+- scaled axes with ticks and tick labels
+- and a size (`550px` x `300px`)
+
+This is a good start but isn't very useful without including any Geometries (`Geom`s).
+
+<hr />
+
+### Draw the penguins
+
+Let's draw these penguins in the form of a scatterplot.
+
+```jsx
+import { GG } from "@graphique/gg"
+import { GeomPoint } from "@graphique/geom-point"
+import { penguins } from "@graphique/datasets"
+
+<GG
+  data={penguins}
+  aes={{
+    x: d => d.flipperLength,
+    y: d => d.beakLength
+  }}
+>
+  <GeomPoint hideTooltip />
+</GG>
+```
+
+The most basic scatterplot (for now, we'll also hide the tooltip associated with the points).
+
+<Canvas>
+  <Story name="Basic">
+    <GG
+      data={penguins}
+      aes={{
+        x: d => d.flipperLength,
+        y: d => d.beakLength
+      }}
+    >
+      <GeomPoint hideTooltip />
+    </GG>
+  </Story>
+</Canvas>
+
+This is good for only a few lines of code, but still pretty crude. We'll add some polish to our graphic next.
+
+<hr />
+
+### Starting to customize
+
+We'll add some readable labels, give it a responsive (parent-sized) width, change the look of the points, and add the tooltip back.
+
+export const penguinTitle = (
+  <div
+    style={{
+      fontWeight: 700,
+      fontSize: 14,
+      marginBottom: 20,
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <span
+      role="img"
+      aria-label="penguin"
+      style={{ marginRight: 6, fontSize: 20 }}
+    >
+      🐧
+    </span>
+    Palmer Penguins
+  </div>
+)
+
+export const penguinIdentifier = (d) => {
+  return `${d.species}-${d.island}-${d.sex}-${d.beakDepth}-${d.bodyMass}-${d.beakLength}`
+}
+
+```jsx
+import { GG, Labels } from "@graphique/gg"
+import { GeomPoint } from "@graphique/geom-point"
+import { penguins } from "@graphique/datasets"
+
+const penguinTitle = (
+  <div
+    style={{
+      fontWeight: 700,
+      fontSize: 14,
+      marginBottom: 20,
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <span
+      role="img"
+      aria-label="penguin"
+      style={{ marginRight: 6, fontSize: 20 }}
+    >
+      🐧
+    </span>
+    Palmer Penguins
+  </div>
+)
+
+const penguinIdentifier = (d) => {
+  return `${d.species}-${d.island}-${d.sex}-${d.beakDepth}-${d.bodyMass}-${d.beakLength}`
+}
+
+<div style={{maxWidth: 1100}}>
+  <GG
+    data={penguins}
+    aes={{
+      x: d => d.flipperLength,
+      y: d => d.beakLength,
+      // the `key` aesthetic is used for interactions on individual points in GeomPoint.
+      // This dataset doesn't come with a unique identifier for each penguin,
+      // so we'll use an id function we made ourselves based on the penguin's characteristics
+      key: penguinIdentifier,
+      label: d => d.species
+    }}
+    margin={{ left: 35 }}
+    useParentWidth
+    height={500}
+  >
+    <GeomPoint
+      size={3.4}
+      opacity={0.4}
+    />
+    <Labels
+      x="Flipper length (mm)"
+      y="Beak length (mm)"
+      title={penguinTitle}
+    />
+  </GG>
+</div>
+```
+
+<Canvas>
+  <Story name="Customizing">
+    <div style={{maxWidth: 1100}}>
+      <GG
+        data={penguins}
+        aes={{
+          x: d => d.flipperLength,
+          y: d => d.beakLength,
+          key: penguinIdentifier,
+          label: d => d.species
+        }}
+        margin={{ left: 35 }}
+        useParentWidth
+        height={500}
+      >
+        <GeomPoint
+          size={3.4}
+          fill="lightcoral"
+          opacity={0.4}
+        />
+        <Labels
+          x="Flipper length (mm)"
+          y="Beak length (mm)"
+          title={penguinTitle}
+        />
+      </GG>
+    </div>
+  </Story>
+</Canvas>
+
+<hr />
+
+### Adding layers
+
+Now we can start adding layers to our graphic in the form of additional Geometries and/or Aesthetics.
+
+#### Trend
+
+To demonstrate, we can quickly add a smooth trend line ([LOESS](https://en.wikipedia.org/wiki/Local_regression) by default) to the scatterplot by including `<GeomSmooth />` as an additional child Geom.
+
+<Canvas>
+  <Story name="Trend">
+    <div style={{maxWidth: 1100}}>
+      <GG
+        data={penguins}
+        aes={{
+          x: d => d.flipperLength,
+          y: d => d.beakLength,
+          key: penguinIdentifier,
+          label: d => d.species
+        }}
+        margin={{ left: 35 }}
+        useParentWidth
+        height={500}
+      >
+        <GeomSmooth />
+        <GeomPoint
+          size={3.4}
+          fill="lightcoral"
+          opacity={0.4}
+        />
+        <Labels
+          x="Flipper length (mm)"
+          y="Beak length (mm)"
+          title={penguinTitle}
+        />
+      </GG>
+    </div>
+  </Story>
+</Canvas>
+
+#### Interaction Geom
+
+If we're more interested in the detail/interaction focusing on a different Geometry (the trend in this case rather than the individual points),
+we only need to change the order of the Geometries so the interaction `Geom` is the last child Geometry.
+The interactions and associated tooltips will then correspond to `GeomSmooth`.
+
+<Canvas>
+  <Story name="Trend interactions">
+    <div style={{maxWidth: 1100}}>
+      <GG
+        data={penguins}
+        aes={{
+          x: d => d.flipperLength,
+          y: d => d.beakLength,
+          key: penguinIdentifier,
+          label: d => d.species
+        }}
+        margin={{ left: 35 }}
+        useParentWidth
+        height={500}
+      >
+        <GeomPoint
+          size={3.4}
+          fill="lightcoral"
+          opacity={0.4}
+        />
+        <GeomSmooth />
+        <Labels
+          x="Flipper length (mm)"
+          y="Beak length (mm)"
+          title={penguinTitle}
+        />
+      </GG>
+    </div>
+  </Story>
+</Canvas>
+
+#### Grouped
+
+Or if we wanted to color/group the penguins by species, we can do that (in the same way we specified the `x`/`y` values) by adding the `fill` property to our `aes` object with the value `d => d.species`.
+
+<Canvas>
+  <Story name="Grouped">
+    <div style={{maxWidth: 1100}}>
+      <GG
+        data={penguins}
+        aes={{
+          x: d => d.flipperLength,
+          y: d => d.beakLength,
+          fill: d => d.species,
+          key: penguinIdentifier,
+          label: d => d.species
+        }}
+        margin={{ left: 35 }}
+        useParentWidth
+        height={500}
+      >
+        <GeomPoint
+          size={3.4}
+          opacity={0.4}
+        />
+        <Labels
+          x="Flipper length (mm)"
+          y="Beak length (mm)"
+          title={penguinTitle}
+        />
+      </GG>
+    </div>
+  </Story>
+</Canvas>
+
+#### Grouped with group trends
+
+There's no extra work to show trends by group. The grouping variable (species) specified by `fill` in our `aes` object is used across Geometries and is applied to `GeomSmooth` as well.
+
+<Canvas>
+  <Story name="Grouped trends">
+    <div style={{maxWidth: 1100}}>
+      <GG
+        data={penguins}
+        aes={{
+          x: d => d.flipperLength,
+          y: d => d.beakLength,
+          fill: d => d.species
+        }}
+        useParentWidth
+        height={500}
+      >
+        <GeomPoint
+          size={3.4}
+          opacity={0.15}
+        />
+        <GeomSmooth se method="linear" />
+        <Labels
+          x="Flipper length (mm)"
+          y="Beak length (mm)"
+          title={penguinTitle}
+        />
+      </GG>
+    </div>
+  </Story>
+</Canvas>
