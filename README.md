@@ -84,7 +84,7 @@ To keep your Graphique visualization the width of its parent container, you only
 
 ## Examples
 
-Checkout out the Storybook demos here: https://graphique.mattadams.io
+Check out out the Storybook demos here: https://graphique.mattadams.io
 
 ## Design philosophy
 
