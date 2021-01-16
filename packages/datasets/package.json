@@ -2,6 +2,15 @@
   "name": "@graphique/datasets",
   "version": "0.0.1-alpha.0",
   "description": "A collection of datasets used in Graphique examples",
+  "keywords": [
+    "react",
+    "d3",
+    "visx",
+    "data visualization",
+    "grammar of graphics",
+    "graphique",
+    "dataset"
+  ],
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",

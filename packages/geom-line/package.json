@@ -2,6 +2,16 @@
   "name": "@graphique/geom-line",
   "version": "0.0.1-alpha.0",
   "description": "For line charts and other lines",
+  "keywords": [
+    "react",
+    "d3",
+    "visx",
+    "data visualization",
+    "grammar of graphics",
+    "graphique",
+    "geom-line",
+    "line chart"
+  ],
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",

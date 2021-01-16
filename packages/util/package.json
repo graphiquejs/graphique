@@ -2,6 +2,15 @@
   "name": "@graphique/util",
   "version": "0.0.1-alpha.0",
   "description": "Utilities used throughout Graphique",
+  "keywords": [
+    "react",
+    "d3",
+    "visx",
+    "data visualization",
+    "grammar of graphics",
+    "graphique",
+    "utilities"
+  ],
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",

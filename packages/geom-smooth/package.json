@@ -2,6 +2,16 @@
   "name": "@graphique/geom-smooth",
   "version": "0.0.1-alpha.0",
   "description": "For local smoothing with standard errors",
+  "keywords": [
+    "react",
+    "d3",
+    "visx",
+    "data visualization",
+    "grammar of graphics",
+    "graphique",
+    "loess",
+    "regression"
+  ],
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",

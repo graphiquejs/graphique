@@ -2,6 +2,15 @@
   "name": "@graphique/gg",
   "version": "0.0.1-alpha.0",
   "description": "The basis for all Graphique visualizations",
+  "keywords": [
+    "react",
+    "d3",
+    "visx",
+    "data visualization",
+    "chart",
+    "grammar of graphics",
+    "graphique"
+  ],
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
