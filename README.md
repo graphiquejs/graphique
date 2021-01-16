@@ -23,14 +23,14 @@ Graphique allows you to concisely create flexible and reusable interactive visua
 
 Install only the geometries you need.
 
-```
-$ npm install @graphique/gg @graphique/geom-line @visx/mock-data
+```shell
+npm install @graphique/gg @graphique/geom-line @visx/mock-data
 ```
 
 or
 
-```
-$ yarn add @graphique/gg @graphique/geom-line @visx/mock-data
+```shell
+yarn add @graphique/gg @graphique/geom-line @visx/mock-data
 ```
 
 ```jsx
