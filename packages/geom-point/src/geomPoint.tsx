@@ -56,6 +56,7 @@ const GeomPoint: React.FC<Props> = ({
     size: sizeScale,
     groups
   } = useMemo(() => statefulScales, [statefulScales])
+
   // const [tooltip] = useRecoilState(tooltipState)
   // const { datum } = useMemo(() => tooltip, [tooltip])
 
@@ -80,11 +81,11 @@ const GeomPoint: React.FC<Props> = ({
   const radiusScale = useMemo(() => {
     return (
       scaleSqrt({
-        domain: size ? [size] : (aes.size && extent(geomData, aes.size)) as [number, number],
+        domain: (aes.size && extent(geomData, aes.size)) as [number, number],
         range: (sizeScale?.range || [3, 30]) as [number, number],
       })
     )
-  }, [geomData, aes.size, size, sizeScale])
+  }, [geomData, aes.size, sizeScale])
 
   const r = useMemo(() => {
     return (d: any) => {
@@ -234,7 +235,7 @@ const GeomPoint: React.FC<Props> = ({
                 strokeOpacity={strokeOpacity}
                 stroke={thisStroke(d)}
                 strokeWidth={strokeWidth}
-                r={size || r(d)}
+                r={aes.size ? r(d) : size}
                 cx={xScale(aes.x(d))}
                 cy={yScale(aes.y(d))}
                 // onMouseOver={}

@@ -21,7 +21,7 @@ export default {
   argTypes: {
     size: {
       description: "The size (radius) of the point in pixels",
-      defaultValue: { summary: 2.5 },
+      defaultValue: 2.5,
       table: {
         type: {
           summary: "number",
@@ -392,7 +392,7 @@ Advanced.parameters = {
 
 Advanced.args= {
   fill: null,
-  size: null,
+  // size: null,
   hideTooltip: false,
   opacity: 0.35,
   strokeOpacity: 0.5,
