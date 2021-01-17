@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-smooth",
-  "version": "0.0.2-alpha.0",
+  "version": "0.0.2",
   "description": "For local smoothing with standard errors",
   "keywords": [
     "react",
