@@ -33,7 +33,7 @@
     "watch": "bili --watch --config ../../.bilirc.js"
   },
   "peerDependencies": {
-    "@graphique/gg": "0.0.1",
+    "@graphique/gg": "<= 1",
     "react": "16 - 17",
     "react-dom": "16 - 17"
   },
