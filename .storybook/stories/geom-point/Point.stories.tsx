@@ -392,7 +392,7 @@ Advanced.parameters = {
 
 Advanced.args= {
   fill: null,
-  // size: null,
+  size: null,
   hideTooltip: false,
   opacity: 0.35,
   strokeOpacity: 0.5,

@@ -34,7 +34,7 @@ const GeomPoint: React.FC<Props> = ({
   fill,
   opacity = 1,
   strokeOpacity,
-  size = 2.5,
+  size,
   scales,
   hideTooltip = false,
   focused,
@@ -57,6 +57,8 @@ const GeomPoint: React.FC<Props> = ({
     groups
   } = useMemo(() => statefulScales, [statefulScales])
 
+  const defaultSize = 2.5
+
   // const [tooltip] = useRecoilState(tooltipState)
   // const { datum } = useMemo(() => tooltip, [tooltip])
 
@@ -73,9 +75,9 @@ const GeomPoint: React.FC<Props> = ({
   )
 
   const calculatedGroups: string[] = group
-    ? Array.from(new Set(geomData.map(group))).map((g) =>
+    ? Array.from(new Set(ggData.map(group))).map((g) =>
         g === null ? "[null]" : g
-      )
+      ).sort()
     : ["__group"]
 
   const radiusScale = useMemo(() => {
@@ -96,16 +98,14 @@ const GeomPoint: React.FC<Props> = ({
   const thisStrokeScale = useMemo(() => {
     return (
       scaleOrdinal({
-          domain: groups,
+          domain: calculatedGroups,
           range: (strokeScale?.scheme ||
             (stroke
               ? [stroke]
-              : groups?.length === 1
-              ? [undefined]
               : defaultCategoricalScheme)) as string[],
       })
     )
-  }, [groups, strokeScale, stroke])
+  }, [calculatedGroups, strokeScale, stroke])
 
   const thisStroke = useMemo(() => {
     return (
@@ -120,16 +120,16 @@ const GeomPoint: React.FC<Props> = ({
   const thisFillScale = useMemo(() => {
     return (
       scaleOrdinal({
-        domain: groups,
+        domain: calculatedGroups,
         range: (fillScale?.scheme ||
           (fill
             ? [fill]
-            : groups?.length === 1
-            ? [defaultFill]
+            // : groups?.length === 1
+            // ? [defaultFill]
             : defaultCategoricalScheme)) as string[],
       })
     )
-  }, [groups, fillScale, fill, defaultFill])
+  }, [calculatedGroups, fillScale, fill, defaultFill])
 
   const thisFill = useMemo(() => {
     return (
@@ -235,7 +235,7 @@ const GeomPoint: React.FC<Props> = ({
                 strokeOpacity={strokeOpacity}
                 stroke={thisStroke(d)}
                 strokeWidth={strokeWidth}
-                r={aes.size ? r(d) : size}
+                r={size ? size : aes.size ? r(d) : defaultSize}
                 cx={xScale(aes.x(d))}
                 cy={yScale(aes.y(d))}
                 // onMouseOver={}

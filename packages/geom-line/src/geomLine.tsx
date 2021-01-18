@@ -12,6 +12,7 @@ import { dataState, aesState, scalesState, themeState, EventField } from "@graph
 import { useRecoilValue, useRecoilState } from "recoil"
 import { Tooltip } from "./Tooltip"
 import { useSpring, animated } from "react-spring"
+import { range } from "d3-array"
 
 export type LineProps = {
   data?: unknown[],
@@ -34,7 +35,7 @@ const GeomLine: React.FC<LineProps> = ({
   stroke,
   strokeOpacity = 1,
   strokeDashArray,
-  size = 2.5,
+  size,
   scales,
   id,
   curve,
@@ -61,6 +62,8 @@ const GeomLine: React.FC<LineProps> = ({
     groups,
   } = useMemo(() => statefulScales, [statefulScales])
 
+  const defaultSize = 2.5
+
   const x = useCallback((d: any) => xScale && aes.x(d) ? xScale(aes.x(d)) : 0, [xScale, aes])
   const y = useCallback((d: any) => yScale && aes.y(d) ? yScale(aes.y(d)) : undefined, [yScale, aes])
 
@@ -69,10 +72,10 @@ const GeomLine: React.FC<LineProps> = ({
   const calculatedGroups: string[] = useMemo(() => {
     return (
       group
-      ? Array.from(new Set(geomData.map(group))).map(g => g === null ? "[null]" : g)
+      ? Array.from(new Set(ggData.map(group))).map(g => g === null ? "[null]" : g).sort()
       : ["__group"]
     )
-  }, [group, geomData])
+  }, [group, ggData])
 
   useEffect(() => {
     setStatefulScales((scales: any) => {
@@ -118,18 +121,26 @@ const GeomLine: React.FC<LineProps> = ({
   }, [geomData, xScale, yScale])
 
   const thisStrokeScale = scaleOrdinal({
-    domain: groups,
+    domain: calculatedGroups,
     range: (strokeScale?.scheme ||
       (stroke
         ? [stroke]
-        : groups?.length === 1
-        ? [defaultStroke]
-        : defaultCategoricalScheme)) as string[],
+        // : groups?.length === 1
+        : aes.stroke
+        ? defaultCategoricalScheme
+        : [defaultStroke])) as string[],
   })
 
   const thisSizeScale = scaleOrdinal({
-    domain: groups,
-    range: sizeScale?.values as number[]
+    domain: calculatedGroups,
+    range: (
+      sizeScale?.values ||
+        (size
+          ? [size]
+          : aes.size
+          ? range(2, 10)
+          : [defaultSize]
+        )) as number[]
   })
 
   const thisDashArrayScale = scaleOrdinal({
@@ -169,12 +180,10 @@ const GeomLine: React.FC<LineProps> = ({
                       fill="none"
                       stroke={
                         // g !== "__group" ? stroke : thisStrokeScale(g) || defaultStroke
-                        stroke || thisStrokeScale(g)
+                        thisStrokeScale(g)
                       }
                       strokeOpacity={strokeOpacity}
-                      strokeWidth={
-                        g !== "_group" && sizeScale?.values ? thisSizeScale(g) : size
-                      }
+                      strokeWidth={thisSizeScale(g)}
                       strokeDashoffset={
                         animate && spring ?
                         spring?.frame?.interpolate(
