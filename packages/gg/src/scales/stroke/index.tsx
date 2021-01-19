@@ -1,14 +1,15 @@
 import React, { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { scalesState } from "../../atoms"
-import { defaultCategoricalScheme } from "@graphique/util"
+import { AnyD3Scale } from "@visx/scale/lib/index"
 
 type Props = {
   scheme?: any
   reverse?: boolean
+  scale?: AnyD3Scale
 }
 
-const ScaleStroke: React.FC<Props> = ({ scheme = defaultCategoricalScheme, reverse = false }) => {
+const ScaleStroke: React.FC<Props> = ({ scheme, reverse = false, scale }) => {
 
   const setScalesState = useSetRecoilState(scalesState)
 
@@ -19,12 +20,13 @@ const ScaleStroke: React.FC<Props> = ({ scheme = defaultCategoricalScheme, rever
           ...scales,
           stroke: {
             scheme,
-            reverse
+            reverse,
+            scale
           }
         }
       )
     })
-  }, [setScalesState, scheme, reverse])
+  }, [setScalesState, scheme, reverse, scale])
 
   return null
 }

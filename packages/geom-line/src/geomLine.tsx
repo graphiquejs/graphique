@@ -120,16 +120,17 @@ const GeomLine: React.FC<LineProps> = ({
     }
   }, [geomData, xScale, yScale])
 
-  const thisStrokeScale = scaleOrdinal({
-    domain: calculatedGroups,
-    range: (strokeScale?.scheme ||
-      (stroke
-        ? [stroke]
-        // : groups?.length === 1
-        : aes.stroke
-        ? defaultCategoricalScheme
-        : [defaultStroke])) as string[],
-  })
+  const thisStrokeScale = strokeScale?.scale ||
+    scaleOrdinal({
+      domain: calculatedGroups,
+      range: (strokeScale?.scheme ||
+        (stroke
+          ? [stroke]
+          // : groups?.length === 1
+          : aes.stroke
+          ? defaultCategoricalScheme
+          : [defaultStroke])) as string[],
+    })
 
   const thisSizeScale = scaleOrdinal({
     domain: calculatedGroups,

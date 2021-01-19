@@ -1,13 +1,15 @@
 import React, { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { scalesState } from "../../atoms"
+import { AnyD3Scale } from "@visx/scale/lib/index"
 
 type Props = {
   scheme?: any
   reverse?: boolean
+  scale?: AnyD3Scale
 }
 
-const ScaleFill: React.FC<Props> = ({ scheme, reverse = false }) => {
+const ScaleFill: React.FC<Props> = ({ scheme, reverse = false, scale }) => {
 
   const setScalesState = useSetRecoilState(scalesState)
 
@@ -18,10 +20,11 @@ const ScaleFill: React.FC<Props> = ({ scheme, reverse = false }) => {
         fill: {
           scheme,
           reverse,
+          scale
         },
       }
     })
-  }, [setScalesState, scheme, reverse])
+  }, [setScalesState, scheme, reverse, scale])
 
   return null
 }

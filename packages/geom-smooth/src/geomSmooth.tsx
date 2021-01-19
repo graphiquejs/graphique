@@ -117,10 +117,14 @@ const GeomSmooth: React.FC<Props> = (
     return usableGroups
   }, [data, group, method, aes])
 
-  const thisStrokeScale = useMemo(() => scaleOrdinal({
-    domain: group ? Array.from(new Set(data.map(group))) : ["__group"],
-    range: (strokeScale?.scheme || defaultCategoricalScheme) as string[],
-  }), [strokeScale?.scheme])
+  const thisStrokeScale = useMemo(() => {
+    return (
+      strokeScale?.scale ||
+      scaleOrdinal({
+        domain: group ? Array.from(new Set(data.map(group))).sort() : ["__group"],
+        range: (strokeScale?.scheme || defaultCategoricalScheme) as string[],
+      })
+  )}, [strokeScale?.scale, strokeScale?.scheme])
 
   const thisSizeScale = scaleOrdinal({
     domain: groups,

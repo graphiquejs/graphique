@@ -184,7 +184,7 @@ const BasicTemplate: Story = (args) => (
       y: (d) => d.beakLength,
       key: (d) =>
         `${d.species}-${d.island}-${d.sex}-${d.beakDepth}-${d.bodyMass}-${d.beakLength}`,
-      label: (d) => d.species,
+      label: (d) => d.species
     }}
     // width={700}
     useParentWidth

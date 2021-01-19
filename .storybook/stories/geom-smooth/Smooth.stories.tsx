@@ -4,9 +4,8 @@ import {
   GG,
   Labels,
   ScaleY,
-  ScaleDashArray,
   ScaleStroke,
-  ScaleSize,
+  ScaleFill,
   Tooltip,
   Theme,
 } from "@graphique/gg"
@@ -17,10 +16,16 @@ import { cityTemperature } from "@visx/mock-data"
 import { penguins } from "@graphique/datasets"
 import { elongate, parseDate } from "@graphique/util"
 import { schemeDark2 } from "d3-scale-chromatic"
+import { scaleOrdinal } from "@visx/scale"
 
 const cityTempLong = elongate(cityTemperature, "city", "temperature", [
   "date",
-]) as unknown[]
+]) as any[]
+
+const colorScale = scaleOrdinal({
+  domain: Array.from(new Set(cityTempLong.map(c => c.city))).sort(),
+  range: schemeDark2 as string[]
+})
 
 const ThemeDark = ({ ...props }) => {
   return (
@@ -267,15 +272,17 @@ const MultiTemplate: Story = (args) => (
         x: (d) => parseDate(d.date),
         y: (d) => parseFloat(d.temperature),
         stroke: (d) => d.city,
+        fill: d => d.city
       }}
       height={380}
       useParentWidth
     >
-      <GeomPoint size={2} opacity={0.3} strokeOpacity={0.3} hideTooltip />
+      <GeomPoint size={2} opacity={0.15} strokeOpacity={0.2} hideTooltip />
       <GeomSmooth strokeOpacity={0.8} span={0.25} />
       <Labels x="Date" y="Temperature" />
       <ScaleY format={(d: number) => `${d}°F`} />
       <ScaleStroke scheme={schemeDark2} />
+      <ScaleFill scheme={schemeDark2} />
       {/* <ScaleSize values={[1, 2, 3]} /> */}
       {/* <ScaleDashArray values={[undefined, "2", "4"]} /> */}
       <Tooltip position="top" yFormat={(v) => `${v.toFixed(1)}°F`} />

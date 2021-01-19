@@ -97,6 +97,7 @@ const GeomPoint: React.FC<Props> = ({
 
   const thisStrokeScale = useMemo(() => {
     return (
+      strokeScale?.scale ||
       scaleOrdinal({
           domain: calculatedGroups,
           range: (strokeScale?.scheme ||
@@ -119,6 +120,7 @@ const GeomPoint: React.FC<Props> = ({
 
   const thisFillScale = useMemo(() => {
     return (
+      fillScale?.scale ||
       scaleOrdinal({
         domain: calculatedGroups,
         range: (fillScale?.scheme ||
