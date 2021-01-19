@@ -112,7 +112,9 @@ const GeomPoint: React.FC<Props> = ({
     return (
       (d: any) => {
         return (
-          (thisStrokeScale && aes.stroke) ? thisStrokeScale(aes.stroke(d)) : stroke
+          stroke ? stroke :
+          (thisStrokeScale && aes.stroke) ?
+            thisStrokeScale(aes.stroke(d)) : undefined
         )
       }
     )
@@ -131,13 +133,16 @@ const GeomPoint: React.FC<Props> = ({
             : defaultCategoricalScheme)) as string[],
       })
     )
-  }, [calculatedGroups, fillScale, fill, defaultFill])
+  }, [calculatedGroups, fillScale, fill])
 
   const thisFill = useMemo(() => {
     return (
       (d: any) => {
         return (
-          (thisFillScale && aes.fill) ? thisFillScale(aes.fill(d)) : (fill || defaultFill)
+          fill ? fill : 
+          (thisFillScale && aes.fill) ?
+            thisFillScale(aes.fill(d)) :
+            defaultFill
         )
       }
     )}, [aes, thisFillScale, fill, defaultFill])
