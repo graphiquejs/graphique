@@ -1,44 +1,49 @@
 {
   "name": "@graphique/geom-line",
-  "version": "0.0.4",
+  "version": "0.0.1-alpha.18",
   "description": "For line charts and other lines",
   "keywords": [
     "react",
     "d3",
-    "visx",
-    "data visualization",
-    "grammar of graphics",
+    "data-visualization",
+    "grammar-of-graphics",
     "graphique",
     "geom-line",
-    "line chart"
+    "line-chart"
   ],
-  "main": "lib/index.js",
-  "module": "lib/index.esm.js",
-  "types": "lib/index.d.ts",
+  "source": "./src/index.ts",
+  "exports": "./dist/index.modern.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "types": "./dist/index.d.ts",
   "repository": "https://github.com/graphiquejs/graphique.git",
   "author": "Matt Adams",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@visx/scale": "^1.3.0",
-    "@visx/shape": "^1.3.0",
-    "d3-array": "^2.9.1",
-    "react-spring": "^8.0.27",
-    "recoil": "^0.1.2"
-  },
   "scripts": {
-    "build": "bili --config ../../.bilirc.js",
-    "watch": "bili --watch --config ../../.bilirc.js"
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern"
+  },
+  "dependencies": {
+    "d3-array": "^3.0.1",
+    "d3-ease": "^3.0.1",
+    "d3-interpolate": "^3.0.1",
+    "d3-interpolate-path": "^2.2.3",
+    "d3-shape": "^3.0.1"
   },
   "peerDependencies": {
-    "@graphique/gg": "<= 1",
-    "react": "16 - 17",
-    "react-dom": "16 - 17"
+    "@graphique/graphique": "^0.0.1-alpha.7",
+    "react": ">=16",
+    "react-dom": ">=16"
   },
   "devDependencies": {
-    "@types/d3-array": "^2.8.0",
+    "@types/d3-array": "^3.0.1",
+    "@types/d3-ease": "^3.0.0",
+    "@types/d3-interpolate": "^3.0.1",
+    "@types/d3-interpolate-path": "^2.0.0",
+    "@types/d3-shape": "^3.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0"
   }
