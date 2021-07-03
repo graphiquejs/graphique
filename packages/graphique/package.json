@@ -1,0 +1,55 @@
+{
+  "name": "@graphique/graphique",
+  "version": "0.0.1-alpha.12",
+  "description": "The basis for all Graphique visualizations",
+  "keywords": [
+    "react",
+    "d3",
+    "data-visualization",
+    "chart",
+    "grammar-of-graphics",
+    "graphique"
+  ],
+  "source": "./src/index.ts",
+  "exports": "./dist/index.modern.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "types": "./dist/index.d.ts",
+  "repository": "https://github.com/graphiquejs/graphique.git",
+  "author": "Matt Adams",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern"
+  },
+  "dependencies": {
+    "d3-array": "^3.0.1",
+    "d3-axis": "^3.0.0",
+    "d3-delaunay": "^6.0.2",
+    "d3-scale": "^4.0.0",
+    "d3-scale-chromatic": "^3.0.0",
+    "d3-selection": "^3.0.0",
+    "d3-time-format": "^4.0.0",
+    "d3-transition": "^3.0.1",
+    "jotai": "^1.1.2",
+    "react-flatten-children": "^1.1.2"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-dom": ">=16"
+  },
+  "devDependencies": {
+    "@types/d3-array": "^3.0.1",
+    "@types/d3-axis": "^3.0.1",
+    "@types/d3-delaunay": "^6.0.0",
+    "@types/d3-scale": "^4.0.1",
+    "@types/d3-scale-chromatic": "^3.0.0",
+    "@types/d3-time-format": "^4.0.0",
+    "@types/d3-transition": "^3.0.1",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0"
+  }
+}
