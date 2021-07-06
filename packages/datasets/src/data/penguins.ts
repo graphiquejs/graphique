@@ -1,4 +1,4 @@
-export type Penguins = {
+export type Penguin = {
   species: string
   island: string
   beakLength: number | null
@@ -8,7 +8,7 @@ export type Penguins = {
   sex: string | null
 }
 
-export const penguins: Penguins[] = [
+export const penguins: Penguin[] = [
   {
     species: "Adelie",
     island: "Torgersen",

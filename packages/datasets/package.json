@@ -22,6 +22,7 @@
     "access": "public"
   },
   "scripts": {
+    "lint": "npx eslint ./ --fix",
     "build": "microbundle",
     "watch": "microbundle watch"
   },
