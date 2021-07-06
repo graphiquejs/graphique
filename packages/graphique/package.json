@@ -1,6 +1,6 @@
 {
   "name": "@graphique/graphique",
-  "version": "0.0.2-alpha.0",
+  "version": "0.0.2",
   "description": "The basis for all Graphique visualizations",
   "keywords": [
     "react",
@@ -10,10 +10,14 @@
     "grammar-of-graphics",
     "graphique"
   ],
+  "files": [
+    "/src",
+    "/dist"
+  ],
+  "type": "module",
+  "module": "./dist/index.modern.js",
   "source": "./src/index.ts",
   "exports": "./dist/index.modern.js",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.module.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
   "repository": "https://github.com/graphiquejs/graphique.git",
@@ -25,8 +29,8 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepack": "yarn run lint && yarn run build",
-    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern",
-    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern"
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
   },
   "dependencies": {
     "d3-array": "^3.0.1",
