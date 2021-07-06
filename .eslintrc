@@ -1,0 +1,16 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["airbnb-typescript", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": ["packages/**/dist/**/*"],
+  "rules": {
+    "import/prefer-default-export": "off",
+    "no-console": ["error", { "allow": ["warn", "error"] }]
+  }
+}
