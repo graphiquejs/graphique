@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.4-alpha.4",
+  "version": "0.0.4-alpha.5",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
@@ -11,6 +11,7 @@
     "dataset"
   ],
   "type": "module",
+  "module": "./dist/index.modern.js",
   "source": "./src/index.ts",
   "exports": "./dist/index.modern.js",
   "types": "./dist/index.d.ts",
