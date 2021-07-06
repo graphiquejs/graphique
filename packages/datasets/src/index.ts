@@ -1,2 +1,3 @@
-export { gapminder, GapMinder } from "./data/gapminder"
-export { penguins, Penguin } from "./data/penguins"
+export { crimes, Crime } from './crimes'
+export { gapminder, GapMinder } from './gapminder'
+export { penguins, Penguin } from './penguins'
