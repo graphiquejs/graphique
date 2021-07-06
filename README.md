@@ -24,19 +24,19 @@ Graphique allows you to concisely create flexible and reusable interactive visua
 Install only the geometries you need.
 
 ```shell
-npm install @graphique/gg @graphique/geom-line @visx/mock-data
+npm install @graphique/graphique @graphique/geom-line @visx/mock-data
 ```
 
 or
 
 ```shell
-yarn add @graphique/gg @graphique/geom-line @visx/mock-data
+yarn add @graphique/graphique @graphique/geom-line @visx/mock-data
 ```
 
 ```jsx
 import React from "react"
 import ReactDOM from "react-dom"
-import { GG } from "@graphique/gg"
+import { GG } from "@graphique/graphique"
 import { GeomLine } from "@graphique/geom-line"
 import { appleStock } from "@visx/mock-data"
 
@@ -46,8 +46,8 @@ const LineChart = () => {
     <GG
       data={appleStock.slice(400, 700)}
       aes={{
-        x: d => new Date(d.date),
-        y: d => d.close,
+        x: (d) => new Date(d.date),
+        y: (d) => d.close,
       }}
     >
       <GeomLine />
@@ -55,10 +55,7 @@ const LineChart = () => {
   )
 }
 
-ReactDOM.render(
-  <LineChart />,
-  document.getElementById("root")
-)
+ReactDOM.render(<LineChart />, document.getElementById("root"))
 ```
 
 <div align="center">
@@ -70,11 +67,11 @@ ReactDOM.render(
 To keep your Graphique visualization the width of its parent container, you only need to specify `useParentWidth` and you'll get an appropriately-scaled and responsive version.
 
 ```jsx
- <GG
+<GG
   data={appleStock.slice(400, 700)}
   aes={{
-    x: d => new Date(d.date),
-    y: d => d.close,
+    x: (d) => new Date(d.date),
+    y: (d) => d.close,
   }}
   useParentWidth
 >
@@ -90,48 +87,50 @@ Check out out the Storybook demos here: https://graphique.mattadams.io
 
 Relative to existing tools and libraries for creating interactive data visualizations for React applications, Graphique exists "above" low-level APIs and "below" high-level/out-of-the-box/"named chart" charting libraries.
 
-<div align="center">
-  <img src="./assets/graphique-spectrum.png" width="320px"/>
-</div>
+As much as possible, the "boring", but essential parts of visualizing data should be taken care of for you out-of-the-box. This means (by default) you shouldn't need to manually create your own scales, axes, coordinate systems, tooltips, interactive legends, animated transitions, or responsive logic. But when it comes time, you can customize/override nearly everything to suit your specific needs.
 
-With sensible defaults, Graphique aims to be just opinionated enough to make the process of creating highly customizable visualizations as streamlined as possible. Graphique is inspired by [ggplot2](https://ggplot2.tidyverse.org/), and under the hood it's built on [visx](https://airbnb.io/visx/) (both are awesome).
+With sensible defaults, Graphique aims to be just opinionated enough to make the process of creating highly customizable visualizations as streamlined as possible. Graphique is (heavily) inspired by [ggplot2](https://ggplot2.tidyverse.org/), and under the hood it's built on [d3](https://d3js.org).
 
 ## A layered approach
 
 ```jsx
 // empty / no geoms
 // defaults provide:
-// coordinate system, grid, axes,
-// ticks w/ labels, size, theme
+// x/y scales, coordinate system,
+// grid, axes, ticks, dimensions, theme
 <GG
   data={appleStock.slice(400, 700)}
   aes={{
-    x: d => new Date(d.date),
-    y: d => d.close,
+    x: (d) => new Date(d.date),
+    y: (d) => d.close,
   }}
 />
 ```
 
 <h3 id='geoms'><code>Geom</code>*</h3>
 
+The shapes to be drawn.
+
 - `GeomLine`: line charts and other kinds of lines
 - `GeomPoint`: scatterplots, dotplots, and bubble charts
+- `GeomTile`: rectangular charts like heatmaps
+- `GeomBar`: bar charts (horizontal bars)
+- `GeomCol`: column charts (vertical bars)
+- `GeomHist`: histograms
 - `GeomSmooth`: local smoothing and regression with standard error bands
-- `GeomBar`: bar charts (and columns depending on x/y orientation) - (*in progress*)
-- `GeomHist`: histograms - (*in progress*)
-- TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomTile`, `GeomArea`, `GeomDensity`, and more on the way!
+- TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomArea`, `GeomDensity`, and more on the way!
 
 <h3 id='scales'><code>Scale</code>*</h3>
 
 For specifying how data characteristics relate to visual characteristics.
 
 - `ScaleX` / `ScaleY`
-- `ScaleFill` 
-- `ScaleSize` 
-- `ScaleStroke` 
+- `ScaleFill`
+- `ScaleSize`
+- `ScaleStroke`
 - `ScaleDashArray`
 
-<h2 id='labels'><code>Labels</code></h2>
+<h3 id='labels'><code>Labels</code></h2>
 
 Give the main parts flexible, human-readable labels.
 
@@ -141,32 +140,24 @@ Give the main parts flexible, human-readable labels.
 
 <h3 id='tooltip'><code>Tooltip</code></h3>
 
-Tooltips are provided for each Geom for free. If multiple Geoms are used, the last one will be the Geom that has a `Tooltip` associated with it. They're configurable and you can roll your own based on the relevant contextual information (x value, y value, etc). If you'd prefer the Geom to not use a tooltip, you can turn it off by passing `hideTooltip` to the Geom.
+Tooltips are provided for each Geom for free. They're configurable and you can roll your own based on the relevant contextual information (x value, y value, etc). If you'd prefer the Geom to not use a tooltip, you can turn it off by passing `showTooltip={false}` to the Geom.
 
 <h3 id='theme'><code>Theme</code></h3>
 
 Customize the look and feel of your Graphique visualizations.
 
 ```jsx
-// a dark theme
+// a custom theme
 <Theme
-  axis={{
-    tickLabelColor: "#999",
-    labelColor: "#aaa",
-  }}
-  grid={{ stroke: "#66666623" }}
-  markerStroke="#000"
-  titleColor="#eee"
-  font={{ family: "Helvetica Neue, sans-serif" }}
+  font={{ family: "Montserrat, -apple-system" }}
+  grid={{ stroke: "none" }}
+  axis={{ tickStroke: "#ddd" }}
+  axisX={{ showAxisLine: true }}
+  font={{ family: "Inter, system-ui, sans-serif" }}
 />
 ```
 
 ## Roadmap
 
-- auto-generated, interactive `Legend` that can filter data
-- more continuous scales (fills, strokes, etc.)
-- linked graphics inside `<GGgroup>`
 - more `Geom`s
-- more and better animation/transitions
-- incorporate visx's [`<XYChart />`](https://airbnb.io/visx/xychart)
-- remove [Recoil](https://recoiljs.org/) dependency
+- linked graphics inside `<GGgroup>`
