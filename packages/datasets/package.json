@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.4-alpha.11",
+  "version": "0.0.5",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
@@ -29,7 +29,7 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepack": "yarn run lint && yarn run build",
-    "build": "microbundle -f modern --compress -o dist/index.js --sourcemap false",
+    "build": "microbundle -f modern --compress -o dist/index.js",
     "watch": "microbundle watch -f modern"
   },
   "devDependencies": {
