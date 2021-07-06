@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.4-alpha.3",
+  "version": "0.0.4-alpha.4",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
@@ -13,8 +13,6 @@
   "type": "module",
   "source": "./src/index.ts",
   "exports": "./dist/index.modern.js",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.module.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
   "repository": "https://github.com/graphiquejs/graphique.git",
@@ -26,8 +24,8 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepack": "yarn run lint && yarn run build",
-    "build": "microbundle",
-    "watch": "microbundle watch"
+    "build": "microbundle -f modern",
+    "watch": "microbundle watch -f modern"
   },
   "devDependencies": {
     "microbundle": "^0.13.3"
