@@ -1,0 +1,6 @@
+export { ScaleX } from "./x"
+export { ScaleY } from "./y"
+export { ScaleFill } from "./fill"
+export { ScaleStroke } from "./stroke"
+export { ScaleStrokeDasharray } from "./strokeDasharray"
+export { ScaleRadius } from "./size"
