@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-point",
-  "version": "0.0.1-alpha.11",
+  "version": "0.0.2-alpha.1",
   "description": "For points, scatterplots, and bubbles",
   "keywords": [
     "react",
@@ -23,6 +23,7 @@
     "access": "public"
   },
   "scripts": {
+    "lint": "npx eslint ./ --fix",
     "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f es,cjs,modern"
   },
