@@ -3,6 +3,6 @@
   "exclude": ["node_modules", "tests"],
   "include": ["src/**/*"],
   "compilerOptions": {
-    "declarationDir": "./lib"
+    "declarationDir": "./dist"
   }
 }
