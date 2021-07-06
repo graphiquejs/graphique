@@ -15,6 +15,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.module.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "repository": "https://github.com/graphiquejs/graphique.git",
   "author": "Matt Adams",
   "license": "MIT",
@@ -22,7 +23,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "npx eslint ./ --fix",
+    "lint": "eslint ./ --fix",
+    "prepack": "yarn run lint && yarn run build",
     "build": "microbundle",
     "watch": "microbundle watch"
   },

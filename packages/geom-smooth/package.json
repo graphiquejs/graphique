@@ -5,9 +5,8 @@
   "keywords": [
     "react",
     "d3",
-    "visx",
-    "data visualization",
-    "grammar of graphics",
+    "data-visualization",
+    "grammar-of-graphics",
     "graphique",
     "loess",
     "regression"
@@ -38,6 +37,7 @@
   },
   "peerDependencies": {
     "@graphique/gg": "<= 1",
+    "@graphique/graphique": ">=^0.0.2",
     "react": "16 - 17",
     "react-dom": "16 - 17"
   },

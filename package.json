@@ -47,6 +47,6 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "npx eslint --fix"
+    "*.{ts,tsx}": "eslint --fix"
   }
 }
