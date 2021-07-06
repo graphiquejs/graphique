@@ -104,7 +104,7 @@ export const CategoricalLegend = ({
             }}
           >
             <div
-              tabIndex={i + 1}
+              tabIndex={0}
               role="button"
               style={{
                 cursor: 'pointer',
