@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.4-alpha.6",
+  "version": "0.0.4-alpha.7",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
@@ -11,9 +11,9 @@
     "dataset"
   ],
   "type": "module",
-  "module": "./dist/datasets.modern.js",
+  "module": "./dist/index.modern.js",
   "source": "./src/index.ts",
-  "exports": "./dist/datasets.modern.js",
+  "exports": "./dist/index.modern.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
   "repository": "https://github.com/graphiquejs/graphique.git",
@@ -25,7 +25,7 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepack": "yarn run lint && yarn run build",
-    "build": "microbundle -f modern",
+    "build": "microbundle -f modern --compress -o dist/index.js",
     "watch": "microbundle watch -f modern"
   },
   "devDependencies": {
