@@ -1,1 +1,0 @@
-export { GeomLine } from "./geomLine";

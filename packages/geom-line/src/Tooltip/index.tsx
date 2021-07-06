@@ -1,145 +1,115 @@
 import React, { useMemo } from "react"
-import { useRecoilValue } from "recoil"
-import { 
-  layoutState,
+import {
+  useGG,
   tooltipState,
-  aesState,
-  TooltipContainer,
+  themeState,
+  TooltipContent,
   XTooltip,
   YTooltip,
-} from "@graphique/gg"
-import { Line } from "@visx/shape"
-import { bisector, mean } from "d3-array"
+  TooltipContainer,
+} from "@graphique/graphique"
+import { useAtom } from "jotai"
+import { mean } from "d3-array"
 import { DefaultTooltip } from "./DefaultTooltip"
-import { LineMarker } from "../LineMarker"
 
-type Props = {
-  data: any[]
-  group: (d: any) => string
-  x: (d: any) => number
-  y: (d: any) => number
-  b: (d: any) => number
-  markerRadius: number
-  strokeOpacity: number
-  thisStrokeScale: (d: any) => string
-  thisSizeScale: (d: any) => number
-  thisDashArrayScale: (d: any) => string
-  stroke: string
+export { LineMarker } from "./LineMarker"
+
+interface Props {
+  x: (d: unknown) => number | undefined
+  y: (d: unknown) => number | undefined
 }
 
-export const Tooltip: React.FC<Props> = ({
-  data,
-  group,
-  x,
-  y,
-  b,
-  markerRadius,
-  strokeOpacity,
-  thisStrokeScale,
-  thisSizeScale,
-  thisDashArrayScale,
-  stroke
-}) => {
+export const Tooltip = ({ x, y }: Props) => {
+  const { ggState } = useGG() || {}
+  const { id, copiedScales, height, margin, aes } = ggState || {
+    height: 0,
+  }
 
-  const { x0, position, xAxis, content, yFormat, xFormat } = useRecoilValue(tooltipState)
-  const { id, margin, height } = useRecoilValue(layoutState)
-  const { y: yAcc } = useRecoilValue(aesState)
-
-  const bisectX = bisector(b).left
-  const xIndex = useMemo(() => bisectX(data, x0, 1), [data, x0, bisectX])
-  const tooltipData = useMemo(() => data[xIndex - 1], [data, xIndex])
-  const tooltipLeft = useMemo(() => x(tooltipData), [x, tooltipData])
-
-  const markerData = useMemo(() => tooltipData && 
-    data.filter((d: any) => +x(d) === x(tooltipData))
-      .map((d: any) => {
-        return {...d, group: group(d)}
-      }),
-    [data, x, tooltipData, group]
+  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom(
+    tooltipState
   )
-    
-  const meanYval = useMemo(() => mean(markerData.map(y)) || 0, [markerData, y])
-  const xVal = useMemo(() => b(tooltipData), [b, tooltipData])
+  const [{ geoms, defaultStroke }] = useAtom(themeState)
+
+  const left = useMemo(() => datum && x(datum[0]), [datum, x])
+
+  const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])
+  const xVal = useMemo(() => datum && datum[0] && aes?.x && aes.x(datum[0]), [
+    datum,
+    aes,
+  ])
 
   const lineVals = useMemo(() => {
-    const vals = (
-      markerData.filter((d: any) => yAcc(d)).map((md: any) => {
-        const mark = (
-          <svg height={8} width={24}>
-            <Line
-              from={{ x: 0, y: 4 }}
-              to={{ x: 24, y: 4}}
-              stroke={thisStrokeScale(group(md))}
-              strokeWidth={thisSizeScale(group(md))}
-              strokeDasharray={thisDashArrayScale(group(md))}
-            />
-          </svg>
-        )
-        return { 
-          group: group(md),
-          mark,
-          x: xVal,
-          y: yAcc(md),
-          formattedY: yFormat ? yFormat(yAcc(md)) : yAcc(md),
-          formattedX: xFormat ? xFormat(xVal) : xVal.toString()
-        }
-      })
-    )
-    return vals
+    const vals =
+      datum &&
+      datum
+        .filter((d) => aes?.y && aes.y(d))
+        .map((md) => {
+          const group = copiedScales?.groupAccessor(md)
+          const mark = (
+            <svg width={18} height={8}>
+              <line
+                x1={0}
+                x2={18}
+                y1={4}
+                y2={4}
+                stroke={
+                  geoms?.line?.stroke ||
+                  (copiedScales?.strokeScale
+                    ? copiedScales.strokeScale(group)
+                    : defaultStroke)
+                }
+                strokeDasharray={
+                  geoms?.line?.strokeDasharray ||
+                  (copiedScales?.strokeDasharrayScale
+                    ? copiedScales.strokeDasharrayScale(group)
+                    : undefined)
+                }
+                strokeWidth={geoms?.line?.strokeWidth}
+                strokeOpacity={geoms?.line?.strokeOpacity}
+              />
+            </svg>
+          )
+          return {
+            group: copiedScales?.groupAccessor(md),
+            mark,
+            x: xVal,
+            y: aes?.y && aes.y(md),
+            formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
+            formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+          }
+        })
+    return vals as TooltipContent[]
+  }, [datum, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
 
-  }, [
-    markerData,
-    group,
-    xVal,
-    yAcc,
-    thisDashArrayScale,
-    thisStrokeScale,
-    thisSizeScale,
-    yFormat,
-    xFormat
-  ])
-  
-  return x0 ? (
+  const tooltipValue = content ? (
+    <div>{content(lineVals)}</div>
+  ) : (
+    <DefaultTooltip data={lineVals} hasXAxisTooltip={!!xAxis} />
+  )
+
+  return datum ? (
     <>
-      <LineMarker
-        left={tooltipLeft}
-        y={y}
-        markerData={markerData}
-        markerFill={(g) => (g === "__group" ? stroke : thisStrokeScale(g))}
-        markerRadius={markerRadius}
-        strokeOpacity={strokeOpacity}
-      />
-      {xAxis && (
+      {xAxis && margin && left && (
         <XTooltip
-          id={id}
-          left={tooltipLeft}
+          id={id as string}
+          left={left}
           top={-margin.bottom - 5}
           value={
             typeof xAxis === "boolean" ? (
-              <TooltipContainer>
-                {xFormat ? xFormat(xVal) : xVal.toString()}
-              </TooltipContainer>
+              <TooltipContainer>{xFormat && xFormat(xVal)}</TooltipContainer>
             ) : (
-              xAxis({ x: xVal })
+              xAxis(xVal)
             )
           }
         />
       )}
-      {markerData.some(yAcc) && (
+      {left && (
         <YTooltip
-          id={id}
-          left={tooltipLeft}
-          top={position === "data" ? -(height - meanYval) : -height}
-          value={
-            content ? (
-              content({ data: lineVals })
-            ) : (
-              <DefaultTooltip
-                data={lineVals}
-                hasXAxisTooltip={xAxis ? true : false}
-              />
-            )
-          }
+          id={id as string}
+          left={left}
+          top={position === "data" ? -(height - meanYVal) : -height}
+          value={tooltipValue}
+          wait
         />
       )}
     </>
