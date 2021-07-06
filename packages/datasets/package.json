@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
