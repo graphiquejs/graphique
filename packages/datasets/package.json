@@ -1,6 +1,6 @@
 {
   "name": "@graphique/datasets",
-  "version": "0.0.4-alpha.1",
+  "version": "0.0.4-alpha.2",
   "description": "A collection of datasets used in Graphique examples",
   "keywords": [
     "react",
@@ -13,7 +13,7 @@
   "type": "module",
   "source": "./src/index.ts",
   "exports": "./dist/index.modern.js",
-  "module": "./dist/index.modern.module.js",
+  "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
   "repository": "https://github.com/graphiquejs/graphique.git",
