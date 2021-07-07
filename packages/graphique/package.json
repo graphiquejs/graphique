@@ -1,6 +1,6 @@
 {
   "name": "@graphique/graphique",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "The basis for all Graphique visualizations",
   "keywords": [
     "react",
@@ -30,7 +30,7 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepack": "yarn run lint && yarn run build",
-    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js",
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
   },
   "dependencies": {
