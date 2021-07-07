@@ -29,7 +29,7 @@
   },
   "scripts": {
     "lint": "eslint ./ --fix",
-    "prepack": "yarn run lint && yarn run build",
+    "prepare": "npm run lint && yarn run build",
     "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
   },

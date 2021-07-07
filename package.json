@@ -5,14 +5,10 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "./packages/*"
   ],
   "devDependencies": {
     "@babel/core": "^7.12.10",
-    "@storybook/addon-actions": "^6.1.11",
-    "@storybook/addon-essentials": "^6.1.11",
-    "@storybook/addon-links": "^6.1.11",
-    "@storybook/react": "^6.1.11",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "babel-loader": "^8.2.2",
@@ -41,7 +37,7 @@
     "trailingComma": "es5"
   },
   "scripts": {
-    "lint": "yarn workspaces run lint",
+    "lint": "npm -ws run lint",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./.storybook/site",
     "prepare": "husky install"
