@@ -4,11 +4,7 @@ import { GeomPoint } from "@graphique/geom-point"
 import { GeomSmooth } from "@graphique/geom-smooth"
 import { penguins } from "@graphique/datasets"
 
-
-<Meta
-  title="Getting Started/Tutorial"
-  component={GG}
-/>
+<Meta title="Getting Started/Tutorial" component={GG} />
 
 # Graphique tutorial
 
@@ -59,11 +55,11 @@ This is what you get for free when plugging in your data and mapping a coordinat
 import { GG } from "@graphique/gg"
 import { penguins } from "@graphique/datasets"
 
-<GG
+;<GG
   data={penguins}
   aes={{
-    x: d => d.flipperLength,
-    y: d => d.beakLength
+    x: (d) => d.flipperLength,
+    y: (d) => d.beakLength,
   }}
 />
 ```
@@ -71,14 +67,15 @@ import { penguins } from "@graphique/datasets"
 <GG
   data={penguins}
   aes={{
-    x: d => d.flipperLength,
-    y: d => d.beakLength
+    x: (d) => d.flipperLength,
+    y: (d) => d.beakLength,
   }}
 />
 
 <br />
 
 Using the defaults, our (empty) graphic gets:
+
 - a coordinate system with a grid
 - scaled axes with ticks and tick labels
 - and a size (`550px` x `300px`)
@@ -96,11 +93,11 @@ import { GG } from "@graphique/gg"
 import { GeomPoint } from "@graphique/geom-point"
 import { penguins } from "@graphique/datasets"
 
-<GG
+;<GG
   data={penguins}
   aes={{
-    x: d => d.flipperLength,
-    y: d => d.beakLength
+    x: (d) => d.flipperLength,
+    y: (d) => d.beakLength,
   }}
 >
   <GeomPoint hideTooltip />
@@ -114,8 +111,8 @@ The most basic scatterplot (for now, we'll also hide the tooltip associated with
     <GG
       data={penguins}
       aes={{
-        x: d => d.flipperLength,
-        y: d => d.beakLength
+        x: (d) => d.flipperLength,
+        y: (d) => d.beakLength,
       }}
     >
       <GeomPoint hideTooltip />
@@ -186,55 +183,44 @@ const penguinIdentifier = (d) => {
   return `${d.species}-${d.island}-${d.sex}-${d.beakDepth}-${d.bodyMass}-${d.beakLength}`
 }
 
-<div style={{maxWidth: 1100}}>
+;<div style={{ maxWidth: 1100 }}>
   <GG
     data={penguins}
     aes={{
-      x: d => d.flipperLength,
-      y: d => d.beakLength,
+      x: (d) => d.flipperLength,
+      y: (d) => d.beakLength,
       // the `key` aesthetic is used for interactions on individual points in GeomPoint.
       // This dataset doesn't come with a unique identifier for each penguin,
       // so we'll use an id function we made ourselves based on the penguin's characteristics
       key: penguinIdentifier,
-      label: d => d.species
+      label: (d) => d.species,
     }}
     margin={{ left: 35 }}
     useParentWidth
     height={500}
   >
-    <GeomPoint
-      size={3.4}
-      opacity={0.4}
-    />
-    <Labels
-      x="Flipper length (mm)"
-      y="Beak length (mm)"
-      title={penguinTitle}
-    />
+    <GeomPoint size={3.4} opacity={0.4} />
+    <Labels x="Flipper length (mm)" y="Beak length (mm)" title={penguinTitle} />
   </GG>
 </div>
 ```
 
 <Canvas>
   <Story name="Customizing">
-    <div style={{maxWidth: 1100}}>
+    <div style={{ maxWidth: 1100 }}>
       <GG
         data={penguins}
         aes={{
-          x: d => d.flipperLength,
-          y: d => d.beakLength,
+          x: (d) => d.flipperLength,
+          y: (d) => d.beakLength,
           key: penguinIdentifier,
-          label: d => d.species
+          label: (d) => d.species,
         }}
         margin={{ left: 35 }}
         useParentWidth
         height={500}
       >
-        <GeomPoint
-          size={3.4}
-          fill="lightcoral"
-          opacity={0.4}
-        />
+        <GeomPoint size={3.4} fill="lightcoral" opacity={0.4} />
         <Labels
           x="Flipper length (mm)"
           y="Beak length (mm)"
@@ -257,25 +243,21 @@ To demonstrate, we can quickly add a smooth trend line ([LOESS](https://en.wikip
 
 <Canvas>
   <Story name="Trend">
-    <div style={{maxWidth: 1100}}>
+    <div style={{ maxWidth: 1100 }}>
       <GG
         data={penguins}
         aes={{
-          x: d => d.flipperLength,
-          y: d => d.beakLength,
+          x: (d) => d.flipperLength,
+          y: (d) => d.beakLength,
           key: penguinIdentifier,
-          label: d => d.species
+          label: (d) => d.species,
         }}
         margin={{ left: 35 }}
         useParentWidth
         height={500}
       >
         <GeomSmooth />
-        <GeomPoint
-          size={3.4}
-          fill="lightcoral"
-          opacity={0.4}
-        />
+        <GeomPoint size={3.4} fill="lightcoral" opacity={0.4} />
         <Labels
           x="Flipper length (mm)"
           y="Beak length (mm)"
@@ -294,24 +276,20 @@ The interactions and associated tooltips will then correspond to `GeomSmooth`.
 
 <Canvas>
   <Story name="Trend interactions">
-    <div style={{maxWidth: 1100}}>
+    <div style={{ maxWidth: 1100 }}>
       <GG
         data={penguins}
         aes={{
-          x: d => d.flipperLength,
-          y: d => d.beakLength,
+          x: (d) => d.flipperLength,
+          y: (d) => d.beakLength,
           key: penguinIdentifier,
-          label: d => d.species
+          label: (d) => d.species,
         }}
         margin={{ left: 35 }}
         useParentWidth
         height={500}
       >
-        <GeomPoint
-          size={3.4}
-          fill="lightcoral"
-          opacity={0.4}
-        />
+        <GeomPoint size={3.4} fill="lightcoral" opacity={0.4} />
         <GeomSmooth />
         <Labels
           x="Flipper length (mm)"
@@ -329,24 +307,21 @@ Or if we wanted to color/group the penguins by species, we can do that (in the s
 
 <Canvas>
   <Story name="Grouped">
-    <div style={{maxWidth: 1100}}>
+    <div style={{ maxWidth: 1100 }}>
       <GG
         data={penguins}
         aes={{
-          x: d => d.flipperLength,
-          y: d => d.beakLength,
-          fill: d => d.species,
+          x: (d) => d.flipperLength,
+          y: (d) => d.beakLength,
+          fill: (d) => d.species,
           key: penguinIdentifier,
-          label: d => d.species
+          label: (d) => d.species,
         }}
         margin={{ left: 35 }}
         useParentWidth
         height={500}
       >
-        <GeomPoint
-          size={3.4}
-          opacity={0.4}
-        />
+        <GeomPoint size={3.4} opacity={0.4} />
         <Labels
           x="Flipper length (mm)"
           y="Beak length (mm)"
@@ -363,21 +338,18 @@ There's no extra work to show trends by group. The grouping variable (species) s
 
 <Canvas>
   <Story name="Grouped trends">
-    <div style={{maxWidth: 1100}}>
+    <div style={{ maxWidth: 1100 }}>
       <GG
         data={penguins}
         aes={{
-          x: d => d.flipperLength,
-          y: d => d.beakLength,
-          fill: d => d.species
+          x: (d) => d.flipperLength,
+          y: (d) => d.beakLength,
+          fill: (d) => d.species,
         }}
         useParentWidth
         height={500}
       >
-        <GeomPoint
-          size={3.4}
-          opacity={0.15}
-        />
+        <GeomPoint size={3.4} opacity={0.15} />
         <GeomSmooth se method="linear" />
         <Labels
           x="Flipper length (mm)"
