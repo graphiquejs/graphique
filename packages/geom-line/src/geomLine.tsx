@@ -17,9 +17,6 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   // focus?: "x" | "nearest"
   // onDatumSelection?: (data: unknown, index: number) => void
-  // debugVoronoi?: boolean
-  // focusedStyle?: CSSProperties
-  // unfocusedStyle?: CSSProperties
   onExit?: () => void
 }
 
