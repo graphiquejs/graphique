@@ -1,1 +1,0 @@
-export { GeomSmooth } from "./geomSmooth"
