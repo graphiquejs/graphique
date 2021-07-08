@@ -43,7 +43,7 @@
     "react-move": "^6.5.0"
   },
   "peerDependencies": {
-    "@graphique/graphique": ">=0.0.4",
+    "@graphique/graphique": ">=1",
     "react": ">=16",
     "react-dom": ">=16"
   },
