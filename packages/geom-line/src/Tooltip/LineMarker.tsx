@@ -50,9 +50,9 @@ export const LineMarker = ({
               x(d) &&
               y(d) && (
                 <circle
-                  key={
-                    copiedScales?.groups ? copiedScales.groups[i] : undefined
-                  }
+                  key={`marker-${
+                    copiedScales?.groups ? copiedScales.groups[i] : i
+                  }`}
                   style={{ pointerEvents: 'none' }}
                   r={markerRadius}
                   fill={thisFill}
