@@ -143,7 +143,7 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
       .selectAll('text')
       .style(
         'font-size',
-        axisY?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || 12
+        axisY?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
       )
       .style(
         'font-family',

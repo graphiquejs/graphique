@@ -138,7 +138,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
       )
       .style(
         'font-size',
-        axisX?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || 12
+        axisX?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
       )
       .style(
         'font-family',
