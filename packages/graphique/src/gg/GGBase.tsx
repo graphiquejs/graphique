@@ -5,12 +5,12 @@ import React, {
   useContext,
   useState,
   useEffect,
-} from "react"
-import { useAtom } from "jotai"
-import flattenChildren from "react-flatten-children"
-import { Aes, GGProps } from "./types"
-import { autoScale, IScale } from "../util/autoScale"
-import { XAxis, YAxis } from "./axes"
+} from 'react'
+import { useAtom } from 'jotai'
+import flattenChildren from 'react-flatten-children'
+import { Aes, GGProps } from './types'
+import { autoScale, IScale } from '../util/autoScale'
+import { XAxis, YAxis } from './axes'
 import {
   themeState,
   labelsState,
@@ -19,7 +19,7 @@ import {
   fillScaleState,
   strokeScaleState,
   strokeDasharrayState,
-} from "../atoms"
+} from '../atoms'
 
 export interface ContextProps {
   ggState: {
@@ -76,10 +76,10 @@ export const GGBase = ({
   const geoms: React.ReactNode[] = []
   const otherChildren: React.ReactNode[] = []
 
-  flattenChildren(children).forEach(child => {
+  flattenChildren(children).forEach((child) => {
     if (React.isValidElement(child)) {
       const thisChild: any = child.type
-      if (thisChild?.displayName?.includes("Geom")) {
+      if (thisChild?.displayName?.includes('Geom')) {
         geoms.push(child)
       } else {
         otherChildren.push(child)
@@ -88,15 +88,16 @@ export const GGBase = ({
   })
 
   const barGeoms: any = geoms.find((g: any) =>
-    g.type.displayName.includes("Bar")
+    g.type.displayName.includes('Bar')
   )
   const colGeoms: any = geoms.find((g: any) =>
-    g.type.displayName.includes("Col")
+    g.type.displayName.includes('Col')
   ) as any
   const hasZeroXBaseLine = barGeoms && !barGeoms?.props?.freeBaseLine
   const hasZeroYBaseLine = colGeoms && !colGeoms?.props?.freeBaseLine
 
-  const ggState = useMemo(() => ({
+  const ggState = useMemo(
+    () => ({
       id,
       copiedData,
       data: ggData,
@@ -138,23 +139,25 @@ export const GGBase = ({
         height,
         margin,
       }),
-    }), [
-    id,
-    data,
-    ggData,
-    copiedData,
-    aes,
-    ggWidth,
-    height,
-    margin,
-    xScale,
-    yScale,
-    fillScale,
-    strokeScale,
-    strokeDasharrayScale,
-    hasZeroXBaseLine,
-    hasZeroYBaseLine,
-  ])
+    }),
+    [
+      id,
+      data,
+      ggData,
+      copiedData,
+      aes,
+      ggWidth,
+      height,
+      margin,
+      xScale,
+      yScale,
+      fillScale,
+      strokeScale,
+      strokeDasharrayScale,
+      hasZeroXBaseLine,
+      hasZeroYBaseLine,
+    ]
+  )
 
   const updateData = (newData: typeof data) => {
     setGGData(newData)
@@ -168,7 +171,7 @@ export const GGBase = ({
 
   return ggState ? (
     <GGglobalCtx.Provider value={{ ggState, updateData }}>
-      <div id={`__gg_${id}`} style={{ position: "relative" }}>
+      <div id={`__gg_${id}`} style={{ position: 'relative' }}>
         <div
           style={{
             marginBottom: 4,
@@ -176,11 +179,11 @@ export const GGBase = ({
             fontFamily: font?.family,
           }}
         >
-          {labels.title}
+          {labels.header}
         </div>
         <div
           style={{
-            position: "relative",
+            position: 'relative',
             top: margin.top,
             marginLeft: 8,
             marginBottom: 2,
@@ -200,7 +203,7 @@ export const GGBase = ({
           {geoms}
         </svg>
         {/* tooltip portals */}
-        <div style={{ position: "relative" }}>
+        <div style={{ position: 'relative' }}>
           <div id={`__gg-tooltip-x-${id}`} />
           <div id={`__gg-tooltip-y-${id}`} />
         </div>

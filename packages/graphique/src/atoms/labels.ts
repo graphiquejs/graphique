@@ -1,13 +1,13 @@
-import { atom } from "jotai"
+import { atom } from 'jotai'
 
 export interface LabelsProps {
-  title?: React.ReactNode
+  header?: React.ReactNode
   x?: string | null
   y?: string | null
 }
 
 export const labelsState = atom<LabelsProps>({
-  title: "",
-  x: "",
-  y: "",
+  header: '',
+  x: '',
+  y: '',
 })

@@ -1,16 +1,16 @@
-import { useEffect } from "react"
-import { useAtom } from "jotai"
-import { labelsState, LabelsProps } from "../../atoms"
+import { useEffect } from 'react'
+import { useAtom } from 'jotai'
+import { labelsState, LabelsProps } from '../../atoms'
 
-export const Labels = ({ title, x, y }: LabelsProps) => {
+export const Labels = ({ header, x, y }: LabelsProps) => {
   const [, setLabels] = useAtom(labelsState)
   useEffect(() => {
     setLabels({
-      title,
+      header,
       x,
       y,
     })
-  }, [setLabels, title, x, y])
+  }, [setLabels, header, x, y])
 
   return null
 }
