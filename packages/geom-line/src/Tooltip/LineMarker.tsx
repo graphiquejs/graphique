@@ -49,20 +49,36 @@ export const LineMarker = ({
             return (
               x(d) &&
               y(d) && (
-                <circle
+                <g
                   key={`marker-${
                     copiedScales?.groups ? copiedScales.groups[i] : i
                   }`}
                   style={{ pointerEvents: 'none' }}
-                  r={markerRadius}
-                  fill={thisFill}
-                  stroke={markerStroke}
-                  strokeWidth={markerRadius / 3.2}
-                  cx={x(d)}
-                  cy={y(d)}
-                  fillOpacity={line?.strokeOpacity || 0.9}
-                  strokeOpacity={0.92}
-                />
+                >
+                  <circle
+                    r={markerRadius * 2 + 0.5}
+                    fill={thisFill}
+                    cx={x(d)}
+                    cy={y(d)}
+                    fillOpacity={Math.min(
+                      0.5,
+                      Math.max(
+                        ((line?.strokeOpacity || 0.9) as number) - 0.35,
+                        0
+                      )
+                    )}
+                  />
+                  <circle
+                    r={markerRadius}
+                    fill={thisFill}
+                    stroke={markerStroke}
+                    strokeWidth={markerRadius / 3.2}
+                    cx={x(d)}
+                    cy={y(d)}
+                    fillOpacity={line?.strokeOpacity || 0.9}
+                    strokeOpacity={0.7}
+                  />
+                </g>
               )
             )
           })}

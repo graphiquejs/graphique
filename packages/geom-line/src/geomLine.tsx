@@ -33,7 +33,7 @@ const GeomLine = ({
   onExit,
   strokeWidth = 2.5,
   strokeOpacity = 1,
-  markerRadius = 5,
+  markerRadius = 3.5,
   markerStroke = '#fff',
   ...props
 }: LineProps) => {
