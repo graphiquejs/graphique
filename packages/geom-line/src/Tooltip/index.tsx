@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo } from 'react'
 import {
   useGG,
   tooltipState,
@@ -7,12 +7,12 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
-} from "@graphique/graphique"
-import { useAtom } from "jotai"
-import { mean } from "d3-array"
-import { DefaultTooltip } from "./DefaultTooltip"
+} from '@graphique/graphique'
+import { useAtom } from 'jotai'
+import { mean } from 'd3-array'
+import { DefaultTooltip } from './DefaultTooltip'
 
-export { LineMarker } from "./LineMarker"
+export { LineMarker } from './LineMarker'
 
 interface Props {
   x: (d: unknown) => number | undefined
@@ -25,18 +25,17 @@ export const Tooltip = ({ x, y }: Props) => {
     height: 0,
   }
 
-  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom(
-    tooltipState
-  )
+  const [{ datum, position, xAxis, xFormat, yFormat, content }] =
+    useAtom(tooltipState)
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
 
   const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])
-  const xVal = useMemo(() => datum && datum[0] && aes?.x && aes.x(datum[0]), [
-    datum,
-    aes,
-  ])
+  const xVal = useMemo(
+    () => datum && datum[0] && aes?.x && aes.x(datum[0]),
+    [datum, aes]
+  )
 
   const lineVals = useMemo(() => {
     const vals =
@@ -95,7 +94,7 @@ export const Tooltip = ({ x, y }: Props) => {
           left={left}
           top={-margin.bottom - 5}
           value={
-            typeof xAxis === "boolean" ? (
+            typeof xAxis === 'boolean' ? (
               <TooltipContainer>{xFormat && xFormat(xVal)}</TooltipContainer>
             ) : (
               xAxis(xVal)
@@ -107,7 +106,7 @@ export const Tooltip = ({ x, y }: Props) => {
         <YTooltip
           id={id as string}
           left={left}
-          top={position === "data" ? -(height - meanYVal) : -height}
+          top={position === 'data' ? -(height - meanYVal) : -height}
           value={tooltipValue}
           wait
         />
