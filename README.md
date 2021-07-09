@@ -38,7 +38,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { GG } from '@graphique/graphique'
 import { GeomLine } from '@graphique/geom-line'
-import { stocks, Stock } from '@graphique/datasets'
+import { stocks } from '@graphique/datasets'
 
 // default basic line chart
 const LineChart = () => {
@@ -190,3 +190,7 @@ Customize the look and feel of your Graphique visualizations.
 
 - more `Geom`s
 - linked graphics inside `<GGgroup>`
+
+## Dev
+
+Use `npx lerna publish` to publish a new version of a package.
