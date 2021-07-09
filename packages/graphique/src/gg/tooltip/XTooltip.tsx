@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { XTooltipPortal } from './TooltipPortals'
 import { themeState, tooltipState } from '../../atoms'
@@ -25,8 +25,10 @@ export const XTooltip = ({
   const [leftPos, setLeftPos] = useState<number | undefined>(0)
   const [topPos, setTopPos] = useState<number | undefined>(0)
 
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
-    const container = document.getElementById(`x-container-${id}`)
+    const container = containerRef.current
     const containerBounds = container?.getBoundingClientRect()
     const containerWidth = containerBounds?.width
     const containerHeight = containerBounds?.height
@@ -53,7 +55,7 @@ export const XTooltip = ({
   return (
     <XTooltipPortal id={id}>
       <div
-        id={`x-container-${id}`}
+        ref={containerRef}
         style={{
           fontFamily: font?.family,
           pointerEvents: 'none',
@@ -61,12 +63,6 @@ export const XTooltip = ({
           left: leftPos || -9999,
           top: topPos || -9999,
           whiteSpace: 'nowrap',
-          // fontSize: 12,
-          // padding: "3px 6px 3px 6px",
-          // background: "#fefefeda",
-          // border: "1px solid #eee",
-          // borderRadius: 2,
-          // boxShadow: "rgba(0, 0, 0, 0.5) 0px 1px 4px"
         }}
       >
         {value}
