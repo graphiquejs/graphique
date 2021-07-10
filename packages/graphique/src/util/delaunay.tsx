@@ -34,7 +34,13 @@ export const Delaunay = ({
   disabled,
 }: DelaunayProps) => {
   const { ggState } = useGG() || {}
-  const { width, height, margin, data: ggData, scales } = ggState || {
+  const {
+    width,
+    height,
+    margin,
+    data: ggData,
+    scales,
+  } = ggState || {
     width: 0,
     height: 0,
     margin: {
@@ -57,7 +63,7 @@ export const Delaunay = ({
     return () => clearTimeout(timeout)
   }, [ggData, data, scales])
 
-  const [, setTooltip] = useAtom(tooltipState)
+  const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
 
   const delaunay = useMemo(
     () =>
@@ -76,6 +82,10 @@ export const Delaunay = ({
 
         const ind = delaunay.find(posX, posY)
         const datum = data[ind]
+
+        // skip if the data hasn't changed
+        if (ttDatum && x(ttDatum[0]) === x(datum) && y(ttDatum[0] === y(datum)))
+          return
 
         if (group === 'x' && aes?.x) {
           const groupDatum: unknown[] = []
@@ -117,9 +127,8 @@ export const Delaunay = ({
           }))
         }
       }
-      return width
     },
-    [data, aes, setTooltip, width, delaunay, onMouseOver, group]
+    [data, aes, setTooltip, width, delaunay, onMouseOver, group, ttDatum]
   )
 
   const handleMouseOut = useMemo(
