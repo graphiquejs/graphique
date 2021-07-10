@@ -28,10 +28,8 @@ export const XTooltip = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const container = containerRef.current
-    const containerBounds = container?.getBoundingClientRect()
-    const containerWidth = containerBounds?.width
-    const containerHeight = containerBounds?.height
+    const containerWidth = containerRef.current?.clientWidth || 0
+    const containerHeight = containerRef.current?.clientHeight || 0
     let leftPosition = containerWidth && left - containerWidth / 2
     const rightX =
       leftPosition && containerWidth && leftPosition + containerWidth
@@ -49,7 +47,7 @@ export const XTooltip = ({
 
     setTopPos(top - (yPosition === 'above' ? (containerHeight || 0) + 8 : 0))
 
-    if (leftPos) setLeftPos(leftPosition)
+    if (leftPosition) setLeftPos(leftPosition)
   }, [width, left, top, id, keepInParent, yPosition])
 
   return (
@@ -60,8 +58,8 @@ export const XTooltip = ({
           fontFamily: font?.family,
           pointerEvents: 'none',
           position: 'absolute',
-          left: leftPos || -9999,
-          top: topPos || -9999,
+          left: leftPos ?? -9999,
+          top: topPos ?? -9999,
           whiteSpace: 'nowrap',
         }}
       >

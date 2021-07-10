@@ -92,7 +92,7 @@ export const Tooltip = ({ x, y }: Props) => {
         <XTooltip
           id={id as string}
           left={left}
-          top={-margin.bottom - 5}
+          top={-margin.bottom}
           value={
             typeof xAxis === 'boolean' ? (
               <TooltipContainer>{xFormat && xFormat(xVal)}</TooltipContainer>
