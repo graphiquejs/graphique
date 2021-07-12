@@ -1,7 +1,7 @@
 {
   "name": "@graphique/geom-col",
-  "version": "0.0.1",
-  "description": "For various types of vertical bar charts ",
+  "version": "0.0.0",
+  "description": "For visualizing data as vertical bars (columns)",
   "keywords": [
     "react",
     "d3",
