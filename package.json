@@ -44,5 +44,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
+  },
+  "dependencies": {
+    "d3-shape": "^3.0.1"
   }
 }
