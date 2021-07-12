@@ -1,6 +1,6 @@
 # @graphique/geom-bar
 
-For various types of (horizontal) bar charts in [Graphique](https://github.com/graphiquejs/graphique).
+For visualizing data as horizontal bars in [Graphique](https://github.com/graphiquejs/graphique). For vertical bars, try `@graphique/geom-col`.
 
 ```shell
 npm install @graphique/graphique @graphique/geom-bar
