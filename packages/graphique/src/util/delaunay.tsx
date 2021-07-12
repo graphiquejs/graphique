@@ -40,6 +40,7 @@ export const Delaunay = ({
     margin,
     data: ggData,
     scales,
+    id,
   } = ggState || {
     width: 0,
     height: 0,
@@ -83,11 +84,12 @@ export const Delaunay = ({
         const ind = delaunay.find(posX, posY)
         const datum = data[ind]
 
-        // skip if the data hasn't changed
-        if (ttDatum && x(ttDatum[0]) === x(datum) && y(ttDatum[0] === y(datum)))
-          return
-
         if (group === 'x' && aes?.x) {
+          const left = x(datum)
+
+          // skip if the data hasn't changed
+          if (ttDatum && x(ttDatum[0]) === left) return
+
           const groupDatum: unknown[] = []
           const groupDatumInd: number[] = []
 
@@ -98,12 +100,23 @@ export const Delaunay = ({
             }
           })
 
+          const tooltips = document.getElementsByClassName(
+            `__gg-tooltip-${id}`
+          ) as HTMLCollectionOf<SVGGElement>
+          Array.from(tooltips).forEach((m) => {
+            const thisTooltip = m
+            thisTooltip.style.transform = `translate(${left}px, 0)`
+          })
+
           onMouseOver({ d: groupDatum, i: groupDatumInd })
           setTooltip((prev) => ({
             ...prev,
             datum: groupDatum,
           }))
         } else if (group === 'y' && aes?.y) {
+          // skip if the data hasn't changed
+          if (ttDatum && y(ttDatum[0] === y(datum))) return
+
           const groupDatum: unknown[] = []
           const groupDatumInd: number[] = []
 

@@ -17,7 +17,7 @@ export const LineMarker = ({
   markerStroke,
 }: LineMarkerProps) => {
   const { ggState } = useGG() || {}
-  const { aes, copiedScales, height, margin } = ggState || {}
+  const { aes, copiedScales, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
   const [{ defaultStroke, geoms }] = useAtom(themeState) || {}
@@ -29,10 +29,11 @@ export const LineMarker = ({
   return height && margin ? (
     <>
       {left && datum && (
-        <>
+        <g
+          className={`__gg-tooltip-${id}`}
+          style={{ transform: `translateX(${left}px)` }}
+        >
           <line
-            x1={left}
-            x2={left}
             y1={height - margin.bottom}
             y2={margin.top}
             strokeDasharray={2}
@@ -47,7 +48,6 @@ export const LineMarker = ({
                 ? copiedScales.strokeScale(aes.stroke(d))
                 : defaultStroke)
             return (
-              x(d) &&
               y(d) && (
                 <g
                   key={`marker-${
@@ -58,7 +58,6 @@ export const LineMarker = ({
                   <circle
                     r={markerRadius * 2 + 0.5}
                     fill={thisFill}
-                    cx={x(d)}
                     cy={y(d)}
                     fillOpacity={Math.min(
                       0.5,
@@ -73,7 +72,6 @@ export const LineMarker = ({
                     fill={thisFill}
                     stroke={markerStroke}
                     strokeWidth={markerRadius / 3.2}
-                    cx={x(d)}
                     cy={y(d)}
                     fillOpacity={line?.strokeOpacity || 0.9}
                     strokeOpacity={0.7}
@@ -82,7 +80,7 @@ export const LineMarker = ({
               )
             )
           })}
-        </>
+        </g>
       )}
     </>
   ) : null
