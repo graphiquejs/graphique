@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-bar",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "For various types of (horizontal) bar charts",
   "keywords": [
     "react",

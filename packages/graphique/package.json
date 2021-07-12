@@ -1,6 +1,6 @@
 {
   "name": "@graphique/graphique",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The basis for all Graphique visualizations",
   "keywords": [
     "react",
