@@ -1,0 +1,52 @@
+{
+  "name": "@graphique/geom-histogram",
+  "version": "0.0.0",
+  "description": "For visualizing histograms",
+  "keywords": [
+    "react",
+    "d3",
+    "data-visualization",
+    "grammar-of-graphics",
+    "graphique",
+    "geom-histogram",
+    "histogram"
+  ],
+  "files": [
+    "/src",
+    "/dist"
+  ],
+  "type": "module",
+  "module": "./dist/index.module.js",
+  "source": "./src/index.ts",
+  "exports": "./dist/index.module.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "repository": "https://github.com/graphiquejs/graphique.git",
+  "author": "Matt Adams",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint ./ --fix",
+    "prepare": "npm run lint && npm run build",
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
+  },
+  "dependencies": {
+    "@graphique/geom-col": "^0.0.1",
+    "d3-array": "^3.0.1",
+    "d3-scale": "^4.0.0",
+    "jotai": "^1.1.2"
+  },
+  "peerDependencies": {
+    "@graphique/graphique": ">=1",
+    "react": ">=16",
+    "react-dom": ">=16"
+  },
+  "devDependencies": {
+    "@types/d3-array": "^3.0.1",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0"
+  }
+}
