@@ -39,8 +39,13 @@ export const Tooltip = ({ y, xAdj = 0, aes }: TooltipProps) => {
   )
 
   const group = useMemo(
-    () => scales?.groupAccessor || (() => '__group'),
-    [scales]
+    () =>
+      aes?.group ||
+      aes?.fill ||
+      aes?.stroke ||
+      aes?.strokeDasharray ||
+      (() => '__group'),
+    [aes]
   )
 
   const yVal = useMemo(() => {

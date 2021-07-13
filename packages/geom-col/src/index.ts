@@ -1,2 +1,2 @@
-export { GeomCol } from './geomCol'
+export { GeomCol, GeomColProps } from './geomCol'
 export { Legend } from './legend'

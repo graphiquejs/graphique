@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  useGG,
   TooltipContent,
   TooltipContainer,
   formatMissing,
@@ -10,6 +11,9 @@ interface Props {
 }
 
 export const DefaultTooltip = ({ data }: Props) => {
+  const { ggState } = useGG() || {}
+  const { aes } = ggState || {}
+
   const xVal = data && data[0].formattedX
 
   return data ? (
@@ -27,9 +31,13 @@ export const DefaultTooltip = ({ data }: Props) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div
-            key={`group-tooltip-${
-              d.label || d.group !== '__group' ? formattedGroup : i
-            }`}
+            key={
+              aes?.key
+                ? aes.key(d)
+                : `group-tooltip-${
+                    d.label || d.group !== '__group' ? formattedGroup : i
+                  }`
+            }
           >
             <div
               style={{

@@ -27,7 +27,7 @@ import { Tooltip } from './tooltip'
 
 export { Legend } from './legend'
 
-export interface ColProps extends SVGAttributes<SVGRectElement> {
+export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   data?: unknown[]
   aes?: Aes
   focusedStyle?: CSSProperties
@@ -66,7 +66,7 @@ const GeomCol = ({
   align = 'center',
   position = 'stack',
   ...props
-}: ColProps) => {
+}: GeomColProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, margin, width } =
     ggState || {}
