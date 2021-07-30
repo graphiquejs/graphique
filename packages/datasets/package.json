@@ -28,7 +28,7 @@
   },
   "scripts": {
     "lint": "eslint ./ --fix",
-    "prepare": "npm run lint && npm run build",
+    "prepublishOnly": "npm run lint && npm run build",
     "build": "microbundle -f modern --compress -o dist/index.js",
     "watch": "microbundle watch -f modern"
   }

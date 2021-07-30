@@ -30,7 +30,7 @@
   },
   "scripts": {
     "lint": "eslint ./ --fix",
-    "prepare": "npm run lint && npm run build",
+    "prepublishOnly": "npm run lint && npm run build",
     "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
   },
