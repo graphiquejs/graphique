@@ -48,7 +48,7 @@ export const SizeLegend = ({
       return sizeDomain
     }
     if (data && aes?.size) {
-      return extent(data, aes.size)
+      return extent(data, aes.size) as [number, number]
     }
     return []
   }, [data, aes, sizeDomain])
