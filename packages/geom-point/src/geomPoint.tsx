@@ -57,15 +57,33 @@ const GeomPoint = ({
 
   let geomData = localData || data
   const undefinedX = useMemo(
-    () => (geomData ? geomData.filter((d) => !aes?.x(d)) : []),
+    () =>
+      geomData
+        ? geomData.filter(
+            (d) => aes?.x(d) === null || typeof aes?.x(d) === 'undefined'
+          )
+        : [],
     [geomData]
   )
   const undefinedY = useMemo(
-    () => (geomData ? geomData.filter((d) => aes?.y && !aes.y(d)) : []),
+    () =>
+      geomData
+        ? geomData.filter(
+            (d) =>
+              aes?.y && (aes.y(d) === null || typeof aes.y(d) === 'undefined')
+          )
+        : [],
     [geomData]
   )
 
-  geomData = geomData?.filter((d) => aes?.x(d) && aes.y && aes.y(d))
+  geomData = geomData?.filter(
+    (d) =>
+      aes?.x(d) !== null &&
+      !(typeof aes?.x(d) === 'undefined') &&
+      aes.y &&
+      aes.y(d) !== null &&
+      !(typeof aes.y(d) === 'undefined')
+  )
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
