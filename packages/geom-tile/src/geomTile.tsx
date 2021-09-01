@@ -40,7 +40,7 @@ export interface GeomTileProps extends SVGAttributes<SVGRectElement> {
   strokeOpacity?: number
 }
 
-export const GeomTile = ({
+const GeomTile = ({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -323,3 +323,6 @@ export const GeomTile = ({
     </>
   ) : null
 }
+
+GeomTile.displayName = 'GeomTile'
+export { GeomTile }
