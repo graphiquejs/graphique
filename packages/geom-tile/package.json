@@ -1,15 +1,15 @@
 {
-  "name": "@graphique/geom-point",
-  "version": "1.0.5",
-  "description": "For points, scatterplots, and bubbles",
+  "name": "@graphique/geom-tile",
+  "version": "0.0.2",
+  "description": "For rectangular charts like heatmaps",
   "keywords": [
     "react",
     "d3",
     "data-visualization",
     "grammar-of-graphics",
     "graphique",
-    "scatterplot",
-    "bubble-chart"
+    "heatmap",
+    "geom-tile"
   ],
   "files": [
     "/src",
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "lint": "eslint ./ --fix",
-    "prepublishOnly": "npm run lint && npm run build",
+    "prepare": "npm run lint && npm run build",
     "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
   },

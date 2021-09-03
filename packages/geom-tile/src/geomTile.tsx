@@ -1,31 +1,37 @@
 import React, {
-  useState,
   useEffect,
   useMemo,
   CSSProperties,
   SVGAttributes,
   useRef,
+  useState,
 } from 'react'
-import { NodeGroup } from 'react-move'
-import { easeCubic } from 'd3-ease'
-import { scaleSqrt } from 'd3-scale'
-import { extent } from 'd3-array'
-import { interpolate } from 'd3-interpolate'
-import { useAtom } from 'jotai'
 import {
   useGG,
+  themeState,
   focusNodes,
   unfocusNodes,
   Delaunay,
-  themeState,
-  radiusScaleState,
+  Aes,
 } from '@graphique/graphique'
+import { useAtom } from 'jotai'
+import { NodeGroup } from 'react-move'
+import { easeCubic } from 'd3-ease'
+import { interpolate } from 'd3-interpolate'
+import { scaleBand } from 'd3-scale'
 import { Tooltip } from './tooltip'
 
-export interface PointProps extends SVGAttributes<SVGCircleElement> {
+export { Legend } from './legend'
+
+export interface GeomTileProps extends SVGAttributes<SVGRectElement> {
   data?: unknown[]
+  aes?: Aes
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
+  xPadding?: number
+  yPadding?: number
+  xDomain?: unknown[]
+  yDomain?: unknown[]
   showTooltip?: boolean
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   onDatumSelection?: (data: unknown, index: number | number[]) => void
@@ -34,56 +40,41 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   strokeOpacity?: number
 }
 
-const GeomPoint = ({
+const GeomTile = ({
   data: localData,
+  aes: localAes,
   focusedStyle,
   unfocusedStyle,
   onDatumFocus,
   onDatumSelection,
   onExit,
+  xDomain,
+  yDomain,
+  xPadding = 0,
+  yPadding = 0,
   showTooltip = true,
   fillOpacity = 1,
   strokeOpacity = 1,
-  r = 3.5,
   ...props
-}: PointProps) => {
+}: GeomTileProps) => {
   const { ggState } = useGG() || {}
-  const { data, aes, scales, copiedScales, height, margin } = ggState || {}
+  const { data, aes, scales, copiedScales, height, width, margin } =
+    ggState || {}
+
+  const geomAes = useMemo(() => {
+    if (localAes) {
+      return {
+        ...aes,
+        ...localAes,
+      }
+    }
+    return aes
+  }, [aes, localAes])
+
   const [theme, setTheme] = useAtom(themeState)
-  const [radiusScale] = useAtom(radiusScaleState)
-  const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
+
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill } = theme
-
-  let geomData = localData || data
-  const undefinedX = useMemo(
-    () =>
-      geomData
-        ? geomData.filter(
-            (d) => aes?.x(d) === null || typeof aes?.x(d) === 'undefined'
-          )
-        : [],
-    [geomData]
-  )
-  const undefinedY = useMemo(
-    () =>
-      geomData
-        ? geomData.filter(
-            (d) =>
-              aes?.y && (aes.y(d) === null || typeof aes.y(d) === 'undefined')
-          )
-        : [],
-    [geomData]
-  )
-
-  geomData = geomData?.filter(
-    (d) =>
-      aes?.x(d) !== null &&
-      !(typeof aes?.x(d) === 'undefined') &&
-      aes.y &&
-      aes.y(d) !== null &&
-      !(typeof aes.y(d) === 'undefined')
-  )
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -91,30 +82,11 @@ const GeomPoint = ({
   }, [])
 
   useEffect(() => {
-    if (firstRender && undefinedX.length > 0) {
-      console.warn(
-        `Ignoring ${undefinedX.length} points with missing x values.`
-      )
-    }
-
-    if (firstRender && undefinedY.length > 0) {
-      console.warn(
-        `Ignoring ${undefinedY.length} points with missing y values.`
-      )
-    }
-  }, [firstRender])
-
-  const bottomPos = useMemo(
-    () => (height && margin ? height - margin.bottom : undefined),
-    [height, margin]
-  )
-
-  useEffect(() => {
     setTheme((prev) => ({
       ...prev,
       geoms: {
         ...prev.geoms,
-        point: {
+        tile: {
           fillOpacity: props.style?.fillOpacity || fillOpacity,
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
@@ -147,8 +119,8 @@ const GeomPoint = ({
 
   const unfocusedStyles = {
     ...baseStyles,
-    fillOpacity: 0.2,
-    strokeOpacity: 0.2,
+    fillOpacity: 0.5,
+    strokeOpacity: 0.5,
     ...unfocusedStyle,
   }
 
@@ -173,78 +145,93 @@ const GeomPoint = ({
     [aes, copiedScales, strokeColor]
   )
 
-  // if (scales?.yScale?.bandwidth) {
-  //   scales.yScale.padding(1)
-  // }
-  // if (scales?.xScale?.bandwidth) {
-  //   scales.xScale?.padding(1)
-  // }
+  const xBandScale = useMemo(() => {
+    if (margin && width) {
+      if (scales?.xScale.bandwidth) {
+        return scales.xScale.paddingInner(xPadding)
+      }
+      const uniqueXs = Array.from(new Set(data?.map((d) => aes?.x(d))))
+      return scaleBand()
+        .range([margin.left, width - margin.right])
+        .domain((xDomain || uniqueXs) as string[])
+        .paddingInner(xPadding)
+    }
+    return null
+  }, [data, aes, width, scales, margin, xPadding, xDomain])
+
+  const yBandScale = useMemo(() => {
+    if (margin && height) {
+      if (scales?.yScale.bandwidth) {
+        return scales.yScale.paddingInner(yPadding)
+      }
+      const uniqueYs = Array.from(new Set(data?.map((d) => aes?.y && aes.y(d))))
+      return scaleBand()
+        .range([margin.bottom, height - margin.bottom])
+        .domain((yDomain || uniqueYs) as string[])
+        .paddingInner(yPadding)
+    }
+    return null
+  }, [data, aes, height, scales, margin, yPadding, yDomain])
 
   const x = useMemo(() => {
-    if (scales?.xScale.bandwidth) {
+    if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
+      scales?.xScale.range([
+        margin.left + xBandScale.bandwidth() / 2,
+        width - margin.right - xBandScale.bandwidth() / 2 - 0.5,
+      ])
       return (d: unknown) =>
-        (scales?.xScale(aes?.x(d)) || 0) + scales?.xScale.bandwidth() / 2
+        (scales?.xScale(aes?.x(d)) || 0) - xBandScale.bandwidth() / 2 + 0.5
     }
-    return (d: unknown) =>
-      scales?.xScale && (scales.xScale(aes?.x(d)) || 0) + 0.5
-  }, [scales, aes])
-  const y = useMemo(() => {
-    if (scales?.yScale.bandwidth) {
-      return (d: unknown) =>
-        (scales?.yScale(aes?.y && aes.y(d)) || 0) +
-        scales?.yScale.bandwidth() / 2
-    }
-    return (d: unknown) =>
-      scales?.yScale && aes?.y && (scales.yScale(aes.y(d)) || 0) + 0.5
-  }, [scales, aes])
+    return (d: unknown) => scales?.xScale && scales.xScale(aes?.x(d))
+  }, [scales, aes, xBandScale, margin, width])
 
-  const radius = useMemo(() => {
-    if (geomData && aes?.size && sizeRange && sizeDomain) {
-      const domain =
-        sizeDomain[0] && sizeDomain[1]
-          ? sizeDomain
-          : (extent(geomData, aes.size as () => number) as number[])
-      return scaleSqrt()
-        .domain(domain)
-        .range(sizeRange as [number, number])
-        .unknown([r])
+  const y = useMemo(() => {
+    if (!scales?.yScale.bandwidth && margin && height && yBandScale) {
+      scales?.yScale.range([
+        height - margin.bottom - yBandScale.bandwidth() / 2 - 0.5,
+        margin.top + yBandScale.bandwidth() / 2,
+      ])
+      return (d: unknown) =>
+        (scales?.yScale(aes?.y && aes.y(d)) || 0) -
+        yBandScale.bandwidth() / 2 +
+        0.5
     }
-    return () => r
-  }, [r, aes, geomData, sizeRange, sizeDomain])
+    return (d: unknown) => scales?.yScale && aes?.y && scales.yScale(aes.y(d))
+  }, [scales, aes, margin, height, yBandScale])
 
   const keyAccessor = useMemo(
     () => (d: unknown) =>
-      aes?.key
-        ? aes.key(d)
-        : (`${aes?.x(d)}-${aes?.y && aes.y(d)}-${
-            scales?.groupAccessor && scales.groupAccessor(d)
-          }` as string),
-    [aes, scales]
+      (geomAes?.key
+        ? geomAes.key(d)
+        : geomAes?.y &&
+          `${geomAes?.x(d)}-${geomAes?.y(d)}-${scales?.groupAccessor(
+            d
+          )}`) as string,
+    [geomAes, scales]
   )
 
   const groupRef = useRef<SVGGElement>(null)
-  const points = groupRef.current?.getElementsByTagName('circle')
+  // const rects = useMemo(() => groupRef.current?.getElementsByTagName("rect"), [])
+  const rects = groupRef.current?.getElementsByTagName('rect')
 
-  return (
+  return xBandScale && yBandScale ? (
     <>
       <g ref={groupRef}>
         {!firstRender && (
           <NodeGroup
-            data={[...(geomData as [])]}
+            data={[...(data as [])]}
             keyAccessor={keyAccessor}
             start={(d) => ({
-              cx: x(d),
-              cy: bottomPos,
-              fill: fill(d),
-              stroke: stroke(d),
-              r: 0,
+              x: margin?.left,
+              y: y(d) || 0,
+              fill: 'transparent',
+              stroke: 'transparent',
               fillOpacity: 0,
               strokeOpacity: 0,
             })}
             enter={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
-              r: [aes?.size ? radius(aes.size(d) as number) : r],
+              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
+              y: [y(d) || 0],
               fill: [fill(d)],
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
@@ -252,11 +239,10 @@ const GeomPoint = ({
               timing: { duration: 1000, ease: easeCubic },
             })}
             update={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
+              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
+              y: [typeof y(d) === 'undefined' ? height : y(d)],
               fill: firstRender ? fill(d) : [fill(d)],
               stroke: firstRender ? stroke(d) : [stroke(d)],
-              r: [aes?.size ? radius(aes.size(d) as number) : r],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
               timing: { duration: 1000, ease: easeCubic },
@@ -264,7 +250,7 @@ const GeomPoint = ({
             leave={() => ({
               fill: ['transparent'],
               stroke: ['transparent'],
-              cy: [bottomPos],
+              y: [height],
               timing: { duration: 1000, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
@@ -272,15 +258,16 @@ const GeomPoint = ({
             {(nodes) => (
               <>
                 {nodes.map(({ state, key }) => (
-                  <circle
+                  <rect
                     key={key}
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...props}
-                    r={state.r >= 0 ? state.r : r}
                     fill={state.fill}
                     stroke={state.stroke}
-                    cx={state.cx}
-                    cy={state.cy}
+                    x={state.x}
+                    y={state.y}
+                    width={xBandScale.bandwidth()}
+                    height={yBandScale.bandwidth()}
                     fillOpacity={state.fillOpacity}
                     strokeOpacity={state.strokeOpacity}
                   />
@@ -290,23 +277,25 @@ const GeomPoint = ({
           </NodeGroup>
         )}
       </g>
-      {geomData && showTooltip && (
+      {showTooltip && (
         <>
           <Delaunay
-            data={geomData}
             x={x}
             y={y}
+            data={data}
+            xAdj={xBandScale.bandwidth() / 2}
+            yAdj={yBandScale.bandwidth() / 2}
             onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
-              if (points) {
+              if (rects) {
                 focusNodes({
-                  nodes: points,
+                  nodes: rects,
                   focusedIndex: i,
                   focusedStyles,
                   unfocusedStyles,
                 })
-              }
 
-              if (onDatumFocus) onDatumFocus(d, i)
+                if (onDatumFocus) onDatumFocus(d, i)
+              }
             }}
             onClick={
               onDatumSelection
@@ -316,19 +305,24 @@ const GeomPoint = ({
                 : undefined
             }
             onMouseLeave={() => {
-              if (points) {
-                unfocusNodes({ nodes: points, baseStyles })
+              if (rects) {
+                unfocusNodes({ nodes: rects, baseStyles })
               }
 
               if (onExit) onExit()
             }}
           />
-          <Tooltip />
+          <Tooltip
+            x={x}
+            y={y}
+            xAdj={xBandScale.bandwidth() / 2}
+            yAdj={yBandScale.bandwidth() / 2}
+          />
         </>
       )}
     </>
-  )
+  ) : null
 }
 
-GeomPoint.displayName = 'GeomPoint'
-export { GeomPoint }
+GeomTile.displayName = 'GeomTile'
+export { GeomTile }
