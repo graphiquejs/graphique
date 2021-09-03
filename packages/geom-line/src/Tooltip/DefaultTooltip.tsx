@@ -14,11 +14,11 @@ export const DefaultTooltip = ({
   data,
   hasXAxisTooltip,
 }: DefaultTooltipProps) => {
-  const xVal = data && data[0].formattedX
+  const xVal = data && data[0] ? data[0].formattedX : undefined
 
   return data ? (
     <TooltipContainer>
-      {!hasXAxisTooltip && (
+      {!hasXAxisTooltip && xVal && (
         <div
           style={{
             marginTop: 2,
