@@ -204,8 +204,11 @@ const GeomBar = ({
 
   const yBandScale = useMemo(() => {
     if (margin && height) {
+
+      const usedYPadding = geomData && geomData.length > 1 ? yPadding : 0
+
       if (scales?.yScale.bandwidth) {
-        return scales.yScale.paddingInner(yPadding)
+        return scales.yScale.paddingInner(usedYPadding)
       }
       const uniqueYs = Array.from(
         new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d)))
@@ -213,7 +216,7 @@ const GeomBar = ({
       return scaleBand()
         .range([margin.bottom, height - margin.bottom])
         .domain((yDomain || uniqueYs) as string[])
-        .paddingInner(yPadding)
+        .paddingInner(usedYPadding)
     }
     return null
   }, [height, scales, margin, yPadding, yDomain, geomData, geomAes])
