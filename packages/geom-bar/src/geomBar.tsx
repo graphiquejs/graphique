@@ -43,6 +43,7 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   strokeOpacity?: number
   freeBaseLine?: boolean
   position?: 'identity' | 'stack' | 'dodge' | 'fill'
+  animateOnEnter?: boolean
 }
 
 const GeomBar = ({
@@ -62,6 +63,7 @@ const GeomBar = ({
   strokeOpacity = 1,
   freeBaseLine,
   position = 'stack',
+  animateOnEnter = true,
   ...props
 }: BarProps) => {
   const { ggState } = useGG() || {}
@@ -312,12 +314,19 @@ const GeomBar = ({
           data={[...(geomData as [])]}
           keyAccessor={keyAccessor}
           start={(d) => {
+            const groupData = getGroupX(d)
+            const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
+            const thisX1 = groupData && scales?.xScale(groupData[1])
+            const barWidth = stackedData
+              ? thisX1 - (thisX0 || 0)
+              : (x(d) || 0) - leftEdge
             const yAdj =
               dodgeYScale && scales?.groupAccessor
                 ? dodgeYScale(scales.groupAccessor(d) as string) || 0
                 : 0
+            const actualWidth = typeof x(d) === 'undefined' ? leftEdge : barWidth
             return {
-              width: 0,
+              width: animateOnEnter ? 0 : actualWidth,
               height: dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
               x: leftEdge,
               y: (y(d) || 0) + yAdj,
@@ -338,8 +347,9 @@ const GeomBar = ({
               dodgeYScale && scales?.groupAccessor
                 ? dodgeYScale(scales.groupAccessor(d) as string) || 0
                 : 0
+            const actualWidth = typeof x(d) === 'undefined' ? leftEdge : barWidth
             return {
-              width: [typeof x(d) === 'undefined' ? leftEdge : barWidth],
+              width: animateOnEnter ? [actualWidth] : actualWidth,
               height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
               x: [thisX0],
               y: [(y(d) || 0) + yAdj],
