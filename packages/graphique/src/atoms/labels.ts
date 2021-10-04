@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 
 export interface LabelsProps {
   header?: React.ReactNode
-  x?: string | null
+  x?: React.ReactNode | null
   y?: React.ReactNode | null
 }
 
