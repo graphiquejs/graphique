@@ -13,9 +13,10 @@ export interface TooltipProps {
   y: (d: unknown) => number | undefined
   xAdj: number
   yAdj: number
+  datum?: any
 }
 
-export const Tooltip = ({ x, y, xAdj, yAdj }: TooltipProps) => {
+export const Tooltip = ({ x, y, xAdj, yAdj, datum }: TooltipProps) => {
   const { ggState } = useGG() || {}
   const { id, aes, scales, height, width } = ggState || { width: 0, height: 0 }
 
@@ -23,20 +24,20 @@ export const Tooltip = ({ x, y, xAdj, yAdj }: TooltipProps) => {
     { datum: tooltipDatum, position, xFormat, yFormat, measureFormat, content },
   ] = useAtom(tooltipState)
 
-  const datum = useMemo(() => tooltipDatum && tooltipDatum[0], [tooltipDatum])
+  const thisDatum = useMemo(() => datum ?? (tooltipDatum && tooltipDatum[0]), [tooltipDatum])
 
   const label = useMemo(() => {
     const labelResolution = {
-      given: datum && aes?.label && aes.label(datum),
-      keyed: datum && aes?.key && aes.key(datum),
+      given: thisDatum && aes?.label && aes.label(thisDatum),
+      keyed: thisDatum && aes?.key && aes.key(thisDatum),
     }
 
     return labelResolution.given || labelResolution.keyed
-  }, [aes, datum])
+  }, [aes, thisDatum])
 
   const thisGroup = useMemo(
-    () => datum && scales?.groupAccessor && scales?.groupAccessor(datum),
-    [datum, scales]
+    () => thisDatum && scales?.groupAccessor && scales?.groupAccessor(thisDatum),
+    [thisDatum, scales]
   )
 
   const thisLabel = useMemo(
@@ -46,32 +47,32 @@ export const Tooltip = ({ x, y, xAdj, yAdj }: TooltipProps) => {
 
   const tooltipContents: TooltipContent[] = [
     {
-      x: datum && (x(datum) as number),
-      y: datum && (y(datum) as number),
+      x: thisDatum && (x(thisDatum) as number),
+      y: thisDatum && (y(thisDatum) as number),
       formattedX:
-        datum &&
+        thisDatum &&
         aes?.x &&
-        ((xFormat ? xFormat(aes.x(datum)) : aes.x(datum)) as string),
+        ((xFormat ? xFormat(aes.x(thisDatum)) : aes.x(thisDatum)) as string),
       formattedY:
-        datum &&
+        thisDatum &&
         aes?.y &&
-        ((yFormat ? yFormat(aes.y(datum)) : aes.y(datum)) as string),
+        ((yFormat ? yFormat(aes.y(thisDatum)) : aes.y(thisDatum)) as string),
       group: thisGroup,
       label: thisLabel,
       formattedMeasure:
         measureFormat &&
         (thisLabel || thisGroup) &&
         measureFormat(thisLabel || thisGroup),
-      datum,
+      datum: thisDatum,
       containerWidth: width,
     },
   ]
 
   const tooltipValue = content
-    ? datum && <div>{content(tooltipContents)}</div>
-    : datum && <DefaultTooltip data={tooltipContents} />
+    ? thisDatum && <div>{content(tooltipContents)}</div>
+    : thisDatum && <DefaultTooltip data={tooltipContents} />
 
-  return datum ? (
+  return thisDatum ? (
     <div>
       <YTooltip
         id={id as string}
@@ -82,6 +83,7 @@ export const Tooltip = ({ x, y, xAdj, yAdj }: TooltipProps) => {
             : -height
         }
         value={tooltipValue}
+        wait
       />
     </div>
   ) : null
