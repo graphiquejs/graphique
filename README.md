@@ -64,7 +64,7 @@ ReactDOM.render(<LineChart />, document.getElementById('root'))
 
 ## Responsive
 
-To keep your Graphique visualization the width of its parent container, you only need to specify `useParentWidth` and you'll get an appropriately-scaled and responsive version.
+To keep your Graphique visualization the width of its parent container, you only need to specify `isContainerWidth` and you'll get an appropriately-scaled and responsive version.
 
 ```jsx
 <GG
@@ -73,7 +73,7 @@ To keep your Graphique visualization the width of its parent container, you only
     x: (d) => new Date(d.date),
     y: (d) => d.marketCap,
   }}
-  useParentWidth
+  isContainerWidth
 >
   <GeomLine />
 </GG>

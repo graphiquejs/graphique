@@ -8,7 +8,7 @@ export interface RootGGProps {
   aes: Aes
   /** the width of the visualization area in pixels (defaults to `550`)
    *
-   * Use `useParentWidth` if you'd like it to be as wide as the parent container.
+   * Use `isContainerWidth` if you'd like it to be as wide as the parent container.
    */
   width?: number
   /** the height of the visualization area in pixels (defaults to `450`) */
@@ -23,7 +23,7 @@ export interface RootGGProps {
   /** should the visualization fill its parent container's width
    * (and respond to changes in its width)
    */
-  useParentWidth?: boolean
+  isContainerWidth?: boolean
   children?: ReactNode
 }
 
