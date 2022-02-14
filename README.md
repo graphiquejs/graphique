@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://mattadams.io/graphique">
+  <a href="https://graphique.mattadams.io">
     <img src="./assets/graphique_logo_white_bg.png" width=300px />
   </a>
   <p>
