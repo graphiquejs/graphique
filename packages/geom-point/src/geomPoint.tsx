@@ -19,6 +19,7 @@ import {
   Delaunay,
   themeState,
   radiusScaleState,
+  isDate,
 } from '@graphique/graphique'
 import { Tooltip } from './tooltip'
 
@@ -60,7 +61,10 @@ const GeomPoint = ({
     () =>
       geomData
         ? geomData.filter(
-            (d) => aes?.x(d) === null || typeof aes?.x(d) === 'undefined'
+            (d) =>
+              aes?.x(d) === null ||
+              typeof aes?.x(d) === 'undefined' ||
+              (isDate(aes?.x(d)) && Number.isNaN(aes?.x(d)?.valueOf()))
           )
         : [],
     [geomData]
@@ -80,6 +84,7 @@ const GeomPoint = ({
     (d) =>
       aes?.x(d) !== null &&
       !(typeof aes?.x(d) === 'undefined') &&
+      (isDate(aes?.x(d)) ? !Number.isNaN(aes?.x(d)?.valueOf()) : true) &&
       aes.y &&
       aes.y(d) !== null &&
       !(typeof aes.y(d) === 'undefined')
