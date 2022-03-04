@@ -1,4 +1,5 @@
 import { atom } from "jotai"
+import { DataValue } from ".."
 
 interface PointThemeProps {
   fillOpacity?: number | string
@@ -15,6 +16,15 @@ interface BarColProps extends PointThemeProps {
   position?: "identity" | "stack" | "dodge" | "fill"
 }
 
+interface AreaProps extends PointThemeProps {
+  /** controls how to draw the area */
+  position?: 'identity' | 'stack' | 'fill' | 'stream'
+  /** a functional mapping to `data` representing an initial **y** value */
+  y0?: DataValue
+  /** a functional mapping to `data` representing a secondary **y** value */
+  y1?: DataValue
+}
+
 export interface ThemeProps {
   titleColor?: string
   markerStroke?: string
@@ -27,6 +37,7 @@ export interface ThemeProps {
     tile?: PointThemeProps
     bar?: BarColProps
     col?: BarColProps
+    area?: AreaProps
   }
   font?: {
     family?: string

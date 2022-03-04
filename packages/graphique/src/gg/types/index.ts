@@ -1,4 +1,4 @@
-export { Aes } from "./Aes"
+export { Aes, DataValue } from "./Aes"
 export {
   XYScale,
   XYScaleTypes,
