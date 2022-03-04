@@ -1,10 +1,10 @@
-// import React from 'react';
-// import logo from './logo.svg';
-import './App.css'
-import { stocks, Stock } from '@graphique/datasets'
+/* eslint-disable import/no-extraneous-dependencies */
+
+import React from 'react'
 import { GG } from '@graphique/graphique'
-import { GeomLine } from '@graphique/geom-line'
-import { GeomPoint } from '@graphique/geom-point'
+import { stocks, Stock } from '@graphique/datasets'
+// import { GeomLine } from '@graphique/geom-line'
+// import { GeomPoint } from '@graphique/geom-point'
 import { GeomArea, Legend } from '@graphique/geom-area'
 import { curveStep } from 'd3-shape'
 
