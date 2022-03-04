@@ -1,11 +1,7 @@
 import React, { useMemo } from 'react'
-import {
-  useGG,
-  tooltipState,
-  themeState,
-  // DataValue,
-} from '@graphique/graphique'
+import { useGG, tooltipState, themeState } from '@graphique/graphique'
 import { useAtom } from 'jotai'
+import { sum } from 'd3-array'
 
 export interface LineMarkerProps {
   x: (d: unknown) => number | undefined
@@ -30,10 +26,10 @@ export const LineMarker = ({
   const { area } = geoms || {}
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
-  const shouldStack = useMemo(
-    () => area?.position && ['stack', 'fill', 'stream'].includes(area.position),
-    [area]
-  )
+  // const shouldStack = useMemo(
+  //   () => area?.position && ['stack', 'fill', 'stream'].includes(area.position),
+  //   [area]
+  // )
 
   return height && margin ? (
     <>
@@ -51,16 +47,31 @@ export const LineMarker = ({
             style={{ pointerEvents: 'none' }}
           />
           {datum.map((d, i, stacks) => {
-            const thisYVal =
-              i > 0 && shouldStack
-                ? copiedScales?.yScale(
-                    stacks
-                      .slice(0, i + 1)
-                      // @ts-ignore
-                      .map(aes.y)
-                      .reduce((a, b) => (a as number) + (b as number), 0)
-                  )
-                : y(d)
+            let thisYCoord
+
+            // stacked area (sum)
+            if (area?.position === 'stack') {
+              const yTotal = stacks
+                .slice(0, i + 1)
+                // @ts-ignore
+                .map(aes.y)
+                .reduce((a, b) => (a as number) + (b as number), 0) as number
+
+              thisYCoord = copiedScales?.yScale(yTotal)
+            } else if (area?.position === 'fill' && aes?.y) {
+              const yTotal = stacks
+                .slice(0, i + 1)
+                .map(
+                  (s) =>
+                    // @ts-ignore
+                    aes.y(s) / sum(stacks, aes.y)
+                )
+                .reduce((a, b) => (a as number) + (b as number), 0) as number
+
+              thisYCoord = copiedScales?.yScale(yTotal)
+            } else {
+              thisYCoord = y(d)
+            }
 
             const thisFill =
               area?.fill ||
@@ -79,7 +90,7 @@ export const LineMarker = ({
                   <circle
                     r={markerRadius * 2 + 0.5}
                     fill={thisFill}
-                    cy={thisYVal as number}
+                    cy={thisYCoord as number}
                     fillOpacity={Math.min(
                       0.5,
                       Math.max(
@@ -93,7 +104,7 @@ export const LineMarker = ({
                     fill={thisFill}
                     stroke={markerStroke}
                     strokeWidth={markerRadius / 3.2}
-                    cy={thisYVal as number}
+                    cy={thisYCoord as number}
                     fillOpacity={area?.strokeOpacity || 0.9}
                     strokeOpacity={0.7}
                   />

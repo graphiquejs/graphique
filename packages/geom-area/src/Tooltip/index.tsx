@@ -9,7 +9,7 @@ import {
   TooltipContainer,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { mean } from 'd3-array'
+import { mean, sum } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
 
 export { LineMarker } from './LineMarker'
@@ -27,12 +27,50 @@ export const Tooltip = ({ x, y }: Props) => {
 
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
     useAtom(tooltipState)
+
   const [{ geoms, defaultStroke }] = useAtom(themeState)
+  const { area } = geoms || {}
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
   const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
-  const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])
+  const meanYVal = useMemo(
+    () =>
+      (datum &&
+        mean(
+          datum.map((d, i, stacks) => {
+            let thisYCoord
+
+            // stacked area (sum)
+            if (area?.position === 'stack') {
+              const yTotal = stacks
+                .slice(0, i + 1)
+                // @ts-ignore
+                .map(aes.y)
+                .reduce((a, b) => (a as number) + (b as number), 0) as number
+
+              thisYCoord = copiedScales?.yScale(yTotal)
+            } else if (area?.position === 'fill' && aes?.y) {
+              const yTotal = stacks
+                .slice(0, i + 1)
+                .map(
+                  (s) =>
+                    // @ts-ignore
+                    aes.y(s) / sum(stacks, aes.y)
+                )
+                .reduce((a, b) => (a as number) + (b as number), 0) as number
+
+              thisYCoord = copiedScales?.yScale(yTotal)
+            } else {
+              thisYCoord = y(d)
+            }
+            return thisYCoord
+          })
+        )) ||
+      0,
+    [datum, y]
+  )
+
   const xVal = useMemo(
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
     [datum, aes]
@@ -55,6 +93,7 @@ export const Tooltip = ({ x, y }: Props) => {
         .filter((d) => aes?.y && aes.y(d))
         .map((md) => {
           const thisGroup = group(md)
+
           const mark = (
             <svg width={15} height={15}>
               <rect
@@ -62,26 +101,26 @@ export const Tooltip = ({ x, y }: Props) => {
                 width={12}
                 height={12}
                 fill={
-                  geoms?.area?.fill ||
+                  area?.fill ||
                   (copiedScales?.fillScale
                     ? copiedScales.fillScale(thisGroup)
                     : 'none')
                 }
                 stroke={
-                  geoms?.area?.stroke ||
+                  area?.stroke ||
                   (copiedScales?.strokeScale
                     ? copiedScales.strokeScale(thisGroup)
                     : 'none')
                 }
                 strokeDasharray={
-                  geoms?.area?.strokeDasharray ||
+                  area?.strokeDasharray ||
                   (copiedScales?.strokeDasharrayScale
                     ? copiedScales.strokeDasharrayScale(thisGroup)
                     : undefined)
                 }
-                strokeWidth={geoms?.area?.strokeWidth}
-                fillOpacity={geoms?.area?.fillOpacity}
-                strokeOpacity={geoms?.area?.strokeOpacity}
+                strokeWidth={area?.strokeWidth}
+                fillOpacity={area?.fillOpacity}
+                strokeOpacity={area?.strokeOpacity}
               />
             </svg>
           )
