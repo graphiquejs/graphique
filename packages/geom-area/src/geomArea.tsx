@@ -21,8 +21,8 @@ import {
   stack,
   stackOffsetDiverging,
   stackOffsetExpand,
-  stackOffsetWiggle,
-  stackOrderInsideOut,
+  // stackOffsetWiggle,
+  // stackOrderInsideOut,
   stackOrderNone,
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
@@ -56,7 +56,8 @@ export interface AreaProps extends SVGAttributes<SVGPathElement> {
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
-  position?: 'identity' | 'stack' | 'fill' | 'stream'
+  // TODO: add 'stream' position
+  position?: 'identity' | 'stack' | 'fill'
 }
 
 const GeomArea = ({
@@ -268,14 +269,16 @@ const GeomArea = ({
 
   const stackOffset = useMemo(() => {
     if (position === 'fill') return stackOffsetExpand
-    if (position === 'stream') return stackOffsetWiggle
+    // if (position === 'stream') return stackOffsetWiggle
     return stackOffsetDiverging
   }, [position])
 
-  const stackOrder = useMemo(() => {
-    if (position === 'stream') return stackOrderInsideOut
-    return stackOrderNone
-  }, [position])
+  const stackOrder = useMemo(
+    () =>
+      // if (position === 'stream') return stackOrderInsideOut
+      stackOrderNone,
+    [position]
+  )
 
   const stackedData = useMemo(() => {
     if (
