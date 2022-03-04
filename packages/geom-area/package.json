@@ -1,0 +1,59 @@
+{
+  "name": "@graphique/geom-area",
+  "version": "0.0.0",
+  "description": "For area charts, stacked area charts, or streamgraphs",
+  "keywords": [
+    "react",
+    "d3",
+    "data-visualization",
+    "grammar-of-graphics",
+    "graphique",
+    "geom-area",
+    "area-chart"
+  ],
+  "files": [
+    "/src",
+    "/dist"
+  ],
+  "type": "module",
+  "module": "./dist/index.module.js",
+  "source": "./src/index.ts",
+  "exports": "./dist/index.module.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "repository": "https://github.com/graphiquejs/graphique.git",
+  "author": "Matt Adams",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint ./ --fix",
+    "prepublishOnly": "npm run lint && npm run build",
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern"
+  },
+  "dependencies": {
+    "d3-array": "^3.0.1",
+    "d3-ease": "^3.0.1",
+    "d3-interpolate": "^3.0.1",
+    "d3-interpolate-path": "^2.2.3",
+    "d3-shape": "^3.0.1",
+    "jotai": "^1.1.2",
+    "react-move": "^6.5.0"
+  },
+  "peerDependencies": {
+    "@graphique/graphique": ">=1",
+    "react": ">=16",
+    "react-dom": ">=16"
+  },
+  "devDependencies": {
+    "@types/d3-array": "^3.0.1",
+    "@types/d3-ease": "^3.0.0",
+    "@types/d3-interpolate": "^3.0.1",
+    "@types/d3-interpolate-path": "^2.0.0",
+    "@types/d3-shape": "^3.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0"
+  }
+}
