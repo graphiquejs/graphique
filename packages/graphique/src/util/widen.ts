@@ -8,9 +8,9 @@ export const widen = (
 ) => {
   const pivots = Array.from(new Set(data.map(pivot)))
   const groups = Array.from(new Set(data.map(getGroup)))
-  return pivots.map(p => {
-    const out: any = { key: isDate(p) ? p.valueOf() : p }
-    groups.forEach(g => {
+  return pivots.map((p, i) => {
+    const out: any = { key: isDate(p) ? p.valueOf() : p, i }
+    groups.forEach((g) => {
       const pivotGroup = data.find(
         d =>
           (isDate(pivot(d))
