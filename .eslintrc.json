@@ -8,10 +8,10 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["packages/**/dist/**/*"],
+  "ignorePatterns": ["packages/**/dist/**/*", "./config-overrides.js"],
   "rules": {
     "import/prefer-default-export": "off",
     "react/require-default-props": "off",
-    "no-console": ["error", { "allow": ["warn", "error"] }]
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
   }
 }
