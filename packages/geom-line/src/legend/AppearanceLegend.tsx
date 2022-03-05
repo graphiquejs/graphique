@@ -10,8 +10,8 @@ export interface AppearanceLegendProps {
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
   format?: (v: unknown, i: number) => string
-  numTicks?: number
-  width?: number
+  // numTicks?: number
+  // width?: number
   onSelection?: (v: unknown) => void
 }
 

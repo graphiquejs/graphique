@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, SVGAttributes, useState } from 'react'
-import { useGG, themeState, generateID, Delaunay } from '@graphique/graphique'
+import {
+  useGG,
+  themeState,
+  generateID,
+  Delaunay,
+  Aes,
+  // isDate,
+} from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
@@ -10,6 +17,7 @@ import { LineMarker, Tooltip } from './tooltip'
 
 export interface LineProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
+  aes?: Aes
   showTooltip?: boolean
   curve?: CurveFactory
   markerRadius?: number
@@ -22,6 +30,7 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
 
 const GeomLine = ({
   data: localData,
+  aes: localAes,
   showTooltip = true,
   curve,
   onDatumFocus,
@@ -42,6 +51,15 @@ const GeomLine = ({
   const [theme, setTheme] = useAtom(themeState)
 
   const geomData = localData || data
+  const geomAes = useMemo(() => {
+    if (localAes) {
+      return {
+        ...aes,
+        ...localAes,
+      }
+    }
+    return aes
+  }, [aes, localAes])
 
   const { stroke: strokeColor, strokeDasharray } = { ...props }
   const { defaultStroke } = theme
@@ -81,18 +99,24 @@ const GeomLine = ({
   const groups = scales?.groups
 
   const x = useMemo(
-    () => (d: unknown) => scales?.xScale && scales.xScale(aes?.x(d)),
-    [scales, aes]
+    () => (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d)),
+    [scales, geomAes]
   )
   const y = useMemo(
-    () => (d: unknown) => aes?.y && scales?.yScale && scales.yScale(aes?.y(d)),
-    [scales, aes]
+    () => (d: unknown) =>
+      geomAes?.y && scales?.yScale && scales.yScale(geomAes?.y(d)),
+    [scales, geomAes]
   )
 
   const drawLine = useMemo(
     () =>
       line()
-        .defined((d) => !Number.isNaN(d[0]) && !Number.isNaN(d[1]))
+        .defined((d) => {
+          const areDefined =
+            typeof d[0] !== 'undefined' && typeof d[1] !== 'undefined'
+          const areNumbers = !Number.isNaN(d[0]) && !Number.isNaN(d[1])
+          return areDefined && areNumbers
+        })
         .curve(curve || curveLinear),
     [curve]
   )
@@ -122,9 +146,12 @@ const GeomLine = ({
             <Animate
               key={`${geomID}-${g}`}
               start={{
-                // start at an imaginary horizontal line at the vertical midpoint
                 path: drawLine(
-                  groupData.map((d: [any, any]) => [d[0], (height || 0) / 2])
+                  groupData.map((d: [any, any]) => {
+                    const hasMissingY =
+                      d[1] === null || typeof d[1] === 'undefined'
+                    return [d[0], hasMissingY ? NaN : (height || 0) / 2]
+                  })
                 ),
                 opacity: 0,
               }}
@@ -216,9 +243,9 @@ const GeomLine = ({
         <>
           <Delaunay
             data={geomData}
-            aes={aes}
+            aes={geomAes}
             group="x"
-            x={x}
+            x={(v) => x(v)}
             y={() => 0}
             onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
               if (onDatumFocus) onDatumFocus(d, i)

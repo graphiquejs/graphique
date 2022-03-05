@@ -30,6 +30,7 @@ export const Tooltip = ({ x, y }: Props) => {
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
+  const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
   const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])
   const xVal = useMemo(
@@ -102,7 +103,7 @@ export const Tooltip = ({ x, y }: Props) => {
           }
         />
       )}
-      {left && (
+      {left && hasYVal && (
         <YTooltip
           id={id as string}
           left={left}

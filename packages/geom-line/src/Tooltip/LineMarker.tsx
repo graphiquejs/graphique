@@ -7,7 +7,7 @@ export interface LineMarkerProps {
   y: (d: unknown) => number | undefined
   markerRadius: number
   markerStroke: string
-  onDatumFocus?: (data: unknown) => void
+  // onDatumFocus?: (data: unknown) => void
 }
 
 export const LineMarker = ({
