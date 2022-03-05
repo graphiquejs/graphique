@@ -20,11 +20,13 @@ import {
   themeState,
   radiusScaleState,
   isDate,
+  Aes,
 } from '@graphique/graphique'
 import { Tooltip } from './tooltip'
 
 export interface PointProps extends SVGAttributes<SVGCircleElement> {
   data?: unknown[]
+  aes?: Aes
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
@@ -37,6 +39,7 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
 
 const GeomPoint = ({
   data: localData,
+  aes: localAes,
   focusedStyle,
   unfocusedStyle,
   onDatumFocus,
@@ -89,6 +92,15 @@ const GeomPoint = ({
       aes.y(d) !== null &&
       !(typeof aes.y(d) === 'undefined')
   )
+  const geomAes = useMemo(() => {
+    if (localAes) {
+      return {
+        ...aes,
+        ...localAes,
+      }
+    }
+    return aes
+  }, [aes, localAes])
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -160,22 +172,24 @@ const GeomPoint = ({
   const fill = useMemo(
     () => (d: unknown) =>
       fillColor ||
-      (aes?.fill && copiedScales?.fillScale
+      (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
-            aes.fill(d)
+            geomAes.fill(d)
             // aes.fill(d) === null ? "[null]" : (aes.fill(d) as any)
           ) as string | undefined)
         : defaultFill),
-    [aes, copiedScales, fillColor, defaultFill]
+    [geomAes, copiedScales, fillColor, defaultFill]
   )
 
   const stroke = useMemo(
     () => (d: unknown) =>
       strokeColor ||
-      (aes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(aes.stroke(d) as any) as string | undefined)
+      (geomAes?.stroke && copiedScales?.strokeScale
+        ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
+            | string
+            | undefined)
         : 'none'),
-    [aes, copiedScales, strokeColor]
+    [geomAes, copiedScales, strokeColor]
   )
 
   // if (scales?.yScale?.bandwidth) {
@@ -188,43 +202,43 @@ const GeomPoint = ({
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
       return (d: unknown) =>
-        (scales?.xScale(aes?.x(d)) || 0) + scales?.xScale.bandwidth() / 2
+        (scales?.xScale(geomAes?.x(d)) || 0) + scales?.xScale.bandwidth() / 2
     }
     return (d: unknown) =>
-      scales?.xScale && (scales.xScale(aes?.x(d)) || 0) + 0.5
-  }, [scales, aes])
+      scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0) + 0.5
+  }, [scales, geomAes])
   const y = useMemo(() => {
     if (scales?.yScale.bandwidth) {
       return (d: unknown) =>
-        (scales?.yScale(aes?.y && aes.y(d)) || 0) +
+        (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) +
         scales?.yScale.bandwidth() / 2
     }
     return (d: unknown) =>
-      scales?.yScale && aes?.y && (scales.yScale(aes.y(d)) || 0) + 0.5
-  }, [scales, aes])
+      scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0) + 0.5
+  }, [scales, geomAes])
 
   const radius = useMemo(() => {
-    if (geomData && aes?.size && sizeRange && sizeDomain) {
+    if (geomData && geomAes?.size && sizeRange && sizeDomain) {
       const domain =
         sizeDomain[0] && sizeDomain[1]
           ? sizeDomain
-          : (extent(geomData, aes.size as () => number) as number[])
+          : (extent(geomData, geomAes.size as () => number) as number[])
       return scaleSqrt()
         .domain(domain)
         .range(sizeRange as [number, number])
         .unknown([r])
     }
     return () => r
-  }, [r, aes, geomData, sizeRange, sizeDomain])
+  }, [r, geomAes, geomData, sizeRange, sizeDomain])
 
   const keyAccessor = useMemo(
     () => (d: unknown) =>
-      aes?.key
-        ? aes.key(d)
-        : (`${aes?.x(d)}-${aes?.y && aes.y(d)}-${
+      geomAes?.key
+        ? geomAes.key(d)
+        : (`${geomAes?.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
           }` as string),
-    [aes, scales]
+    [geomAes, scales]
   )
 
   const groupRef = useRef<SVGGElement>(null)
@@ -249,7 +263,7 @@ const GeomPoint = ({
             enter={(d) => ({
               cx: [x(d)],
               cy: [y(d)],
-              r: [aes?.size ? radius(aes.size(d) as number) : r],
+              r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
               fill: [fill(d)],
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
@@ -261,7 +275,7 @@ const GeomPoint = ({
               cy: [y(d)],
               fill: firstRender ? fill(d) : [fill(d)],
               stroke: firstRender ? stroke(d) : [stroke(d)],
-              r: [aes?.size ? radius(aes.size(d) as number) : r],
+              r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
               timing: { duration: 1000, ease: easeCubic },
@@ -288,6 +302,7 @@ const GeomPoint = ({
                     cy={state.cy}
                     fillOpacity={state.fillOpacity}
                     strokeOpacity={state.strokeOpacity}
+                    style={{ pointerEvents: 'none' }}
                   />
                 ))}
               </>
