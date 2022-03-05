@@ -17,7 +17,9 @@ export const widen = (
             ? pivot(d).valueOf() === p.valueOf()
             : pivot(d) === p) && getGroup(d) === g
       )
-      out[g] = pivotGroup ? count(pivotGroup) : undefined
+      if (pivotGroup) {
+        out[g] = count(pivotGroup) ?? undefined
+      }
     })
     return out
   })

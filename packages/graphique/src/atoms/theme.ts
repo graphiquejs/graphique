@@ -1,5 +1,5 @@
 import { atom } from "jotai"
-import { DataValue } from ".."
+import { DataValue } from '..'
 
 interface PointThemeProps {
   fillOpacity?: number | string
