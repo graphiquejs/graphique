@@ -74,7 +74,7 @@ const GeomArea = ({
   onExit,
   fillOpacity = 1,
   strokeOpacity = 1,
-  strokeWidth = 1.2,
+  strokeWidth = 0,
   markerRadius = 3.5,
   markerStroke = '#fff',
   position = 'identity',
@@ -157,12 +157,18 @@ const GeomArea = ({
         return [yVal, y0Val, y1Val]
       }
     )
+
+    const existingYExtent = scales?.yScale.domain() as [number, number]
+
     const yExtent = identityYVals
       ? extent(identityYVals.flat() as number[])
       : [0, 1]
     const yMin =
       geomAes?.y0 && geomAes?.y1 ? yExtent[0] : min([0, yExtent[0] as number])
-    return [yMin, yExtent[1]]
+    return [
+      (yMin || 0) < existingYExtent[0] ? yMin : existingYExtent[0],
+      existingYExtent[1] > (yExtent[1] || 0) ? existingYExtent[1] : yExtent[1],
+    ]
   }, [position, scales, geomData, geomAes])
 
   useEffect(() => {
@@ -203,6 +209,7 @@ const GeomArea = ({
             typeof xVal !== 'undefined' &&
             typeof dataVal.y0 !== 'undefined' &&
             typeof dataVal.y1 !== 'undefined'
+
           const areNumbers =
             !Number.isNaN(xVal) &&
             !Number.isNaN(dataVal.y0) &&
@@ -230,7 +237,11 @@ const GeomArea = ({
           const y1Val =
             geomAes.y0 && geomAes.y1 ? geomAes.y1(d) : geomAes.y && geomAes.y(d)
           return (
-            !Number.isNaN(xVal) && !Number.isNaN(y0Val) && !Number.isNaN(y1Val)
+            typeof y0Val !== 'undefined' &&
+            typeof y1Val !== 'undefined' &&
+            !Number.isNaN(xVal) &&
+            !Number.isNaN(y0Val) &&
+            !Number.isNaN(y1Val)
           )
         })
         .curve(curve || curveLinear),
@@ -295,7 +306,23 @@ const GeomArea = ({
         .offset(stackOffset)(
         widen(geomData, geomAes.x, scales.groupAccessor, geomAes.y)
       )
-      return stacked
+
+      const formattedStacked = stacked
+        .map((s) => {
+          const thisGroup = s.key
+          return s
+            .map((thisStack) => ({
+              group: thisGroup,
+              x: thisStack.data.key,
+              y0: thisStack[0],
+              y1: thisStack[1],
+            }))
+            .flat()
+        })
+        .flat()
+        .sort((a, b) => a.x - b.x)
+
+      return formattedStacked
     }
     return null
   }, [geomData, geomAes, shouldStack, stackOffset, stackOrder])
@@ -304,17 +331,7 @@ const GeomArea = ({
     () => (g: unknown) => {
       const thisStack =
         stackedData &&
-        stackedData
-          .find((sd) => sd.key === g)
-          ?.map((gs) => ({
-            x: gs.data.key,
-            i: gs.data.i,
-            y0: gs[0],
-            y1: gs[1],
-          }))
-          .sort((a, b) => a.x - b.x)
-
-      // console.log(thisStack)
+        stackedData.filter((sd) => sd.group === g).sort((a, b) => a.x - b.x)
 
       return thisStack
     },
