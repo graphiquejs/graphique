@@ -126,49 +126,71 @@ const GeomArea = ({
     [scales, geomAes]
   )
 
+  const shouldStack = useMemo(
+    () => ['stack', 'fill', 'stream'].includes(position),
+    [position]
+  )
+
   const yValExtent = useMemo(() => {
     // reset the yScale based on position
+    const existingYExtent = scales?.yScale.domain() as [number, number]
     if (
-      ['stack', 'fill', 'stream'].includes(position) &&
+      // shouldStack &&
       scales?.groups &&
       group &&
       geomData &&
       scales?.xScale &&
       scales.yScale &&
-      geomAes?.x &&
-      geomAes?.y
+      geomAes?.x
     ) {
-      if (['stack', 'stream'].includes(position)) {
-        const groupYMaximums = scales.groups.map((g) =>
-          max(
-            geomData.filter((d) => group(d) === g),
-            (d) => (geomAes.y ? (geomAes.y(d) as number) : undefined)
-          )
+      const groupYMaximums = scales.groups.map((g) =>
+        max(
+          geomData.filter((d) => group(d) === g),
+          (d) => {
+            const thisYAcc = geomAes.y1 || geomAes.y || (() => undefined)
+            return thisYAcc(d) as number
+          }
         )
+      )
+      if (['stack', 'stream'].includes(position)) {
         return [0, sum(groupYMaximums)]
       }
-      return [0, 1]
-    }
-    const identityYVals: (number | undefined)[][] | undefined = geomData?.map(
-      (d) => {
-        const yVal = geomAes?.y ? (geomAes.y(d) as number) : undefined
-        const y0Val = geomAes?.y0 ? (geomAes.y0(d) as number) : undefined
-        const y1Val = geomAes?.y1 ? (geomAes.y1(d) as number) : undefined
-        return [yVal, y0Val, y1Val]
+      if (position === 'fill') return [0, 1]
+      // if (!geomAes.y0 && !geomAes.y1)
+      //   return [0, max(groupYMaximums as number[])]
+
+      if (position === 'identity') {
+        const identityYVals: (number | undefined)[][] | undefined =
+          geomData?.map((d) => {
+            const yVal = geomAes?.y ? (geomAes.y(d) as number) : undefined
+            const y0Val = geomAes?.y0 ? (geomAes.y0(d) as number) : undefined
+            const y1Val = geomAes?.y1 ? (geomAes.y1(d) as number) : undefined
+            return [yVal, y0Val, y1Val]
+          })
+
+        const yExtent = identityYVals
+          ? extent(identityYVals.flat() as number[])
+          : [0, 1]
+        const yMin =
+          geomAes?.y0 && geomAes?.y1
+            ? yExtent[0]
+            : min([0, yExtent[0] as number])
+
+        const yMax = max(
+          [
+            groupYMaximums as number[],
+            // existingYExtent[1] as number,
+            // yExtent[1] as number,
+          ].flat()
+        )
+
+        return [
+          (yMin || 0) < existingYExtent[0] ? yMin : existingYExtent[0],
+          yMax,
+        ]
       }
-    )
-
-    const existingYExtent = scales?.yScale.domain() as [number, number]
-
-    const yExtent = identityYVals
-      ? extent(identityYVals.flat() as number[])
-      : [0, 1]
-    const yMin =
-      geomAes?.y0 && geomAes?.y1 ? yExtent[0] : min([0, yExtent[0] as number])
-    return [
-      (yMin || 0) < existingYExtent[0] ? yMin : existingYExtent[0],
-      existingYExtent[1] > (yExtent[1] || 0) ? existingYExtent[1] : yExtent[1],
-    ]
+    }
+    return existingYExtent
   }, [position, scales, geomData, geomAes])
 
   useEffect(() => {
@@ -189,11 +211,6 @@ const GeomArea = ({
       geomAes?.y1 && scales?.yScale && scales.yScale(geomAes.y1(d)),
     [scales, geomAes]
   ) as DataValue
-
-  const shouldStack = useMemo(
-    () => ['stack', 'fill', 'stream'].includes(position),
-    [position]
-  )
 
   const drawStackArea = useMemo(
     () =>
@@ -276,6 +293,7 @@ const GeomArea = ({
     fillColor,
     props.style,
     position,
+    shouldStack,
   ])
 
   const stackOffset = useMemo(() => {
@@ -330,8 +348,7 @@ const GeomArea = ({
   const getStackedData = useMemo(
     () => (g: unknown) => {
       const thisStack =
-        stackedData &&
-        stackedData.filter((sd) => sd.group === g).sort((a, b) => a.x - b.x)
+        stackedData && stackedData.filter((sd) => sd.group === g)
 
       return thisStack
     },
