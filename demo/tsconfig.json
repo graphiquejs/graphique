@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@graphique/*": ["../packages/*"]
+    },
     "target": "es5",
     "lib": [
       "dom",
