@@ -1,11 +1,21 @@
 import React, { useMemo } from 'react'
-import { useGG, tooltipState, themeState } from '@graphique/graphique'
+import {
+  useGG,
+  tooltipState,
+  themeState,
+  DataValue,
+  Aes,
+} from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { sum } from 'd3-array'
+import type { AreaAes } from '../types'
 
 export interface LineMarkerProps {
   x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
+  y0: DataValue
+  y1: DataValue
+  aes: Aes & AreaAes
   markerRadius: number
   markerStroke: string
   // onDatumFocus?: (data: unknown) => void
@@ -14,11 +24,14 @@ export interface LineMarkerProps {
 export const LineMarker = ({
   x,
   y,
+  y0,
+  y1,
+  aes,
   markerRadius,
   markerStroke,
 }: LineMarkerProps) => {
   const { ggState } = useGG() || {}
-  const { aes, copiedScales, height, margin, id } = ggState || {}
+  const { scales, copiedScales, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
   const [{ defaultStroke, geoms }] = useAtom(themeState) || {}
@@ -30,6 +43,7 @@ export const LineMarker = ({
   //   () => area?.position && ['stack', 'fill', 'stream'].includes(area.position),
   //   [area]
   // )
+  const getY = useMemo(() => (aes?.y1 ? y1 : y), [y1, y, aes])
 
   return height && margin ? (
     <>
@@ -57,7 +71,7 @@ export const LineMarker = ({
                 .map(aes.y)
                 .reduce((a, b) => (a as number) + (b as number), 0) as number
 
-              thisYCoord = copiedScales?.yScale(yTotal)
+              thisYCoord = [scales?.yScale(yTotal)]
             } else if (area?.position === 'fill' && aes?.y) {
               const yTotal = stacks
                 .slice(0, i + 1)
@@ -68,9 +82,11 @@ export const LineMarker = ({
                 )
                 .reduce((a, b) => (a as number) + (b as number), 0) as number
 
-              thisYCoord = copiedScales?.yScale(yTotal)
+              thisYCoord = [scales?.yScale(yTotal)]
+            } else if (aes.y0 && aes.y1) {
+              thisYCoord = [y0(d), y1(d)]
             } else {
-              thisYCoord = y(d)
+              thisYCoord = [y(d)]
             }
 
             const thisFill =
@@ -79,37 +95,38 @@ export const LineMarker = ({
                 ? copiedScales.fillScale(aes.fill(d))
                 : defaultStroke)
 
-            return (
-              y(d) && (
-                <g
-                  key={`marker-${
-                    copiedScales?.groups ? copiedScales.groups[i] : i
-                  }`}
-                  style={{ pointerEvents: 'none' }}
-                >
-                  <circle
-                    r={markerRadius * 2 + 0.5}
-                    fill={thisFill}
-                    cy={thisYCoord as number}
-                    fillOpacity={Math.min(
-                      0.5,
-                      Math.max(
-                        ((area?.strokeOpacity || 0.9) as number) - 0.35,
-                        0
-                      )
-                    )}
-                  />
-                  <circle
-                    r={markerRadius}
-                    fill={thisFill}
-                    stroke={markerStroke}
-                    strokeWidth={markerRadius / 3.2}
-                    cy={thisYCoord as number}
-                    fillOpacity={area?.strokeOpacity || 0.9}
-                    strokeOpacity={0.7}
-                  />
-                </g>
-              )
+            return thisYCoord?.map(
+              (c, j) =>
+                getY(d) && (
+                  <g
+                    key={`marker-${
+                      copiedScales?.groups ? copiedScales.groups[i] : i
+                    }-${j.toString()}`}
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    <circle
+                      r={markerRadius * 2 + 0.5}
+                      fill={thisFill}
+                      cy={c as number}
+                      fillOpacity={Math.min(
+                        0.5,
+                        Math.max(
+                          ((area?.strokeOpacity || 0.9) as number) - 0.35,
+                          0
+                        )
+                      )}
+                    />
+                    <circle
+                      r={markerRadius}
+                      fill={thisFill}
+                      stroke={markerStroke}
+                      strokeWidth={markerRadius / 3.2}
+                      cy={c as number}
+                      fillOpacity={area?.strokeOpacity || 0.9}
+                      strokeOpacity={0.7}
+                    />
+                  </g>
+                )
             )
           })}
         </g>

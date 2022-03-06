@@ -7,21 +7,27 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
+  DataValue,
+  Aes,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, sum } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
+import type { AreaAes } from '../types'
 
 export { LineMarker } from './LineMarker'
 
 interface Props {
   x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
+  y0: DataValue
+  y1: DataValue
+  aes: Aes & AreaAes
 }
 
-export const Tooltip = ({ x, y }: Props) => {
+export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
   const { ggState } = useGG() || {}
-  const { id, copiedScales, height, margin, aes } = ggState || {
+  const { id, scales, copiedScales, height, margin } = ggState || {
     height: 0,
   }
 
@@ -32,7 +38,10 @@ export const Tooltip = ({ x, y }: Props) => {
   const { area } = geoms || {}
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
-  const hasYVal = useMemo(() => datum?.some(y), [datum, y])
+  const hasYVal = useMemo(
+    () => datum?.some(y1) || datum?.some(y),
+    [datum, y, y1]
+  )
 
   const meanYVal = useMemo(
     () =>
@@ -49,7 +58,7 @@ export const Tooltip = ({ x, y }: Props) => {
                 .map(aes.y)
                 .reduce((a, b) => (a as number) + (b as number), 0) as number
 
-              thisYCoord = copiedScales?.yScale(yTotal)
+              thisYCoord = scales?.yScale(yTotal)
             } else if (area?.position === 'fill' && aes?.y) {
               const yTotal = stacks
                 .slice(0, i + 1)
@@ -60,7 +69,9 @@ export const Tooltip = ({ x, y }: Props) => {
                 )
                 .reduce((a, b) => (a as number) + (b as number), 0) as number
 
-              thisYCoord = copiedScales?.yScale(yTotal)
+              thisYCoord = scales?.yScale(yTotal)
+            } else if (aes.y0 && aes.y1) {
+              thisYCoord = mean([y0(d), y1(d)] as [number, number])
             } else {
               thisYCoord = y(d)
             }
@@ -68,7 +79,7 @@ export const Tooltip = ({ x, y }: Props) => {
           })
         )) ||
       0,
-    [datum, y]
+    [datum, y, y0, y1]
   )
 
   const xVal = useMemo(
@@ -90,9 +101,19 @@ export const Tooltip = ({ x, y }: Props) => {
     const vals =
       datum &&
       datum
-        .filter((d) => aes?.y && aes.y(d))
+        .filter((d) => (aes?.y1 && aes.y1(d)) || (aes?.y && aes.y(d)))
         .map((md) => {
           const thisGroup = group(md)
+
+          let formattedY
+
+          if (aes?.y) {
+            formattedY = yFormat ? yFormat(aes.y(md)) : aes.y(md)
+          }
+
+          if (aes?.y1) {
+            formattedY = yFormat ? yFormat(aes.y1(md)) : aes.y1(md)
+          }
 
           const mark = (
             <svg width={15} height={15}>
@@ -118,7 +139,7 @@ export const Tooltip = ({ x, y }: Props) => {
                     ? copiedScales.strokeDasharrayScale(thisGroup)
                     : undefined)
                 }
-                strokeWidth={area?.strokeWidth}
+                strokeWidth={0.6}
                 fillOpacity={area?.fillOpacity}
                 strokeOpacity={area?.strokeOpacity}
               />
@@ -128,8 +149,8 @@ export const Tooltip = ({ x, y }: Props) => {
             group: copiedScales?.groupAccessor(md),
             mark,
             x: xVal,
-            y: aes?.y && aes.y(md),
-            formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
+            y: (aes?.y1 && aes?.y1(md)) || (aes?.y && aes.y(md)),
+            formattedY,
             formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
           }
         })

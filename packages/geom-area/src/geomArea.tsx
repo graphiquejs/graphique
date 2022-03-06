@@ -27,14 +27,8 @@ import {
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
 import { useAtom } from 'jotai'
+import type { AreaAes } from './types'
 import { LineMarker, Tooltip } from './tooltip'
-
-interface AreaAes {
-  /** a functional mapping to `data` representing an initial **y** value */
-  y0?: DataValue
-  /** a functional mapping to `data` representing a secondary **y** value */
-  y1?: DataValue
-}
 
 type StackedArea = {
   x: number
@@ -134,6 +128,7 @@ const GeomArea = ({
   const yValExtent = useMemo(() => {
     // reset the yScale based on position
     const existingYExtent = scales?.yScale.domain() as [number, number]
+    let resolvedYExtent = [0, 1]
     if (
       // shouldStack &&
       scales?.groups &&
@@ -147,7 +142,9 @@ const GeomArea = ({
         max(
           geomData.filter((d) => group(d) === g),
           (d) => {
-            const thisYAcc = geomAes.y1 || geomAes.y || (() => undefined)
+            const thisYAcc = !shouldStack
+              ? geomAes.y1 || geomAes.y || (() => undefined)
+              : geomAes.y || (() => undefined)
             return thisYAcc(d) as number
           }
         )
@@ -184,21 +181,21 @@ const GeomArea = ({
           ].flat()
         )
 
-        return [
+        resolvedYExtent = [
           (yMin || 0) < existingYExtent[0] ? yMin : existingYExtent[0],
           yMax,
-        ]
+        ] as [number, number]
       }
     }
-    return existingYExtent
-  }, [position, scales, geomData, geomAes])
+    return resolvedYExtent
+  }, [position, geomData, geomAes])
 
   useEffect(() => {
     setYScale((prev) => ({
       ...prev,
       domain: yValExtent,
     }))
-  }, yValExtent)
+  }, [yValExtent])
 
   const y0 = useMemo(
     () => (d: unknown) =>
@@ -526,10 +523,13 @@ const GeomArea = ({
           <LineMarker
             x={x}
             y={y}
+            y0={y0}
+            y1={y1}
+            aes={geomAes}
             markerRadius={markerRadius}
             markerStroke={markerStroke}
           />
-          <Tooltip x={x} y={y} />
+          <Tooltip x={x} y={y} y0={y0} y1={y1} aes={geomAes} />
         </>
       )}
     </>
