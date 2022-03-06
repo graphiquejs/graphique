@@ -2,6 +2,7 @@ import { XYScale } from "../../../gg/types/Scales"
 
 export interface XYScaleProps {
   type?: XYScale
+  reverse?: boolean
   format?:
     | (({
         value,
