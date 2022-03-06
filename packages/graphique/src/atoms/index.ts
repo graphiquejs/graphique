@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 export { labelsState, LabelsProps } from './labels'
 export { themeState, ThemeProps } from './theme'
 export { tooltipState, TooltipProps, TooltipContent } from './tooltip'
