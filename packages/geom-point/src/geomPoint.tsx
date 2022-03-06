@@ -60,38 +60,6 @@ const GeomPoint = ({
   const { defaultFill } = theme
 
   let geomData = localData || data
-  const undefinedX = useMemo(
-    () =>
-      geomData
-        ? geomData.filter(
-            (d) =>
-              aes?.x(d) === null ||
-              typeof aes?.x(d) === 'undefined' ||
-              (isDate(aes?.x(d)) && Number.isNaN(aes?.x(d)?.valueOf()))
-          )
-        : [],
-    [geomData]
-  )
-  const undefinedY = useMemo(
-    () =>
-      geomData
-        ? geomData.filter(
-            (d) =>
-              aes?.y && (aes.y(d) === null || typeof aes.y(d) === 'undefined')
-          )
-        : [],
-    [geomData]
-  )
-
-  geomData = geomData?.filter(
-    (d) =>
-      aes?.x(d) !== null &&
-      !(typeof aes?.x(d) === 'undefined') &&
-      (isDate(aes?.x(d)) ? !Number.isNaN(aes?.x(d)?.valueOf()) : true) &&
-      aes.y &&
-      aes.y(d) !== null &&
-      !(typeof aes.y(d) === 'undefined')
-  )
   const geomAes = useMemo(() => {
     if (localAes) {
       return {
@@ -101,6 +69,41 @@ const GeomPoint = ({
     }
     return aes
   }, [aes, localAes])
+  const undefinedX = useMemo(
+    () =>
+      geomData
+        ? geomData.filter(
+            (d) =>
+              geomAes?.x(d) === null ||
+              typeof geomAes?.x(d) === 'undefined' ||
+              (isDate(geomAes?.x(d)) && Number.isNaN(geomAes?.x(d)?.valueOf()))
+          )
+        : [],
+    [geomData, geomAes]
+  )
+  const undefinedY = useMemo(
+    () =>
+      geomData
+        ? geomData.filter(
+            (d) =>
+              geomAes?.y &&
+              (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined')
+          )
+        : [],
+    [geomData]
+  )
+
+  geomData = geomData?.filter(
+    (d) =>
+      geomAes?.x(d) !== null &&
+      !(typeof geomAes?.x(d) === 'undefined') &&
+      (isDate(geomAes?.x(d))
+        ? !Number.isNaN(geomAes?.x(d)?.valueOf())
+        : true) &&
+      geomAes.y &&
+      geomAes.y(d) !== null &&
+      !(typeof geomAes.y(d) === 'undefined')
+  )
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -198,25 +201,6 @@ const GeomPoint = ({
   // if (scales?.xScale?.bandwidth) {
   //   scales.xScale?.padding(1)
   // }
-
-  const x = useMemo(() => {
-    if (scales?.xScale.bandwidth) {
-      return (d: unknown) =>
-        (scales?.xScale(geomAes?.x(d)) || 0) + scales?.xScale.bandwidth() / 2
-    }
-    return (d: unknown) =>
-      scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0) + 0.5
-  }, [scales, geomAes])
-  const y = useMemo(() => {
-    if (scales?.yScale.bandwidth) {
-      return (d: unknown) =>
-        (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) +
-        scales?.yScale.bandwidth() / 2
-    }
-    return (d: unknown) =>
-      scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0) + 0.5
-  }, [scales, geomAes])
-
   const radius = useMemo(() => {
     if (geomData && geomAes?.size && sizeRange && sizeDomain) {
       const domain =
@@ -230,6 +214,25 @@ const GeomPoint = ({
     }
     return () => r
   }, [r, geomAes, geomData, sizeRange, sizeDomain])
+
+  const x = useMemo(() => {
+    if (scales?.xScale.bandwidth) {
+      return (d: unknown) =>
+        (scales?.xScale(geomAes?.x(d)) || 0) +
+        scales?.xScale.bandwidth() / 2 +
+        0.9
+    }
+    return (d: unknown) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0)
+  }, [scales, geomAes])
+  const y = useMemo(() => {
+    if (scales?.yScale.bandwidth) {
+      return (d: unknown) =>
+        (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) +
+        scales?.yScale.bandwidth() / 2
+    }
+    return (d: unknown) =>
+      scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
+  }, [scales, geomAes])
 
   const keyAccessor = useMemo(
     () => (d: unknown) =>
