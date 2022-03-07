@@ -153,7 +153,7 @@ You can add one or more `Scale`s directly to customize things like its type ([d3
 - `GeomBar`: bar charts (horizontal bars)
 - `GeomCol`: column charts (vertical bars)
 - `GeomHist`: histograms
-- `GeomArea`:
+- `GeomArea`: area + stacked area charts and ribbon-like things
 - `GeomSmooth`: local smoothing and regression with standard error bands
 - TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomSegment`, `GeomDensity`, and more on the way!
 
