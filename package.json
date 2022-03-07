@@ -42,7 +42,8 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./.storybook/site",
     "prepare": "husky install",
-    "demo": "npm start -w @graphique/demo"
+    "demo": "npm start -w @graphique/demo",
+    "release": "npx lerna changed && npx lerna publish --no-private"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix --max-warnings=0"

@@ -153,8 +153,9 @@ You can add one or more `Scale`s directly to customize things like its type ([d3
 - `GeomBar`: bar charts (horizontal bars)
 - `GeomCol`: column charts (vertical bars)
 - `GeomHist`: histograms
+- `GeomArea`:
 - `GeomSmooth`: local smoothing and regression with standard error bands
-- TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomArea`, `GeomDensity`, and more on the way!
+- TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomSegment`, `GeomDensity`, and more on the way!
 
 <h3 id='labels'><code>Labels</code></h2>
 
@@ -193,4 +194,4 @@ Customize the look and feel of your Graphique visualizations.
 
 ## Dev
 
-Use `npx lerna publish` to publish a new version of a package.
+Use `npm run release` to publish and release new version(s) of package(s).
