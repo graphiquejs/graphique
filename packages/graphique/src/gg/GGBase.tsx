@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useAtom } from 'jotai'
 import flattenChildren from 'react-flatten-children'
-import { Aes, GGProps } from './types'
+import { Aes, DataValue, GGProps } from './types'
 import { autoScale, IScale } from '../util/autoScale'
 import { XAxis, YAxis } from './axes'
 import {
@@ -87,14 +87,43 @@ export const GGBase = ({
     }
   })
 
-  const barGeoms: any = geoms.find((g: any) =>
-    g.type.displayName.includes('Bar')
+  const geomPositions: (string | undefined)[] = []
+  const geomZeroXBaseLines: (boolean | undefined)[] = []
+  const geomZeroYBaseLines: (boolean | undefined)[] = []
+  const geomAesXs = []
+  const geomAesYs = []
+  const geomAesY0s: DataValue[] = []
+  const geomAesY1s: DataValue[] = []
+
+  geoms.forEach((g: any) => {
+    const geomProps = g.props
+    geomPositions.push(geomProps.position)
+    if (geomProps.aes.x) geomAesXs.push(geomProps.aes.x)
+    if (geomProps.aes.y) geomAesYs.push(geomProps.aes.y)
+    if (geomProps.aes.y0) geomAesY0s.push(geomProps.aes.y0)
+    if (geomProps.aes.y1) geomAesY1s.push(geomProps.aes.y1)
+
+    if (g.type.displayName.includes('Bar')) {
+      geomZeroXBaseLines.push(geomProps.freeBaseLine)
+    }
+    if (g.type.displayName.includes('Col')) {
+      geomZeroYBaseLines.push(geomProps.freeBaseLine)
+    }
+  })
+
+  const areaGeoms: any = geoms.find((g: any) =>
+    g.type.displayName.includes('Area')
   )
-  const colGeoms: any = geoms.find((g: any) =>
-    g.type.displayName.includes('Col')
-  ) as any
-  const hasZeroXBaseLine = barGeoms && !barGeoms?.props?.freeBaseLine
-  const hasZeroYBaseLine = colGeoms && !colGeoms?.props?.freeBaseLine
+
+  const y0Aes = areaGeoms?.props?.aes?.y0
+  const y1Aes = areaGeoms?.props?.aes?.y1
+
+  const isDefaultArea = areaGeoms && !y0Aes && !y1Aes
+
+  const hasPositionFill = geomPositions.some((v) => v === 'fill')
+  const hasPositionStack = geomPositions.some((v) => v === 'stack')
+  const hasZeroXBaseLine = geomZeroXBaseLines.some((v) => v)
+  const hasZeroYBaseLine = geomZeroYBaseLines.some((v) => v) || isDefaultArea
 
   const ggState = useMemo(
     () => ({
@@ -109,6 +138,10 @@ export const GGBase = ({
         scalesState: {
           x: xScale,
           y: yScale,
+          y0Aes,
+          y1Aes,
+          hasPositionFill,
+          hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           fill: fillScale,
@@ -126,6 +159,10 @@ export const GGBase = ({
         scalesState: {
           x: xScale,
           y: yScale,
+          y0Aes,
+          y1Aes,
+          hasPositionFill,
+          hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           fill: fillScale,

@@ -5,6 +5,7 @@
     "lib": ["ESNext", "DOM"],
     "strict": true,
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "jsx": "react"

@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "./packages/*"
+    "./packages/*",
+    "./demo"
   ],
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -37,13 +38,14 @@
     "trailingComma": "es5"
   },
   "scripts": {
-    "lint": "npm -ws run lint",
+    "lint": "npm run lint -w ./packages",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./.storybook/site",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "demo": "npm start -w @graphique/demo"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix"
+    "*.{ts,tsx}": "eslint --fix --max-warnings=0"
   },
   "dependencies": {
     "d3-shape": "^3.0.1"

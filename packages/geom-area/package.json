@@ -1,15 +1,15 @@
 {
-  "name": "@graphique/geom-tile",
-  "version": "0.1.0",
-  "description": "For rectangular charts like heatmaps",
+  "name": "@graphique/geom-area",
+  "version": "0.0.0",
+  "description": "For area charts, stacked area charts, or streamgraphs",
   "keywords": [
     "react",
     "d3",
     "data-visualization",
     "grammar-of-graphics",
     "graphique",
-    "heatmap",
-    "geom-tile"
+    "geom-area",
+    "area-chart"
   ],
   "files": [
     "/src",
@@ -35,12 +35,10 @@
   },
   "dependencies": {
     "d3-array": "^3.0.1",
-    "d3-axis": "^3.0.0",
     "d3-ease": "^3.0.1",
     "d3-interpolate": "^3.0.1",
-    "d3-scale": "^4.0.0",
-    "d3-selection": "^3.0.0",
-    "d3-transition": "^3.0.1",
+    "d3-interpolate-path": "^2.2.3",
+    "d3-shape": "^3.0.1",
     "jotai": "^1.1.2",
     "react-move": "^6.5.0"
   },
@@ -51,12 +49,10 @@
   },
   "devDependencies": {
     "@types/d3-array": "^3.0.1",
-    "@types/d3-axis": "^3.0.1",
     "@types/d3-ease": "^3.0.0",
-    "@types/d3-interpolate": "^3.0.0",
-    "@types/d3-scale": "^4.0.0",
-    "@types/d3-selection": "^3.0.0",
-    "@types/d3-transition": "^3.0.1",
+    "@types/d3-interpolate": "^3.0.1",
+    "@types/d3-interpolate-path": "^2.0.0",
+    "@types/d3-shape": "^3.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0"
   }
