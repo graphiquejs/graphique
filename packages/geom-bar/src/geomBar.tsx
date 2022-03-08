@@ -24,8 +24,6 @@ import { max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip } from './tooltip'
 
-export { Legend } from './legend'
-
 export interface BarProps extends SVGAttributes<SVGRectElement> {
   data?: unknown[]
   aes?: Aes
@@ -206,7 +204,6 @@ const GeomBar = ({
 
   const yBandScale = useMemo(() => {
     if (margin && height) {
-
       const usedYPadding = geomData && geomData.length > 1 ? yPadding : 0
 
       if (scales?.yScale.bandwidth) {
@@ -324,7 +321,8 @@ const GeomBar = ({
               dodgeYScale && scales?.groupAccessor
                 ? dodgeYScale(scales.groupAccessor(d) as string) || 0
                 : 0
-            const actualWidth = typeof x(d) === 'undefined' ? leftEdge : barWidth
+            const actualWidth =
+              typeof x(d) === 'undefined' ? leftEdge : barWidth
             return {
               width: animateOnEnter ? 0 : actualWidth,
               height: dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
@@ -347,7 +345,8 @@ const GeomBar = ({
               dodgeYScale && scales?.groupAccessor
                 ? dodgeYScale(scales.groupAccessor(d) as string) || 0
                 : 0
-            const actualWidth = typeof x(d) === 'undefined' ? leftEdge : barWidth
+            const actualWidth =
+              typeof x(d) === 'undefined' ? leftEdge : barWidth
             return {
               width: animateOnEnter ? [actualWidth] : actualWidth,
               height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],

@@ -25,8 +25,6 @@ import { max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip } from './tooltip'
 
-export { Legend } from './legend'
-
 export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   data?: unknown[]
   aes?: Aes

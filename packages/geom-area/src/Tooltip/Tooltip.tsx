@@ -34,6 +34,8 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
     useAtom(tooltipState)
 
+  // console.log(datum)
+
   const [{ geoms, defaultStroke }] = useAtom(themeState)
   const { area } = geoms || {}
 
