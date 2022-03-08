@@ -194,4 +194,22 @@ Customize the look and feel of your Graphique visualizations.
 
 ## Dev
 
+### Demo local pacakages
+
+For a place to try out new package changes locally, there's an included React app located in `demo` that you can start with
+
+```sh
+npm run demo
+```
+
+If you also watch for changes to the package you're developing with
+
+```sh
+npm run watch -w @graphique/<package_name>
+```
+
+the demo app should live reload when you save your package changes.
+
+### Publishing and releasing
+
 Use `npm run release` to publish and release new version(s) of package(s).
