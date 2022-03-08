@@ -30,6 +30,6 @@
     "lint": "eslint ./ --fix",
     "prepublishOnly": "npm run lint && npm run build",
     "build": "microbundle -f modern --compress -o dist/index.js",
-    "watch": "microbundle watch -f modern"
+    "watch": "microbundle watch -f modern --compress -o dist/index.js"
   }
 }
