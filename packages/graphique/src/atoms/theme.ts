@@ -1,5 +1,5 @@
 import { atom } from "jotai"
-import { DataValue } from "../gg"
+import { DataValue, VisualEncodingTypes } from "../gg"
 
 interface PointThemeProps {
   fillOpacity?: number | string
@@ -9,7 +9,10 @@ interface PointThemeProps {
   strokeDasharray?: number | string
   fill?: string
   hasFill?: boolean
+  fillScale?: VisualEncodingTypes
+  strokeScale?: VisualEncodingTypes
   usableGroups?: string[]
+  groupAccessor?: DataValue
 }
 
 interface BarColProps extends PointThemeProps {

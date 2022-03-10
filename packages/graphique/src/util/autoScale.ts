@@ -15,6 +15,8 @@ import {
   defaultInterpolator,
   defaultDasharrays,
 } from './scaleDefaults'
+import { defineGroupAccessor } from './defineGroupAccessor'
+import { DataValue } from '../gg'
 
 export interface IScale {
   xScale: XYScaleTypes
@@ -34,8 +36,10 @@ export interface AutoScale extends GGProps {
     hasZeroYBaseLine: boolean
     hasPositionFill: boolean
     hasPositionStack: boolean
-    y0Aes?: (d: unknown) => string | number | Date | null
-    y1Aes?: (d: unknown) => string | number | Date | null
+    geomGroupAccessors: DataValue[]
+    y0Aes?: DataValue
+    y1Aes?: DataValue
+    geomAesYs: DataValue[]
     fill?: VisualEncodingProps
     stroke?: VisualEncodingProps
     strokeDasharray?: VisualEncodingProps
@@ -70,8 +74,10 @@ export const autoScale = ({
     hasZeroYBaseLine,
     hasPositionFill,
     hasPositionStack,
+    geomGroupAccessors,
     y0Aes,
     y1Aes,
+    geomAesYs,
   } = scalesState
   const { domain: xScaleDomain, type: xScaleType, reverse: reverseX } = xScaleState || {}
   const { domain: yScaleDomain, type: yScaleType, reverse: reverseY } = yScaleState || {}
@@ -95,20 +101,28 @@ export const autoScale = ({
     initialDomain.indexOf(a) - initialDomain.indexOf(b)
 
   // identify groups
-  const group =
-    aes.group ||
-    aes.fill ||
-    aes.stroke ||
-    aes.strokeDasharray ||
-    (() => '__group')
+  const group = (
+    aes?.group ||
+    aes?.fill ||
+    aes?.stroke ||
+    aes?.strokeDasharray
+  ) ? 
+  defineGroupAccessor(aes) :
+  (geomGroupAccessors.length && geomGroupAccessors[0])
 
-  let hasCategoricalVar = aes.group !== undefined || false
+  let hasCategoricalVar = aes.group || geomGroupAccessors.length || false
   const calculatedGroups = group
     ? (Array.from(new Set(data.map(group))) as string[])
     : // .sort()
       // .map(g => (g === null ? "[null]" : g))
       // .sort()
       ['__group']
+
+  const thisYAes = aes.y || (geomAesYs.length ? geomAesYs[0] : undefined)
+
+
+  /// SCALING ///
+
 
   let xScale
   const firstX = data.map(aes.x).find((d) => d !== null && d !== undefined)
@@ -206,13 +220,13 @@ export const autoScale = ({
     //     .domain(domain)
     //   // .padding(0.2)
     // }
-  } else if (aes.y) {
+  } else if (thisYAes) {
     
-    const firstY = data.map(aes.y).find((d) => d !== null && d !== undefined)
+    const firstY = data.map(thisYAes).find((d) => d !== null && d !== undefined)
 
     if (isDate(firstY)) {
       const domain =
-        (yScaleDomain as Date[]) || extent(data, aes.y as (d: unknown) => Date)
+        (yScaleDomain as Date[]) || extent(data, thisYAes as (d: unknown) => Date)
 
       const hasDomain =
         typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
@@ -223,11 +237,17 @@ export const autoScale = ({
     } else if (typeof firstY === 'number') {
 
       if (hasPositionStack) {
-        const groupYMaximums = calculatedGroups.map((g) =>
-          max(
-            data.filter((d) => group(d) === g),
-            (d) => aes?.y && aes.y(d) as number
-          )
+        const groupYMaximums = calculatedGroups.map(
+          (g) =>
+            max(
+              [
+                0,
+                max(
+                  data.filter((d) => group && group(d) === g),
+                  (d) => thisYAes(d) as number
+                ) as number
+              ]
+            )
         )
 
         yScale = scaleLinear()
@@ -236,9 +256,9 @@ export const autoScale = ({
 
       } else {
 
-        const defaultDomain = extent(data, aes.y as (d: unknown) => number)
+        const defaultDomain = extent(data, thisYAes as (d: unknown) => number)
 
-        const domain = (yScaleDomain as number[]) || [
+        const domain = yScaleDomain ?? [
           hasZeroYBaseLine ? 0 : defaultDomain[0],
           defaultDomain[1],
         ]
@@ -256,9 +276,9 @@ export const autoScale = ({
       // hasCategoricalVar = true
       // maintain the existing order
       const initialDomain = Array.from(
-        new Set(copiedData.map(aes.y))
+        new Set(copiedData.map(thisYAes))
       ) as string[]
-      const computedDomain = Array.from(new Set(data.map(aes.y))) as string[]
+      const computedDomain = Array.from(new Set(data.map(thisYAes))) as string[]
 
       const domain =
         (yScaleDomain as string[]) ||
@@ -472,7 +492,7 @@ export const autoScale = ({
     fillScale,
     strokeScale,
     strokeDasharrayScale,
-    groupAccessor: (v: any) => group(v),
+    groupAccessor: (v: any) => group ? group(v) : v,
     groups: hasCategoricalVar ? calculatedGroups : undefined,
   }
 }

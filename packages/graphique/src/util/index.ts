@@ -13,3 +13,4 @@ export {
 export { Delaunay } from "./delaunay"
 export { generateID } from "./generateID"
 export { formatMissing } from "./formatMissing"
+export { defineGroupAccessor } from "./defineGroupAccessor"

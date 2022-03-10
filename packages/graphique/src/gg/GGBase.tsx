@@ -20,6 +20,7 @@ import {
   strokeScaleState,
   strokeDasharrayState,
 } from '../atoms'
+import { defineGroupAccessor } from '../util'
 
 export interface ContextProps {
   ggState: {
@@ -91,12 +92,17 @@ export const GGBase = ({
   const geomZeroXBaseLines: (boolean | undefined)[] = []
   const geomZeroYBaseLines: (boolean | undefined)[] = []
   const geomAesXs = []
-  const geomAesYs = []
+  const geomAesYs: DataValue[] = []
   const geomAesY0s: DataValue[] = []
   const geomAesY1s: DataValue[] = []
+  const geomGroupAccessors: DataValue[] = []
 
   geoms.forEach((g: any) => {
     const geomProps = g.props
+
+    const geomGroupAccessor = defineGroupAccessor(geomProps.aes)
+    if (geomGroupAccessor) geomGroupAccessors.push(geomGroupAccessor)
+
     geomPositions.push(geomProps.position)
     if (geomProps.aes.x) geomAesXs.push(geomProps.aes.x)
     if (geomProps.aes.y) geomAesYs.push(geomProps.aes.y)
@@ -111,19 +117,19 @@ export const GGBase = ({
     }
   })
 
-  const areaGeoms: any = geoms.find((g: any) =>
+  const areaGeom: any = geoms.find((g: any) =>
     g.type.displayName.includes('Area')
   )
 
-  const y0Aes = areaGeoms?.props?.aes?.y0
-  const y1Aes = areaGeoms?.props?.aes?.y1
+  const y0Aes = areaGeom?.props?.aes?.y0
+  const y1Aes = areaGeom?.props?.aes?.y1
 
-  const isDefaultArea = areaGeoms && !y0Aes && !y1Aes
+  // const isDefaultArea = areaGeom && !y0Aes && !y1Aes
 
   const hasPositionFill = geomPositions.some((v) => v === 'fill')
   const hasPositionStack = geomPositions.some((v) => v === 'stack')
   const hasZeroXBaseLine = geomZeroXBaseLines.some((v) => v)
-  const hasZeroYBaseLine = geomZeroYBaseLines.some((v) => v) || isDefaultArea
+  const hasZeroYBaseLine = geomZeroYBaseLines.some((v) => v)
 
   const ggState = useMemo(
     () => ({
@@ -138,12 +144,14 @@ export const GGBase = ({
         scalesState: {
           x: xScale,
           y: yScale,
+          geomAesYs,
           y0Aes,
           y1Aes,
           hasPositionFill,
           hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
+          geomGroupAccessors,
           fill: fillScale,
           stroke: strokeScale,
           strokeDasharray: strokeDasharrayScale,
@@ -159,12 +167,14 @@ export const GGBase = ({
         scalesState: {
           x: xScale,
           y: yScale,
+          geomAesYs,
           y0Aes,
           y1Aes,
           hasPositionFill,
           hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
+          geomGroupAccessors,
           fill: fillScale,
           stroke: strokeScale,
           strokeDasharray: strokeDasharrayScale,
