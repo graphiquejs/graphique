@@ -3,7 +3,7 @@ import { Delaunay as d3Delaunay } from 'd3-delaunay'
 import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
 import { tooltipState } from '../atoms'
-import { useGG } from '../gg/GGBase'
+import { useGG } from '../gg'
 import { Aes } from '../gg/types/Aes'
 
 export interface DelaunayProps {

@@ -9,7 +9,7 @@ import React, {
 import { useAtom } from 'jotai'
 import flattenChildren from 'react-flatten-children'
 import { Aes, DataValue, GGProps } from './types'
-import { autoScale, IScale } from '../util/autoScale'
+import { autoScale, IScale, defineGroupAccessor } from '../util'
 import { XAxis, YAxis } from './axes'
 import {
   themeState,
@@ -20,7 +20,6 @@ import {
   strokeScaleState,
   strokeDasharrayState,
 } from '../atoms'
-import { defineGroupAccessor } from '../util'
 
 export interface ContextProps {
   ggState: {

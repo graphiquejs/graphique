@@ -6,17 +6,15 @@ import {
   scaleSequential,
 } from 'd3-scale'
 import { extent, max, sum } from 'd3-array'
-import { GGProps } from '../gg/types/GG'
 import { XYScaleProps, VisualEncodingProps } from '../atoms/scales/types'
-import { XYScaleTypes, VisualEncodingTypes } from '../gg/types/Scales'
-import { isDate } from './dates'
+import { DataValue, XYScaleTypes, VisualEncodingTypes, GGProps } from '../gg'
 import {
   defaultScheme,
   defaultInterpolator,
   defaultDasharrays,
 } from './scaleDefaults'
 import { defineGroupAccessor } from './defineGroupAccessor'
-import { DataValue } from '../gg'
+import { isDate } from './dates'
 
 export interface IScale {
   xScale: XYScaleTypes
