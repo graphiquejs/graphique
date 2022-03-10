@@ -9,9 +9,14 @@ import {
   isDate,
   widen,
   yScaleState,
+  defineGroupAccessor,
+  defaultScheme,
+  fillScaleState,
+  VisualEncodingTypes,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
+import { scaleOrdinal } from 'd3-scale'
 import { interpolate } from 'd3-interpolate'
 import { interpolatePath } from 'd3-interpolate-path'
 import {
@@ -27,19 +32,12 @@ import {
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
 import { useAtom } from 'jotai'
-import type { AreaAes } from './types'
+import type { AreaAes, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
 
-type StackedArea = {
-  x: number
-  i: number
-  y0: number
-  y1: number
-}
-
-export interface AreaProps extends SVGAttributes<SVGPathElement> {
+export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
-  aes?: Aes & AreaAes
+  aes?: Omit<Aes, 'x'> & AreaAes
   showTooltip?: boolean
   curve?: CurveFactory
   markerRadius?: number
@@ -73,10 +71,11 @@ const GeomArea = ({
   markerStroke = '#fff',
   position = 'identity',
   ...props
-}: AreaProps) => {
+}: GeomAreaProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
+  const [{ values: fillScaleColors }] = useAtom(fillScaleState)
   const [, setYScale] = useAtom(yScaleState)
 
   const geomData = localData || data
@@ -107,11 +106,24 @@ const GeomArea = ({
 
   // draw an area for each registered group
   // get groups from aes.group || aes.stroke || aes.strokeDasharray?
-  const group = scales?.groupAccessor
-  const groups = scales?.groups
+  const group = useMemo(
+    () =>
+      geomAes?.group || geomAes?.fill
+        ? defineGroupAccessor(geomAes)
+        : scales?.groupAccessor,
+    [geomAes, defineGroupAccessor]
+  )
+  const groups = useMemo(
+    () =>
+      group
+        ? (Array.from(new Set(geomData?.map(group))) as string[])
+        : undefined,
+    [geomData, group]
+  )
 
   const x = useMemo(
-    () => (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d)),
+    () => (d: unknown) =>
+      geomAes?.x && scales?.xScale && scales.xScale(geomAes?.x(d)),
     [scales, geomAes]
   )
   const y = useMemo(
@@ -127,18 +139,18 @@ const GeomArea = ({
 
   const yValExtent = useMemo(() => {
     // reset the yScale based on position
-    const existingYExtent = scales?.yScale.domain() as [number, number]
+    // const existingYExtent = scales?.yScale.domain() as [number, number]
     let resolvedYExtent = [0, 1]
     if (
       // shouldStack &&
-      scales?.groups &&
       group &&
+      groups &&
       geomData &&
       scales?.xScale &&
       scales.yScale &&
       geomAes?.x
     ) {
-      const groupYMaximums = scales.groups.map((g) =>
+      const groupYMaximums = groups.map((g) =>
         max(
           geomData.filter((d) => group(d) === g),
           (d) => {
@@ -149,8 +161,11 @@ const GeomArea = ({
           }
         )
       )
+
       if (['stack', 'stream'].includes(position)) {
-        return [0, sum(groupYMaximums)]
+        const totalGroupYMaximums = sum(groupYMaximums)
+
+        return [0, totalGroupYMaximums]
       }
       if (position === 'fill') return [0, 1]
       // if (!geomAes.y0 && !geomAes.y1)
@@ -173,20 +188,21 @@ const GeomArea = ({
             ? yExtent[0]
             : min([0, yExtent[0] as number])
 
-        const yMax = max(
-          [
-            groupYMaximums as number[],
-            // existingYExtent[1] as number,
-            // yExtent[1] as number,
-          ].flat()
-        )
+        const yMax = max([
+          !geomAes.y0 && !geomAes.y1 && 0,
+          max(
+            [
+              groupYMaximums as number[],
+              // existingYExtent[1] as number,
+              // yExtent[1] as number,
+            ].flat()
+          ),
+        ] as number[])
 
-        resolvedYExtent = [
-          (yMin || 0) < existingYExtent[0] ? yMin : existingYExtent[0],
-          yMax,
-        ] as [number, number]
+        resolvedYExtent = [yMin, yMax] as [number, number]
       }
     }
+    // console.log(resolvedYExtent)
     return resolvedYExtent
   }, [position, geomData, geomAes])
 
@@ -242,25 +258,59 @@ const GeomArea = ({
         .y0((d) => (localAes?.y0 ? (y0(d) as number) : scales?.yScale(0)))
         .y1((d: any) => (localAes?.y1 ? (y1(d) as number) : (y(d) as number)))
         .defined((d) => {
-          const xVal = isDate(geomAes.x(d))
-            ? geomAes.x(d)?.valueOf()
-            : geomAes.x(d)
+          const xVal =
+            geomAes.x &&
+            (isDate(geomAes.x(d)) ? geomAes.x(d)?.valueOf() : geomAes.x(d))
 
           const y0Val =
             geomAes.y0 && geomAes.y1 ? geomAes.y0(d) : geomAes.y && geomAes.y(d)
           const y1Val =
             geomAes.y0 && geomAes.y1 ? geomAes.y1(d) : geomAes.y && geomAes.y(d)
-          return (
+
+          const areDefined =
+            typeof xVal !== 'undefined' &&
             typeof y0Val !== 'undefined' &&
+            y0Val !== null &&
             typeof y1Val !== 'undefined' &&
-            !Number.isNaN(xVal) &&
-            !Number.isNaN(y0Val) &&
-            !Number.isNaN(y1Val)
-          )
+            y1Val !== null
+
+          const areNumbers =
+            !Number.isNaN(xVal) && !Number.isNaN(y0Val) && !Number.isNaN(y1Val)
+
+          return areDefined && areNumbers
         })
         .curve(curve || curveLinear),
     [curve, geomAes, localAes, scales, yValExtent]
   )
+
+  // merge GG-level scales with Geom-level scales
+  //
+  // scale precedence:
+  // 1) TODO: explicitly-defined scales with `Scale*`
+  // 2) scales auto-generated from Geom (local) `aes`
+  // 3) scales auto-generated from GG (global) `aes`
+
+  const geomFillScale = useMemo(() => {
+    if (groups && geomAes.fill) {
+      return scaleOrdinal()
+        .domain(groups)
+        .range(
+          (fillScaleColors as string[]) || defaultScheme
+        ) as VisualEncodingTypes
+    }
+    return undefined
+  }, [geomAes])
+
+  const geomStrokeScale = useMemo(() => {
+    if (groups && geomAes.stroke) {
+      return scaleOrdinal()
+        .domain(groups)
+        .range(
+          (fillScaleColors as string[]) || defaultScheme
+        ) as VisualEncodingTypes
+    }
+    return undefined
+  }, [geomAes])
 
   useEffect(() => {
     setTheme((prev) => ({
@@ -272,6 +322,10 @@ const GeomArea = ({
           fillOpacity: props.style?.fillOpacity || fillOpacity,
           stroke: strokeColor,
           fill: fillColor,
+          fillScale: geomFillScale,
+          strokeScale: geomStrokeScale,
+          groupAccessor: group,
+          usableGroups: groups,
           y0,
           y1,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
@@ -291,6 +345,7 @@ const GeomArea = ({
     props.style,
     position,
     shouldStack,
+    group,
   ])
 
   const stackOffset = useMemo(() => {
@@ -312,15 +367,13 @@ const GeomArea = ({
       geomAes?.x &&
       geomAes?.y &&
       shouldStack &&
-      scales?.groups &&
-      scales?.groupAccessor
+      group &&
+      groups
     ) {
       const stacked = stack()
-        .keys(scales.groups)
+        .keys(groups)
         .order(stackOrder)
-        .offset(stackOffset)(
-        widen(geomData, geomAes.x, scales.groupAccessor, geomAes.y)
-      )
+        .offset(stackOffset)(widen(geomData, geomAes.x, group, geomAes.y))
 
       const formattedStacked = stacked
         .map((s) => {
@@ -359,10 +412,12 @@ const GeomArea = ({
         groups.map((g) => {
           const thisFill =
             fillColor ||
+            (geomFillScale && geomFillScale(g)) ||
             (copiedScales?.fillScale ? copiedScales.fillScale(g) : defaultFill)
 
           const thisStroke =
             strokeColor ||
+            (geomStrokeScale && geomStrokeScale(g)) ||
             (copiedScales?.strokeScale
               ? copiedScales.strokeScale(g)
               : defaultStroke)
@@ -529,7 +584,14 @@ const GeomArea = ({
             markerRadius={markerRadius}
             markerStroke={markerStroke}
           />
-          <Tooltip x={x} y={y} y0={y0} y1={y1} aes={geomAes} />
+          <Tooltip
+            x={x}
+            y={y}
+            y0={y0}
+            y1={y1}
+            aes={geomAes}
+            group={group as DataValue}
+          />
         </>
       )}
     </>

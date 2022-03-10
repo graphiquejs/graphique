@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   useGG,
   themeState,
@@ -25,63 +25,75 @@ export const CategoricalLegend = ({
   fontSize = 12,
   onSelection,
 }: CategoricalLegendProps) => {
-  const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
+  const [focused, setFocused] = useState<string[]>(
+    legendScales.groups || legendScales.fillScale?.domain() || []
   )
 
   const [{ geoms }] = useAtom(themeState)
   const [{ domain }] = useAtom(fillScaleState)
 
-  const legendGroups = (domain as string[]) || legendScales.groups
+  const legendGroups = useMemo(
+    () =>
+      (domain as string[]) ||
+      legendScales.groups ||
+      legendScales.fillScale?.domain(),
+    [domain, legendScales]
+  )
 
   const { ggState, updateData } = useGG() || {}
   const { scales, data } = ggState || {}
 
   useEffect(() => {
-    setIsFocused(scales?.groups || [])
+    // setFocused(scales?.groups || [])
   }, [scales, data])
 
-  const getGroup: any = legendScales.groupAccessor
-    ? legendScales.groupAccessor
-    : () => legendScales.groups && legendScales.groups[0]
+  const getGroup = useMemo(
+    () => geoms?.area?.groupAccessor || undefined,
+    [geoms]
+  )
 
   const isHorizontal = orientation === 'horizontal'
 
-  const toggleLegendGroup = (g: string) => {
-    const prevFocused = isFocused
-    let focusedGroups
-    if (prevFocused.includes(g)) {
-      if (prevFocused.length === 1) {
-        focusedGroups = legendScales.groups as string[]
-      } else {
-        focusedGroups = prevFocused.filter((p) => p !== g)
-      }
-    } else {
-      focusedGroups = [...prevFocused, g]
-    }
-    setIsFocused(focusedGroups)
-
-    const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
-
-    if (onSelection) {
-      onSelection(g)
-    }
-    if (data && updateData) {
-      let updatedData
-      if (includedGroups.includes(g)) {
-        if (includedGroups.length === 1) {
-          updatedData = legendData as unknown[]
+  const toggleLegendGroup = useCallback(
+    (g: string) => {
+      const prevFocused = focused
+      let focusedGroups
+      if (prevFocused.includes(g)) {
+        if (prevFocused.length === 1) {
+          focusedGroups = legendGroups as string[]
         } else {
-          updatedData = data.filter((d) => getGroup(d) !== g)
+          focusedGroups = prevFocused.filter((p) => p !== g)
         }
       } else {
-        updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
-        )
+        focusedGroups = [...prevFocused, g]
       }
-      updateData(updatedData)
-    }
-  }
+      setFocused(focusedGroups)
+
+      const includedGroups = Array.from(
+        new Set(data?.map((d) => (getGroup ? getGroup(d) : undefined)))
+      )
+
+      if (onSelection) {
+        onSelection(g)
+      }
+      if (data && updateData && getGroup) {
+        let updatedData
+        if (includedGroups.includes(g)) {
+          if (includedGroups.length === 1) {
+            updatedData = legendData as unknown[]
+          } else {
+            updatedData = data.filter((d) => getGroup(d) !== g)
+          }
+        } else {
+          updatedData = legendData.filter(
+            (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          )
+        }
+        updateData(updatedData)
+      }
+    },
+    [legendGroups, getGroup]
+  )
 
   return (
     <div
@@ -114,7 +126,7 @@ export const CategoricalLegend = ({
                 //   : "not-allowed",
                 marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                 fontSize,
-                opacity: isFocused.includes(g) ? 1 : 0.5,
+                opacity: focused.includes(g) ? 1 : 0.5,
                 transition: 'opacity 200ms',
                 display: 'flex',
                 alignItems: 'center',
@@ -151,10 +163,10 @@ export const CategoricalLegend = ({
                     }
                     strokeWidth={1.8}
                     fillOpacity={
-                      isFocused.includes(g) ? geoms?.area?.fillOpacity : 0.5
+                      focused.includes(g) ? geoms?.area?.fillOpacity : 0.5
                     }
                     strokeOpacity={
-                      isFocused.includes(g) ? geoms?.area?.strokeOpacity : 0.5
+                      focused.includes(g) ? geoms?.area?.strokeOpacity : 0.5
                     }
                     style={{
                       transition: 'fill-opacity 200ms',

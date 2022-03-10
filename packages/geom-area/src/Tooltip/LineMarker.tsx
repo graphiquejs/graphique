@@ -34,7 +34,7 @@ export const LineMarker = ({
   const { scales, copiedScales, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
-  const [{ defaultStroke, geoms }] = useAtom(themeState) || {}
+  const [{ defaultFill, geoms }] = useAtom(themeState) || {}
 
   const { area } = geoms || {}
 
@@ -91,9 +91,10 @@ export const LineMarker = ({
 
             const thisFill =
               area?.fill ||
+              (area?.fillScale && aes.fill && area.fillScale(aes.fill(d))) ||
               (copiedScales?.fillScale && aes?.fill
                 ? copiedScales.fillScale(aes.fill(d))
-                : defaultStroke)
+                : defaultFill)
 
             return thisYCoord?.map(
               (c, j) =>

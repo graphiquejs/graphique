@@ -23,9 +23,10 @@ interface Props {
   y0: DataValue
   y1: DataValue
   aes: Aes & AreaAes
+  group: DataValue
 }
 
-export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
+export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
   const { ggState } = useGG() || {}
   const { id, scales, copiedScales, height, margin } = ggState || {
     height: 0,
@@ -34,9 +35,7 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
     useAtom(tooltipState)
 
-  // console.log(datum)
-
-  const [{ geoms, defaultStroke }] = useAtom(themeState)
+  const [{ geoms, defaultStroke, defaultFill }] = useAtom(themeState)
   const { area } = geoms || {}
 
   const left = useMemo(() => datum && x(datum[0]), [datum, x])
@@ -89,16 +88,6 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
     [datum, aes]
   )
 
-  const group = useMemo(
-    () =>
-      aes?.group ||
-      aes?.fill ||
-      aes?.stroke ||
-      aes?.strokeDasharray ||
-      (() => '__group'),
-    [aes]
-  )
-
   const areaVals = useMemo(() => {
     const vals =
       datum &&
@@ -125,15 +114,17 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
                 height={12}
                 fill={
                   area?.fill ||
+                  (area?.fillScale && area.fillScale(thisGroup)) ||
                   (copiedScales?.fillScale
                     ? copiedScales.fillScale(thisGroup)
-                    : 'none')
+                    : defaultFill)
                 }
                 stroke={
                   area?.stroke ||
+                  (area?.strokeScale && area.strokeScale(thisGroup)) ||
                   (copiedScales?.strokeScale
                     ? copiedScales.strokeScale(thisGroup)
-                    : 'none')
+                    : defaultStroke)
                 }
                 strokeDasharray={
                   area?.strokeDasharray ||
@@ -148,7 +139,7 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
             </svg>
           )
           return {
-            group: copiedScales?.groupAccessor(md),
+            group: group(md) || copiedScales?.groupAccessor(md),
             mark,
             x: xVal,
             y: (aes?.y1 && aes?.y1(md)) || (aes?.y && aes.y(md)),
@@ -157,7 +148,17 @@ export const Tooltip = ({ x, y, y0, y1, aes }: Props) => {
           }
         })
     return vals as TooltipContent[]
-  }, [datum, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
+  }, [
+    datum,
+    xVal,
+    aes,
+    yFormat,
+    xFormat,
+    copiedScales,
+    geoms,
+    defaultStroke,
+    group,
+  ])
 
   const tooltipValue = content ? (
     <div>{content(areaVals)}</div>

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState } from '@graphique/graphique'
+import { useGG, themeState, IScale } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 // import { ColorBandLegend } from "./ColorBandLegend"
@@ -26,11 +26,14 @@ export const Legend = ({
 }: AppearanceLegendProps) => {
   const { ggState } = useGG() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
-  const [{ font, legend }] = useAtom(themeState)
+  const [{ font, legend, geoms }] = useAtom(themeState)
+
+  const { area } = geoms || {}
 
   const { groups } = copiedScales || {}
 
-  const hasAppearanceAes = aes?.fill || aes?.stroke || aes?.strokeDasharray
+  const hasAppearanceAes =
+    area?.fillScale || aes?.fill || aes?.stroke || aes?.strokeDasharray
 
   const { fontSize } = { ...style }
 
@@ -44,11 +47,21 @@ export const Legend = ({
     >
       <div style={{ color: legend?.titleColor }}>{title}</div>
       {
-        copiedData && copiedScales && groups ? (
+        copiedData &&
+        (copiedScales || area?.fillScale) &&
+        (groups || area?.usableGroups) ? (
           <CategoricalLegend
             legendData={copiedData}
             orientation={orientation}
-            legendScales={copiedScales}
+            legendScales={
+              {
+                ...copiedScales,
+                strokeScale: area
+                  ? area.strokeScale
+                  : copiedScales?.strokeScale,
+                fillScale: area ? area.fillScale : copiedScales?.fillScale,
+              } as IScale
+            }
             labelFormat={format}
             fontSize={fontSize}
             onSelection={onSelection}
