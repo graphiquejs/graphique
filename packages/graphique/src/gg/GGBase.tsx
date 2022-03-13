@@ -103,10 +103,10 @@ export const GGBase = ({
     if (geomGroupAccessor) geomGroupAccessors.push(geomGroupAccessor)
 
     geomPositions.push(geomProps.position)
-    if (geomProps.aes.x) geomAesXs.push(geomProps.aes.x)
-    if (geomProps.aes.y) geomAesYs.push(geomProps.aes.y)
-    if (geomProps.aes.y0) geomAesY0s.push(geomProps.aes.y0)
-    if (geomProps.aes.y1) geomAesY1s.push(geomProps.aes.y1)
+    if (geomProps.aes?.x) geomAesXs.push(geomProps.aes.x)
+    if (geomProps.aes?.y) geomAesYs.push(geomProps.aes.y)
+    if (geomProps.aes?.y0) geomAesY0s.push(geomProps.aes.y0)
+    if (geomProps.aes?.y1) geomAesY1s.push(geomProps.aes.y1)
 
     if (g.type.displayName.includes('Bar')) {
       geomZeroXBaseLines.push(geomProps.freeBaseLine)

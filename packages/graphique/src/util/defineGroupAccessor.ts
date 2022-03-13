@@ -1,7 +1,7 @@
 import { Aes } from "../gg";
 
 export const defineGroupAccessor = (aes: Aes, allowUndefined = false) => {
-    if (!aes && allowUndefined) return undefined
+    if (!aes || allowUndefined) return undefined
     return (
         aes.group ||
         aes.fill ||
