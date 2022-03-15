@@ -21,6 +21,7 @@ import {
   radiusScaleState,
   isDate,
   Aes,
+  defineGroupAccessor,
 } from '@graphique/graphique'
 import { Tooltip } from './tooltip'
 
@@ -244,6 +245,14 @@ const GeomPoint = ({
     [geomAes, scales]
   )
 
+  const group = useMemo(
+    () =>
+      geomAes?.group || geomAes?.fill || geomAes?.stroke
+        ? defineGroupAccessor(geomAes, true)
+        : scales?.groupAccessor,
+    [geomAes, defineGroupAccessor]
+  )
+
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
 
@@ -313,7 +322,7 @@ const GeomPoint = ({
           </NodeGroup>
         )}
       </g>
-      {geomData && showTooltip && (
+      {geomData && geomAes && showTooltip && (
         <>
           <Delaunay
             data={geomData}
@@ -346,7 +355,7 @@ const GeomPoint = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip />
+          <Tooltip aes={geomAes} group={group} />
         </>
       )}
     </>
