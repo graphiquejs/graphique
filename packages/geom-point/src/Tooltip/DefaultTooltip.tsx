@@ -1,11 +1,11 @@
-import React from "react"
-import { useAtom } from "jotai"
+import React from 'react'
+import { useAtom } from 'jotai'
 import {
   labelsState,
   TooltipContent,
   TooltipContainer,
   formatMissing,
-} from "@graphique/graphique"
+} from '@graphique/graphique'
 
 interface Props {
   data: TooltipContent[]
@@ -26,13 +26,13 @@ export const DefaultTooltip = ({ data }: Props) => {
                 marginBottom: 4,
               }}
             >
-              {(d.label || d.group !== "__group") && (
+              {(d.label || d.group !== '__group') && (
                 <>
                   {d.mark}
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "flex-end",
+                      display: 'flex',
+                      alignItems: 'flex-end',
                       fontWeight: 500,
                     }}
                   >
@@ -42,13 +42,13 @@ export const DefaultTooltip = ({ data }: Props) => {
                   </div>
                 </>
               )}
-              <div style={{ display: "flex", marginBottom: 2 }}>
+              <div style={{ display: 'flex', marginBottom: 2 }}>
                 {xLab && <div>{`${xLab}:`}</div>}
                 <div style={{ marginLeft: 1, fontWeight: 500, fontSize: 13 }}>
                   {d.formattedX}
                 </div>
               </div>
-              <div style={{ display: "flex" }}>
+              <div style={{ display: 'flex' }}>
                 {yLab && <div>{`${yLab}:`}</div>}
                 <div style={{ marginLeft: 1, fontWeight: 500, fontSize: 13 }}>
                   {d.formattedY}
