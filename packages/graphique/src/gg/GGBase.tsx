@@ -99,7 +99,7 @@ export const GGBase = ({
   geoms.forEach((g: any) => {
     const geomProps = g.props
 
-    const geomGroupAccessor = defineGroupAccessor(geomProps.aes)
+    const geomGroupAccessor = defineGroupAccessor(geomProps.aes, true)
     if (geomGroupAccessor) geomGroupAccessors.push(geomGroupAccessor)
 
     geomPositions.push(geomProps.position)
