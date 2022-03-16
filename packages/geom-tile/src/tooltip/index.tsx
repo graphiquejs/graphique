@@ -5,6 +5,8 @@ import {
   tooltipState,
   TooltipContent,
   YTooltip,
+  Aes,
+  DataValue,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
@@ -14,17 +16,30 @@ export interface TooltipProps {
   xAdj: number
   yAdj: number
   datum?: any
+  group: DataValue
+  aes: Aes
 }
 
-export const Tooltip = ({ x, y, xAdj, yAdj, datum }: TooltipProps) => {
+export const Tooltip = ({
+  x,
+  y,
+  xAdj,
+  yAdj,
+  datum,
+  group,
+  aes,
+}: TooltipProps) => {
   const { ggState } = useGG() || {}
-  const { id, aes, scales, height, width } = ggState || { width: 0, height: 0 }
+  const { id, height, width } = ggState || { width: 0, height: 0 }
 
   const [
     { datum: tooltipDatum, position, xFormat, yFormat, measureFormat, content },
   ] = useAtom(tooltipState)
 
-  const thisDatum = useMemo(() => datum ?? (tooltipDatum && tooltipDatum[0]), [tooltipDatum])
+  const thisDatum = useMemo(
+    () => datum ?? (tooltipDatum && tooltipDatum[0]),
+    [tooltipDatum]
+  )
 
   const label = useMemo(() => {
     const labelResolution = {
@@ -36,8 +51,8 @@ export const Tooltip = ({ x, y, xAdj, yAdj, datum }: TooltipProps) => {
   }, [aes, thisDatum])
 
   const thisGroup = useMemo(
-    () => thisDatum && scales?.groupAccessor && scales?.groupAccessor(thisDatum),
-    [thisDatum, scales]
+    () => thisDatum && group && group(thisDatum),
+    [thisDatum, group]
   )
 
   const thisLabel = useMemo(

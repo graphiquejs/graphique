@@ -13,6 +13,7 @@ import {
   unfocusNodes,
   Delaunay,
   Aes,
+  defineGroupAccessor,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -201,14 +202,19 @@ const GeomTile = ({
     return (d: unknown) => scales?.yScale && aes?.y && scales.yScale(aes.y(d))
   }, [scales, aes, margin, height, yBandScale])
 
+  const group = useMemo(
+    () =>
+      geomAes?.group || geomAes?.fill || geomAes?.stroke
+        ? defineGroupAccessor(geomAes, true)
+        : scales?.groupAccessor,
+    [geomAes, defineGroupAccessor]
+  )
+
   const keyAccessor = useMemo(
     () => (d: unknown) =>
       (geomAes?.key
         ? geomAes.key(d)
-        : geomAes?.y &&
-          `${geomAes?.x(d)}-${geomAes?.y(d)}-${scales?.groupAccessor(
-            d
-          )}`) as string,
+        : geomAes?.y && `${geomAes?.x(d)}-${geomAes?.y(d)}`) as string,
     [geomAes, scales]
   )
 
@@ -279,7 +285,7 @@ const GeomTile = ({
           </NodeGroup>
         )}
       </g>
-      {showTooltip && (
+      {geomAes && group && showTooltip && (
         <>
           <Delaunay
             x={x}
@@ -320,6 +326,8 @@ const GeomTile = ({
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}
             datum={focusedDatum}
+            group={group}
+            aes={geomAes}
           />
         </>
       )}
