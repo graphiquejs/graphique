@@ -18,7 +18,7 @@ export interface SizeLegendProps {
     | [number, number]
     | [number, number, number]
     | [undefined, undefined]
-  format?: (v: unknown, i: number) => string
+  format?: (v: any, i: number) => string
   width?: number
   style?: CSSProperties
   title?: React.ReactNode
