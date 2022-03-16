@@ -31,7 +31,7 @@ export const Tooltip = ({ aes, group }: Props) => {
       keyed: datum && aes?.key && aes.key(datum),
     }
 
-    return labelResolution
+    return labelResolution?.given || labelResolution?.keyed
   }, [aes, datum])
 
   const xScale: any = scales?.xScale
@@ -51,12 +51,6 @@ export const Tooltip = ({ aes, group }: Props) => {
     [datum, group]
   )
 
-  const thisLabel = useMemo(
-    () =>
-      label ? label?.given?.toString() || label?.keyed?.toString() : undefined,
-    [label]
-  )
-
   const tooltipContents: TooltipContent[] = [
     {
       x: datum && aes?.x && xScale && xScale(aes.x(datum)),
@@ -70,11 +64,11 @@ export const Tooltip = ({ aes, group }: Props) => {
         aes?.y &&
         ((yFormat ? yFormat(aes.y(datum)) : aes.y(datum)) as string),
       group: thisGroup,
-      label: thisLabel,
+      label,
       formattedMeasure:
         measureFormat &&
-        (thisLabel || thisGroup) &&
-        measureFormat(thisLabel || thisGroup),
+        (label || thisGroup) &&
+        measureFormat(label || thisGroup),
       datum,
       containerWidth: width,
     },
