@@ -9,7 +9,7 @@ export interface XYScaleProps {
         index,
         width,
       }: {
-        value: string | number | Date
+        value: any
         index: number
         width: number
       }) => string)
