@@ -246,10 +246,7 @@ const GeomPoint = ({
   )
 
   const group = useMemo(
-    () =>
-      geomAes?.group || geomAes?.fill || geomAes?.stroke
-        ? defineGroupAccessor(geomAes, true)
-        : scales?.groupAccessor,
+    () => geomAes && defineGroupAccessor(geomAes),
     [geomAes, defineGroupAccessor]
   )
 
