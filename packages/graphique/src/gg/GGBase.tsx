@@ -95,6 +95,8 @@ export const GGBase = ({
   const geomAesY0s: DataValue[] = []
   const geomAesY1s: DataValue[] = []
   const geomGroupAccessors: DataValue[] = []
+  const geomAesStrokes: DataValue[] = []
+  const geomAesFills: DataValue[] = []
 
   geoms.forEach((g: any) => {
     const geomProps = g.props
@@ -107,6 +109,9 @@ export const GGBase = ({
     if (geomProps.aes?.y) geomAesYs.push(geomProps.aes.y)
     if (geomProps.aes?.y0) geomAesY0s.push(geomProps.aes.y0)
     if (geomProps.aes?.y1) geomAesY1s.push(geomProps.aes.y1)
+
+    if (geomProps.aes?.stroke) geomAesStrokes.push(geomProps.aes.stroke)
+    if (geomProps.aes?.fill) geomAesFills.push(geomProps.aes.fill)
 
     if (g.type.displayName.includes('Bar')) {
       geomZeroXBaseLines.push(geomProps.freeBaseLine)
@@ -122,8 +127,6 @@ export const GGBase = ({
 
   const y0Aes = areaGeom?.props?.aes?.y0
   const y1Aes = areaGeom?.props?.aes?.y1
-
-  // const isDefaultArea = areaGeom && !y0Aes && !y1Aes
 
   const hasPositionFill = geomPositions.some((v) => v === 'fill')
   const hasPositionStack = geomPositions.some((v) => v === 'stack')
@@ -151,6 +154,8 @@ export const GGBase = ({
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           geomGroupAccessors,
+          geomAesStrokes,
+          geomAesFills,
           fill: fillScale,
           stroke: strokeScale,
           strokeDasharray: strokeDasharrayScale,
@@ -174,6 +179,8 @@ export const GGBase = ({
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           geomGroupAccessors,
+          geomAesStrokes,
+          geomAesFills,
           fill: fillScale,
           stroke: strokeScale,
           strokeDasharray: strokeDasharrayScale,
