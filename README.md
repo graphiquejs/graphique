@@ -1,9 +1,9 @@
 <div align="center">
-  <a href="https://graphique.mattadams.io">
-    <img src="./assets/graphique_logo_white_bg.png" width=300px />
+  <a href="https://graphique.dev">
+    <img src="./assets/graphique_logo.png" width=300px />
   </a>
   <p>
-  An interactive visualization system for React based on the Grammar of Graphics.
+  An interactive visualization system for React based on the Grammar of Graphics
   </p>
 </div>
 
@@ -154,8 +154,9 @@ You can add one or more `Scale`s directly to customize things like its type ([d3
 - `GeomCol`: column charts (vertical bars)
 - `GeomHist`: histograms
 - `GeomArea`: area + stacked area charts and ribbon-like things
-- `GeomSmooth`: local smoothing and regression with standard error bands
-- TODO: `GeomLabel`, `GeomHLine`, `GeomVLine`, `GeomSegment`, `GeomDensity`, and more on the way!
+- `GeomVLine`: vertical lines / markers
+- `GeomHLine`: horizontal lines / markers
+- TODO: `GeomLabel`, `GeomSmooth`, `GeomSegment`, `GeomDensity`, and more on the way!
 
 <h3 id='labels'><code>Labels</code></h2>
 

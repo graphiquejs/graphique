@@ -2,9 +2,9 @@ import React, { useMemo, useCallback, useEffect, useRef } from 'react'
 import { Delaunay as d3Delaunay } from 'd3-delaunay'
 import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
+// import debounce from 'lodash.debounce'
 import { tooltipState } from '../atoms'
-import { useGG } from '../gg'
-import { Aes } from '../gg/types/Aes'
+import { useGG, Aes } from '../gg'
 
 export interface DelaunayProps {
   x: (d: unknown) => number | undefined
@@ -78,7 +78,7 @@ export const Delaunay = ({
 
   const handleMouseOver = useCallback(
     (event) => {
-      if (readyToFocusRef.current && data) {
+      if (readyToFocusRef.current && data && data.length) {
         const [posX, posY] = pointer(event, rectRef.current)
 
         const ind = delaunay.find(posX, posY)
@@ -158,7 +158,7 @@ export const Delaunay = ({
   const handleClick = useCallback(
     (event) => {
       const [posX, posY] = pointer(event, rectRef.current)
-      if (onClick && data) {
+      if (onClick && data && data.length) {
         const ind = delaunay.find(posX, posY)
         const datum = data[ind]
 

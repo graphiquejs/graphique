@@ -36,6 +36,8 @@ export interface ThemeProps {
   geoms?: {
     point?: PointThemeProps
     line?: PointThemeProps
+    vline?: PointThemeProps
+    hline?: PointThemeProps
     smooth?: PointThemeProps
     tile?: PointThemeProps
     bar?: BarColProps

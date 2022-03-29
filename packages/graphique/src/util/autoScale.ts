@@ -38,6 +38,8 @@ export interface AutoScale extends GGProps {
     y0Aes?: DataValue
     y1Aes?: DataValue
     geomAesYs: DataValue[]
+    geomAesStrokes: DataValue[]
+    geomAesFills: DataValue[]
     fill?: VisualEncodingProps
     stroke?: VisualEncodingProps
     strokeDasharray?: VisualEncodingProps
@@ -76,6 +78,8 @@ export const autoScale = ({
     y0Aes,
     y1Aes,
     geomAesYs,
+    geomAesStrokes,
+    geomAesFills,
   } = scalesState
   const { domain: xScaleDomain, type: xScaleType, reverse: reverseX } = xScaleState || {}
   const { domain: yScaleDomain, type: yScaleType, reverse: reverseY } = yScaleState || {}
@@ -117,6 +121,8 @@ export const autoScale = ({
       ['__group']
 
   const thisYAes = aes.y || (geomAesYs.length ? geomAesYs[0] : undefined)
+  const thisStrokeAes = aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
+  const thisFillAes = aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
 
 
   /// SCALING ///
@@ -296,9 +302,9 @@ export const autoScale = ({
 
   // fill
   let fillScale
-  if (aes.fill) {
+  if (thisFillAes) {
     const firstFill = data
-      .map(aes.fill)
+      .map(thisFillAes)
       .find((d) => d !== null && d !== undefined)
 
     if (fillScaleType) {
@@ -308,7 +314,7 @@ export const autoScale = ({
         case 'sequential':
           domain =
             (fillScaleDomain as number[]) ||
-            (extent(data, aes.fill as (d: unknown) => number) as number[])
+            (extent(data, thisFillAes as (d: unknown) => number) as number[])
 
           fillScale = fillType()
             .domain(domain)
@@ -319,7 +325,7 @@ export const autoScale = ({
         case 'sequentialLog':
           domain =
             (fillScaleDomain as number[]) ||
-            (extent(data, aes.fill as (d: unknown) => number) as number[])
+            (extent(data, thisFillAes as (d: unknown) => number) as number[])
 
           fillScale = fillType()
             .domain(domain)
@@ -330,7 +336,7 @@ export const autoScale = ({
         case 'sequentialSqrt':
           domain =
             (fillScaleDomain as number[]) ||
-            (extent(data, aes.fill as (d: unknown) => number) as number[])
+            (extent(data, thisFillAes as (d: unknown) => number) as number[])
 
           fillScale = fillType()
             .domain(domain)
@@ -370,7 +376,7 @@ export const autoScale = ({
     } else if (isDate(firstFill) || typeof firstFill === 'number') {
       const domain =
         (fillScaleDomain as number[]) ||
-        (extent(data, aes.fill as (d: unknown) => number) as number[])
+        (extent(data, thisFillAes as (d: unknown) => number) as number[])
 
       fillScale = scaleSequential()
         .domain(domain)
@@ -383,9 +389,9 @@ export const autoScale = ({
 
   // stroke
   let strokeScale
-  if (aes.stroke) {
+  if (thisStrokeAes) {
     const firstStroke = data
-      .map(aes.stroke)
+      .map(thisStrokeAes)
       .find((d) => d !== null && d !== undefined)
 
     if (strokeScaleType) {
@@ -395,7 +401,7 @@ export const autoScale = ({
         case 'sequential':
           domain =
             (strokeScaleDomain as number[]) ||
-            (extent(data, aes.stroke as (d: unknown) => number) as number[])
+            (extent(data, thisStrokeAes as (d: unknown) => number) as number[])
 
           strokeScale = strokeType()
             .domain(domain)
@@ -407,7 +413,7 @@ export const autoScale = ({
         case 'sequentialLog':
           domain =
             (strokeScaleDomain as number[]) ||
-            (extent(data, aes.stroke as (d: unknown) => number) as number[])
+            (extent(data, thisStrokeAes as (d: unknown) => number) as number[])
 
           strokeScale = strokeType()
             .domain(domain)
@@ -419,7 +425,7 @@ export const autoScale = ({
         case 'sequentialSqrt':
           domain =
             (strokeScaleDomain as number[]) ||
-            (extent(data, aes.stroke as (d: unknown) => number) as number[])
+            (extent(data, thisStrokeAes as (d: unknown) => number) as number[])
 
           strokeScale = strokeType()
             .domain(domain)
@@ -460,7 +466,7 @@ export const autoScale = ({
     } else if (isDate(firstStroke) || typeof firstStroke === 'number') {
       const domain =
         (strokeScaleDomain as number[]) ||
-        (extent(data, aes.stroke as (d: unknown) => number) as number[])
+        (extent(data, thisStrokeAes as (d: unknown) => number) as number[])
 
       strokeScale = scaleSequential()
         .domain(domain)
