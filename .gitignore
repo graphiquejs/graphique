@@ -3,3 +3,4 @@ node_modules
 *.log
 packages/*/dist
 .storybook
+.DS_Store
