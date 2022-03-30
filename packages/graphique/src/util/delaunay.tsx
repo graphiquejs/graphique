@@ -4,7 +4,7 @@ import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
 // import debounce from 'lodash.debounce'
 import { tooltipState } from '../atoms'
-import { useGG, Aes } from '../gg'
+import { useGG, Aes, DataValue } from '../gg'
 
 export interface DelaunayProps {
   x: (d: unknown) => number | undefined
@@ -16,7 +16,9 @@ export interface DelaunayProps {
   onClick?: ({ d, i }: { d: unknown; i: number | number[] }) => void
   onMouseLeave: () => void
   data?: unknown[]
-  aes?: Aes
+  aes?: Omit<Aes, 'x'> & {
+    x?: DataValue
+  }
   disabled?: boolean
 }
 
@@ -94,7 +96,7 @@ export const Delaunay = ({
           const groupDatumInd: number[] = []
 
           data.forEach((d, i) => {
-            if (aes.x(d)?.toString() === aes.x(datum)?.toString()) {
+            if (aes.x && aes.x(d)?.toString() === aes.x(datum)?.toString()) {
               groupDatum.push(d)
               groupDatumInd.push(i)
             }
@@ -167,7 +169,7 @@ export const Delaunay = ({
           const groupDatumInd: number[] = []
 
           data.forEach((d, i) => {
-            if (aes.x(d) === aes.x(datum)) {
+            if (aes.x && aes.x(d) === aes.x(datum)) {
               groupDatum.push(d)
               groupDatumInd.push(i)
             }
