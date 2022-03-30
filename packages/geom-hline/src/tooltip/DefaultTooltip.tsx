@@ -48,12 +48,19 @@ export const DefaultTooltip = ({ data }: Props) => {
                 </div>
               </>
             )}
-            <div style={{ display: 'flex', marginBottom: 2 }}>
+            <div
+              style={{
+                display: 'flex',
+                marginBottom: 2,
+                alignItems: 'flex-end',
+              }}
+            >
               {d.label ? (
                 <div
                   style={{
                     fontSize:
                       tooltip?.groupLabel?.fontSize || tooltip?.font?.size,
+                    marginRight: 2,
                   }}
                 >
                   {`${d.label}:`}
@@ -64,6 +71,7 @@ export const DefaultTooltip = ({ data }: Props) => {
                     style={{
                       fontSize:
                         tooltip?.groupLabel?.fontSize || tooltip?.font?.size,
+                      marginRight: 2,
                     }}
                   >
                     {`${yLab}:`}
