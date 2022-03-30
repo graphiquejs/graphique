@@ -240,10 +240,13 @@ export const GGBase = ({
             top: margin.top,
             marginLeft: 8,
             marginBottom: 2,
-            fontSize: 12,
-            fontFamily: font?.family,
+            fontSize: axisY?.label?.fontSize || axis?.label?.fontSize || 12,
+            fontFamily:
+              axisY?.label?.fontFamily ||
+              axis?.label?.fontFamily ||
+              font?.family,
             lineHeight: 1.2,
-            color: axis?.labelColor || axisY?.labelColor,
+            color: axisY?.label?.color || axis?.label?.color,
             minHeight: 20,
             fontWeight: 600,
           }}

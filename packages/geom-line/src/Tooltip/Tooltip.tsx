@@ -42,7 +42,9 @@ export const Tooltip = ({ x, y }: Props) => {
     const vals =
       datum &&
       datum
-        .filter((d) => aes?.y && aes.y(d))
+        .filter(
+          (d) => aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null
+        )
         .map((md) => {
           const group = copiedScales?.groupAccessor(md)
           const mark = (

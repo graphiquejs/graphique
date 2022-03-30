@@ -51,8 +51,12 @@ export interface ThemeProps {
     stroke?: string | null
   }
   axis?: {
-    labelColor?: string
     stroke?: string
+    label?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
     tickLabel?: {
       fontSize?: number | string
       fontFamily?: string
@@ -62,8 +66,12 @@ export interface ThemeProps {
     showAxisLines?: boolean
   }
   axisX?: {
-    labelColor?: string
     stroke?: string
+    label?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
     tickLabel?: {
       fontSize?: number | string
       fontFamily?: string
@@ -73,8 +81,12 @@ export interface ThemeProps {
     showAxisLine?: boolean
   } | null
   axisY?: {
-    labelColor?: string
     stroke?: string
+    label?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
     tickLabel?: {
       fontSize?: number | string
       fontFamily?: string
@@ -87,6 +99,27 @@ export interface ThemeProps {
     titleColor?: string
     labelColor?: string
     tickColor?: string
+  }
+  tooltip?: {
+    font?: {
+      family?: string
+      size?: number
+    }
+    xLabel?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
+    yLabel?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
+    groupLabel?: {
+      fontSize?: number | string
+      fontFamily?: string
+      color?: string
+    }
   }
 }
 
@@ -128,4 +161,5 @@ export const themeState = atom<ThemeProps>({
     // titleColor: "#666",
     // tickColor: "#444",
   },
+  tooltip: {},
 })

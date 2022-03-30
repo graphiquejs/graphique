@@ -92,7 +92,13 @@ export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
     const vals =
       datum &&
       datum
-        .filter((d) => (aes?.y1 && aes.y1(d)) || (aes?.y && aes.y(d)))
+        .filter(
+          (d) =>
+            (aes?.y1 &&
+              typeof aes.y1(d) !== 'undefined' &&
+              aes.y1(d) !== null) ||
+            (aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null)
+        )
         .map((md) => {
           const thisGroup = group(md)
 

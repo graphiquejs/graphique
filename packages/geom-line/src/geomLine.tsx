@@ -5,7 +5,7 @@ import {
   generateID,
   Delaunay,
   Aes,
-  // isDate,
+  DataValue,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -15,9 +15,13 @@ import { line, CurveFactory, curveLinear } from 'd3-shape'
 import { useAtom } from 'jotai'
 import { LineMarker, Tooltip } from './tooltip'
 
+type GeomAes = Omit<Aes, 'x' | 'fill' | 'size'> & {
+  x?: DataValue
+}
+
 export interface LineProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
-  aes?: Aes
+  aes?: GeomAes
   showTooltip?: boolean
   curve?: CurveFactory
   markerRadius?: number
@@ -99,7 +103,7 @@ const GeomLine = ({
   const groups = scales?.groups
 
   const x = useMemo(
-    () => (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d)),
+    () => (d: unknown) => scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
     [scales, geomAes]
   )
   const y = useMemo(

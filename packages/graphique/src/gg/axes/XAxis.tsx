@@ -190,10 +190,16 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
                 height - margin.bottom + 36
               }px)`,
               pointerEvents: 'none',
-              fontFamily: font?.family,
-              fontSize: 12,
+              fontFamily:
+                axisX?.label?.fontFamily ||
+                axisTheme?.label?.fontFamily ||
+                font?.family,
+              fontSize:
+                axisX?.label?.fontSize || axisTheme?.label?.fontSize || 12,
               fill:
-                axisTheme?.labelColor || axisX?.labelColor || 'currentColor',
+                axisX?.label?.color ||
+                axisTheme?.label?.color ||
+                'currentColor',
               fontWeight: 600,
             }}
           >

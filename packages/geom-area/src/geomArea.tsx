@@ -35,9 +35,13 @@ import { useAtom } from 'jotai'
 import type { AreaAes, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
 
+type GeomAes = Omit<Aes, 'x' | 'size'> & AreaAes & {
+  x?: DataValue
+}
+
 export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
-  aes?: Omit<Aes, 'x'> & AreaAes
+  aes?: GeomAes
   showTooltip?: boolean
   curve?: CurveFactory
   markerRadius?: number
