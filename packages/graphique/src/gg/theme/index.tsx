@@ -12,6 +12,8 @@ export const Theme = ({
   axis,
   axisX,
   axisY,
+  legend,
+  tooltip,
 }: ThemeProps) => {
   const [, setTheme] = useAtom(themeState)
   const reconcileAxis = (
@@ -42,6 +44,8 @@ export const Theme = ({
       axis: axis ? { ...prev.axis, ...axis } : prev.axis,
       axisX: reconcileAxis(axisX, prev.axisX),
       axisY: reconcileAxis(axisY, prev.axisY),
+      legend: legend ? { ...prev.legend, ...legend } : prev.legend,
+      tooltip: tooltip ? { ...prev.tooltip, ...tooltip } : prev.tooltip,
     }))
   }, [
     setTheme,
@@ -54,6 +58,8 @@ export const Theme = ({
     axis,
     axisX,
     axisY,
+    legend,
+    tooltip,
   ])
 
   return null
