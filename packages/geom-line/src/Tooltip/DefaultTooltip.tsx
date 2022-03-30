@@ -3,7 +3,9 @@ import {
   TooltipContent,
   TooltipContainer,
   formatMissing,
+  themeState,
 } from '@graphique/graphique'
+import { useAtom } from 'jotai'
 
 export interface DefaultTooltipProps {
   data: TooltipContent[]
@@ -16,6 +18,8 @@ export const DefaultTooltip = ({
 }: DefaultTooltipProps) => {
   const xVal = data && data[0] ? data[0]?.formattedX : undefined
 
+  const [{ tooltip }] = useAtom(themeState)
+
   return data ? (
     <TooltipContainer>
       {!hasXAxisTooltip && xVal && (
@@ -23,6 +27,7 @@ export const DefaultTooltip = ({
           style={{
             marginTop: 2,
             marginBottom: data.length === 1 ? 2 : 6,
+            fontSize: tooltip?.xLabel?.fontSize || tooltip?.font?.size,
             color: '#555',
           }}
         >
@@ -52,12 +57,27 @@ export const DefaultTooltip = ({
                     }}
                   >
                     <div style={{ marginRight: 5 }}>
-                      <span>{d.label || formattedGroup} </span>
+                      <span
+                        style={{
+                          fontSize:
+                            tooltip?.groupLabel?.fontSize ||
+                            tooltip?.font?.size,
+                        }}
+                      >
+                        {d.label || formattedGroup}{' '}
+                      </span>
                     </div>
                   </div>
                 </>
               )}
-              <div style={{ fontWeight: 500, fontSize: 13 }}>
+              <div
+                style={{
+                  fontWeight: 500,
+                  fontSize:
+                    tooltip?.yLabel?.fontSize ||
+                    (tooltip?.font?.size || 12) + 1,
+                }}
+              >
                 {d.formattedY}
               </div>
             </div>

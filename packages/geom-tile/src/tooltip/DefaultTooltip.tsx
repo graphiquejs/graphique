@@ -4,6 +4,7 @@ import {
   TooltipContainer,
   formatMissing,
   labelsState,
+  themeState,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
@@ -13,6 +14,7 @@ interface Props {
 
 export const DefaultTooltip = ({ data }: Props) => {
   const [{ x: xLab, y: yLab }] = useAtom(labelsState)
+  const [{ tooltip }] = useAtom(themeState)
 
   return data ? (
     <TooltipContainer>
@@ -37,20 +39,62 @@ export const DefaultTooltip = ({ data }: Props) => {
                     }}
                   >
                     <div style={{ marginBottom: 4 }}>
-                      <span>{d.formattedMeasure || formattedGroup}</span>
+                      <span
+                        style={{
+                          fontSize:
+                            tooltip?.groupLabel?.fontSize ||
+                            tooltip?.font?.size,
+                        }}
+                      >
+                        {d.formattedMeasure || formattedGroup}
+                      </span>
                     </div>
                   </div>
                 </>
               )}
               <div style={{ display: 'flex', marginBottom: 2 }}>
-                {xLab && <div>{`${xLab}:`}</div>}
-                <div style={{ marginLeft: 1, fontWeight: 500, fontSize: 13 }}>
+                {xLab && (
+                  <div
+                    style={{
+                      fontSize:
+                        tooltip?.xLabel?.fontSize || tooltip?.font?.size,
+                    }}
+                  >
+                    {`${xLab}:`}
+                  </div>
+                )}
+                <div
+                  style={{
+                    marginLeft: 1,
+                    fontWeight: 500,
+                    fontSize:
+                      tooltip?.xLabel?.fontSize ||
+                      (tooltip?.font?.size || 12) + 1,
+                  }}
+                >
                   {d.formattedX}
                 </div>
               </div>
               <div style={{ display: 'flex' }}>
-                {yLab && <div>{`${yLab}:`}</div>}
-                <div style={{ marginLeft: 1, fontWeight: 500, fontSize: 13 }}>
+                {yLab && (
+                  <div
+                    style={{
+                      fontSize:
+                        tooltip?.yLabel?.fontSize || tooltip?.font?.size,
+                    }}
+                  >
+                    {`${yLab}:`}
+                  </div>
+                )}
+                <div
+                  style={{
+                    marginLeft: 1,
+                    fontWeight: 500,
+                    fontSize:
+                      tooltip?.yLabel?.fontSize ||
+                      (tooltip?.font?.size || 12) + 1,
+                  }}
+                >
                   {d.formattedY}
                 </div>
               </div>

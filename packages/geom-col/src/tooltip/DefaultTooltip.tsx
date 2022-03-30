@@ -4,7 +4,9 @@ import {
   TooltipContent,
   TooltipContainer,
   formatMissing,
+  themeState,
 } from '@graphique/graphique'
+import { useAtom } from 'jotai'
 
 interface Props {
   data: TooltipContent[]
@@ -16,12 +18,15 @@ export const DefaultTooltip = ({ data }: Props) => {
 
   const xVal = data && data[0].formattedX
 
+  const [{ tooltip }] = useAtom(themeState)
+
   return data ? (
     <TooltipContainer>
       <div
         style={{
           marginTop: 2,
           marginBottom: data.length === 1 ? 2 : 6,
+          fontSize: tooltip?.xLabel?.fontSize || tooltip?.font?.size,
           color: '#555',
         }}
       >
@@ -58,15 +63,37 @@ export const DefaultTooltip = ({ data }: Props) => {
                     }}
                   >
                     <div style={{ marginRight: 5 }}>
-                      <span>{d.label || formattedGroup} </span>
+                      <span
+                        style={{
+                          fontSize:
+                            tooltip?.groupLabel?.fontSize ||
+                            tooltip?.font?.size,
+                        }}
+                      >
+                        {d.label || formattedGroup}{' '}
+                      </span>
                     </div>
-                    <div style={{ fontWeight: 500, fontSize: 13 }}>
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        fontSize:
+                          tooltip?.yLabel?.fontSize ||
+                          (tooltip?.font?.size || 12) + 1,
+                      }}
+                    >
                       {d.formattedY}
                     </div>
                   </div>
                 </>
               ) : (
-                <div style={{ fontWeight: 500, fontSize: 13 }}>
+                <div
+                  style={{
+                    fontWeight: 500,
+                    fontSize:
+                      tooltip?.yLabel?.fontSize ||
+                      (tooltip?.font?.size || 12) + 1,
+                  }}
+                >
                   {d.formattedY}
                 </div>
               )}
