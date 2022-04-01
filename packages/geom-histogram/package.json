@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-histogram",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "For visualizing histograms",
   "keywords": [
     "react",
@@ -34,7 +34,7 @@
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js"
   },
   "dependencies": {
-    "@graphique/geom-col": "^0.0.6",
+    "@graphique/geom-col": "^0.0.7",
     "d3-array": "^3.0.1",
     "d3-scale": "^4.0.0",
     "jotai": "^1.1.2"

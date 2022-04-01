@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-tile",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "For rectangular charts like heatmaps",
   "keywords": [
     "react",
