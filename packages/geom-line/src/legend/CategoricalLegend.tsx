@@ -3,6 +3,8 @@ import {
   useGG,
   themeState,
   fillScaleState,
+  strokeScaleState,
+  strokeDasharrayState,
   formatMissing,
   IScale,
 } from '@graphique/graphique'
@@ -30,9 +32,13 @@ export const CategoricalLegend = ({
   )
 
   const [{ geoms, defaultStroke }] = useAtom(themeState)
-  const [{ domain }] = useAtom(fillScaleState)
+  const [{ domain: fillDomain }] = useAtom(fillScaleState)
+  const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
+  const [{ domain: dashArrayDomain }] = useAtom(strokeDasharrayState)
 
-  const legendGroups = (domain as string[]) || legendScales.groups
+  const legendGroups =
+    ((fillDomain || strokeDomain || dashArrayDomain) as string[]) ||
+    legendScales.groups
 
   const { ggState, updateData } = useGG() || {}
   const { scales, data } = ggState || {}
