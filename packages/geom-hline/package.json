@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-hline",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "For drawing horizontal lines (usually used as markers)",
   "keywords": [
     "react",
