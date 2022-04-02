@@ -18,6 +18,7 @@
   ],
   "type": "module",
   "module": "./dist/index.module.js",
+  "main": "./dist/index.cjs",
   "source": "./src/index.ts",
   "exports": "./dist/index.module.js",
   "types": "./dist/index.d.ts",
@@ -31,7 +32,7 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js",
+    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js",
     "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js"
   },
   "dependencies": {
