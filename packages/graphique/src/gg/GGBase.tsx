@@ -226,6 +226,7 @@ export const GGBase = ({
     <GGglobalCtx.Provider value={{ ggState, updateData }}>
       <div id={`__gg_${id}`} style={{ position: 'relative' }}>
         <div
+          data-testid="__gg_header_label"
           style={{
             marginBottom: 4,
             color: titleColor,
@@ -235,6 +236,7 @@ export const GGBase = ({
           {labels.header}
         </div>
         <div
+          data-testid="__gg_y_label"
           style={{
             position: 'relative',
             top: margin.top,
@@ -260,8 +262,8 @@ export const GGBase = ({
         </svg>
         {/* tooltip portals */}
         <div style={{ position: 'relative' }}>
-          <div id={`__gg-tooltip-x-${id}`} />
-          <div id={`__gg-tooltip-y-${id}`} />
+          <div id={`__gg-tooltip-x-${id}`} data-testid="__gg_x_tooltip" />
+          <div id={`__gg-tooltip-y-${id}`} data-testid="__gg_y_tooltip" />
         </div>
         {/* other types of children */}
         <div

@@ -136,6 +136,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
         'fill',
         axisX?.tickLabel?.color || axisTheme?.tickLabel?.color || 'currentColor'
       )
+      .attr('data-testid', '__gg_x_tick_label')
       .style(
         'font-size',
         axisX?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
@@ -185,6 +186,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
       {labels.x && (
         <g>
           <text
+            data-testid="__gg_x_label"
             style={{
               transform: `translate(${margin.left + 2}px, ${
                 height - margin.bottom + 36

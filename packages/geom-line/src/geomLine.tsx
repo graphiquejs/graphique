@@ -103,7 +103,8 @@ const GeomLine = ({
   const groups = scales?.groups
 
   const x = useMemo(
-    () => (d: unknown) => scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
+    () => (d: unknown) =>
+      scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
     [scales, geomAes]
   )
   const y = useMemo(
@@ -192,6 +193,7 @@ const GeomLine = ({
                   strokeOpacity={strokeOpacity}
                   strokeDasharray={thisDasharray}
                   fill="none"
+                  data-testid="__gg_geom_line"
                   style={{
                     pointerEvents: 'none',
                   }}
@@ -237,6 +239,7 @@ const GeomLine = ({
               strokeWidth={strokeWidth}
               strokeOpacity={strokeOpacity}
               fill="none"
+              data-testid="__gg_geom_line"
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...props}
             />

@@ -141,6 +141,7 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
 
     axis
       .selectAll('text')
+      .attr('data-testid', '__gg_y_tick_label')
       .style(
         'font-size',
         axisY?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
