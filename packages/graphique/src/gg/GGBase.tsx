@@ -224,7 +224,11 @@ export const GGBase = ({
 
   return ggState ? (
     <GGglobalCtx.Provider value={{ ggState, updateData }}>
-      <div id={`__gg_${id}`} style={{ position: 'relative' }}>
+      <div
+        id={`__gg_${id}`}
+        style={{ position: 'relative' }}
+        data-testid="__gg_gg"
+      >
         <div
           data-testid="__gg_header_label"
           style={{
