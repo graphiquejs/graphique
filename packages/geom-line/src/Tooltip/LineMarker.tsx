@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react'
-import { useGG, tooltipState, themeState } from '@graphique/graphique'
+import {
+  useGG,
+  tooltipState,
+  themeState,
+  formatMissing,
+} from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface LineMarkerProps {
@@ -41,7 +46,9 @@ export const LineMarker = ({
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
           />
-          {datum.map((d, i) => {
+          {datum.map((d) => {
+            const formattedGroup = formatMissing(copiedScales?.groupAccessor(d))
+
             const thisFill =
               line?.stroke ||
               (copiedScales?.strokeScale && aes?.stroke
@@ -50,9 +57,7 @@ export const LineMarker = ({
             return (
               y(d) && (
                 <g
-                  key={`marker-${
-                    copiedScales?.groups ? copiedScales.groups[i] : i
-                  }`}
+                  key={`group-marker-${d.label || formattedGroup}`}
                   style={{ pointerEvents: 'none' }}
                 >
                   <circle
