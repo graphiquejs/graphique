@@ -61,6 +61,56 @@ function App() {
           <Legend style={{ padding: 12 }} orientation="horizontal" />
         </GG>
       </div>
+          <div>
+        <GG
+          // data={stocks}
+          data={stocks.filter(
+            (d) => new Date(d.date) >= new Date('2020/01/01')
+          )}
+          // data={stocks
+          //   .filter((d) => ['AAPL', 'AMZN'].includes(d.symbol))
+          //   .map((d) => {
+          //     const dDate = new Date(d.date)
+          //     const shouldRemove =
+          //       dDate >= new Date('2020/01/01') &&
+          //       dDate <= new Date('2020/06/01')
+
+          //     return shouldRemove ? { ...d, marketCap: null } : d
+          //   })}
+          // .filter((d) => d.symbol === 'AAPL')
+          // }
+          aes={{
+            x: (d: Stock) => new Date(d.date),
+            y: (d: Stock) => d.marketCap,
+            fill: (d: Stock) => d.symbol,
+            // fill: (d: Stock) =>
+            //   ['AAPL', 'MSFT'].includes(d.symbol) ? 'yes' : 'no',
+            // stroke: (d: Stock) => d.symbol,
+          }}
+          margin={{
+            left: 50,
+          }}
+          isContainerWidth
+        >
+          <GeomArea
+            // fill="tomato"
+            position="stack"
+            stroke="#fff"
+            curve={curveStep}
+            fillOpacity={0.5}
+            // showTooltip={false}
+            aes={{
+              x: (d: Stock) => new Date(d.date),
+              // y0: (d: Stock) => d.marketCap - d.marketCap * 0.1,
+              // y1: (d: Stock) => d.marketCap + d.marketCap * 0.3,
+              // fill: (d: Stock) => d.symbol,
+            }}
+          />
+          {/* <GeomPoint r={2} fill="tomato" opacity={0.5} /> */}
+          {/* <GeomLine strokeWidth={1.4} strokeOpacity={0.7} /> */}
+          <Legend style={{ padding: 12 }} orientation="horizontal" />
+        </GG>
+      </div>
       {/* <div>
         <GG
           data={stocks.filter((d) => d.symbol === "AAPL")}

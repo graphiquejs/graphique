@@ -43,6 +43,7 @@
     "d3-time-format": "^4.0.0",
     "d3-transition": "^3.0.1",
     "jotai": "^1.1.2",
+    "nanoid": "^3.3.2",
     "react-flatten-children": "^1.1.2"
   },
   "peerDependencies": {

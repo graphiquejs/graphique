@@ -2,7 +2,6 @@ import React, { useMemo, useCallback, useEffect, useRef } from 'react'
 import { Delaunay as d3Delaunay } from 'd3-delaunay'
 import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
-// import debounce from 'lodash.debounce'
 import { tooltipState } from '../atoms'
 import { useGG, Aes, DataValue } from '../gg'
 
