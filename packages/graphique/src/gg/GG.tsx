@@ -6,10 +6,9 @@ import React, {
   useState,
 } from 'react'
 import { Provider } from 'jotai'
-import { generateID } from '../util/generateID'
+import { generateID, debounce } from '../util'
 import { GGBase } from './GGBase'
 import { RootGGProps } from './types/GG'
-import { debounce } from '../util/debounce'
 
 export const GG = ({ children, ...props }: RootGGProps) => {
   const { data, aes, width, height, margin, isContainerWidth } = { ...props }
