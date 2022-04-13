@@ -67,7 +67,7 @@ const GeomVLine = ({
   const [theme, setTheme] = useAtom(themeState)
 
   const { stroke: strokeColor, strokeDasharray } = { ...props }
-  const { defaultStroke } = theme
+  const { defaultStroke, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -163,7 +163,7 @@ const GeomVLine = ({
                 y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             update={(d) => {
@@ -175,14 +175,14 @@ const GeomVLine = ({
                 y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
               stroke: ['transparent'],
               y1: [bottomPos],
               y2: [bottomPos],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
           >

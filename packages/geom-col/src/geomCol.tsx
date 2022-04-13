@@ -83,7 +83,7 @@ const GeomCol = ({
   const [theme, setTheme] = useAtom(themeState)
 
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
-  const { defaultFill } = theme
+  const { defaultFill, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -346,7 +346,7 @@ const GeomCol = ({
                 stroke: [stroke(d)],
                 fillOpacity: [fillOpacity],
                 strokeOpacity: [strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             update={(d) => {
@@ -371,7 +371,7 @@ const GeomCol = ({
                 stroke: firstRender ? stroke(d) : [stroke(d)],
                 fillOpacity: [fillOpacity],
                 strokeOpacity: [strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
@@ -379,7 +379,7 @@ const GeomCol = ({
               stroke: ['transparent'],
               height: [0],
               y: [bottomPos],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
           >

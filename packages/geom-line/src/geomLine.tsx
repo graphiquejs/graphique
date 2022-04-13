@@ -66,7 +66,7 @@ const GeomLine = ({
   }, [aes, localAes])
 
   const { stroke: strokeColor, strokeDasharray } = { ...props }
-  const { defaultStroke } = theme
+  const { defaultStroke, animationDuration: duration } = theme
 
   const geomID = useMemo(() => generateID(), [])
 
@@ -163,19 +163,19 @@ const GeomLine = ({
               enter={{
                 path: [drawLine(groupData)],
                 opacity: [1],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }}
               update={{
                 path: [drawLine(groupData)],
                 opacity: [1],
                 timing: {
-                  duration: 1000,
+                  duration,
                   ease: easeCubic,
                 },
               }}
               leave={() => ({
                 opacity: [0],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               })}
               interpolation={(begValue, endValue, attr) => {
                 if (attr === 'path') {
@@ -213,16 +213,16 @@ const GeomLine = ({
           enter={{
             path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
             opacity: [1],
-            timing: { duration: 1000 },
+            timing: { duration },
           }}
           update={{
             path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
             opacity: [1],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           }}
           leave={() => ({
             opacity: [0],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           })}
           interpolation={(begValue, endValue, attr) => {
             if (attr === 'path') {

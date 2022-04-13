@@ -87,7 +87,7 @@ const GeomBar = ({
   } = {
     ...props,
   }
-  const { defaultFill } = theme
+  const { defaultFill, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -356,7 +356,7 @@ const GeomBar = ({
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             }
           }}
           update={(d) => {
@@ -379,14 +379,14 @@ const GeomBar = ({
               stroke: firstRender ? stroke(d) : [stroke(d)],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             }
           }}
           leave={() => ({
             fill: ['transparent'],
             stroke: ['transparent'],
             width: [0],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           })}
           interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
         >

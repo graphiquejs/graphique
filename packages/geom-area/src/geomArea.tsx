@@ -35,9 +35,10 @@ import { useAtom } from 'jotai'
 import type { AreaAes, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
 
-type GeomAes = Omit<Aes, 'x' | 'size'> & AreaAes & {
-  x?: DataValue
-}
+type GeomAes = Omit<Aes, 'x' | 'size'> &
+  AreaAes & {
+    x?: DataValue
+  }
 
 export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
@@ -99,7 +100,7 @@ const GeomArea = ({
     strokeDasharray,
     // strokeWidth,
   } = { ...props }
-  const { defaultFill, defaultStroke } = theme
+  const { defaultFill, defaultStroke, animationDuration: duration } = theme
 
   const geomID = useMemo(() => generateID(), [])
 
@@ -459,7 +460,7 @@ const GeomArea = ({
                 stroke: [thisStroke],
                 fillOpacity: [fillOpacity],
                 strokeOpacity: [strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }}
               update={{
                 path: shouldStack
@@ -472,14 +473,14 @@ const GeomArea = ({
                 fillOpacity: [fillOpacity],
                 strokeOpacity: [strokeOpacity],
                 timing: {
-                  duration: 1000,
+                  duration,
                   ease: easeCubic,
                 },
               }}
               leave={() => ({
                 fill: ['transparent'],
                 stroke: ['transparent'],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               })}
               interpolation={(begValue, endValue, attr) => {
                 if (attr === 'path') {
@@ -524,7 +525,7 @@ const GeomArea = ({
             stroke: [strokeColor || defaultStroke],
             fillOpacity: [fillOpacity],
             strokeOpacity: [strokeOpacity],
-            timing: { duration: 1000 },
+            timing: { duration },
           }}
           update={{
             // @ts-ignore
@@ -533,12 +534,12 @@ const GeomArea = ({
             stroke: [strokeColor || defaultStroke],
             fillOpacity: firstRender ? fillOpacity : [fillOpacity],
             strokeOpacity: firstRender ? strokeOpacity : [strokeOpacity],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           }}
           leave={() => ({
             fill: ['transparent'],
             stroke: ['transparent'],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           })}
           interpolation={(begValue, endValue, attr) => {
             if (attr === 'path') {

@@ -43,7 +43,8 @@ export const ColorBandLegend = ({
   const ticksRef = useRef<SVGGElement | null>(null)
   const imageRef = useRef<SVGImageElement | null>(null)
   const colorScale = scales?.fillScale || scales?.strokeScale
-  const [{ geoms, font: themeFont, legend }] = useAtom(themeState)
+  const [{ geoms, font: themeFont, legend, animationDuration }] =
+    useAtom(themeState)
 
   const [{ reverse: reverseFill }] = useAtom(fillScaleState)
   const [{ reverse: reverseStroke }] = useAtom(strokeScaleState)
@@ -83,6 +84,8 @@ export const ColorBandLegend = ({
           }
           return canvas
         }
+
+        const duration = animationDuration ?? 1000
 
         let x: any
         let tickValues: any
@@ -134,7 +137,7 @@ export const ColorBandLegend = ({
             img
               .style('opacity', 0)
               .transition()
-              .duration(1000)
+              .duration(duration)
               .style(
                 'opacity',
                 ((scales?.fillScale && geoms?.point?.fillOpacity) ||
@@ -162,7 +165,7 @@ export const ColorBandLegend = ({
         axis
           .attr('transform', `translate(0,${height - usedMargin.bottom})`)
           .transition()
-          .duration(1000)
+          .duration(duration)
           .call(
             axisBottom(x)
               .ticks(
@@ -196,7 +199,7 @@ export const ColorBandLegend = ({
         ticks
           .attr('transform', `translate(0,${height - usedMargin.bottom})`)
           .transition()
-          .duration(1000)
+          .duration(duration)
           .call(
             axisBottom(x)
               .ticks(
@@ -228,6 +231,7 @@ export const ColorBandLegend = ({
       fontSize,
       firstRender,
       isReversed,
+      animationDuration,
     ]
   )
 

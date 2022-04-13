@@ -58,7 +58,7 @@ const GeomPoint = ({
   const [radiusScale] = useAtom(radiusScaleState)
   const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
-  const { defaultFill } = theme
+  const { defaultFill, animationDuration: duration } = theme
 
   let geomData = localData || data
   const geomAes = useMemo(() => {
@@ -277,7 +277,7 @@ const GeomPoint = ({
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             update={(d) => ({
               cx: [x(d)],
@@ -287,13 +287,13 @@ const GeomPoint = ({
               r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             leave={() => ({
               fill: ['transparent'],
               stroke: ['transparent'],
               cy: [bottomPos],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
           >

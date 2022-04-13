@@ -14,6 +14,7 @@ export const Theme = ({
   axisY,
   legend,
   tooltip,
+  animationDuration,
 }: ThemeProps) => {
   const [, setTheme] = useAtom(themeState)
   const reconcileAxis = (
@@ -35,10 +36,11 @@ export const Theme = ({
   useEffect(() => {
     setTheme((prev) => ({
       ...prev,
-      titleColor: titleColor || prev.titleColor,
-      markerStroke: markerStroke || prev.markerStroke,
-      defaultStroke: defaultStroke || prev.defaultStroke,
-      defaultFill: defaultFill || prev.defaultFill,
+      titleColor: titleColor ?? prev.titleColor,
+      markerStroke: markerStroke ?? prev.markerStroke,
+      defaultStroke: defaultStroke ?? prev.defaultStroke,
+      defaultFill: defaultFill ?? prev.defaultFill,
+      animationDuration: animationDuration ?? prev.animationDuration,
       font: font ? { ...prev.font, ...font } : prev.font,
       grid: grid ? { ...prev.grid, ...grid } : prev.grid,
       axis: axis ? { ...prev.axis, ...axis } : prev.axis,
@@ -60,6 +62,7 @@ export const Theme = ({
     axisY,
     legend,
     tooltip,
+    animationDuration,
   ])
 
   return null

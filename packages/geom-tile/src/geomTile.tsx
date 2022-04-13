@@ -77,7 +77,7 @@ const GeomTile = ({
   const [theme, setTheme] = useAtom(themeState)
 
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
-  const { defaultFill } = theme
+  const { defaultFill, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -244,7 +244,7 @@ const GeomTile = ({
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             update={(d) => ({
               x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
@@ -253,13 +253,13 @@ const GeomTile = ({
               stroke: firstRender ? stroke(d) : [stroke(d)],
               fillOpacity: [fillOpacity],
               strokeOpacity: [strokeOpacity],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             leave={() => ({
               fill: ['transparent'],
               stroke: ['transparent'],
               y: [height],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
           >
