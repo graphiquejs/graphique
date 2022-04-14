@@ -240,9 +240,10 @@ const GeomBar = ({
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
-          `${geomAes?.x(d)}-${geomAes.y(d)}-${scales?.groupAccessor(
-            d
-          )}`) as string,
+          `${geomAes?.x(d)}-${geomAes.y(d)}-
+          ${
+            scales?.groupAccessor ? scales.groupAccessor(d) : '__group'
+          }`) as string,
     [geomAes, scales]
   )
 
@@ -294,7 +295,10 @@ const GeomBar = ({
     () => (d: unknown) => {
       const thisStack =
         stackedData &&
-        stackedData.find((sd: any) => sd.key === scales?.groupAccessor(d))
+        stackedData.find(
+          (sd: any) =>
+            scales?.groupAccessor && sd.key === scales.groupAccessor(d)
+        )
       const groupStack = thisStack?.find(
         (s: any) => aes?.y && s.data.key === aes.y(d)
       )

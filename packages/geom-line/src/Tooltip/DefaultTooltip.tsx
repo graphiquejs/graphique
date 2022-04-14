@@ -46,7 +46,7 @@ export const DefaultTooltip = ({
                 alignItems: 'center',
               }}
             >
-              {(d.label || d.group !== '__group') && (
+              {(d.label || d.group) && (
                 <>
                   {d.mark}
                   <div

@@ -58,7 +58,7 @@ const GeomHistogram = ({
 
     groups.forEach((g) => {
       const thisBinData: HistogramBin[] = binned.map((thisBin) => ({
-        n: thisBin.filter((b) => group && group(b) === g).length,
+        n: thisBin.filter((b) => (group ? group(b) === g : true)).length,
         group: g,
         x0: thisBin.x0,
         x1: thisBin.x1,

@@ -10,8 +10,8 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.12.10",
-    "@typescript-eslint/eslint-plugin": "^4.28.2",
-    "@typescript-eslint/parser": "^4.28.2",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
     "babel-loader": "^8.2.2",
     "eslint": "^7.30.0",
     "eslint-config-airbnb-typescript": "^12.3.1",

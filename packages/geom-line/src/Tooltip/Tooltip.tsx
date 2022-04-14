@@ -46,7 +46,8 @@ export const Tooltip = ({ x, y }: Props) => {
           (d) => aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null
         )
         .map((md) => {
-          const group = copiedScales?.groupAccessor(md)
+          const group =
+            copiedScales?.groupAccessor && copiedScales.groupAccessor(md)
           const mark = (
             <svg width={18} height={8}>
               <line
@@ -72,7 +73,7 @@ export const Tooltip = ({ x, y }: Props) => {
             </svg>
           )
           return {
-            group: copiedScales?.groupAccessor(md),
+            group,
             mark,
             x: xVal,
             y: aes?.y && aes.y(md),
