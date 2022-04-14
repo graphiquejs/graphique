@@ -94,6 +94,41 @@ const GeomArea = ({
     return aes as Aes & AreaAes
   }, [aes, localAes])
 
+  const allXUndefined = useMemo(() => {
+    const undefinedX = geomData
+      ? geomData.filter(
+          (d) =>
+            geomAes?.x &&
+            (geomAes?.x(d) === null ||
+              typeof geomAes?.x(d) === 'undefined' ||
+              Number.isNaN(geomAes.x(d)?.valueOf()) ||
+              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0))
+        )
+      : []
+    return geomData && undefinedX.length === geomData.length
+  }, [geomData, geomAes])
+
+  const allYUndefined = useMemo(() => {
+    const undefinedY = geomData
+      ? geomData.filter(
+          (d) =>
+            (geomAes?.y &&
+              (geomAes.y(d) === null ||
+                typeof geomAes.y(d) === 'undefined' ||
+                Number.isNaN(geomAes.y(d)?.valueOf()))) ||
+            (geomAes.y0 &&
+              (geomAes.y0(d) === null ||
+                typeof geomAes.y0(d) === 'undefined' ||
+                Number.isNaN(geomAes.y0(d)?.valueOf()))) ||
+            (geomAes.y1 &&
+              (geomAes.y1(d) === null ||
+                typeof geomAes.y1(d) === 'undefined' ||
+                Number.isNaN(geomAes.y1(d)?.valueOf())))
+        )
+      : []
+    return geomData && undefinedY.length === geomData.length
+  }, [geomData])
+
   const {
     fill: fillColor,
     stroke: strokeColor,
@@ -144,8 +179,12 @@ const GeomArea = ({
 
   const yValExtent = useMemo(() => {
     // reset the yScale based on position
-    // const existingYExtent = scales?.yScale.domain() as [number, number]
+    const existingYExtent = scales?.yScale?.domain() as [number, number]
+
     let resolvedYExtent = [0, 1]
+    if (!group && !groups && !geomAes.y0 && !geomAes.y1)
+      resolvedYExtent = [0, existingYExtent[1]]
+    if (!group && !groups) resolvedYExtent = existingYExtent
     if (
       // shouldStack &&
       group &&
@@ -207,7 +246,6 @@ const GeomArea = ({
         resolvedYExtent = [yMin, yMax] as [number, number]
       }
     }
-    // console.log(resolvedYExtent)
     return resolvedYExtent
   }, [position, geomData, geomAes])
 
@@ -411,7 +449,7 @@ const GeomArea = ({
   )
 
   // map through groups to draw an area for each group
-  return !firstRender ? (
+  return !firstRender && !allXUndefined && !allYUndefined ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {
@@ -589,14 +627,7 @@ const GeomArea = ({
             markerRadius={markerRadius}
             markerStroke={markerStroke}
           />
-          <Tooltip
-            x={x}
-            y={y}
-            y0={y0}
-            y1={y1}
-            aes={geomAes}
-            group={group as DataValue}
-          />
+          <Tooltip x={x} y={y} y0={y0} y1={y1} aes={geomAes} group={group} />
         </>
       )}
     </>

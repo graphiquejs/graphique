@@ -23,7 +23,7 @@ interface Props {
   y0: DataValue
   y1: DataValue
   aes: Aes & AreaAes
-  group: DataValue
+  group?: DataValue
 }
 
 export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
@@ -100,7 +100,7 @@ export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
             (aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null)
         )
         .map((md) => {
-          const thisGroup = group(md)
+          const thisGroup = group ? group(md) : undefined
 
           let formattedY
 
@@ -145,8 +145,10 @@ export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
             </svg>
           )
           return {
-            group: group(md) || copiedScales?.groupAccessor(md),
-            mark,
+            group:
+              (group && group(md)) ||
+              (copiedScales?.groupAccessor && copiedScales.groupAccessor(md)),
+            mark: group ? mark : undefined,
             x: xVal,
             y: (aes?.y1 && aes?.y1(md)) || (aes?.y && aes.y(md)),
             formattedY,
