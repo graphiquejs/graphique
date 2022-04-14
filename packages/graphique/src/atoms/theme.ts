@@ -121,6 +121,7 @@ export interface ThemeProps {
       color?: string
     }
   }
+  animationDuration?: number
 }
 
 export const pointThemeState = atom<PointThemeProps>({})
@@ -162,4 +163,5 @@ export const themeState = atom<ThemeProps>({
     // tickColor: "#444",
   },
   tooltip: {},
+  animationDuration: 1000,
 })

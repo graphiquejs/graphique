@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { axisLeft, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
 import 'd3-transition'
 import { useAtom } from 'jotai'
 import { themeState, yScaleState, tooltipState } from '../../atoms'
-import { defaultGridOpacity } from './constants'
+import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
 
@@ -29,7 +29,7 @@ export interface YAxisProps {
 }
 
 export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
-  const [{ axis: axisTheme, axisY, grid: gridTheme, font }] =
+  const [{ axis: axisTheme, axisY, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, height, width, margin, scales } = ggState || {
     width: 0,
@@ -51,6 +51,11 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
   useEffect(() => {
     setTimeout(() => setFirstRender(false), 0)
   }, [])
+
+  const duration = useMemo(
+    () => animationDuration ?? defaultAnimationDuration,
+    [animationDuration]
+  )
 
   const axisRef = useRef<SVGGElement>(null)
   const gridRef = useRef<SVGGElement>(null)
@@ -80,7 +85,7 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
     const axis = select(axisRef.current)
 
     if (animate) {
-      axis.transition().duration(1000).call(drawAxis)
+      axis.transition().duration(duration).call(drawAxis)
     } else {
       axis.call(drawAxis)
     }
@@ -88,7 +93,7 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
     const grid = select(gridRef.current)
 
     if (animate) {
-      grid.transition().duration(1000).call(drawGrid)
+      grid.transition().duration(duration).call(drawGrid)
     } else {
       grid.call(drawGrid)
     }

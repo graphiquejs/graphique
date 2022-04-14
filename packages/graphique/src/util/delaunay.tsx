@@ -2,7 +2,7 @@ import React, { useMemo, useCallback, useEffect, useRef } from 'react'
 import { Delaunay as d3Delaunay } from 'd3-delaunay'
 import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
-import { tooltipState } from '../atoms'
+import { tooltipState, themeState } from '../atoms'
 import { useGG, Aes, DataValue } from '../gg'
 
 export interface DelaunayProps {
@@ -53,19 +53,21 @@ export const Delaunay = ({
     },
   }
 
+  const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
+  const [{ animationDuration }] = useAtom(themeState)
+
   const rectRef = useRef<SVGRectElement>(null)
 
   const readyToFocusRef = useRef(false)
 
   useEffect(() => {
     readyToFocusRef.current = false
+    const duration = animationDuration ?? 1000
     const timeout = setTimeout(() => {
       readyToFocusRef.current = true
-    }, 1050)
+    }, duration + 50)
     return () => clearTimeout(timeout)
-  }, [ggData, data, scales])
-
-  const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
+  }, [ggData, data, scales, animationDuration])
 
   const delaunay = useMemo(
     () =>

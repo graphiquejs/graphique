@@ -47,7 +47,9 @@ export const LineMarker = ({
             style={{ pointerEvents: 'none' }}
           />
           {datum.map((d) => {
-            const formattedGroup = formatMissing(copiedScales?.groupAccessor(d))
+            const formattedGroup = copiedScales?.groupAccessor
+              ? formatMissing(copiedScales?.groupAccessor(d))
+              : '__group'
 
             const thisFill =
               line?.stroke ||
@@ -55,7 +57,7 @@ export const LineMarker = ({
                 ? copiedScales.strokeScale(aes.stroke(d))
                 : defaultStroke)
             return (
-              y(d) && (
+              typeof y(d) !== 'undefined' && (
                 <g
                   key={`group-marker-${d.label || formattedGroup}`}
                   style={{ pointerEvents: 'none' }}

@@ -36,7 +36,7 @@ export const SizeLegend = ({
   const [{ domain: sizeDomain, range: sizeRange }] =
     useAtom(radiusScaleState) || {}
 
-  const [{ font, legend }] = useAtom(themeState) || {}
+  const [{ font, legend, animationDuration }] = useAtom(themeState) || {}
 
   const { ggState } = useGG() || {}
   const { aes, data } = ggState || {}
@@ -84,6 +84,9 @@ export const SizeLegend = ({
       value: v,
       r: scale(v),
     }))
+
+    const duration = animationDuration ?? 1000
+
     // circles
     select(legendRef.current)
       .selectAll('circle')
@@ -102,7 +105,7 @@ export const SizeLegend = ({
           update.call((toUpdate) =>
             toUpdate
               .transition()
-              .duration(1000)
+              .duration(duration)
               .attr('r', (d) => d.r)
               .attr('cy', (d) => (d.value === maxVal ? 0 : scale(maxVal) - d.r))
           )
@@ -133,7 +136,7 @@ export const SizeLegend = ({
           update.call((toUpdate) =>
             toUpdate
               .transition()
-              .duration(1000)
+              .duration(duration)
               .attr('x1', (d, i) =>
                 labelDirection === 'right'
                   ? d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2
@@ -167,7 +170,7 @@ export const SizeLegend = ({
           update.call((toUpdate) =>
             toUpdate
               .transition()
-              .duration(1000)
+              .duration(duration)
               .attr(
                 'x',
                 labelDirection === 'right'
@@ -188,6 +191,7 @@ export const SizeLegend = ({
     maxVal,
     fontSize,
     color,
+    animationDuration,
   ])
 
   const xTranslation =

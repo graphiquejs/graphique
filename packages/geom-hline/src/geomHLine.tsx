@@ -59,7 +59,7 @@ const GeomHLine = ({
   const [theme, setTheme] = useAtom(themeState)
 
   const { stroke: strokeColor, strokeDasharray } = { ...props }
-  const { defaultStroke } = theme
+  const { defaultStroke, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -147,7 +147,7 @@ const GeomHLine = ({
                 y2: [y(d)],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             update={(d) => {
@@ -159,14 +159,14 @@ const GeomHLine = ({
                 y2: [y(d)],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
               stroke: ['transparent'],
               x1: [margin?.left || 0],
               x2: [margin?.left || 0],
-              timing: { duration: 1000, ease: easeCubic },
+              timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
           >

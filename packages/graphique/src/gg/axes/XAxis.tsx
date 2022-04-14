@@ -1,9 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { axisBottom, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
 import { useAtom } from 'jotai'
 import { labelsState, themeState, xScaleState, tooltipState } from '../../atoms'
-import { defaultGridOpacity } from './constants'
+import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
 
@@ -28,7 +28,7 @@ export interface XAxisProps {
 }
 
 export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
-  const [{ axis: axisTheme, axisX, grid: gridTheme, font }] =
+  const [{ axis: axisTheme, axisX, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, width, margin, height, scales } = ggState || {
     width: 0,
@@ -50,6 +50,11 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
   useEffect(() => {
     setTimeout(() => setFirstRender(false), 0)
   }, [])
+
+  const duration = useMemo(
+    () => animationDuration ?? defaultAnimationDuration,
+    [animationDuration]
+  )
 
   const axisRef = useRef<SVGGElement>(null)
   const gridRef = useRef<SVGGElement>(null)
@@ -75,7 +80,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
     const axis = select(axisRef.current)
 
     if (animate) {
-      axis.transition().duration(1000).call(drawAxis)
+      axis.transition().duration(duration).call(drawAxis)
     } else {
       axis.call(drawAxis)
     }
@@ -83,7 +88,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
     const grid = select(gridRef.current)
 
     if (animate) {
-      grid.transition().duration(1000).call(drawGrid)
+      grid.transition().duration(duration).call(drawGrid)
     } else {
       grid.call(drawGrid)
     }

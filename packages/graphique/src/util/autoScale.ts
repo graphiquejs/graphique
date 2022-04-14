@@ -22,7 +22,7 @@ export interface IScale {
   fillScale?: VisualEncodingTypes
   strokeScale?: VisualEncodingTypes
   strokeDasharrayScale?: VisualEncodingTypes
-  groupAccessor: (d: unknown) => string | number | Date | null
+  groupAccessor: DataValue | undefined
   groups?: string[]
 }
 
@@ -101,6 +101,8 @@ export const autoScale = ({
   // used for maintaining the member order (domain) in categorical axes
   const sortDomain = (a: string, b: string, initialDomain: string[]) =>
     initialDomain.indexOf(a) - initialDomain.indexOf(b)
+  
+  const geomGroupAccessor = geomGroupAccessors.length ? geomGroupAccessors[0] : undefined
 
   // identify groups
   const group = (
@@ -110,7 +112,7 @@ export const autoScale = ({
     aes?.strokeDasharray
   ) ? 
   defineGroupAccessor(aes) :
-  (geomGroupAccessors.length && geomGroupAccessors[0])
+  geomGroupAccessor
 
   let hasCategoricalVar = aes.group || geomGroupAccessors.length || false
   const calculatedGroups = group
@@ -124,7 +126,6 @@ export const autoScale = ({
   const thisStrokeAes = aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
   const thisFillAes = aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
 
-
   /// SCALING ///
 
 
@@ -135,11 +136,13 @@ export const autoScale = ({
       (xScaleDomain as Date[]) || extent(data, aes.x as (d: unknown) => Date)
 
     const hasDomain =
-      typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
+      typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined' &&
+      // check for only null Dates
+      domain[0].valueOf() !== 0 && domain[1].valueOf() !== 0
 
     xScale = scaleTime()
       .range([margin.left, width - margin.right])
-      .domain(hasDomain ? domain : [0, 1])
+      .domain(hasDomain ? domain : [0, 0])
   } else if (typeof firstX === 'number') {
     const defaultDomain = extent(data, aes.x as (d: unknown) => number)
 
@@ -206,7 +209,11 @@ export const autoScale = ({
       yScale = yType()
         .range([height - margin.bottom, margin.top])
         .domain(hasDomain ? domain : [0, 1])
-    } 
+    } else {
+      yScale = scaleLinear()
+        .range([height - margin.bottom, margin.top])
+        .domain([0, 0])
+    }
     // else if (!firstY || typeof firstY === 'string') {
     //   // hasCategoricalVar = true
     //   // maintain the existing order
@@ -496,7 +503,7 @@ export const autoScale = ({
     fillScale,
     strokeScale,
     strokeDasharrayScale,
-    groupAccessor: (v: any) => group ? group(v) : v,
+    groupAccessor: group,
     groups: hasCategoricalVar ? calculatedGroups : undefined,
   }
 }

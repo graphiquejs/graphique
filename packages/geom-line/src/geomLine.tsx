@@ -6,6 +6,7 @@ import {
   Delaunay,
   Aes,
   DataValue,
+  isDate,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -27,6 +28,7 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   markerRadius?: number
   markerStroke?: string
   onDatumFocus?: (data: unknown, index: number | number[]) => void
+  entrance?: 'data' | 'midpoint'
   // focus?: "x" | "nearest"
   // onDatumSelection?: (data: unknown, index: number) => void
   onExit?: () => void
@@ -38,6 +40,7 @@ const GeomLine = ({
   showTooltip = true,
   curve,
   onDatumFocus,
+  entrance = 'midpoint',
   //  focus = "x",
   // onDatumSelection,
   // debugVoronoi,
@@ -65,8 +68,35 @@ const GeomLine = ({
     return aes
   }, [aes, localAes])
 
+  const allXUndefined = useMemo(() => {
+    const undefinedX = geomData
+      ? geomData.filter(
+          (d) =>
+            geomAes?.x &&
+            (geomAes.x(d) === null ||
+              typeof geomAes.x(d) === 'undefined' ||
+              Number.isNaN(geomAes.x(d)?.valueOf()) ||
+              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0))
+        )
+      : []
+    return geomData && undefinedX.length === geomData.length
+  }, [geomData, geomAes])
+
+  const allYUndefined = useMemo(() => {
+    const undefinedY = geomData
+      ? geomData.filter(
+          (d) =>
+            geomAes?.y &&
+            (geomAes.y(d) === null ||
+              typeof geomAes.y(d) === 'undefined' ||
+              Number.isNaN(geomAes.y(d)?.valueOf()))
+        )
+      : []
+    return geomData && undefinedY.length === geomData.length
+  }, [geomData])
+
   const { stroke: strokeColor, strokeDasharray } = { ...props }
-  const { defaultStroke } = theme
+  const { defaultStroke, animationDuration: duration } = theme
 
   const geomID = useMemo(() => generateID(), [])
 
@@ -128,7 +158,7 @@ const GeomLine = ({
 
   // map through groups to draw a line for each group
 
-  return !firstRender ? (
+  return !firstRender && !allXUndefined && !allYUndefined ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {
@@ -153,9 +183,11 @@ const GeomLine = ({
               start={{
                 path: drawLine(
                   groupData.map((d: [any, any]) => {
+                    const yEntrancePos =
+                      entrance === 'midpoint' ? (height || 0) / 2 : d[1]
                     const hasMissingY =
                       d[1] === null || typeof d[1] === 'undefined'
-                    return [d[0], hasMissingY ? NaN : (height || 0) / 2]
+                    return [d[0], hasMissingY ? NaN : yEntrancePos]
                   })
                 ),
                 opacity: 0,
@@ -163,19 +195,19 @@ const GeomLine = ({
               enter={{
                 path: [drawLine(groupData)],
                 opacity: [1],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               }}
               update={{
                 path: [drawLine(groupData)],
                 opacity: [1],
                 timing: {
-                  duration: 1000,
+                  duration,
                   ease: easeCubic,
                 },
               }}
               leave={() => ({
                 opacity: [0],
-                timing: { duration: 1000, ease: easeCubic },
+                timing: { duration, ease: easeCubic },
               })}
               interpolation={(begValue, endValue, attr) => {
                 if (attr === 'path') {
@@ -213,16 +245,16 @@ const GeomLine = ({
           enter={{
             path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
             opacity: [1],
-            timing: { duration: 1000 },
+            timing: { duration },
           }}
           update={{
             path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
             opacity: [1],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           }}
           leave={() => ({
             opacity: [0],
-            timing: { duration: 1000, ease: easeCubic },
+            timing: { duration, ease: easeCubic },
           })}
           interpolation={(begValue, endValue, attr) => {
             if (attr === 'path') {
