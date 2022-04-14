@@ -240,9 +240,10 @@ const GeomCol = ({
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
-          `${geomAes?.x(d)}-${geomAes?.y(d)}-${scales?.groupAccessor(
-            d
-          )}`) as string,
+          `${geomAes?.x(d)}-${geomAes.y(d)}-
+          ${
+            scales?.groupAccessor ? scales.groupAccessor(d) : '__group'
+          }`) as string,
     [geomAes, scales]
   )
 
@@ -292,7 +293,9 @@ const GeomCol = ({
     () => (d: unknown) => {
       const thisStack =
         stackedData &&
-        stackedData.find((sd) => sd.key === scales?.groupAccessor(d))
+        stackedData.find(
+          (sd) => scales?.groupAccessor && sd.key === scales?.groupAccessor(d)
+        )
       const groupStack = thisStack?.find(
         (s) => aes?.x && s.data.key === aes.x(d)?.valueOf()
       )
