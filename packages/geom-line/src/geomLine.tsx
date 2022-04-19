@@ -4,8 +4,6 @@ import {
   themeState,
   generateID,
   Delaunay,
-  Aes,
-  DataValue,
   isDate,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
@@ -15,10 +13,7 @@ import { interpolatePath } from 'd3-interpolate-path'
 import { line, CurveFactory, curveLinear } from 'd3-shape'
 import { useAtom } from 'jotai'
 import { LineMarker, Tooltip } from './tooltip'
-
-type GeomAes = Omit<Aes, 'x' | 'fill' | 'size'> & {
-  x?: DataValue
-}
+import { type GeomAes } from './types'
 
 export interface LineProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
@@ -65,7 +60,7 @@ const GeomLine = ({
         ...localAes,
       }
     }
-    return aes
+    return aes as GeomAes
   }, [aes, localAes])
 
   const allXUndefined = useMemo(() => {
@@ -299,7 +294,7 @@ const GeomLine = ({
             markerRadius={markerRadius}
             markerStroke={markerStroke}
           />
-          <Tooltip x={x} y={y} />
+          <Tooltip x={x} y={y} aes={geomAes} />
         </>
       )}
     </>

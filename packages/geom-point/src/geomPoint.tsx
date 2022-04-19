@@ -20,14 +20,15 @@ import {
   themeState,
   radiusScaleState,
   isDate,
-  Aes,
   defineGroupAccessor,
+  Aes,
 } from '@graphique/graphique'
+import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
 
 export interface PointProps extends SVGAttributes<SVGCircleElement> {
   data?: unknown[]
-  aes?: Aes
+  aes?: GeomAes
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
@@ -75,9 +76,10 @@ const GeomPoint = ({
       geomData
         ? geomData.filter(
             (d) =>
-              geomAes?.x(d) === null ||
-              typeof geomAes?.x(d) === 'undefined' ||
-              (isDate(geomAes?.x(d)) && Number.isNaN(geomAes?.x(d)?.valueOf()))
+              geomAes?.x &&
+              (geomAes.x(d) === null ||
+                typeof geomAes.x(d) === 'undefined' ||
+                (isDate(geomAes.x(d)) && Number.isNaN(geomAes.x(d)?.valueOf())))
           )
         : [],
     [geomData, geomAes]
@@ -96,6 +98,7 @@ const GeomPoint = ({
 
   geomData = geomData?.filter(
     (d) =>
+      geomAes?.x &&
       geomAes?.x(d) !== null &&
       !(typeof geomAes?.x(d) === 'undefined') &&
       (isDate(geomAes?.x(d))
@@ -219,12 +222,14 @@ const GeomPoint = ({
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
       return (d: unknown) =>
-        (scales?.xScale(geomAes?.x(d)) || 0) +
+        (scales?.xScale(geomAes?.x && geomAes.x(d)) || 0) +
         scales?.xScale.bandwidth() / 2 +
         0.9
     }
-    return (d: unknown) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0)
+    return (d: unknown) =>
+      scales?.xScale && geomAes?.x && (scales.xScale(geomAes.x(d)) || 0)
   }, [scales, geomAes])
+
   const y = useMemo(() => {
     if (scales?.yScale.bandwidth) {
       return (d: unknown) =>
@@ -239,14 +244,14 @@ const GeomPoint = ({
     () => (d: unknown) =>
       geomAes?.key
         ? geomAes.key(d)
-        : (`${geomAes?.x(d)}-${geomAes?.y && geomAes.y(d)}-${
+        : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
           }` as string),
     [geomAes, scales]
   )
 
   const group = useMemo(
-    () => geomAes && defineGroupAccessor(geomAes),
+    () => geomAes && defineGroupAccessor(geomAes as Aes),
     [geomAes, defineGroupAccessor]
   )
 

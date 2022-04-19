@@ -5,13 +5,13 @@ import {
   tooltipState,
   TooltipContent,
   YTooltip,
-  Aes,
   DataValue,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
+import { type GeomAes } from '../types'
 
 interface Props {
-  aes: Aes
+  aes: GeomAes
   group?: DataValue
 }
 

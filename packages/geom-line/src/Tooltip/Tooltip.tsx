@@ -11,17 +11,19 @@ import {
 import { useAtom } from 'jotai'
 import { mean } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
+import { type GeomAes } from '../types'
 
 export { LineMarker } from './LineMarker'
 
 interface Props {
   x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
+  aes: GeomAes
 }
 
-export const Tooltip = ({ x, y }: Props) => {
+export const Tooltip = ({ x, y, aes }: Props) => {
   const { ggState } = useGG() || {}
-  const { id, copiedScales, height, margin, aes } = ggState || {
+  const { id, copiedScales, height, margin } = ggState || {
     height: 0,
   }
 
