@@ -12,6 +12,7 @@ import {
   defineGroupAccessor,
   defaultScheme,
   fillScaleState,
+  strokeScaleState,
   VisualEncodingTypes,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
@@ -80,7 +81,10 @@ const GeomArea = ({
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
-  const [{ values: fillScaleColors }] = useAtom(fillScaleState)
+  const [{ values: fillScaleColors, domain: fillDomain }] =
+    useAtom(fillScaleState)
+  const [{ values: strokeScaleColors, domain: strokeDomain }] =
+    useAtom(strokeScaleState)
   const [, setYScale] = useAtom(yScaleState)
 
   const geomData = localData || data
@@ -112,7 +116,9 @@ const GeomArea = ({
     const undefinedY = geomData
       ? geomData.filter(
           (d) =>
-            (geomAes?.y &&
+            (!geomAes.y0 &&
+              !geomAes.y1 &&
+              geomAes?.y &&
               (geomAes.y(d) === null ||
                 typeof geomAes.y(d) === 'undefined' ||
                 Number.isNaN(geomAes.y(d)?.valueOf()))) ||
@@ -153,12 +159,29 @@ const GeomArea = ({
         : scales?.groupAccessor,
     [geomAes, defineGroupAccessor]
   )
+
   const groups = useMemo(
     () =>
       group
         ? (Array.from(new Set(geomData?.map(group))) as string[])
         : undefined,
     [geomData, group]
+  )
+
+  const fillGroups = useMemo(
+    () =>
+      geomAes?.fill
+        ? (Array.from(new Set(geomData?.map(geomAes.fill))) as string[])
+        : undefined,
+    [geomAes]
+  )
+
+  const strokeGroups = useMemo(
+    () =>
+      geomAes?.stroke
+        ? (Array.from(new Set(geomData?.map(geomAes.stroke))) as string[])
+        : undefined,
+    [geomAes]
   )
 
   const x = useMemo(
@@ -327,29 +350,24 @@ const GeomArea = ({
   )
 
   // merge GG-level scales with Geom-level scales
-  //
-  // scale precedence:
-  // 1) TODO: explicitly-defined scales with `Scale*`
-  // 2) scales auto-generated from Geom (local) `aes`
-  // 3) scales auto-generated from GG (global) `aes`
 
   const geomFillScale = useMemo(() => {
     if (groups && geomAes.fill) {
       return scaleOrdinal()
-        .domain(groups)
+        .domain(fillDomain || fillGroups || groups)
         .range(
           (fillScaleColors as string[]) || defaultScheme
         ) as VisualEncodingTypes
     }
     return undefined
-  }, [geomAes])
+  }, [geomAes, fillScaleColors, fillDomain])
 
   const geomStrokeScale = useMemo(() => {
     if (groups && geomAes.stroke) {
       return scaleOrdinal()
-        .domain(groups)
+        .domain(strokeDomain || strokeGroups || groups)
         .range(
-          (fillScaleColors as string[]) || defaultScheme
+          (strokeScaleColors as string[]) || defaultScheme
         ) as VisualEncodingTypes
     }
     return undefined
@@ -453,26 +471,56 @@ const GeomArea = ({
     <>
       {geomData && groups && group ? (
         groups.map((g) => {
-          const thisFill =
+          const groupData = geomData.filter((d) => group(d) === g)
+          const groupStack = getStackedData(g)
+
+          const thisFillGroups =
+            geomFillScale && geomAes?.fill
+              ? Array.from(
+                  new Set(
+                    groupData.map((gd) => geomAes.fill && geomAes.fill(gd))
+                  )
+                )
+              : undefined
+
+          let thisFill =
             fillColor ||
             (geomFillScale && geomFillScale(g)) ||
             (copiedScales?.fillScale ? copiedScales.fillScale(g) : defaultFill)
 
-          const thisStroke =
+          if (thisFillGroups && geomFillScale) {
+            thisFillGroups.forEach((fg) => {
+              thisFill = geomFillScale(fg)
+            })
+          }
+
+          const thisStrokeGroups =
+            geomStrokeScale && geomAes?.stroke
+              ? Array.from(
+                  new Set(
+                    groupData.map((gd) => geomAes.stroke && geomAes.stroke(gd))
+                  )
+                )
+              : undefined
+
+          let thisStroke =
             strokeColor ||
             (geomStrokeScale && geomStrokeScale(g)) ||
             (copiedScales?.strokeScale
               ? copiedScales.strokeScale(g)
               : defaultStroke)
 
+          if (thisStrokeGroups && geomStrokeScale) {
+            thisStrokeGroups.forEach((fg) => {
+              thisStroke = geomStrokeScale(fg)
+            })
+          }
+
           const thisDasharray =
             strokeDasharray ||
             (copiedScales?.strokeDasharrayScale
               ? copiedScales.strokeDasharrayScale(g)
               : strokeDasharray)
-
-          const groupData = geomData.filter((d) => group(d) === g)
-          const groupStack = getStackedData(g)
 
           return (
             <Animate
