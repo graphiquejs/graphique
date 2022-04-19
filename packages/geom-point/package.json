@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-point",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "For points, scatterplots, and bubbles",
   "keywords": [
     "react",
