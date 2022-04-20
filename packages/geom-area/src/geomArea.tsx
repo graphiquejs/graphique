@@ -229,8 +229,21 @@ const GeomArea = ({
         )
       )
 
+      const groupYMinimums = groups.map((g) =>
+        min(
+          geomData.filter((d) => group(d) === g),
+          (d) => {
+            const thisYAcc = geomAes.y0 || (() => undefined)
+            return thisYAcc(d) as number
+          }
+        )
+      )
+
       if (['stack', 'stream'].includes(position)) {
-        const totalGroupYMaximums = sum(groupYMaximums)
+        const totalGroupYMaximums = max([
+          sum(groupYMaximums),
+          existingYExtent[1],
+        ])
 
         return [0, totalGroupYMaximums]
       }
@@ -248,11 +261,15 @@ const GeomArea = ({
           })
 
         const yExtent = identityYVals
-          ? extent(identityYVals.flat() as number[])
+          ? (extent(identityYVals.flat() as number[]) as [number, number])
           : [0, 1]
         const yMin =
           geomAes?.y0 && geomAes?.y1
-            ? yExtent[0]
+            ? min([
+                yExtent[0],
+                existingYExtent[0],
+                ...(groupYMinimums as [number, number]),
+              ])
             : min([0, yExtent[0] as number])
 
         const yMax = max([
@@ -260,7 +277,7 @@ const GeomArea = ({
           max(
             [
               groupYMaximums as number[],
-              // existingYExtent[1] as number,
+              existingYExtent[1] as number,
               // yExtent[1] as number,
             ].flat()
           ),
