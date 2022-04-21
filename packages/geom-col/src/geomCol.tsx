@@ -15,6 +15,7 @@ import {
   widen,
   Aes,
   isDate,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -68,6 +69,8 @@ const GeomCol = ({
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, margin, width } =
     ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -304,7 +307,7 @@ const GeomCol = ({
     [stackedData, scales, aes]
   )
 
-  return xBandScale ? (
+  return xBandScale && isVisible ? (
     <>
       <g ref={groupRef}>
         {!firstRender && (

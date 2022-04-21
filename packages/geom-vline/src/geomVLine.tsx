@@ -12,6 +12,7 @@ import {
   Delaunay,
   Aes,
   DataValue,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { NodeGroup } from 'react-move'
 import { useAtom } from 'jotai'
@@ -52,6 +53,8 @@ const GeomVLine = ({
 }: GeomVLineProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -142,7 +145,7 @@ const GeomVLine = ({
   return (
     <>
       <g ref={groupRef}>
-        {!firstRender && (
+        {!firstRender && isVisible && (
           <NodeGroup
             data={[...(geomData as [])]}
             keyAccessor={keyAccessor}

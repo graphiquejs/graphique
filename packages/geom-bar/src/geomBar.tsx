@@ -14,6 +14,7 @@ import {
   Delaunay,
   widen,
   Aes,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -66,6 +67,8 @@ const GeomBar = ({
 }: BarProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -307,7 +310,7 @@ const GeomBar = ({
     [stackedData, scales, aes]
   )
 
-  return yBandScale ? (
+  return yBandScale && isVisible ? (
     <>
       <g ref={groupRef}>
         {/* {!firstRender && ( */}

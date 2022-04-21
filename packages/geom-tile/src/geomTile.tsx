@@ -14,6 +14,7 @@ import {
   Delaunay,
   Aes,
   defineGroupAccessor,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -63,6 +64,8 @@ const GeomTile = ({
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, width, margin } =
     ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const geomAes = useMemo(() => {
     if (localAes) {
@@ -222,7 +225,7 @@ const GeomTile = ({
   // const rects = useMemo(() => groupRef.current?.getElementsByTagName("rect"), [])
   const rects = groupRef.current?.getElementsByTagName('rect')
 
-  return xBandScale && yBandScale ? (
+  return xBandScale && yBandScale && isVisible ? (
     <>
       <g ref={groupRef}>
         {!firstRender && (

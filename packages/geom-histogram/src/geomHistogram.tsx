@@ -5,6 +5,7 @@ import {
   xScaleState,
   yScaleState,
   XYScaleProps,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { GeomCol, GeomColProps } from '@graphique/geom-col'
 import { bin, max, min } from 'd3-array'
@@ -31,6 +32,8 @@ const GeomHistogram = ({
 }: HistogramProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales } = ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const [, setYScale] = useAtom(yScaleState)
   const [, setXScale] = useAtom(xScaleState)
@@ -94,7 +97,7 @@ const GeomHistogram = ({
     [binData, rangeFormat]
   )
 
-  return !firstRender ? (
+  return !firstRender && isVisible ? (
     <>
       <GeomCol
         data={binData}

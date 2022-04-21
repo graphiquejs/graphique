@@ -44,7 +44,8 @@
     "d3-transition": "^3.0.1",
     "jotai": "^1.1.2",
     "nanoid": "^3.3.2",
-    "react-flatten-children": "^1.1.2"
+    "react-flatten-children": "^1.1.2",
+    "react-page-visibility": "^7.0.0"
   },
   "peerDependencies": {
     "react": ">=16",
@@ -59,6 +60,7 @@
     "@types/d3-time-format": "^4.0.0",
     "@types/d3-transition": "^3.0.1",
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0"
+    "@types/react-dom": "^17.0.0",
+    "@types/react-page-visibility": "^6.4.1"
   }
 }
