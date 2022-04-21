@@ -24,6 +24,7 @@ export const ScaleX = ({
       reverse,
       highlightOnFocus,
       className,
+      isFixed: !!domain,
     }))
   }, [
     setXScale,
