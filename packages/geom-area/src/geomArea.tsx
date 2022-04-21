@@ -607,6 +607,7 @@ const GeomArea = ({
                   style={{
                     pointerEvents: 'none',
                   }}
+                  data-testid="__gg_geom_area"
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...props}
                 />
@@ -665,6 +666,7 @@ const GeomArea = ({
               style={{
                 pointerEvents: 'none',
               }}
+              data-testid="__gg_geom_area"
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...props}
             />
