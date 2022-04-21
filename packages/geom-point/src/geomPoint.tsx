@@ -34,6 +34,7 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   showTooltip?: boolean
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   onDatumSelection?: (data: unknown, index: number | number[]) => void
+  entrance?: 'data' | 'midpoint'
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -46,6 +47,7 @@ const GeomPoint = ({
   unfocusedStyle,
   onDatumFocus,
   onDatumSelection,
+  entrance = 'midpoint',
   onExit,
   showTooltip = true,
   fillOpacity = 1,
@@ -267,7 +269,7 @@ const GeomPoint = ({
             keyAccessor={keyAccessor}
             start={(d) => ({
               cx: x(d),
-              cy: bottomPos,
+              cy: entrance === 'data' ? y(d) : bottomPos,
               fill: fill(d),
               stroke: stroke(d),
               r: 0,
@@ -317,6 +319,7 @@ const GeomPoint = ({
                     fillOpacity={state.fillOpacity}
                     strokeOpacity={state.strokeOpacity}
                     style={{ pointerEvents: 'none' }}
+                    data-testid="__gg_geom_point"
                   />
                 ))}
               </>

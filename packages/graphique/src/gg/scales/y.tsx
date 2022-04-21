@@ -24,6 +24,7 @@ export const ScaleY = ({
       reverse,
       highlightOnFocus,
       className,
+      isFixed: !!domain,
     }))
   }, [
     setScale,

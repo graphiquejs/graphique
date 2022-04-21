@@ -85,7 +85,7 @@ const GeomArea = ({
     useAtom(fillScaleState)
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
-  const [, setYScale] = useAtom(yScaleState)
+  const [{ isFixed, domain: yDomain }, setYScale] = useAtom(yScaleState)
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -292,9 +292,9 @@ const GeomArea = ({
   useEffect(() => {
     setYScale((prev) => ({
       ...prev,
-      domain: yValExtent,
+      domain: isFixed ? yDomain : yValExtent,
     }))
-  }, [yValExtent])
+  }, [yValExtent, isFixed])
 
   const y0 = useMemo(
     () => (d: unknown) =>
