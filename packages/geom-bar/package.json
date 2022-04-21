@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-bar",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "For visualizing data as horizontal bars",
   "keywords": [
     "react",
