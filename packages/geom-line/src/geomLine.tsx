@@ -5,6 +5,7 @@ import {
   generateID,
   Delaunay,
   isDate,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -51,6 +52,8 @@ const GeomLine = ({
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -153,7 +156,7 @@ const GeomLine = ({
 
   // map through groups to draw a line for each group
 
-  return !firstRender && !allXUndefined && !allYUndefined ? (
+  return !firstRender && !allXUndefined && !allYUndefined && isVisible ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {

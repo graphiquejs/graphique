@@ -6,7 +6,13 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useGG, themeState, Delaunay, Aes } from '@graphique/graphique'
+import {
+  useGG,
+  themeState,
+  Delaunay,
+  Aes,
+  usePageVisibility,
+} from '@graphique/graphique'
 import { NodeGroup } from 'react-move'
 import { useAtom } from 'jotai'
 import { easeCubic } from 'd3-ease'
@@ -44,6 +50,8 @@ const GeomHLine = ({
 }: GeomHLineProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, width, margin } = ggState || {}
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -126,7 +134,7 @@ const GeomHLine = ({
   return (
     <>
       <g ref={groupRef}>
-        {!firstRender && width && (
+        {!firstRender && width && isVisible && (
           <NodeGroup
             data={[...(geomData as [])]}
             keyAccessor={keyAccessor}

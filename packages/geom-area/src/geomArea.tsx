@@ -14,6 +14,7 @@ import {
   fillScaleState,
   strokeScaleState,
   VisualEncodingTypes,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -86,6 +87,8 @@ const GeomArea = ({
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
   const [{ isFixed, domain: yDomain }, setYScale] = useAtom(yScaleState)
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -484,7 +487,7 @@ const GeomArea = ({
   )
 
   // map through groups to draw an area for each group
-  return !firstRender && !allXUndefined && !allYUndefined ? (
+  return !firstRender && !allXUndefined && !allYUndefined && isVisible ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {

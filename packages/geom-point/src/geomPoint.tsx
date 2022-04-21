@@ -22,6 +22,7 @@ import {
   isDate,
   defineGroupAccessor,
   Aes,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
@@ -63,7 +64,10 @@ const GeomPoint = ({
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill, animationDuration: duration } = theme
 
-  let geomData = localData || data
+  const isVisible = usePageVisibility()
+
+  const initialGeomData = useMemo(() => localData || data, [data, localData])
+
   const geomAes = useMemo(() => {
     if (localAes) {
       return {
@@ -75,8 +79,8 @@ const GeomPoint = ({
   }, [aes, localAes])
   const undefinedX = useMemo(
     () =>
-      geomData
-        ? geomData.filter(
+      initialGeomData
+        ? initialGeomData.filter(
             (d) =>
               geomAes?.x &&
               (geomAes.x(d) === null ||
@@ -84,31 +88,35 @@ const GeomPoint = ({
                 (isDate(geomAes.x(d)) && Number.isNaN(geomAes.x(d)?.valueOf())))
           )
         : [],
-    [geomData, geomAes]
+    [initialGeomData, geomAes]
   )
   const undefinedY = useMemo(
     () =>
-      geomData
-        ? geomData.filter(
+      initialGeomData
+        ? initialGeomData.filter(
             (d) =>
               geomAes?.y &&
               (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined')
           )
         : [],
-    [geomData]
+    [initialGeomData]
   )
 
-  geomData = geomData?.filter(
-    (d) =>
-      geomAes?.x &&
-      geomAes?.x(d) !== null &&
-      !(typeof geomAes?.x(d) === 'undefined') &&
-      (isDate(geomAes?.x(d))
-        ? !Number.isNaN(geomAes?.x(d)?.valueOf())
-        : true) &&
-      geomAes.y &&
-      geomAes.y(d) !== null &&
-      !(typeof geomAes.y(d) === 'undefined')
+  const geomData = useMemo(
+    () =>
+      initialGeomData?.filter(
+        (d) =>
+          geomAes?.x &&
+          geomAes?.x(d) !== null &&
+          !(typeof geomAes?.x(d) === 'undefined') &&
+          (isDate(geomAes?.x(d))
+            ? !Number.isNaN(geomAes?.x(d)?.valueOf())
+            : true) &&
+          geomAes.y &&
+          geomAes.y(d) !== null &&
+          !(typeof geomAes.y(d) === 'undefined')
+      ),
+    [initialGeomData]
   )
 
   const [firstRender, setFirstRender] = useState(true)
@@ -128,7 +136,7 @@ const GeomPoint = ({
         `Ignoring ${undefinedY.length} points with missing y values.`
       )
     }
-  }, [firstRender])
+  }, [firstRender, undefinedX, undefinedY])
 
   const bottomPos = useMemo(
     () => (height && margin ? height - margin.bottom : undefined),
@@ -242,19 +250,19 @@ const GeomPoint = ({
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 
+  const group = useMemo(
+    () => geomAes && defineGroupAccessor(geomAes as Aes),
+    [geomAes, defineGroupAccessor]
+  )
+
   const keyAccessor = useMemo(
     () => (d: unknown) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
-            scales?.groupAccessor && scales.groupAccessor(d)
+            group && group(d)
           }` as string),
-    [geomAes, scales]
-  )
-
-  const group = useMemo(
-    () => geomAes && defineGroupAccessor(geomAes as Aes),
-    [geomAes, defineGroupAccessor]
+    [geomAes, group]
   )
 
   const groupRef = useRef<SVGGElement>(null)
@@ -263,9 +271,9 @@ const GeomPoint = ({
   return (
     <>
       <g ref={groupRef}>
-        {!firstRender && (
+        {!firstRender && isVisible && (
           <NodeGroup
-            data={[...(geomData as [])]}
+            data={[...(geomData as any[])]}
             keyAccessor={keyAccessor}
             start={(d) => ({
               cx: x(d),
