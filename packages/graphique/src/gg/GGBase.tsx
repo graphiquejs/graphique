@@ -9,7 +9,12 @@ import React, {
 import { useAtom } from 'jotai'
 import flattenChildren from 'react-flatten-children'
 import { Aes, DataValue, GGProps } from './types'
-import { autoScale, IScale, defineGroupAccessor } from '../util'
+import {
+  autoScale,
+  IScale,
+  defineGroupAccessor,
+  usePageVisibility,
+} from '../util'
 import { XAxis, YAxis } from './axes'
 import {
   themeState,
@@ -59,6 +64,8 @@ export const GGBase = ({
   const [fillScale] = useAtom(fillScaleState)
   const [strokeScale] = useAtom(strokeScaleState)
   const [strokeDasharrayScale] = useAtom(strokeDasharrayState)
+
+  const isVisible = usePageVisibility()
 
   const [ggData, setGGData] = useState(data)
 
@@ -260,9 +267,13 @@ export const GGBase = ({
           {labels?.y}
         </div>
         <svg ref={ggRef} width={ggWidth} height={height}>
-          {axisX && <XAxis ggState={ggState} />}
-          {axisY && <YAxis ggState={ggState} />}
-          {geoms}
+          {isVisible && (
+            <>
+              {axisX && <XAxis ggState={ggState} />}
+              {axisY && <YAxis ggState={ggState} />}
+              {geoms}
+            </>
+          )}
         </svg>
         {/* tooltip portals */}
         <div style={{ position: 'relative' }}>
