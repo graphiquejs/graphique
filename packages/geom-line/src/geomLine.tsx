@@ -127,8 +127,18 @@ const GeomLine = ({
 
   // draw a line for each registered group
   // get groups from aes.group || aes.stroke || aes.strokeDasharray?
-  const group = scales?.groupAccessor
-  const groups = scales?.groups
+  const group = useMemo(
+    () => geomAes?.group ?? geomAes?.stroke ?? scales?.groupAccessor,
+    [geomAes, scales]
+  )
+
+  const groups = useMemo(
+    () =>
+      group
+        ? (Array.from(new Set(geomData?.map(group))) as string[])
+        : undefined,
+    [geomData, group]
+  )
 
   const x = useMemo(
     () => (d: unknown) =>
@@ -296,6 +306,7 @@ const GeomLine = ({
             y={y}
             markerRadius={markerRadius}
             markerStroke={markerStroke}
+            aes={geomAes}
           />
           <Tooltip x={x} y={y} aes={geomAes} />
         </>

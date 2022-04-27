@@ -37,7 +37,9 @@ export const DefaultTooltip = ({
       {data.map((d: TooltipContent, i: number) => {
         const formattedGroup = formatMissing(d.group)
         return (
-          <div key={`group-tooltip-${d.label || formattedGroup}`}>
+          <div
+            key={`group-tooltip-${d.label || formattedGroup}-${i.toString()}`}
+          >
             <div
               style={{
                 marginTop: 3,

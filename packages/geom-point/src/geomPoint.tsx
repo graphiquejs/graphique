@@ -77,6 +77,22 @@ const GeomPoint = ({
     }
     return aes
   }, [aes, localAes])
+
+  const group = useMemo(
+    () => geomAes && defineGroupAccessor(geomAes as Aes),
+    [geomAes, defineGroupAccessor]
+  )
+
+  const keyAccessor = useMemo(
+    () => (d: unknown) =>
+      geomAes?.key
+        ? geomAes.key(d)
+        : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
+            group && group(d)
+          }` as string),
+    [geomAes, group]
+  )
+
   const undefinedX = useMemo(
     () =>
       initialGeomData
@@ -102,22 +118,35 @@ const GeomPoint = ({
     [initialGeomData]
   )
 
-  const geomData = useMemo(
-    () =>
-      initialGeomData?.filter(
-        (d) =>
-          geomAes?.x &&
-          geomAes?.x(d) !== null &&
-          !(typeof geomAes?.x(d) === 'undefined') &&
-          (isDate(geomAes?.x(d))
-            ? !Number.isNaN(geomAes?.x(d)?.valueOf())
-            : true) &&
-          geomAes.y &&
-          geomAes.y(d) !== null &&
-          !(typeof geomAes.y(d) === 'undefined')
-      ),
-    [initialGeomData]
-  )
+  const geomData = useMemo(() => {
+    const presentData = initialGeomData?.filter(
+      (d) =>
+        geomAes?.x &&
+        geomAes?.x(d) !== null &&
+        !(typeof geomAes?.x(d) === 'undefined') &&
+        (isDate(geomAes?.x(d))
+          ? !Number.isNaN(geomAes?.x(d)?.valueOf())
+          : true) &&
+        geomAes.y &&
+        geomAes.y(d) !== null &&
+        !(typeof geomAes.y(d) === 'undefined')
+    )
+
+    const uniqueKeyVals = Array.from(
+      new Set(presentData?.map((d) => keyAccessor(d)))
+    )
+
+    return uniqueKeyVals.flatMap((k) => {
+      const dataWithKey = presentData?.filter((d) => keyAccessor(d) === k)
+      if (dataWithKey && dataWithKey.length > 1) {
+        return dataWithKey.map((dk: any, i) => ({
+          ...dk,
+          gg_gen_index: i,
+        }))
+      }
+      return dataWithKey?.flat()
+    })
+  }, [initialGeomData, keyAccessor])
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -250,21 +279,6 @@ const GeomPoint = ({
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 
-  const group = useMemo(
-    () => geomAes && defineGroupAccessor(geomAes as Aes),
-    [geomAes, defineGroupAccessor]
-  )
-
-  const keyAccessor = useMemo(
-    () => (d: unknown) =>
-      geomAes?.key
-        ? geomAes.key(d)
-        : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
-            group && group(d)
-          }` as string),
-    [geomAes, group]
-  )
-
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
 
@@ -274,7 +288,11 @@ const GeomPoint = ({
         {!firstRender && isVisible && (
           <NodeGroup
             data={[...(geomData as any[])]}
-            keyAccessor={keyAccessor}
+            keyAccessor={(d) =>
+              d.gg_gen_index
+                ? `${keyAccessor(d)}-${d.gg_gen_index}`
+                : keyAccessor(d)
+            }
             start={(d) => ({
               cx: x(d),
               cy: entrance === 'data' ? y(d) : bottomPos,

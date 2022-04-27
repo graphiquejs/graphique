@@ -5,13 +5,16 @@ import {
   themeState,
   formatMissing,
 } from '@graphique/graphique'
+import { min } from 'd3-array'
 import { useAtom } from 'jotai'
+import { type GeomAes } from '../types'
 
 export interface LineMarkerProps {
   x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
   markerRadius: number
   markerStroke: string
+  aes: GeomAes
   // onDatumFocus?: (data: unknown) => void
 }
 
@@ -20,16 +23,24 @@ export const LineMarker = ({
   y,
   markerRadius,
   markerStroke,
+  aes,
 }: LineMarkerProps) => {
   const { ggState } = useGG() || {}
-  const { aes, copiedScales, height, margin, id } = ggState || {}
+  const { copiedScales, width, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
   const [{ defaultStroke, geoms }] = useAtom(themeState) || {}
 
   const { line } = geoms || {}
 
-  const left = useMemo(() => datum && x(datum[0]), [datum, x])
+  const left = useMemo(
+    () =>
+      min([
+        datum && x(datum[0]),
+        width && margin?.right && width - margin.right,
+      ] as number[]),
+    [datum, x, width]
+  )
 
   return height && margin ? (
     <>
@@ -46,7 +57,7 @@ export const LineMarker = ({
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
           />
-          {datum.map((d) => {
+          {datum.map((d, i) => {
             const formattedGroup = copiedScales?.groupAccessor
               ? formatMissing(copiedScales?.groupAccessor(d))
               : '__group'
@@ -59,7 +70,9 @@ export const LineMarker = ({
             return (
               typeof y(d) !== 'undefined' && (
                 <g
-                  key={`group-marker-${d.label || formattedGroup}`}
+                  key={`group-marker-${
+                    d.label || formattedGroup
+                  }-${i.toString()}`}
                   style={{ pointerEvents: 'none' }}
                 >
                   <circle

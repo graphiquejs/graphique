@@ -9,7 +9,7 @@ import {
   TooltipContainer,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { mean } from 'd3-array'
+import { mean, min } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
 import { type GeomAes } from '../types'
 
@@ -23,7 +23,7 @@ interface Props {
 
 export const Tooltip = ({ x, y, aes }: Props) => {
   const { ggState } = useGG() || {}
-  const { id, copiedScales, height, margin } = ggState || {
+  const { id, copiedScales, width, height, margin } = ggState || {
     height: 0,
   }
 
@@ -31,7 +31,14 @@ export const Tooltip = ({ x, y, aes }: Props) => {
     useAtom(tooltipState)
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
-  const left = useMemo(() => datum && x(datum[0]), [datum, x])
+  const left = useMemo(
+    () =>
+      min([
+        datum && x(datum[0]),
+        width && margin?.right && width - margin.right,
+      ] as number[]),
+    [datum, x, width]
+  )
   const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
   const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])

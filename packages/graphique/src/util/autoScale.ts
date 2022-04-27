@@ -75,8 +75,8 @@ export const autoScale = ({
     hasPositionFill,
     hasPositionStack,
     geomGroupAccessors,
-    y0Aes,
-    y1Aes,
+    // y0Aes,
+    // y1Aes,
     geomAesYs,
     geomAesStrokes,
     geomAesFills,
@@ -179,41 +179,42 @@ export const autoScale = ({
     yScale = scaleLinear()
       .range([height - margin.bottom, margin.top])
       .domain([0, 1])
-  } else if (y0Aes && y1Aes) {
+  }
+  // else if (y0Aes && y1Aes) {
 
-    const firstY = data.map(y1Aes).find((d) => d !== null && d !== undefined)
+  //   const firstY = data.map(y1Aes).find((d) => d !== null && d !== undefined)
 
-    if (isDate(firstY)) {
-      const domain =
-        (yScaleDomain as Date[]) || extent(data.map(d => [(y0Aes(d) as Date), (y1Aes(d) as Date)]).flat())
+  //   if (isDate(firstY)) {
+  //     const domain =
+  //       (yScaleDomain as Date[]) || extent(data.map(d => [(y0Aes(d) as Date), (y1Aes(d) as Date)]).flat())
 
-      const hasDomain =
-        typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
+  //     const hasDomain =
+  //       typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
 
-      yScale = scaleTime()
-        .range([height - margin.bottom, margin.top])
-        .domain(hasDomain ? domain : [0, 1])
-    } else if (typeof firstY === 'number') {
-      const defaultDomain = extent(data.map(d => [(y0Aes(d) as number), (y1Aes(d) as number)]).flat())
+  //     yScale = scaleTime()
+  //       .range([height - margin.bottom, margin.top])
+  //       .domain(hasDomain ? domain : [0, 1])
+  //   } else if (typeof firstY === 'number') {
+  //     const defaultDomain = extent(data.map(d => [(y0Aes(d) as number), (y1Aes(d) as number)]).flat())
 
-      const domain = (yScaleDomain as number[]) || [
-        hasZeroYBaseLine ? 0 : defaultDomain[0],
-        defaultDomain[1],
-      ]
+  //     const domain = (yScaleDomain as number[]) || [
+  //       hasZeroYBaseLine ? 0 : defaultDomain[0],
+  //       defaultDomain[1],
+  //     ]
 
-      const hasDomain =
-        typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
+  //     const hasDomain =
+  //       typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
 
-      const yType: any = yScaleType || scaleLinear
+  //     const yType: any = yScaleType || scaleLinear
 
-      yScale = yType()
-        .range([height - margin.bottom, margin.top])
-        .domain(hasDomain ? domain : [0, 1])
-    } else {
-      yScale = scaleLinear()
-        .range([height - margin.bottom, margin.top])
-        .domain([0, 0])
-    }
+  //     yScale = yType()
+  //       .range([height - margin.bottom, margin.top])
+  //       .domain(hasDomain ? domain : [0, 1])
+  //   } else {
+  //     yScale = scaleLinear()
+  //       .range([height - margin.bottom, margin.top])
+  //       .domain([0, 0])
+  //   }
     // else if (!firstY || typeof firstY === 'string') {
     //   // hasCategoricalVar = true
     //   // maintain the existing order
@@ -231,7 +232,7 @@ export const autoScale = ({
     //     .domain(domain)
     //   // .padding(0.2)
     // }
-  } else if (thisYAes) {
+   else if (thisYAes) {
     
     const firstY = data.map(thisYAes).find((d) => d !== null && d !== undefined)
 

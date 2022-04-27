@@ -10,11 +10,13 @@ import { useAtom } from 'jotai'
 export interface DefaultTooltipProps {
   data: TooltipContent[]
   hasXAxisTooltip?: boolean
+  geomID: string
 }
 
 export const DefaultTooltip = ({
   data,
   hasXAxisTooltip,
+  geomID,
 }: DefaultTooltipProps) => {
   const xVal = data && data[0] ? data[0]?.formattedX : undefined
 
@@ -37,7 +39,11 @@ export const DefaultTooltip = ({
       {data.map((d: TooltipContent, i: number) => {
         const formattedGroup = formatMissing(d.group)
         return (
-          <div key={`group-tooltip-${d.label || formattedGroup}`}>
+          <div
+            key={`group-tooltip-${
+              d.label || formattedGroup
+            }-${geomID}-${i.toString()}`}
+          >
             <div
               style={{
                 marginTop: 3,

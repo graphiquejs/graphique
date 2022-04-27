@@ -36,7 +36,10 @@ export const GG = ({ children, ...props }: RootGGProps) => {
     <div ref={ggRef}>
       <Provider>
         <GGBase
-          data={data}
+          data={data.map((d: any, i) => ({
+            ...d,
+            gg_gen_index: i,
+          }))}
           aes={aes}
           width={ggWidth}
           height={height}

@@ -8,12 +8,11 @@ import {
   YTooltip,
   TooltipContainer,
   DataValue,
-  Aes,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { mean, sum } from 'd3-array'
+import { mean, sum, min } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
-import type { AreaAes } from '../types'
+import type { GeomAes } from '../types'
 
 export { LineMarker } from './LineMarker'
 
@@ -22,13 +21,14 @@ interface Props {
   y: (d: unknown) => number | undefined
   y0: DataValue
   y1: DataValue
-  aes: Aes & AreaAes
+  aes: GeomAes
   group?: DataValue
+  geomID: string
 }
 
-export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
+export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
   const { ggState } = useGG() || {}
-  const { id, scales, copiedScales, height, margin } = ggState || {
+  const { id, scales, copiedScales, width, height, margin } = ggState || {
     height: 0,
   }
 
@@ -38,7 +38,15 @@ export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
   const [{ geoms, defaultStroke, defaultFill }] = useAtom(themeState)
   const { area } = geoms || {}
 
-  const left = useMemo(() => datum && x(datum[0]), [datum, x])
+  const left = useMemo(
+    () =>
+      min([
+        datum && x(datum[0]),
+        width && margin?.right && width - margin.right,
+      ] as number[]),
+    [datum, x, width]
+  )
+
   const hasYVal = useMemo(
     () => datum?.some(y1) || datum?.some(y),
     [datum, y, y1]
@@ -171,7 +179,7 @@ export const Tooltip = ({ x, y, y0, y1, aes, group }: Props) => {
   const tooltipValue = content ? (
     <div>{content(areaVals)}</div>
   ) : (
-    <DefaultTooltip data={areaVals} hasXAxisTooltip={!!xAxis} />
+    <DefaultTooltip data={areaVals} hasXAxisTooltip={!!xAxis} geomID={geomID} />
   )
 
   return datum ? (

@@ -34,13 +34,8 @@ import {
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
 import { useAtom } from 'jotai'
-import type { AreaAes, StackedArea } from './types'
+import type { GeomAes, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
-
-type GeomAes = Omit<Aes, 'x' | 'size'> &
-  AreaAes & {
-    x?: DataValue
-  }
 
 export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
@@ -96,9 +91,9 @@ const GeomArea = ({
       return {
         ...aes,
         ...localAes,
-      } as Aes & AreaAes
+      } as GeomAes
     }
-    return aes as Aes & AreaAes
+    return aes as GeomAes
   }, [aes, localAes])
 
   const allXUndefined = useMemo(() => {
@@ -158,7 +153,7 @@ const GeomArea = ({
   const group = useMemo(
     () =>
       geomAes?.group || geomAes?.fill
-        ? defineGroupAccessor(geomAes)
+        ? defineGroupAccessor(geomAes as Aes)
         : scales?.groupAccessor,
     [geomAes, defineGroupAccessor]
   )
@@ -677,7 +672,7 @@ const GeomArea = ({
         <>
           <Delaunay
             data={geomData}
-            aes={aes}
+            aes={geomAes}
             group="x"
             x={x}
             y={() => 0}
@@ -697,7 +692,15 @@ const GeomArea = ({
             markerRadius={markerRadius}
             markerStroke={markerStroke}
           />
-          <Tooltip x={x} y={y} y0={y0} y1={y1} aes={geomAes} group={group} />
+          <Tooltip
+            x={x}
+            y={y}
+            y0={y0}
+            y1={y1}
+            aes={geomAes}
+            group={group}
+            geomID={geomID}
+          />
         </>
       )}
     </>

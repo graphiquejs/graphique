@@ -3,6 +3,7 @@ import { useAtom } from 'jotai'
 import {
   useGG,
   tooltipState,
+  labelsState,
   TooltipContent,
   YTooltip,
   DataValue,
@@ -22,6 +23,8 @@ export const Tooltip = ({ aes, group }: Props) => {
   const [
     { datum: tooltipDatum, position, xFormat, yFormat, measureFormat, content },
   ] = useAtom(tooltipState)
+
+  const [{ x: xLab, y: yLab }] = useAtom(labelsState)
 
   const datum = useMemo(() => tooltipDatum && tooltipDatum[0], [tooltipDatum])
 
@@ -55,6 +58,8 @@ export const Tooltip = ({ aes, group }: Props) => {
     {
       x: datum && aes?.x && xScale && xScale(aes.x(datum)),
       y: datum && aes?.y && yScale && yScale(aes.y(datum)),
+      xLab: xLab?.toString(),
+      yLab: yLab?.toString(),
       formattedX:
         datum &&
         aes?.x &&

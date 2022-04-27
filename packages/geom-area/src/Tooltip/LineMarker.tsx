@@ -4,18 +4,17 @@ import {
   tooltipState,
   themeState,
   DataValue,
-  Aes,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { sum } from 'd3-array'
-import type { AreaAes } from '../types'
+import { sum, min } from 'd3-array'
+import type { GeomAes } from '../types'
 
 export interface LineMarkerProps {
   x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
   y0: DataValue
   y1: DataValue
-  aes: Aes & AreaAes
+  aes: GeomAes
   markerRadius: number
   markerStroke: string
   // onDatumFocus?: (data: unknown) => void
@@ -31,14 +30,21 @@ export const LineMarker = ({
   markerStroke,
 }: LineMarkerProps) => {
   const { ggState } = useGG() || {}
-  const { scales, copiedScales, height, margin, id } = ggState || {}
+  const { scales, copiedScales, width, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
   const [{ defaultFill, geoms }] = useAtom(themeState) || {}
 
   const { area } = geoms || {}
 
-  const left = useMemo(() => datum && x(datum[0]), [datum, x])
+  const left = useMemo(
+    () =>
+      min([
+        datum && x(datum[0]),
+        width && margin?.right && width - margin.right,
+      ] as number[]),
+    [datum, x, width]
+  )
   // const shouldStack = useMemo(
   //   () => area?.position && ['stack', 'fill', 'stream'].includes(area.position),
   //   [area]

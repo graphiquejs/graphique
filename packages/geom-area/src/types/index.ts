@@ -1,6 +1,8 @@
-import { DataValue } from "@graphique/graphique"
+import { DataValue, Aes } from "@graphique/graphique"
 
-export type AreaAes = {
+export type GeomAes = Omit<Aes, 'x' | 'size'> &
+{
+  x?: DataValue
   /** a functional mapping to `data` representing an initial **y** value */
   y0?: DataValue
   /** a functional mapping to `data` representing a secondary **y** value */
