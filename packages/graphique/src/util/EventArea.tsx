@@ -309,7 +309,14 @@ export const EventArea = ({
           const ind = delaunay.find(posX, posY)
           const datum = data[ind]
 
-          if (xGrouped && aes?.x) {
+          const xDomain = scales?.xScale.domain()
+
+          const datumInRange =
+            aes?.x &&
+            xDomain &&
+            isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1])
+
+          if (xGrouped && aes?.x && datumInRange) {
             const left = x(datum)
 
             // skip if the data hasn't changed
@@ -357,7 +364,7 @@ export const EventArea = ({
               ...prev,
               datum: groupDatum,
             }))
-          } else {
+          } else if (datumInRange) {
             onMouseOver({ d: datum, i: ind })
             setTooltip((prev) => ({
               ...prev,
