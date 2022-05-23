@@ -309,23 +309,7 @@ export const EventArea = ({
           const ind = delaunay.find(posX, posY)
           const datum = data[ind]
 
-          const xDomain = scales?.xScale.domain()
-          const yDomain = scales?.yScale.domain()
-
-          const datumInRange =
-            aes?.x &&
-            (aes?.y || (aes?.y0 && aes?.y1)) &&
-            xDomain &&
-            yDomain &&
-            isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1]) &&
-            (aes?.y
-              ? isBetween(aes.y(datum) as number, yDomain[0], yDomain[1])
-              : aes?.y0 &&
-                aes?.y1 &&
-                (isBetween(aes?.y0(datum) as number, yDomain[0], yDomain[1]) ||
-                  isBetween(aes?.y1(datum) as number, yDomain[0], yDomain[1])))
-
-          if (xGrouped && aes?.x && datumInRange) {
+          if (xGrouped && aes?.x) {
             const left = x(datum)
 
             // skip if the data hasn't changed
@@ -354,7 +338,7 @@ export const EventArea = ({
               ...prev,
               datum: groupDatum,
             }))
-          } else if (yGrouped && aes?.y && datumInRange) {
+          } else if (yGrouped && aes?.y) {
             // skip if the data hasn't changed
             if (ttDatum && y(ttDatum[0] === y(datum))) return
 
@@ -373,7 +357,7 @@ export const EventArea = ({
               ...prev,
               datum: groupDatum,
             }))
-          } else if (datumInRange) {
+          } else {
             onMouseOver({ d: datum, i: ind })
             setTooltip((prev) => ({
               ...prev,

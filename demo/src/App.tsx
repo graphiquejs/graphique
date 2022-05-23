@@ -32,7 +32,7 @@ function App() {
           /> */}
           <GeomLine brushAction="zoom" aes={{ y: (d: Stock) => d.marketCap }} />
           <ScaleX reverse />
-          <ScaleY reverse />
+          <ScaleY domain={[900, 2000]} />
           <Legend style={{ padding: 20 }} orientation="horizontal" />
           <Labels x="hello" y="hello" />
         </GG>
@@ -46,7 +46,6 @@ function App() {
           margin={{ left: 50 }}
         >
           <GeomPoint brushAction="zoom" />
-          {/* <ScaleY reverse /> */}
           <PointLegend orientation="horizontal" style={{ padding: 12 }} />
         </GG>
         <GG
