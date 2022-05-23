@@ -12,7 +12,7 @@ export const ScaleY = ({
   highlightOnFocus,
   className,
 }: XYScaleProps) => {
-  const [{ domain: givenDomain }, setScale] = useAtom(yScaleState)
+  const [{ domain: givenDomain, isFixed }, setScale] = useAtom(yScaleState)
   const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export const ScaleY = ({
   ])
 
   useEffect(() => {
-    if (!yZoomDomain?.original) {
+    if (!yZoomDomain?.original && isFixed) {
       setZoom((prev) => ({
         ...prev,
         yDomain: {
@@ -48,7 +48,7 @@ export const ScaleY = ({
         },
       }))
     }
-  }, [setZoom, givenDomain, yZoomDomain?.original])
+  }, [setZoom, givenDomain, yZoomDomain?.original, isFixed])
 
   return null
 }

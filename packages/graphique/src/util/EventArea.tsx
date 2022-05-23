@@ -75,8 +75,9 @@ export const EventArea = ({
 
   const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
   const [{ animationDuration }] = useAtom(themeState)
-  const [{ domain: givenYDomain }, setYScale] = useAtom(yScaleState)
-  const [, setXScale] = useAtom(xScaleState)
+  const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
+    useAtom(yScaleState)
+  const [{ reverse: reverseX }, setXScale] = useAtom(xScaleState)
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }, setZoom] =
     useAtom(zoomState)
 
@@ -214,10 +215,12 @@ export const EventArea = ({
         })
 
         if (brushedData && brushedData.length) {
-          const newXDomain = [
+          let newXDomain = [
             scales?.xScale.invert(Math.min(x0, x1)),
             scales?.xScale.invert(Math.max(x0, x1)),
-          ] as [number, number]
+          ]
+
+          newXDomain = reverseX ? newXDomain.reverse() : newXDomain
 
           const brushedYExtent = extent(
             brushedData
@@ -231,19 +234,25 @@ export const EventArea = ({
               .flat() as number[]
           )
 
-          const reconciledYExtent = givenYDomain
+          let reconciledYExtent = givenYDomain
             ? [
                 max([brushedYExtent[0], givenYDomain[0]]),
                 min([brushedYExtent[1], givenYDomain[1]]),
               ]
             : brushedYExtent
 
-          const newYDomain = xGrouped
+          reconciledYExtent = reverseY
+            ? reconciledYExtent
+            : reconciledYExtent.reverse()
+
+          let newYDomain = xGrouped
             ? reconciledYExtent
             : [
-                scales?.yScale.invert(Math.max(y0, y1)),
                 scales?.yScale.invert(Math.min(y0, y1)),
+                scales?.yScale.invert(Math.max(y0, y1)),
               ]
+
+          newYDomain = reverseY ? newYDomain : newYDomain.reverse()
 
           // TODO: do nothing if sufficiently zoomed in already
           // e.g. 50-100X in either x/y directions
@@ -279,6 +288,8 @@ export const EventArea = ({
       ggData,
       xGrouped,
       yGrouped,
+      reverseX,
+      reverseY,
       aes,
       scales,
       y,
@@ -430,7 +441,7 @@ export const EventArea = ({
     setXScale,
     setZoom,
     yZoomDomain?.original,
-    xZoomDomain,
+    xZoomDomain?.original,
     brushAction,
     showTooltip,
   ])
