@@ -9,7 +9,7 @@ import {
   TooltipContainer,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { mean, min } from 'd3-array'
+import { mean, min, max } from 'd3-array'
 import { DefaultTooltip } from './DefaultTooltip'
 import { type GeomAes } from '../types'
 
@@ -46,6 +46,8 @@ export const Tooltip = ({ x, y, aes }: Props) => {
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
     [datum, aes]
   )
+
+  const cappedYVal = max([0, min([meanYVal, height]) as number]) as number
 
   const lineVals = useMemo(() => {
     const vals =
@@ -119,7 +121,7 @@ export const Tooltip = ({ x, y, aes }: Props) => {
         <YTooltip
           id={id as string}
           left={left}
-          top={position === 'data' ? -(height - meanYVal) : -height}
+          top={position === 'data' ? -(height - cappedYVal) : -height}
           value={tooltipValue}
           wait
         />

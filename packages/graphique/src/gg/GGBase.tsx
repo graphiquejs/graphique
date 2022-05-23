@@ -121,10 +121,10 @@ export const GGBase = ({
     if (geomProps.aes?.fill) geomAesFills.push(geomProps.aes.fill)
 
     if (g.type.displayName.includes('Bar')) {
-      geomZeroXBaseLines.push(geomProps.freeBaseLine)
+      geomZeroXBaseLines.push(!geomProps.freeBaseLine)
     }
     if (g.type.displayName.includes('Col')) {
-      geomZeroYBaseLines.push(geomProps.freeBaseLine)
+      geomZeroYBaseLines.push(!geomProps.freeBaseLine)
     }
   })
 
@@ -272,6 +272,7 @@ export const GGBase = ({
               {axisX && <XAxis ggState={ggState} />}
               {axisY && <YAxis ggState={ggState} />}
               {geoms}
+              <g id={`__gg-brush-exclusion-${id}`} />
             </>
           )}
         </svg>
@@ -280,20 +281,15 @@ export const GGBase = ({
           <div id={`__gg-tooltip-x-${id}`} data-testid="__gg_x_tooltip" />
           <div id={`__gg-tooltip-y-${id}`} data-testid="__gg_y_tooltip" />
         </div>
-        {/* other types of children */}
-        <div
-          style={
-            {
-              // position: "absolute",
-              // bottom: 0,
-              // width: "100%",
-              // height,
-              // pointerEvents: "none",
-            }
-          }
-        >
-          {otherChildren}
+        {/* zoom out portal */}
+        <div style={{ position: 'relative' }}>
+          <div
+            id={`__gg-zoom-out-button-${id}`}
+            data-testid="__gg_zoom_out_button"
+          />
         </div>
+        {/* other types of children */}
+        <div>{otherChildren}</div>
       </div>
     </GGglobalCtx.Provider>
   ) : null

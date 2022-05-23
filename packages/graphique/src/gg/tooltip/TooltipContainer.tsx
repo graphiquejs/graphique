@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react'
 
-const styles = {
+const styles: CSSProperties = {
   fontSize: 12,
   padding: '4px 6px 4px 6px',
   color: '#111',

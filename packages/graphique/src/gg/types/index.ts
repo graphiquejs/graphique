@@ -5,4 +5,5 @@ export {
   VisualEncoding,
   VisualEncodingTypes,
 } from "./Scales"
+export * from './Brush'
 export { GGProps } from "./GG"

@@ -8,13 +8,18 @@ import React, {
 } from 'react'
 import {
   useGG,
+  xScaleState,
+  yScaleState,
   themeState,
+  zoomState,
   focusNodes,
   unfocusNodes,
-  Delaunay,
+  EventArea,
   widen,
   Aes,
+  BrushAction,
   isDate,
+  defineGroupAccessor,
   usePageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
@@ -22,7 +27,7 @@ import { NodeGroup } from 'react-move'
 import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { scaleBand } from 'd3-scale'
-import { max, sum } from 'd3-array'
+import { extent, max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip } from './tooltip'
 
@@ -36,6 +41,7 @@ export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   xDomain?: unknown[]
   yDomain?: unknown[]
   showTooltip?: boolean
+  brushAction?: BrushAction
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   onDatumSelection?: (data: unknown, index: number | number[]) => void
   onExit?: () => void
@@ -59,6 +65,7 @@ const GeomCol = ({
   xPadding = 0.2,
   dodgePadding = 0.05,
   showTooltip = true,
+  brushAction,
   fillOpacity = 1,
   strokeOpacity = 1,
   freeBaseLine,
@@ -67,23 +74,37 @@ const GeomCol = ({
   ...props
 }: GeomColProps) => {
   const { ggState } = useGG() || {}
-  const { data, aes, scales, copiedScales, height, margin, width } =
+  const { data, aes, scales, copiedScales, height, margin, width, id } =
     ggState || {}
+
+  const [theme, setTheme] = useAtom(themeState)
+  const [{ xDomain: xZoomDomain }] = useAtom(zoomState)
+  const [, setXScale] = useAtom(xScaleState)
+  const [, setYScale] = useAtom(yScaleState)
 
   const isVisible = usePageVisibility()
 
-  const geomData = localData || data
   const geomAes = useMemo(() => {
     if (localAes) {
       return {
         ...aes,
         ...localAes,
-      }
+      } as Aes
     }
-    return aes
+    return aes as Aes
   }, [aes, localAes])
 
-  const [theme, setTheme] = useAtom(themeState)
+  const geomData = useMemo(() => {
+    const thisData = localData || data
+    return thisData?.filter((d) => {
+      const xVal = geomAes.x(d)
+      return xZoomDomain?.current
+        ? xVal !== null &&
+            xVal <= xZoomDomain.current[1] &&
+            xVal >= xZoomDomain.current[0]
+        : xVal
+    })
+  }, [geomAes, xZoomDomain?.current, data])
 
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill, animationDuration: duration } = theme
@@ -209,6 +230,7 @@ const GeomCol = ({
         return scales.xScale.paddingInner(xPadding)
       }
       const uniqueXs = Array.from(new Set(geomData?.map((d) => geomAes?.x(d))))
+
       return scaleBand()
         .range([margin.left, width - margin.right])
         .domain((xDomain || uniqueXs) as string[])
@@ -216,6 +238,26 @@ const GeomCol = ({
     }
     return null
   }, [geomData, geomAes, width, scales, margin, xPadding, xDomain])
+
+  useEffect(() => {
+    if (xZoomDomain?.current && geomData) {
+      const xExtent = extent(geomData, (d) => geomAes.x(d) as number)
+      const yExtent = extent(
+        geomData,
+        (d) => geomAes?.y && (geomAes.y(d) as number)
+      )
+
+      setXScale((prev) => ({
+        ...prev,
+        domain: xExtent,
+      }))
+
+      setYScale((prev) => ({
+        ...prev,
+        domain: yExtent,
+      }))
+    }
+  }, [xZoomDomain?.current])
 
   const x = useMemo(() => {
     if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
@@ -227,10 +269,10 @@ const GeomCol = ({
         width - margin.right - rightAdj - 0.5,
       ])
       return (d: unknown) =>
-        (scales?.xScale(geomAes?.x(d)) || 0) - leftAdj + 0.5
+        (scales?.xScale(geomAes?.x(d) ?? aes?.x(d)) || 0) - leftAdj + 0.5
     }
     return (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d))
-  }, [scales, geomAes, xBandScale, margin, width, align])
+  }, [scales, geomAes, xBandScale, margin, width, align, aes])
 
   const y = useMemo(
     () => (d: unknown) =>
@@ -238,16 +280,27 @@ const GeomCol = ({
     [scales, geomAes]
   )
 
+  const group = useMemo(
+    () => defineGroupAccessor(geomAes as Aes),
+    [defineGroupAccessor, geomAes]
+  )
+
+  const groups = useMemo(
+    () =>
+      group
+        ? (Array.from(new Set(geomData?.map(group))) as string[])
+        : undefined,
+    [geomData, group]
+  )
+
   const keyAccessor = useMemo(
     () => (d: unknown) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
-          `${geomAes?.x(d)}-${geomAes.y(d)}-
-          ${
-            scales?.groupAccessor ? scales.groupAccessor(d) : '__group'
-          }`) as string,
-    [geomAes, scales]
+          group &&
+          `${geomAes?.x(d)}-${geomAes.y(d)}-${group(d)}`) as string,
+    [geomAes, group]
   )
 
   const stackedData = useMemo(() => {
@@ -256,17 +309,17 @@ const GeomCol = ({
       geomAes?.x &&
       geomAes?.y &&
       ['stack', 'fill'].includes(position) &&
-      scales?.groups &&
-      scales?.groupAccessor
+      groups &&
+      group
     ) {
       return stack()
-        .keys(scales.groups)
+        .keys(groups)
         .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)(
-        widen(geomData, geomAes.x, scales.groupAccessor, geomAes.y)
+        widen(geomData, geomAes.x, group, geomAes.y)
       )
     }
     return null
-  }, [geomData, geomAes, scales, position])
+  }, [geomData, geomAes, group, groups, position])
 
   // const sortedData = useMemo(() => {
   //   // if (geomData && geomAes?.y) {
@@ -295,21 +348,18 @@ const GeomCol = ({
   const getGroupY = useMemo(
     () => (d: unknown) => {
       const thisStack =
-        stackedData &&
-        stackedData.find(
-          (sd) => scales?.groupAccessor && sd.key === scales?.groupAccessor(d)
-        )
+        stackedData && stackedData.find((sd) => group && sd.key === group(d))
       const groupStack = thisStack?.find(
-        (s) => aes?.x && s.data.key === aes.x(d)?.valueOf()
+        (s) => geomAes?.x && s.data.key === geomAes.x(d)?.valueOf()
       )
       return groupStack
     },
-    [stackedData, scales, aes]
+    [stackedData, geomAes, group]
   )
 
   return xBandScale && isVisible ? (
     <>
-      <g ref={groupRef}>
+      <g ref={groupRef} clipPath={`url(#__gg_canvas_${id})`}>
         {!firstRender && (
           <NodeGroup
             data={[...(geomData as [])]}
@@ -343,6 +393,7 @@ const GeomCol = ({
               const barHeight = stackedData
                 ? thisY0 - thisY1
                 : bottomPos - (y(d) || 0)
+
               return {
                 height: [typeof y(d) === 'undefined' ? 0 : barHeight],
                 width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
@@ -411,14 +462,16 @@ const GeomCol = ({
           </NodeGroup>
         )}
       </g>
-      {showTooltip && (
+      {(showTooltip || brushAction) && (
         <>
-          <Delaunay
+          <EventArea
             data={geomData}
             aes={geomAes}
             x={x}
             y={() => 0}
             group="x"
+            showTooltip={showTooltip}
+            brushAction={brushAction}
             xAdj={xBandScale.bandwidth() / 2}
             onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
               if (rects) {
@@ -447,15 +500,17 @@ const GeomCol = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip
-            y={y}
-            xAdj={
-              !scales?.xScale.bandwidth && align === 'center'
-                ? 0
-                : xBandScale.bandwidth() / 2
-            }
-            aes={geomAes}
-          />
+          {showTooltip && (
+            <Tooltip
+              y={y}
+              xAdj={
+                !scales?.xScale.bandwidth && align === 'center'
+                  ? 0
+                  : xBandScale.bandwidth() / 2
+              }
+              aes={geomAes}
+            />
+          )}
         </>
       )}
     </>

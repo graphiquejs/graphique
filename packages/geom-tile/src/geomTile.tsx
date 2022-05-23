@@ -11,7 +11,7 @@ import {
   themeState,
   focusNodes,
   unfocusNodes,
-  Delaunay,
+  EventArea,
   Aes,
   defineGroupAccessor,
   usePageVisibility,
@@ -290,7 +290,7 @@ const GeomTile = ({
       </g>
       {geomAes && group && showTooltip && (
         <>
-          <Delaunay
+          <EventArea
             x={x}
             y={y}
             data={data}

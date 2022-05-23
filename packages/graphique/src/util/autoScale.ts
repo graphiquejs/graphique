@@ -75,8 +75,8 @@ export const autoScale = ({
     hasPositionFill,
     hasPositionStack,
     geomGroupAccessors,
-    // y0Aes,
-    // y1Aes,
+    y0Aes,
+    y1Aes,
     geomAesYs,
     geomAesStrokes,
     geomAesFills,
@@ -123,9 +123,11 @@ export const autoScale = ({
       ['__group']
 
   const thisYAes = aes.y || (geomAesYs.length ? geomAesYs[0] : undefined)
+  const resolvedYAes = thisYAes ?? y1Aes ?? y0Aes
   const thisStrokeAes = aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
   const thisFillAes = aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
 
+  
   /// SCALING ///
 
 
@@ -232,9 +234,8 @@ export const autoScale = ({
     //     .domain(domain)
     //   // .padding(0.2)
     // }
-   else if (thisYAes) {
-    
-    const firstY = data.map(thisYAes).find((d) => d !== null && d !== undefined)
+   else if (resolvedYAes) {
+    const firstY = data.map(resolvedYAes).find((d) => d !== null && d !== undefined)
 
     if (isDate(firstY)) {
       const domain =
@@ -256,7 +257,7 @@ export const autoScale = ({
                 0,
                 max(
                   data.filter((d) => group && group(d) === g),
-                  (d) => thisYAes(d) as number
+                  (d) => resolvedYAes(d) as number
                 ) as number
               ]
             )
@@ -288,9 +289,9 @@ export const autoScale = ({
       // hasCategoricalVar = true
       // maintain the existing order
       const initialDomain = Array.from(
-        new Set(copiedData.map(thisYAes))
+        new Set(copiedData.map(resolvedYAes))
       ) as string[]
-      const computedDomain = Array.from(new Set(data.map(thisYAes))) as string[]
+      const computedDomain = Array.from(new Set(data.map(resolvedYAes))) as string[]
 
       const domain =
         (yScaleDomain as string[]) ||
@@ -307,6 +308,13 @@ export const autoScale = ({
       .domain([0, 1])
   }
   if (reverseY) yScale?.domain(yScale.domain().reverse())
+
+  // setZoom(prev => ({
+  //   ...prev,
+  //   xDomain: {
+  //     current: xScale.domain(),
+  //   }
+  // }))
 
   // fill
   let fillScale

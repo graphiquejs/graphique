@@ -3,7 +3,7 @@ import {
   useGG,
   themeState,
   generateID,
-  Delaunay,
+  EventArea,
   Aes,
   DataValue,
   isDate,
@@ -13,8 +13,10 @@ import {
   defaultScheme,
   fillScaleState,
   strokeScaleState,
+  zoomState,
   VisualEncodingTypes,
   usePageVisibility,
+  BrushAction,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -41,6 +43,7 @@ export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
   aes?: GeomAes
   showTooltip?: boolean
+  brushAction?: BrushAction
   curve?: CurveFactory
   markerRadius?: number
   markerStroke?: string
@@ -58,6 +61,7 @@ const GeomArea = ({
   data: localData,
   aes: localAes,
   showTooltip = true,
+  brushAction,
   curve,
   onDatumFocus,
   // focus = "x",
@@ -75,13 +79,14 @@ const GeomArea = ({
   ...props
 }: GeomAreaProps) => {
   const { ggState } = useGG() || {}
-  const { data, aes, scales, copiedScales } = ggState || {}
+  const { id, data, aes, scales, copiedScales } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
   const [{ values: fillScaleColors, domain: fillDomain }] =
     useAtom(fillScaleState)
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
   const [{ isFixed, domain: yDomain }, setYScale] = useAtom(yScaleState)
+  const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
 
   const isVisible = usePageVisibility()
 
@@ -144,9 +149,20 @@ const GeomArea = ({
   const geomID = useMemo(() => generateID(), [])
 
   const [firstRender, setFirstRender] = useState(true)
+
   useEffect(() => {
     setTimeout(() => setFirstRender(false), 0)
   }, [])
+
+  // useEffect(() => {
+  //   if (yZoomDomain?.current && isVisible && firstRender) {
+  //     console.log(yZoomDomain.current)
+  //     setYScale((prev) => ({
+  //       ...prev,
+  //       domain: yZoomDomain.current,
+  //     }))
+  //   }
+  // }, [isVisible, yZoomDomain?.current, firstRender, setYScale])
 
   // draw an area for each registered group
   // get groups from aes.group || aes.stroke || aes.strokeDasharray?
@@ -200,7 +216,8 @@ const GeomArea = ({
 
   const yValExtent = useMemo(() => {
     // reset the yScale based on position
-    const existingYExtent = scales?.yScale?.domain() as [number, number]
+    // const existingYExtent = scales?.yScale?.domain() as [number, number]
+    const existingYExtent = [0, 1]
 
     let resolvedYExtent = [0, 1]
     if (!group && !groups && !geomAes.y0 && !geomAes.y1)
@@ -261,13 +278,16 @@ const GeomArea = ({
         const yExtent = identityYVals
           ? (extent(identityYVals.flat() as number[]) as [number, number])
           : [0, 1]
+
         const yMin =
-          geomAes?.y0 && geomAes?.y1
-            ? min([
-                yExtent[0],
-                existingYExtent[0],
-                ...(groupYMinimums as [number, number]),
-              ])
+          geomAes?.y0 && geomAes?.y1 && !geomAes.y
+            ? min(
+                [
+                  groupYMinimums as number[],
+                  // existingYExtent[0],
+                  // yExtent[0],
+                ].flat()
+              )
             : min([0, yExtent[0] as number])
 
         const yMax = max([
@@ -288,11 +308,20 @@ const GeomArea = ({
   }, [position, geomData, geomAes])
 
   useEffect(() => {
-    setYScale((prev) => ({
-      ...prev,
-      domain: isFixed ? yDomain : yValExtent,
-    }))
-  }, [yValExtent, isFixed])
+    if (firstRender && !yZoomDomain?.original) {
+      setYScale((prev) => ({
+        ...prev,
+        domain: isFixed ? yDomain : yValExtent,
+      }))
+      setZoom((prev) => ({
+        ...prev,
+        yDomain: {
+          ...prev.yDomain,
+          original: isFixed ? yDomain : yValExtent,
+        },
+      }))
+    }
+  }, [yValExtent, isFixed, yZoomDomain?.original, firstRender])
 
   const y0 = useMemo(
     () => (d: unknown) =>
@@ -603,6 +632,7 @@ const GeomArea = ({
                     pointerEvents: 'none',
                   }}
                   data-testid="__gg_geom_area"
+                  clipPath={`url(#__gg_canvas_${id})`}
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...props}
                 />
@@ -658,19 +688,17 @@ const GeomArea = ({
               stroke={state.stroke}
               strokeWidth={strokeWidth}
               strokeOpacity={state.strokeOpacity}
-              style={{
-                pointerEvents: 'none',
-              }}
               data-testid="__gg_geom_area"
+              clipPath={`url(#__gg_canvas_${id})`}
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...props}
             />
           )}
         </Animate>
       )}
-      {showTooltip && (
+      {(showTooltip || brushAction) && (
         <>
-          <Delaunay
+          <EventArea
             data={geomData}
             aes={geomAes}
             group="x"
@@ -682,25 +710,31 @@ const GeomArea = ({
             onMouseLeave={() => {
               if (onExit) onExit()
             }}
+            showTooltip={showTooltip}
+            brushAction={brushAction}
           />
-          <LineMarker
-            x={x}
-            y={y}
-            y0={y0}
-            y1={y1}
-            aes={geomAes}
-            markerRadius={markerRadius}
-            markerStroke={markerStroke}
-          />
-          <Tooltip
-            x={x}
-            y={y}
-            y0={y0}
-            y1={y1}
-            aes={geomAes}
-            group={group}
-            geomID={geomID}
-          />
+          {showTooltip && (
+            <>
+              <LineMarker
+                x={x}
+                y={y}
+                y0={y0}
+                y1={y1}
+                aes={geomAes}
+                markerRadius={markerRadius}
+                markerStroke={markerStroke}
+              />
+              <Tooltip
+                x={x}
+                y={y}
+                y0={y0}
+                y1={y1}
+                aes={geomAes}
+                group={group}
+                geomID={geomID}
+              />
+            </>
+          )}
         </>
       )}
     </>

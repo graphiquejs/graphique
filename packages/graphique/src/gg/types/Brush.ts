@@ -1,0 +1,1 @@
+export type BrushAction = 'zoom'
