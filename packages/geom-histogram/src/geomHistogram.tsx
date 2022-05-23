@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   useGG,
   Tooltip,
+  usePageVisibility,
   xScaleState,
   yScaleState,
-  XYScaleProps,
-  usePageVisibility,
+  zoomState,
 } from '@graphique/graphique'
 import { GeomCol, GeomColProps } from '@graphique/geom-col'
-import { bin, max, min } from 'd3-array'
+import { bin, min, max } from 'd3-array'
 import { useAtom } from 'jotai'
 
 export interface HistogramProps extends GeomColProps {
@@ -37,6 +37,7 @@ const GeomHistogram = ({
 
   const [, setYScale] = useAtom(yScaleState)
   const [, setXScale] = useAtom(xScaleState)
+  const [{ xDomain: xZoomDomain }, setZoom] = useAtom(zoomState)
 
   const group = useMemo(() => scales?.groupAccessor, [scales])
   const groups = useMemo(() => scales?.groups || ['__group'], [scales])
@@ -72,10 +73,34 @@ const GeomHistogram = ({
     return ([] as HistogramBin[]).concat(...overallBins)
   }, [data, createBins, groups, group])
 
-  scales?.yScale.domain([0, max(binData, (d) => d.n)])
+  const reconciledBinData = useMemo(() => {
+    let thisBinData = binData
+    if (xZoomDomain?.current) {
+      thisBinData = binData.filter((d) => {
+        const xVal = d.x0
+        return xZoomDomain?.current
+          ? typeof xVal !== 'undefined' &&
+              xVal <= xZoomDomain.current[1] &&
+              xVal >= xZoomDomain.current[0]
+          : d
+      })
+    }
+    return thisBinData
+  }, [binData, xZoomDomain?.current])
+
+  scales?.yScale.domain([0, max(reconciledBinData, (d) => d.n)])
+
+  const formatRange = useCallback(
+    (x0: unknown) => {
+      const xBin = binData.find((b) => b.x0 === x0)
+      const x1 = xBin?.x1 as number
+      return rangeFormat(x0 as number, x1)
+    },
+    [binData, rangeFormat]
+  )
 
   useEffect(() => {
-    setXScale((prev: XYScaleProps) => ({
+    setXScale((prev) => ({
       ...prev,
       domain: [min(binData, (d) => d.x0), max(binData, (d) => d.x0)] as [
         number,
@@ -86,16 +111,14 @@ const GeomHistogram = ({
       ...prev,
       domain: [0, max(binData, (d) => d.n) as number],
     }))
+    setZoom((prev) => ({
+      ...prev,
+      xDomain: {
+        ...prev.xDomain,
+        original: [min(binData, (d) => d.x0), max(binData, (d) => d.x0)],
+      },
+    }))
   }, [data, setXScale, setYScale, bins])
-
-  const formatRange = useCallback(
-    (x0: unknown) => {
-      const xBin = binData.find((b) => b.x0 === x0)
-      const x1 = xBin?.x1 as number
-      return rangeFormat(x0 as number, x1)
-    },
-    [binData, rangeFormat]
-  )
 
   return !firstRender && isVisible ? (
     <>

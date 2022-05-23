@@ -10,7 +10,7 @@ export {
   defaultInterpolator,
   defaultDasharrays,
 } from "./scaleDefaults"
-export { Delaunay } from "./delaunay"
+export { EventArea } from "./EventArea"
 export { generateID } from "./generateID"
 export { formatMissing } from "./formatMissing"
 export { defineGroupAccessor } from "./defineGroupAccessor"

@@ -62,13 +62,18 @@ export const LineMarker = ({
               ? formatMissing(copiedScales?.groupAccessor(d))
               : '__group'
 
+            const inRange =
+              (y(d) as number) <= copiedScales?.yScale.range()[0] &&
+              (y(d) as number) >= copiedScales?.yScale.range()[1]
+
             const thisFill =
               line?.stroke ||
               (copiedScales?.strokeScale && aes?.stroke
                 ? copiedScales.strokeScale(aes.stroke(d))
                 : defaultStroke)
             return (
-              typeof y(d) !== 'undefined' && (
+              typeof y(d) !== 'undefined' &&
+              inRange && (
                 <g
                   key={`group-marker-${
                     d.label || formattedGroup

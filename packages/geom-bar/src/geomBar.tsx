@@ -11,7 +11,7 @@ import {
   themeState,
   focusNodes,
   unfocusNodes,
-  Delaunay,
+  EventArea,
   widen,
   Aes,
   usePageVisibility,
@@ -421,7 +421,7 @@ const GeomBar = ({
       </g>
       {showTooltip && (
         <>
-          <Delaunay
+          <EventArea
             x={() => 0}
             y={y}
             group="y"

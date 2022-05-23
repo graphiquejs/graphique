@@ -16,12 +16,13 @@ import {
   useGG,
   focusNodes,
   unfocusNodes,
-  Delaunay,
+  EventArea,
   themeState,
   radiusScaleState,
   isDate,
   defineGroupAccessor,
   Aes,
+  BrushAction,
   usePageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
@@ -33,6 +34,7 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
+  brushAction?: BrushAction
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   onDatumSelection?: (data: unknown, index: number | number[]) => void
   entrance?: 'data' | 'midpoint'
@@ -51,13 +53,14 @@ const GeomPoint = ({
   entrance = 'midpoint',
   onExit,
   showTooltip = true,
+  brushAction,
   fillOpacity = 1,
   strokeOpacity = 1,
   r = 3.5,
   ...props
 }: PointProps) => {
   const { ggState } = useGG() || {}
-  const { data, aes, scales, copiedScales, height, margin } = ggState || {}
+  const { id, data, aes, scales, copiedScales, height, margin } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
   const [radiusScale] = useAtom(radiusScaleState)
   const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
@@ -284,7 +287,7 @@ const GeomPoint = ({
 
   return (
     <>
-      <g ref={groupRef}>
+      <g ref={groupRef} clipPath={`url(#__gg_canvas_${id})`}>
         {!firstRender && isVisible && (
           <NodeGroup
             data={[...(geomData as any[])]}
@@ -353,10 +356,13 @@ const GeomPoint = ({
           </NodeGroup>
         )}
       </g>
-      {geomData && geomAes && showTooltip && (
+      {(showTooltip || brushAction) && geomAes && (
         <>
-          <Delaunay
+          <EventArea
             data={geomData}
+            showTooltip={showTooltip}
+            brushAction={brushAction}
+            aes={geomAes}
             x={x}
             y={y}
             onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
@@ -386,7 +392,7 @@ const GeomPoint = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip aes={geomAes} group={group} />
+          {showTooltip && <Tooltip aes={geomAes} group={group} />}
         </>
       )}
     </>

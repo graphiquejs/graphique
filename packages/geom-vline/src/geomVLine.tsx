@@ -9,7 +9,7 @@ import React, {
 import {
   useGG,
   themeState,
-  Delaunay,
+  EventArea,
   Aes,
   DataValue,
   usePageVisibility,
@@ -213,7 +213,7 @@ const GeomVLine = ({
       </g>
       {showTooltip && (
         <>
-          <Delaunay
+          <EventArea
             data={geomData?.filter((d) => !checkIsOutisdeDomain(d))}
             aes={geomAes as Aes}
             x={x}

@@ -44,7 +44,7 @@ export const CategoricalLegend = ({
   const { scales, data } = ggState || {}
 
   useEffect(() => {
-    // setFocused(scales?.groups || [])
+    setFocused(scales?.groups || [])
   }, [scales, data])
 
   const getGroup = useMemo(

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAtom } from 'jotai'
-import { yScaleState } from '../../atoms'
+import { yScaleState, zoomState } from '../../atoms'
 import { XYScaleProps } from '../../atoms/scales/types'
 
 export const ScaleY = ({
@@ -12,7 +12,8 @@ export const ScaleY = ({
   highlightOnFocus,
   className,
 }: XYScaleProps) => {
-  const [, setScale] = useAtom(yScaleState)
+  const [{ domain: givenDomain }, setScale] = useAtom(yScaleState)
+  const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
 
   useEffect(() => {
     setScale((prev) => ({
@@ -36,6 +37,18 @@ export const ScaleY = ({
     highlightOnFocus,
     className,
   ])
+
+  useEffect(() => {
+    if (!yZoomDomain?.original) {
+      setZoom((prev) => ({
+        ...prev,
+        yDomain: {
+          ...prev.yDomain,
+          original: givenDomain,
+        },
+      }))
+    }
+  }, [setZoom, givenDomain, yZoomDomain?.original])
 
   return null
 }

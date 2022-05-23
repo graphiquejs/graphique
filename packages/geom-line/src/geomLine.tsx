@@ -3,7 +3,8 @@ import {
   useGG,
   themeState,
   generateID,
-  Delaunay,
+  EventArea,
+  BrushAction,
   isDate,
   usePageVisibility,
 } from '@graphique/graphique'
@@ -20,6 +21,7 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]
   aes?: GeomAes
   showTooltip?: boolean
+  brushAction?: BrushAction
   curve?: CurveFactory
   markerRadius?: number
   markerStroke?: string
@@ -34,6 +36,7 @@ const GeomLine = ({
   data: localData,
   aes: localAes,
   showTooltip = true,
+  brushAction,
   curve,
   onDatumFocus,
   entrance = 'midpoint',
@@ -50,7 +53,7 @@ const GeomLine = ({
   ...props
 }: LineProps) => {
   const { ggState } = useGG() || {}
-  const { data, aes, scales, copiedScales, height } = ggState || {}
+  const { data, aes, scales, copiedScales, height, id } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
 
   const isVisible = usePageVisibility()
@@ -237,6 +240,7 @@ const GeomLine = ({
                   style={{
                     pointerEvents: 'none',
                   }}
+                  clipPath={`url(#__gg_canvas_${id})`}
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...props}
                 />
@@ -280,19 +284,20 @@ const GeomLine = ({
               strokeOpacity={strokeOpacity}
               fill="none"
               data-testid="__gg_geom_line"
+              clipPath={`url(#__gg_canvas_${id})`}
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...props}
             />
           )}
         </Animate>
       )}
-      {showTooltip && (
+      {(showTooltip || brushAction) && (
         <>
-          <Delaunay
+          <EventArea
             data={geomData}
             aes={geomAes}
             group="x"
-            x={(v) => x(v)}
+            x={(v: unknown) => x(v)}
             y={() => 0}
             onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
               if (onDatumFocus) onDatumFocus(d, i)
@@ -300,15 +305,21 @@ const GeomLine = ({
             onMouseLeave={() => {
               if (onExit) onExit()
             }}
+            showTooltip={showTooltip}
+            brushAction={brushAction}
           />
-          <LineMarker
-            x={x}
-            y={y}
-            markerRadius={markerRadius}
-            markerStroke={markerStroke}
-            aes={geomAes}
-          />
-          <Tooltip x={x} y={y} aes={geomAes} />
+          {showTooltip && (
+            <>
+              <LineMarker
+                x={x}
+                y={y}
+                markerRadius={markerRadius}
+                markerStroke={markerStroke}
+                aes={geomAes}
+              />
+              <Tooltip x={x} y={y} aes={geomAes} />
+            </>
+          )}
         </>
       )}
     </>

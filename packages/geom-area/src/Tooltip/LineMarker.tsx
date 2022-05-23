@@ -102,9 +102,13 @@ export const LineMarker = ({
                 ? copiedScales.fillScale(aes.fill(d))
                 : defaultFill)
 
-            return thisYCoord?.map(
-              (c, j) =>
-                getY(d) && (
+            return thisYCoord?.map((c, j) => {
+              const inRange =
+                c <= copiedScales?.yScale.range()[0] &&
+                c >= copiedScales?.yScale.range()[1]
+              return (
+                getY(d) &&
+                inRange && (
                   <g
                     key={`marker-${
                       copiedScales?.groups ? copiedScales.groups[i] : i
@@ -134,7 +138,8 @@ export const LineMarker = ({
                     />
                   </g>
                 )
-            )
+              )
+            })
           })}
         </g>
       )}
