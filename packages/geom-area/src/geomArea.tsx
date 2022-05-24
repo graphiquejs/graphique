@@ -13,9 +13,7 @@ import {
   defaultScheme,
   fillScaleState,
   strokeScaleState,
-  zoomState,
   VisualEncodingTypes,
-  usePageVisibility,
   BrushAction,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
@@ -86,9 +84,8 @@ const GeomArea = ({
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
   const [{ isFixed, domain: yDomain }, setYScale] = useAtom(yScaleState)
-  const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
 
-  const isVisible = usePageVisibility()
+  // const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -153,16 +150,6 @@ const GeomArea = ({
   useEffect(() => {
     setTimeout(() => setFirstRender(false), 0)
   }, [])
-
-  // useEffect(() => {
-  //   if (yZoomDomain?.current && isVisible && firstRender) {
-  //     console.log(yZoomDomain.current)
-  //     setYScale((prev) => ({
-  //       ...prev,
-  //       domain: yZoomDomain.current,
-  //     }))
-  //   }
-  // }, [isVisible, yZoomDomain?.current, firstRender, setYScale])
 
   // draw an area for each registered group
   // get groups from aes.group || aes.stroke || aes.strokeDasharray?
@@ -308,20 +295,13 @@ const GeomArea = ({
   }, [position, geomData, geomAes])
 
   useEffect(() => {
-    if (firstRender && !yZoomDomain?.original) {
+    if (firstRender) {
       setYScale((prev) => ({
         ...prev,
         domain: isFixed ? yDomain : yValExtent,
       }))
-      setZoom((prev) => ({
-        ...prev,
-        yDomain: {
-          ...prev.yDomain,
-          original: isFixed ? yDomain : yValExtent,
-        },
-      }))
     }
-  }, [yValExtent, isFixed, yZoomDomain?.original, firstRender])
+  }, [yValExtent, isFixed, firstRender, yDomain])
 
   const y0 = useMemo(
     () => (d: unknown) =>
@@ -511,7 +491,7 @@ const GeomArea = ({
   )
 
   // map through groups to draw an area for each group
-  return !firstRender && !allXUndefined && !allYUndefined && isVisible ? (
+  return !firstRender && !allXUndefined && !allYUndefined ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {

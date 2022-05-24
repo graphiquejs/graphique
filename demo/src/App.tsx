@@ -1,14 +1,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { GG, Labels, ScaleX, ScaleY } from '@graphique/graphique'
 import { stocks, Stock, penguins, Penguin } from '@graphique/datasets'
 import { GeomLine, Legend } from '@graphique/geom-line'
 import { GeomHistogram } from '@graphique/geom-histogram'
-// import { GeomArea } from '@graphique/geom-area'
+import { GeomArea } from '@graphique/geom-area'
 import { GeomPoint, Legend as PointLegend } from '@graphique/geom-point'
 
 function App() {
+  const [yDomain, setYDomain] = useState<number[]>()
+  useEffect(() => setYDomain([900, 2000]), [])
   return (
     <>
       <div style={{ maxWidth: 1200 }}>
@@ -22,17 +24,18 @@ function App() {
           margin={{ left: 50 }}
           isContainerWidth
         >
-          {/* <GeomArea
+          <GeomLine aes={{ y: (d: Stock) => d.marketCap }} />
+          <GeomArea
             brushAction="zoom"
+            showTooltip={false}
             fillOpacity={0.15}
             aes={{
               y0: (d: Stock) => d.marketCap * 0.75,
               y1: (d: Stock) => d.marketCap * 1.1,
             }}
-          /> */}
-          <GeomLine brushAction="zoom" aes={{ y: (d: Stock) => d.marketCap }} />
-          <ScaleX reverse />
-          <ScaleY domain={[900, 2000]} />
+          />
+          <ScaleX />
+          <ScaleY domain={yDomain} />
           <Legend style={{ padding: 20 }} orientation="horizontal" />
           <Labels x="hello" y="hello" />
         </GG>

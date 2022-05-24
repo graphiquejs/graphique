@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useAtom } from 'jotai'
+import { usePageVisibility } from 'react-page-visibility'
 import { yScaleState, zoomState } from '../../atoms'
 import { XYScaleProps } from '../../atoms/scales/types'
 
@@ -12,8 +13,9 @@ export const ScaleY = ({
   highlightOnFocus,
   className,
 }: XYScaleProps) => {
-  const [{ domain: givenDomain, isFixed }, setScale] = useAtom(yScaleState)
+  const [{ isFixed }, setScale] = useAtom(yScaleState)
   const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
+  const isVisible = usePageVisibility()
 
   useEffect(() => {
     setScale((prev) => ({
@@ -44,11 +46,11 @@ export const ScaleY = ({
         ...prev,
         yDomain: {
           ...prev.yDomain,
-          original: givenDomain,
+          original: domain,
         },
       }))
     }
-  }, [setZoom, givenDomain, yZoomDomain?.original, isFixed])
+  }, [setZoom, yZoomDomain?.original, isFixed, isVisible])
 
   return null
 }
