@@ -78,8 +78,10 @@ export const EventArea = ({
   const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
     useAtom(yScaleState)
   const [{ reverse: reverseX }, setXScale] = useAtom(xScaleState)
-  const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }, setZoom] =
-    useAtom(zoomState)
+  const [
+    { xDomain: xZoomDomain, yDomain: yZoomDomain, onZoom, onUnzoom },
+    setZoom,
+  ] = useAtom(zoomState)
 
   const rectRef = useRef<SVGRectElement>(null)
   const readyToFocusRef = useRef(false)
@@ -267,7 +269,6 @@ export const EventArea = ({
           }))
           setZoom((prev) => ({
             ...prev,
-            isZooming: false,
             xDomain: {
               ...prev.xDomain,
               current: newXDomain,
@@ -277,6 +278,8 @@ export const EventArea = ({
               current: newYDomain,
             },
           }))
+
+          if (onZoom) onZoom({ x: newXDomain, y: newYDomain })
         }
       }
       isHeldDownRef.current = false
@@ -295,6 +298,7 @@ export const EventArea = ({
       y,
       xZoomDomain,
       yZoomDomain,
+      onZoom,
     ]
   )
 
@@ -390,56 +394,68 @@ export const EventArea = ({
     ]
   )
 
-  const handleMouseOut = useCallback(() => {
-    if (readyToFocusRef.current) {
-      if (onMouseLeave) onMouseLeave()
+  const handleMouseOut = useCallback(
+    (event) => {
+      if (readyToFocusRef.current) {
+        if (onMouseLeave) onMouseLeave()
+        if (showTooltip) resetTooltip()
+        if (isBrushing) handleBrushStop(event)
+      }
+      document.onselectstart = () => true
+    },
+    [showTooltip, resetTooltip, onMouseLeave, isBrushing]
+  )
+
+  const handleUnbrush = useCallback(
+    (event) => {
+      handleMouseOut(event)
+
+      if (brushAction === 'zoom') {
+        setYScale((prev) => ({
+          ...prev,
+          domain: yZoomDomain?.original,
+        }))
+        setXScale((prev) => ({
+          ...prev,
+          domain: xZoomDomain?.original,
+        }))
+        setZoom((prev) => ({
+          ...prev,
+          xDomain: {
+            ...prev.xDomain,
+            current: undefined,
+          },
+          yDomain: {
+            ...prev.yDomain,
+            current: undefined,
+          },
+        }))
+      }
+
       if (showTooltip) resetTooltip()
-    }
-  }, [showTooltip, resetTooltip, onMouseLeave])
-
-  const handleUnbrush = useCallback(() => {
-    handleMouseOut()
-
-    if (brushAction === 'zoom') {
-      setYScale((prev) => ({
-        ...prev,
-        domain: yZoomDomain?.original,
-      }))
-      setXScale((prev) => ({
-        ...prev,
-        domain: xZoomDomain?.original,
-      }))
-      setZoom((prev) => ({
-        ...prev,
-        xDomain: {
-          ...prev.xDomain,
-          current: undefined,
-        },
-        yDomain: {
-          ...prev.yDomain,
-          current: undefined,
-        },
-      }))
-    }
-
-    if (showTooltip) resetTooltip()
-    if (brushAction) resetBrush()
-  }, [
-    handleMouseOut,
-    resetTooltip,
-    resetBrush,
-    setYScale,
-    setXScale,
-    setZoom,
-    yZoomDomain?.original,
-    xZoomDomain?.original,
-    brushAction,
-    showTooltip,
-  ])
+      if (brushAction) resetBrush()
+      if (onUnzoom) onUnzoom()
+    },
+    [
+      handleMouseOut,
+      resetTooltip,
+      resetBrush,
+      setYScale,
+      setXScale,
+      setZoom,
+      yZoomDomain?.original,
+      xZoomDomain?.original,
+      brushAction,
+      showTooltip,
+      onUnzoom,
+    ]
+  )
 
   const handleClick = useCallback(
     (event) => {
       const [posX, posY] = pointer(event, rectRef.current)
+
+      document.onselectstart = () => false
 
       if (event.detail > 1) event.preventDefault()
 
@@ -455,7 +471,7 @@ export const EventArea = ({
             y0: posY,
             y1: posY,
           }
-        }, 300)
+        }, 180)
       }
 
       if (onClick && data && data.length) {

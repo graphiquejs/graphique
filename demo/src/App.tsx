@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import React, { useState, useEffect } from 'react'
-import { GG, Labels, ScaleX, ScaleY } from '@graphique/graphique'
+import { GG, Labels, ScaleX, ScaleY, Zoom } from '@graphique/graphique'
 import { stocks, Stock, penguins, Penguin } from '@graphique/datasets'
 import { GeomLine, Legend } from '@graphique/geom-line'
 import { GeomHistogram } from '@graphique/geom-histogram'
@@ -38,6 +38,10 @@ function App() {
           <ScaleY domain={yDomain} />
           <Legend style={{ padding: 20 }} orientation="horizontal" />
           <Labels x="hello" y="hello" />
+          <Zoom
+            xDomain={[new Date('01/01/2020'), new Date('01/01/2021')]}
+            yDomain={[1200, 1700]}
+          />
         </GG>
         <GG
           data={penguins}
@@ -50,6 +54,7 @@ function App() {
         >
           <GeomPoint brushAction="zoom" />
           <PointLegend orientation="horizontal" style={{ padding: 12 }} />
+          <Zoom />
         </GG>
         <GG
           data={penguins}
