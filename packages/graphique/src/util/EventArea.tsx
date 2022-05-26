@@ -39,6 +39,8 @@ interface EventAreaProps {
   brushAction?: BrushAction
 }
 
+const BUFFER = 2
+
 export const EventArea = ({
   x,
   y,
@@ -148,15 +150,19 @@ export const EventArea = ({
 
         const xStart = yGrouped && xRange ? xRange[0] : Math.min(x0, x1)
         const xEnd = yGrouped && xRange ? xRange[1] : Math.max(x0, x1)
-        const yStart = xGrouped && yRange ? yRange[1] : Math.min(y0, y1)
-        const yEnd = xGrouped && yRange ? yRange[0] : Math.max(y0, y1)
+        const yStart =
+          xGrouped && yRange ? yRange[1] - BUFFER : Math.min(y0, y1)
+        const yEnd = xGrouped && yRange ? yRange[0] + BUFFER : Math.max(y0, y1)
 
         if (exclusionLeftRef.current) {
-          exclusionLeftRef.current.setAttribute('x', `${margin.left}px`)
+          exclusionLeftRef.current.setAttribute(
+            'x',
+            `${margin.left - BUFFER}px`
+          )
           exclusionLeftRef.current.setAttribute('y', `${yStart}px`)
           exclusionLeftRef.current.setAttribute(
             'width',
-            `${Math.max(xStart - margin.left, 0)}px`
+            `${Math.max(xStart - margin.left + BUFFER, 0)}px`
           )
           exclusionLeftRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
@@ -165,32 +171,35 @@ export const EventArea = ({
           exclusionRightRef.current.setAttribute('y', `${yStart}px`)
           exclusionRightRef.current.setAttribute(
             'width',
-            `${Math.max(width - margin.right - xEnd, 0)}px`
+            `${Math.max(width - margin.right - xEnd + BUFFER, 0)}px`
           )
           exclusionRightRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
         if (exclusionTopRef.current) {
-          exclusionTopRef.current.setAttribute('x', `${margin.left}px`)
-          exclusionTopRef.current.setAttribute('y', `${margin.top}px`)
+          exclusionTopRef.current.setAttribute('x', `${margin.left - BUFFER}px`)
+          exclusionTopRef.current.setAttribute('y', `${margin.top - BUFFER}px`)
           exclusionTopRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left}px`
+            `${width - margin.right - margin.left + BUFFER * 2}px`
           )
           exclusionTopRef.current.setAttribute(
             'height',
-            `${Math.max(yStart - margin.top, 0)}px`
+            `${Math.max(yStart - margin.top + BUFFER, 0)}px`
           )
         }
         if (exclusionBottomRef.current) {
-          exclusionBottomRef.current.setAttribute('x', `${margin.left}px`)
+          exclusionBottomRef.current.setAttribute(
+            'x',
+            `${margin.left - BUFFER}px`
+          )
           exclusionBottomRef.current.setAttribute('y', `${yEnd}px`)
           exclusionBottomRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left}px`
+            `${width - margin.right - margin.left + BUFFER * 2}px`
           )
           exclusionBottomRef.current.setAttribute(
             'height',
-            `${Math.max(height - yEnd - margin.bottom, 0)}px`
+            `${Math.max(height - yEnd - margin.bottom + BUFFER, 0)}px`
           )
         }
       }
@@ -527,19 +536,19 @@ export const EventArea = ({
           <>
             <clipPath id={`__gg_canvas_${id}`}>
               <rect
-                width={width - margin.right - margin.left}
-                height={height - margin.bottom - margin.top}
-                x={margin.left}
-                y={margin.top}
+                width={width - margin.right - margin.left + BUFFER * 2}
+                height={height - margin.bottom - margin.top + BUFFER * 2}
+                x={margin.left - BUFFER}
+                y={margin.top - BUFFER}
                 fill="transparent"
               />
             </clipPath>
             <rect
               ref={rectRef}
-              width={width - margin.right - margin.left}
-              height={height - margin.bottom - margin.top}
-              x={margin.left}
-              y={margin.top}
+              width={width - margin.right - margin.left + BUFFER * 2}
+              height={height - margin.bottom - margin.top + BUFFER * 2}
+              x={margin.left - BUFFER}
+              y={margin.top - BUFFER}
               // stroke="tomato"
               fill="transparent"
               onMouseMove={handleMouseOver}
