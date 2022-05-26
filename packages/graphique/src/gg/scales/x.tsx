@@ -38,18 +38,6 @@ export const ScaleX = ({
     className,
   ])
 
-  // useEffect(() => {
-  //   if (!xZoomDomain?.original && isFixed) {
-  //     setZoom((prev) => ({
-  //       ...prev,
-  //       xDomain: {
-  //         ...prev.xDomain,
-  //         original: givenDomain,
-  //       },
-  //     }))
-  //   }
-  // }, [setZoom, givenDomain, xZoomDomain?.original, isFixed])
-
   useEffect(() => {
     setZoom((prev) => ({
       ...prev,

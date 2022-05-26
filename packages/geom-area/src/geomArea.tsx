@@ -300,13 +300,15 @@ const GeomArea = ({
         ...prev,
         domain: yZoomDomain?.current ?? (isFixed ? yDomain : yValExtent),
       }))
-      setZoom((prev) => ({
-        ...prev,
-        yDomain: {
-          ...prev.yDomain,
-          original: yZoomDomain?.original ?? (isFixed ? yDomain : yValExtent),
-        },
-      }))
+      if (!yZoomDomain?.original) {
+        setZoom((prev) => ({
+          ...prev,
+          yDomain: {
+            ...prev.yDomain,
+            original: isFixed ? yDomain : yValExtent,
+          },
+        }))
+      }
     }
   }, [yValExtent, isFixed, firstRender, yDomain, yZoomDomain])
 
