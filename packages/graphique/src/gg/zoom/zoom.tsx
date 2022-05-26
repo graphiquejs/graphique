@@ -24,12 +24,12 @@ export const Zoom = ({ onZoom, onUnzoom, xDomain, yDomain }: ZoomSettings) => {
 
     setXScale((prev) => ({
       ...prev,
-      domain: xDomain ?? prev.domain,
+      domain: xDomain ?? prev?.domain,
     }))
 
     setYScale((prev) => ({
       ...prev,
-      domain: yDomain ?? prev.domain,
+      domain: yDomain ?? prev?.domain,
     }))
   }, [onZoom, onUnzoom, xDomain, yDomain])
 

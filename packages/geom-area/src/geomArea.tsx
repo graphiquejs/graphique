@@ -9,6 +9,7 @@ import {
   isDate,
   widen,
   yScaleState,
+  zoomState,
   defineGroupAccessor,
   defaultScheme,
   fillScaleState,
@@ -84,8 +85,7 @@ const GeomArea = ({
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
   const [{ isFixed, domain: yDomain }, setYScale] = useAtom(yScaleState)
-
-  // const isVisible = usePageVisibility()
+  const [{ yDomain: yZoomDomain }, setZoom] = useAtom(zoomState)
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -298,10 +298,17 @@ const GeomArea = ({
     if (firstRender) {
       setYScale((prev) => ({
         ...prev,
-        domain: isFixed ? yDomain : yValExtent,
+        domain: yZoomDomain?.current ?? (isFixed ? yDomain : yValExtent),
+      }))
+      setZoom((prev) => ({
+        ...prev,
+        yDomain: {
+          ...prev.yDomain,
+          original: yZoomDomain?.original ?? (isFixed ? yDomain : yValExtent),
+        },
       }))
     }
-  }, [yValExtent, isFixed, firstRender, yDomain])
+  }, [yValExtent, isFixed, firstRender, yDomain, yZoomDomain])
 
   const y0 = useMemo(
     () => (d: unknown) =>

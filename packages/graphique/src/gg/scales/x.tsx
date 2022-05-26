@@ -12,8 +12,8 @@ export const ScaleX = ({
   highlightOnFocus,
   className,
 }: XYScaleProps) => {
-  const [{ domain: givenDomain, isFixed }, setXScale] = useAtom(xScaleState)
-  const [{ xDomain: xZoomDomain }, setZoom] = useAtom(zoomState)
+  const [, setXScale] = useAtom(xScaleState)
+  const [, setZoom] = useAtom(zoomState)
 
   useEffect(() => {
     setXScale((prev) => ({
@@ -38,17 +38,27 @@ export const ScaleX = ({
     className,
   ])
 
+  // useEffect(() => {
+  //   if (!xZoomDomain?.original && isFixed) {
+  //     setZoom((prev) => ({
+  //       ...prev,
+  //       xDomain: {
+  //         ...prev.xDomain,
+  //         original: givenDomain,
+  //       },
+  //     }))
+  //   }
+  // }, [setZoom, givenDomain, xZoomDomain?.original, isFixed])
+
   useEffect(() => {
-    if (!xZoomDomain?.original && isFixed) {
-      setZoom((prev) => ({
-        ...prev,
-        xDomain: {
-          ...prev.xDomain,
-          original: givenDomain,
-        },
-      }))
-    }
-  }, [setZoom, givenDomain, xZoomDomain?.original, isFixed])
+    setZoom((prev) => ({
+      ...prev,
+      xDomain: {
+        ...prev.xDomain,
+        original: domain,
+      },
+    }))
+  }, [setZoom, domain])
 
   return null
 }
