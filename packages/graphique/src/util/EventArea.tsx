@@ -148,15 +148,15 @@ export const EventArea = ({
 
         const xStart = yGrouped && xRange ? xRange[0] : Math.min(x0, x1)
         const xEnd = yGrouped && xRange ? xRange[1] : Math.max(x0, x1)
-        const yStart = xGrouped && yRange ? yRange[1] - 2 : Math.min(y0, y1)
-        const yEnd = xGrouped && yRange ? yRange[0] + 2 : Math.max(y0, y1)
+        const yStart = xGrouped && yRange ? yRange[1] : Math.min(y0, y1)
+        const yEnd = xGrouped && yRange ? yRange[0] : Math.max(y0, y1)
 
         if (exclusionLeftRef.current) {
-          exclusionLeftRef.current.setAttribute('x', `${margin.left - 2}px`)
+          exclusionLeftRef.current.setAttribute('x', `${margin.left}px`)
           exclusionLeftRef.current.setAttribute('y', `${yStart}px`)
           exclusionLeftRef.current.setAttribute(
             'width',
-            `${Math.max(xStart - margin.left + 2, 0)}px`
+            `${Math.max(xStart - margin.left, 0)}px`
           )
           exclusionLeftRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
@@ -165,32 +165,32 @@ export const EventArea = ({
           exclusionRightRef.current.setAttribute('y', `${yStart}px`)
           exclusionRightRef.current.setAttribute(
             'width',
-            `${Math.max(width - margin.right - xEnd + 2, 0)}px`
+            `${Math.max(width - margin.right - xEnd, 0)}px`
           )
           exclusionRightRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
         if (exclusionTopRef.current) {
-          exclusionTopRef.current.setAttribute('x', `${margin.left - 2}px`)
-          exclusionTopRef.current.setAttribute('y', `${margin.top - 2}px`)
+          exclusionTopRef.current.setAttribute('x', `${margin.left}px`)
+          exclusionTopRef.current.setAttribute('y', `${margin.top}px`)
           exclusionTopRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left + 4}px`
+            `${width - margin.right - margin.left}px`
           )
           exclusionTopRef.current.setAttribute(
             'height',
-            `${Math.max(yStart - margin.top + 2, 0)}px`
+            `${Math.max(yStart - margin.top, 0)}px`
           )
         }
         if (exclusionBottomRef.current) {
-          exclusionBottomRef.current.setAttribute('x', `${margin.left - 2}px`)
+          exclusionBottomRef.current.setAttribute('x', `${margin.left}px`)
           exclusionBottomRef.current.setAttribute('y', `${yEnd}px`)
           exclusionBottomRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left + 4}px`
+            `${width - margin.right - margin.left}px`
           )
           exclusionBottomRef.current.setAttribute(
             'height',
-            `${Math.max(height - yEnd - margin.bottom + 2, 0)}px`
+            `${Math.max(height - yEnd - margin.bottom, 0)}px`
           )
         }
       }
@@ -527,19 +527,19 @@ export const EventArea = ({
           <>
             <clipPath id={`__gg_canvas_${id}`}>
               <rect
-                width={width - margin.right - margin.left + 4}
-                height={height - margin.bottom - margin.top + 4}
-                x={margin.left - 2}
-                y={margin.top - 2}
+                width={width - margin.right - margin.left}
+                height={height - margin.bottom - margin.top}
+                x={margin.left}
+                y={margin.top}
                 fill="transparent"
               />
             </clipPath>
             <rect
               ref={rectRef}
-              width={width - margin.right - margin.left + 4}
-              height={height - margin.bottom - margin.top + 4}
-              x={margin.left - 2}
-              y={margin.top - 2}
+              width={width - margin.right - margin.left}
+              height={height - margin.bottom - margin.top}
+              x={margin.left}
+              y={margin.top}
               // stroke="tomato"
               fill="transparent"
               onMouseMove={handleMouseOver}
