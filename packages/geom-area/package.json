@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-area",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "For area charts, stacked area charts, or streamgraphs",
   "keywords": [
     "react",
