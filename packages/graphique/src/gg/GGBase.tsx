@@ -276,17 +276,17 @@ export const GGBase = ({
             </>
           )}
         </svg>
-        {/* tooltip portals */}
-        <div style={{ position: 'relative' }}>
-          <div id={`__gg-tooltip-x-${id}`} data-testid="__gg_x_tooltip" />
-          <div id={`__gg-tooltip-y-${id}`} data-testid="__gg_y_tooltip" />
-        </div>
         {/* zoom out portal */}
         <div style={{ position: 'relative' }}>
           <div
             id={`__gg-zoom-out-button-${id}`}
             data-testid="__gg_zoom_out_button"
           />
+        </div>
+        {/* tooltip portals */}
+        <div style={{ position: 'relative' }}>
+          <div id={`__gg-tooltip-x-${id}`} data-testid="__gg_x_tooltip" />
+          <div id={`__gg-tooltip-y-${id}`} data-testid="__gg_y_tooltip" />
         </div>
         {/* other types of children */}
         <div>{otherChildren}</div>
