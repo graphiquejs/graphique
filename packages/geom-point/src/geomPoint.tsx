@@ -19,6 +19,9 @@ import {
   EventArea,
   themeState,
   radiusScaleState,
+  zoomState,
+  xScaleState,
+  yScaleState,
   isDate,
   defineGroupAccessor,
   Aes,
@@ -61,8 +64,13 @@ const GeomPoint = ({
 }: PointProps) => {
   const { ggState } = useGG() || {}
   const { id, data, aes, scales, copiedScales, height, margin } = ggState || {}
+
   const [theme, setTheme] = useAtom(themeState)
   const [radiusScale] = useAtom(radiusScaleState)
+  const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
+  const [{ isFixed: isFixedX }] = useAtom(xScaleState)
+  const [{ isFixed: isFixedY }] = useAtom(yScaleState)
+
   const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill, animationDuration: duration } = theme
@@ -285,9 +293,21 @@ const GeomPoint = ({
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
 
+  const [shouldClip, setShouldClip] = useState(false)
+  useEffect(() => {
+    if (isFixedX || isFixedY || xZoomDomain?.current || yZoomDomain?.current) {
+      setShouldClip(true)
+    } else {
+      setTimeout(() => setShouldClip(false), duration)
+    }
+  }, [isFixedX, isFixedY, xZoomDomain?.current, yZoomDomain?.current, duration])
+
   return (
     <>
-      <g ref={groupRef} clipPath={`url(#__gg_canvas_${id})`}>
+      <g
+        ref={groupRef}
+        clipPath={shouldClip ? `url(#__gg_canvas_${id})` : undefined}
+      >
         {!firstRender && isVisible && (
           <NodeGroup
             data={[...(geomData as any[])]}
