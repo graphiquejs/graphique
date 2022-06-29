@@ -171,8 +171,6 @@ const GeomBar = ({
     ['stack', 'fill'].includes(position) &&
     scales?.groups &&
     geomData &&
-    scales?.xScale &&
-    scales.yScale &&
     geomAes?.x &&
     geomAes?.y
   ) {
@@ -412,6 +410,7 @@ const GeomBar = ({
                   height={state.height}
                   fillOpacity={state.fillOpacity}
                   strokeOpacity={state.strokeOpacity}
+                  data-testid="__gg_geom_bar"
                 />
               ))}
             </>

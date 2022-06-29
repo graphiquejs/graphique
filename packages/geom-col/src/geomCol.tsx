@@ -192,8 +192,6 @@ const GeomCol = ({
     ['stack', 'fill'].includes(position) &&
     scales?.groups &&
     geomData &&
-    scales?.xScale &&
-    scales.yScale &&
     geomAes?.x &&
     geomAes?.y
   ) {
@@ -306,7 +304,6 @@ const GeomCol = ({
   const stackedData = useMemo(() => {
     if (
       geomData &&
-      geomAes?.x &&
       geomAes?.y &&
       ['stack', 'fill'].includes(position) &&
       groups &&
@@ -455,6 +452,7 @@ const GeomCol = ({
                     height={state.height}
                     fillOpacity={state.fillOpacity}
                     strokeOpacity={state.strokeOpacity}
+                    data-testid="__gg_geom_col"
                   />
                 ))}
               </>
