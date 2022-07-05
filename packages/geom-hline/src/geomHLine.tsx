@@ -71,7 +71,8 @@ const GeomHLine = ({
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
-    setTimeout(() => setFirstRender(false), 0)
+    const timeout = setTimeout(() => setFirstRender(false), 0)
+    return () => clearTimeout(timeout)
   }, [])
 
   useEffect(() => {

@@ -161,7 +161,8 @@ const GeomPoint = ({
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
-    setTimeout(() => setFirstRender(false), 0)
+    const timeout = setTimeout(() => setFirstRender(false), 0)
+    return () => clearTimeout(timeout)
   }, [])
 
   useEffect(() => {
@@ -298,8 +299,10 @@ const GeomPoint = ({
     if (isFixedX || isFixedY || xZoomDomain?.current || yZoomDomain?.current) {
       setShouldClip(true)
     } else {
-      setTimeout(() => setShouldClip(false), duration)
+      const timeout = setTimeout(() => setShouldClip(false), duration)
+      return () => clearTimeout(timeout)
     }
+    return undefined
   }, [isFixedX, isFixedY, xZoomDomain?.current, yZoomDomain?.current, duration])
 
   return (

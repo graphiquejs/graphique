@@ -148,7 +148,8 @@ const GeomArea = ({
   const [firstRender, setFirstRender] = useState(true)
 
   useEffect(() => {
-    setTimeout(() => setFirstRender(false), 0)
+    const timeout = setTimeout(() => setFirstRender(false), 0)
+    return () => clearTimeout(timeout)
   }, [])
 
   // draw an area for each registered group
@@ -216,7 +217,6 @@ const GeomArea = ({
       groups &&
       geomData &&
       scales?.xScale &&
-      scales.yScale &&
       geomAes?.x
     ) {
       const groupYMaximums = groups.map((g) =>
