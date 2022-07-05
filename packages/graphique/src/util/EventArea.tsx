@@ -120,6 +120,17 @@ export const EventArea = ({
     [data, x, y, xAdj, yAdj]
   )
 
+  const voronoi = useMemo(
+    () =>
+      delaunay.voronoi([
+        margin.left,
+        margin.top,
+        width - margin.right,
+        height - margin.bottom,
+      ]),
+    [delaunay]
+  )
+
   const resetTooltip = useCallback(() => {
     setTooltip((prev) => ({
       ...prev,
@@ -352,8 +363,6 @@ export const EventArea = ({
               const thisTooltip = m
               thisTooltip.style.transform = `translate(${left}px, 0)`
             })
-
-            onMouseOver({ d: groupDatum, i: groupDatumInd })
             setTooltip((prev) => ({
               ...prev,
               datum: groupDatum,
@@ -371,14 +380,11 @@ export const EventArea = ({
                 groupDatumInd.push(i)
               }
             })
-
-            onMouseOver({ d: groupDatum, i: groupDatumInd })
             setTooltip((prev) => ({
               ...prev,
               datum: groupDatum,
             }))
           } else if (datumInRange) {
-            onMouseOver({ d: datum, i: ind })
             setTooltip((prev) => ({
               ...prev,
               datum: [datum],
@@ -588,6 +594,33 @@ export const EventArea = ({
           </>
         )}
       </g>
+      {voronoi && data && onMouseOver && !brushAction && (
+        <g
+          onMouseLeave={() => {
+            if (onMouseLeave) onMouseLeave()
+          }}
+        >
+          {Array.from(voronoi.cellPolygons()).map((_, i) => (
+            <path
+              key={`cell-${i.toString()}`}
+              style={{ pointerEvents: 'all' }}
+              d={voronoi.renderCell(i)}
+              fill="none"
+              stroke="none"
+              strokeWidth={1}
+              onMouseOver={() => {
+                if (data && data.length && !isBrushing) {
+                  onMouseOver({ d: data[i], i })
+                }
+              }}
+              onMouseDown={handleClick}
+              onMouseUp={handleBrushStop}
+              onMouseMove={handleMouseOver}
+              onDoubleClick={handleUnbrush}
+            />
+          ))}
+        </g>
+      )}
     </>
   )
 }
