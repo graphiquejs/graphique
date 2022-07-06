@@ -300,9 +300,7 @@ const GeomLine = ({
             group="x"
             x={(v: unknown) => x(v)}
             y={() => 0}
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
-              if (onDatumFocus) onDatumFocus(d, i)
-            }}
+            onDatumFocus={onDatumFocus}
             onMouseLeave={() => {
               if (onExit) onExit()
             }}

@@ -44,6 +44,7 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
+  isClipped?: boolean
 }
 
 const GeomPoint = ({
@@ -59,6 +60,7 @@ const GeomPoint = ({
   brushAction,
   fillOpacity = 1,
   strokeOpacity = 1,
+  isClipped = true,
   r = 3.5,
   ...props
 }: PointProps) => {
@@ -294,12 +296,14 @@ const GeomPoint = ({
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
 
-  const [shouldClip, setShouldClip] = useState(false)
+  const [shouldClip, setShouldClip] = useState(
+    isClipped || isFixedX || isFixedY
+  )
   useEffect(() => {
-    if (isFixedX || isFixedY || xZoomDomain?.current || yZoomDomain?.current) {
+    if (xZoomDomain?.current || yZoomDomain?.current) {
       setShouldClip(true)
     } else {
-      const timeout = setTimeout(() => setShouldClip(false), duration)
+      const timeout = setTimeout(() => setShouldClip(isClipped), duration)
       return () => clearTimeout(timeout)
     }
     return undefined
@@ -388,7 +392,8 @@ const GeomPoint = ({
             aes={geomAes}
             x={x}
             y={y}
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
+            onDatumFocus={onDatumFocus}
+            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
               if (points) {
                 focusNodes({
                   nodes: points,
@@ -397,8 +402,6 @@ const GeomPoint = ({
                   unfocusedStyles,
                 })
               }
-
-              if (onDatumFocus) onDatumFocus(d, i)
             }}
             onClick={
               onDatumSelection

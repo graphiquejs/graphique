@@ -220,9 +220,7 @@ const GeomVLine = ({
             x={x}
             y={() => 0}
             group="x"
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
-              if (onDatumFocus) onDatumFocus(d, i)
-            }}
+            onDatumFocus={onDatumFocus}
             onClick={
               onDatumSelection
                 ? ({ d, i }: { d: unknown; i: number | number[] }) => {

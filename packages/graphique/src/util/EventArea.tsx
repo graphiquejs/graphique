@@ -25,9 +25,10 @@ interface EventAreaProps {
   group?: 'x' | 'y'
   xAdj?: number
   yAdj?: number
-  onMouseOver: ({ d, i }: { d: any; i: number | number[] }) => void
+  onMouseOver?: ({ d, i }: { d: any; i: number | number[] }) => void
   onClick?: ({ d, i }: { d: any; i: number | number[] }) => void
   onMouseLeave: () => void
+  onDatumFocus?: (data: unknown, index: number | number[]) => void
   data?: unknown[]
   aes?: Omit<Aes, 'x'> & {
     x?: DataValue
@@ -50,6 +51,7 @@ export const EventArea = ({
   onMouseOver,
   onClick,
   onMouseLeave,
+  onDatumFocus,
   data,
   aes,
   disabled,
@@ -99,6 +101,8 @@ export const EventArea = ({
   const xGrouped = useMemo(() => group === 'x', [group])
   const yGrouped = useMemo(() => group === 'y', [group])
 
+  const isVoronoi = useMemo(() => !!onDatumFocus, [onDatumFocus])
+
   const [isBrushing, setIsBrushing] = useState(false)
 
   useEffect(() => {
@@ -120,16 +124,16 @@ export const EventArea = ({
     [data, x, y, xAdj, yAdj]
   )
 
-  const voronoi = useMemo(
-    () =>
-      delaunay.voronoi([
-        margin.left,
-        margin.top,
-        width - margin.right,
-        height - margin.bottom,
-      ]),
-    [delaunay]
-  )
+  const voronoi = useMemo(() => {
+    if (!isVoronoi) return undefined
+
+    return delaunay.voronoi([
+      margin.left,
+      margin.top,
+      width - margin.right,
+      height - margin.bottom,
+    ])
+  }, [delaunay, isVoronoi])
 
   const resetTooltip = useCallback(() => {
     setTooltip((prev) => ({
@@ -340,7 +344,7 @@ export const EventArea = ({
             xDomain &&
             isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1])
 
-          if (xGrouped && aes?.x && datumInRange) {
+          if (xGrouped && aes?.x) {
             const left = x(datum)
 
             // skip if the data hasn't changed
@@ -363,6 +367,8 @@ export const EventArea = ({
               const thisTooltip = m
               thisTooltip.style.transform = `translate(${left}px, 0)`
             })
+
+            if (onMouseOver) onMouseOver({ d: groupDatum, i: groupDatumInd })
             setTooltip((prev) => ({
               ...prev,
               datum: groupDatum,
@@ -380,11 +386,14 @@ export const EventArea = ({
                 groupDatumInd.push(i)
               }
             })
+
+            if (onMouseOver) onMouseOver({ d: groupDatum, i: groupDatumInd })
             setTooltip((prev) => ({
               ...prev,
               datum: groupDatum,
             }))
           } else if (datumInRange) {
+            if (onMouseOver) onMouseOver({ d: datum, i: ind })
             setTooltip((prev) => ({
               ...prev,
               datum: [datum],
@@ -535,6 +544,16 @@ export const EventArea = ({
     ]
   )
 
+  const handleVoronoiMouseOver = useCallback(
+    (i) => {
+      if (readyToFocusRef.current && data && data.length && !isBrushing) {
+        if (onMouseOver) onMouseOver({ d: data[i], i })
+        if (onDatumFocus) onDatumFocus(data[i], i)
+      }
+    },
+    [data, isBrushing, onMouseOver, onDatumFocus]
+  )
+
   return (
     <>
       <g>
@@ -594,25 +613,16 @@ export const EventArea = ({
           </>
         )}
       </g>
-      {voronoi && data && onMouseOver && !brushAction && (
-        <g
-          onMouseLeave={() => {
-            if (onMouseLeave) onMouseLeave()
-          }}
-        >
+      {voronoi && data && !brushAction && (
+        <g onMouseLeave={handleMouseOut} onPointerLeave={handleMouseOut}>
           {Array.from(voronoi.cellPolygons()).map((_, i) => (
             <path
               key={`cell-${i.toString()}`}
               style={{ pointerEvents: 'all' }}
               d={voronoi.renderCell(i)}
               fill="none"
-              stroke="none"
-              strokeWidth={1}
-              onMouseOver={() => {
-                if (data && data.length && !isBrushing) {
-                  onMouseOver({ d: data[i], i })
-                }
-              }}
+              // stroke="tomato"
+              onMouseOver={() => handleVoronoiMouseOver(i)}
               onMouseDown={handleClick}
               onMouseUp={handleBrushStop}
               onMouseMove={handleMouseOver}

@@ -427,7 +427,8 @@ const GeomBar = ({
             yAdj={yBandScale.bandwidth() / 2}
             data={geomData}
             aes={geomAes}
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
+            onDatumFocus={onDatumFocus}
+            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -435,8 +436,6 @@ const GeomBar = ({
                   focusedStyles,
                   unfocusedStyles,
                 })
-
-                if (onDatumFocus) onDatumFocus(d, i)
               }
             }}
             onClick={

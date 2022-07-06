@@ -209,9 +209,7 @@ const GeomHLine = ({
             x={() => 0}
             y={y}
             group="y"
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
-              if (onDatumFocus) onDatumFocus(d, i)
-            }}
+            onDatumFocus={onDatumFocus}
             onClick={
               onDatumSelection
                 ? ({ d, i }: { d: unknown; i: number | number[] }) => {

@@ -297,7 +297,8 @@ const GeomTile = ({
             data={data}
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}
-            onMouseOver={({ d, i }: { d: unknown; i: number | number[] }) => {
+            onDatumFocus={onDatumFocus}
+            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -305,8 +306,6 @@ const GeomTile = ({
                   focusedStyles,
                   unfocusedStyles,
                 })
-
-                if (onDatumFocus) onDatumFocus(d, i)
               }
             }}
             onClick={
