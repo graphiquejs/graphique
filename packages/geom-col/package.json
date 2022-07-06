@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-col",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "For visualizing data as vertical bars (columns)",
   "keywords": [
     "react",
