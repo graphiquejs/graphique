@@ -131,6 +131,7 @@ export const Tooltip = ({ x, yAdj = 0, aes }: TooltipProps) => {
         left={groupVals[0].x || 0}
         top={-(height - yCoord)}
         value={tooltipValue}
+        wait
       />
     </div>
   ) : null

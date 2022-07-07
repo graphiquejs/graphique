@@ -123,7 +123,6 @@ export const Tooltip = ({ x, y, aes }: Props) => {
           left={left}
           top={position === 'data' ? -(height - cappedYVal) : -height}
           value={tooltipValue}
-          wait
         />
       )}
     </>

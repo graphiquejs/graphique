@@ -112,7 +112,14 @@ export const EventArea = ({
       readyToFocusRef.current = true
     }, duration + 50)
     return () => clearTimeout(timeout)
-  }, [ggData, data, scales, animationDuration])
+  }, [
+    ggData?.length,
+    data?.length,
+    width,
+    animationDuration,
+    xZoomDomain,
+    yZoomDomain,
+  ])
 
   const delaunay = useMemo(
     () =>
@@ -585,6 +592,7 @@ export const EventArea = ({
               onMouseUp={handleBrushStop}
               onDoubleClick={handleUnbrush}
               style={{
+                pointerEvents: isVoronoi ? 'none' : undefined,
                 cursor:
                   onClick && readyToFocusRef.current ? 'pointer' : undefined,
               }}
@@ -625,7 +633,6 @@ export const EventArea = ({
               onMouseOver={() => handleVoronoiMouseOver(i)}
               onMouseDown={handleClick}
               onMouseUp={handleBrushStop}
-              onMouseMove={handleMouseOver}
               onDoubleClick={handleUnbrush}
             />
           ))}

@@ -1,75 +1,49 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
-import React, { useState, useEffect } from 'react'
-import { GG, Labels, ScaleX, ScaleY, Zoom } from '@graphique/graphique'
-import { stocks, Stock, penguins, Penguin } from '@graphique/datasets'
-import { GeomLine, Legend } from '@graphique/geom-line'
-import { GeomHistogram } from '@graphique/geom-histogram'
-import { GeomArea } from '@graphique/geom-area'
-import { GeomPoint, Legend as PointLegend } from '@graphique/geom-point'
+import React, { useState } from 'react'
+import { GG, Labels, Tooltip } from '@graphique/graphique'
+import { stocks, Stock } from '@graphique/datasets'
+import { GeomLine } from '@graphique/geom-line'
 
 function App() {
-  const [yDomain, setYDomain] = useState<number[]>()
-  useEffect(() => setYDomain([900, 2000]), [])
+  // const [yDomain, setYDomain] = useState<number[]>()
+  // useEffect(() => setYDomain([900, 2000]), [])
+
+  const [focusedIndex, setFocusedIndex] = useState<number | undefined>()
+
   return (
     <>
       <div style={{ maxWidth: 1200 }}>
-        <GG
-          data={stocks.filter((d) => ['AAPL', 'MSFT'].includes(d.symbol))}
-          aes={{
-            x: (d: Stock) => new Date(d.date),
-            stroke: (d: Stock) => d.symbol,
-            fill: (d: Stock) => d.symbol,
-          }}
-          margin={{ left: 50 }}
-          isContainerWidth
-        >
-          <GeomLine aes={{ y: (d: Stock) => d.marketCap }} />
-          <GeomArea
-            brushAction="zoom"
-            showTooltip={false}
-            fillOpacity={0.15}
-            aes={{
-              y0: (d: Stock) => d.marketCap * 0.75,
-              y1: (d: Stock) => d.marketCap * 1.1,
-            }}
-          />
-          <ScaleX />
-          <ScaleY domain={yDomain} />
-          <Legend style={{ padding: 20 }} orientation="horizontal" />
-          <Labels x="hello" y="hello" />
-          <Zoom
-            xDomain={[new Date('01/01/2020'), new Date('01/01/2021')]}
-            yDomain={[1200, 1700]}
-          />
-        </GG>
-        <GG
-          data={penguins}
-          aes={{
-            x: (d: Penguin) => d.bodyMass,
-            y: (d: Penguin) => d.flipperLength,
-            fill: (d: Penguin) => d.species,
-          }}
-          margin={{ left: 50 }}
-        >
-          <GeomPoint brushAction="zoom" />
-          <PointLegend orientation="horizontal" style={{ padding: 12 }} />
-          <Zoom />
-        </GG>
-        <GG
-          data={penguins}
-          aes={{
-            x: (d: Penguin) => d.bodyMass,
-          }}
-          isContainerWidth
-        >
-          <GeomHistogram
-            bins={40}
-            brushAction="zoom"
-            stroke="#fff"
-            strokeWidth={1}
-          />
-        </GG>
+        {Array.from(new Set(stocks.map((s) => s.symbol))).map((sym) => {
+          const stockData = stocks.filter((s) => s.symbol === sym)
+          return (
+            <GG
+              key={sym}
+              data={stockData}
+              aes={{
+                x: (d: Stock) => new Date(d.date),
+                y: (d: Stock) => d.marketCap,
+                stroke: (d: Stock) => d.symbol,
+              }}
+              height={150}
+              isContainerWidth
+              margin={{ left: 50 }}
+            >
+              <GeomLine
+                onDatumFocus={(d, i) => setFocusedIndex(i as number)}
+                onExit={() => setFocusedIndex(undefined)}
+              />
+              <Labels y={sym} />
+              <Tooltip
+                datum={
+                  typeof focusedIndex === 'undefined'
+                    ? undefined
+                    : [stockData[focusedIndex]]
+                }
+              />
+            </GG>
+          )
+        })}
       </div>
     </>
   )

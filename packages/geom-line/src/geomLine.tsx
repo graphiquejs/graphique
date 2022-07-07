@@ -300,9 +300,12 @@ const GeomLine = ({
             group="x"
             x={(v: unknown) => x(v)}
             y={() => 0}
-            onDatumFocus={onDatumFocus}
+            // onDatumFocus={onDatumFocus}
             onMouseLeave={() => {
               if (onExit) onExit()
+            }}
+            onMouseOver={({ d, i }) => {
+              if (onDatumFocus) onDatumFocus(d, i)
             }}
             showTooltip={showTooltip}
             brushAction={brushAction}
