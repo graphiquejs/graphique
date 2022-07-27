@@ -23,11 +23,14 @@ import {
   ScaleQuantile,
   ScaleQuantize,
   ScaleThreshold,
+  scaleSymlog,
+  ScaleSymLog,
 } from "d3-scale"
 
 export type XYScale =
   | typeof scaleLinear
   | typeof scaleLog
+  | typeof scaleSymlog
   | typeof scaleSqrt
   | typeof scalePow
   | typeof scaleTime
@@ -36,6 +39,7 @@ export type XYScale =
 
 export type XYScaleTypes = ScaleLinear<any, any> &
   ScaleLogarithmic<any, any> &
+  ScaleSymLog<any, any> &
   ScalePower<any, any> &
   ScaleTime<any, any> &
   ScaleBand<any>
