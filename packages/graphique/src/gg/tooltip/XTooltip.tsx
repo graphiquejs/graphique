@@ -58,8 +58,8 @@ export const XTooltip = ({
           fontFamily: font?.family,
           pointerEvents: 'none',
           position: 'absolute',
-          left: leftPos ?? -9999,
-          top: topPos ?? -9999,
+          left: leftPos || -9999,
+          top: topPos || -9999,
           whiteSpace: 'nowrap',
         }}
       >

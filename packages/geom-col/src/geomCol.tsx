@@ -265,10 +265,10 @@ const GeomCol = ({
         align === 'center' ? xBandScale.bandwidth() / 2 : xBandScale.bandwidth()
       scales?.xScale.range([
         margin.left + leftAdj,
-        width - margin.right - rightAdj - 0.5,
+        width - margin.right - rightAdj,
       ])
       return (d: unknown) =>
-        (scales?.xScale(geomAes?.x(d) ?? aes?.x(d)) || 0) - leftAdj + 0.5
+        (scales?.xScale(geomAes?.x(d) ?? aes?.x(d)) || 0) - leftAdj
     }
     return (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d))
   }, [scales, geomAes, xBandScale, margin, width, align, aes])
