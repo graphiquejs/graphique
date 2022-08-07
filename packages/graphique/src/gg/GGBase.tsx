@@ -111,7 +111,6 @@ export const GGBase = ({
     const geomGroupAccessor = defineGroupAccessor(geomProps.aes, true)
     if (geomGroupAccessor) geomGroupAccessors.push(geomGroupAccessor)
 
-    geomPositions.push(geomProps.position)
     if (geomProps.aes?.x) geomAesXs.push(geomProps.aes.x)
     if (geomProps.aes?.y) geomAesYs.push(geomProps.aes.y)
     if (geomProps.aes?.y0) geomAesY0s.push(geomProps.aes.y0)
@@ -120,8 +119,12 @@ export const GGBase = ({
     if (geomProps.aes?.stroke) geomAesStrokes.push(geomProps.aes.stroke)
     if (geomProps.aes?.fill) geomAesFills.push(geomProps.aes.fill)
 
-    if (g.type.displayName.includes('Bar')) {
+    const isBar = g.type.displayName.includes('Bar')
+    if (isBar) {
       geomZeroXBaseLines.push(!geomProps.freeBaseLine)
+    }
+    if (!isBar) {
+      geomPositions.push(geomProps.position)
     }
     if (g.type.displayName.includes('Col')) {
       geomZeroYBaseLines.push(!geomProps.freeBaseLine)
