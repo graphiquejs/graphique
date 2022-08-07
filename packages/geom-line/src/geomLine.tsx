@@ -27,7 +27,7 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   markerStroke?: string
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   entrance?: 'data' | 'midpoint'
-  // focus?: "x" | "nearest"
+  focusType?: 'x' | 'closest'
   // onDatumSelection?: (data: unknown, index: number) => void
   onExit?: () => void
 }
@@ -50,6 +50,7 @@ const GeomLine = ({
   strokeOpacity = 1,
   markerRadius = 3.5,
   markerStroke = '#fff',
+  focusType = 'x',
   ...props
 }: LineProps) => {
   const { ggState } = useGG() || {}
@@ -297,9 +298,9 @@ const GeomLine = ({
           <EventArea
             data={geomData}
             aes={geomAes}
-            group="x"
+            group={focusType === 'x' ? 'x' : undefined}
             x={(v: unknown) => x(v)}
-            y={() => 0}
+            y={focusType === 'x' ? () => 0 : y}
             // onDatumFocus={onDatumFocus}
             onMouseLeave={() => {
               if (onExit) onExit()
