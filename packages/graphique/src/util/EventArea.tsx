@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react'
+import { ScaleBand } from 'd3-scale'
 import { Delaunay } from 'd3-delaunay'
 import { useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
@@ -19,6 +20,12 @@ import {
   BrushExclusion,
 } from './brushing'
 
+interface StackMidpoint<X, Y> {
+  groupVal: string
+  xVal: X
+  yVal: Y
+}
+
 interface EventAreaProps {
   x: (d: any) => number | undefined
   y: (d: any) => number | undefined
@@ -30,12 +37,17 @@ interface EventAreaProps {
   onMouseLeave: () => void
   onDatumFocus?: (data: unknown, index: number | number[]) => void
   data?: unknown[]
+  stackXMidpoints?: StackMidpoint<string | number, string | number>[]
+  stackYMidpoints?: StackMidpoint<string | number, string | number>[]
+  xBandScale?: ScaleBand<string>
+  yBandScale?: ScaleBand<string>
   aes?: Omit<Aes, 'x'> & {
     x?: DataValue
     y0?: DataValue
     y1?: DataValue
   }
   disabled?: boolean
+  fill?: 'x' | 'y'
   showTooltip?: boolean
   brushAction?: BrushAction
 }
@@ -57,6 +69,11 @@ export const EventArea = ({
   disabled,
   showTooltip = true,
   brushAction,
+  stackXMidpoints,
+  stackYMidpoints,
+  xBandScale,
+  yBandScale,
+  fill,
 }: EventAreaProps) => {
   const { ggState } = useGG() || {}
   const {
@@ -121,15 +138,112 @@ export const EventArea = ({
     yZoomDomain,
   ])
 
-  const delaunay = useMemo(
+  const hasCategoricalAxis = useMemo(
     () =>
-      Delaunay.from(
-        data as [],
-        (v) => (x(v) as number) + xAdj,
-        (v) => (y(v) as number) + yAdj
-      ),
-    [data, x, y, xAdj, yAdj]
+      typeof scales?.xScale.domain()[0] === 'string' ||
+      typeof scales?.yScale.domain()[0] === 'string',
+    [scales?.xScale, scales?.yScale]
   )
+
+  const delaunayData = useMemo(() => data as [], [data])
+  const delaunayX = useCallback((v: any) => (x(v) as number) + xAdj, [x, xAdj])
+  const delaunayY = useCallback((v: any) => (y(v) as number) + yAdj, [y, yAdj])
+
+  const delaunay = useMemo(
+    () => Delaunay.from(delaunayData, delaunayX, delaunayY),
+    [data, delaunayX, delaunayY]
+  )
+
+  const xDelaunays = useMemo(() => {
+    if (!stackYMidpoints) return undefined
+
+    const delaunays = xBandScale?.domain().map((xVal) => {
+      const thisX = scales?.xScale(xVal)
+      const xGroupData = stackYMidpoints.filter((s) => s.xVal === xVal)
+
+      return {
+        delaunay: Delaunay.from(
+          xGroupData,
+          (v) => scales?.xScale(v.xVal) ?? 0,
+          (v) => scales?.yScale(v.yVal) as number
+        ),
+        xVal: thisX,
+        data: xGroupData,
+      }
+    })
+    if (!hasCategoricalAxis) {
+      return delaunays?.sort((a, b) => (a.xVal ?? 0) - (b.xVal ?? 0))
+    }
+    return delaunays
+  }, [
+    stackYMidpoints,
+    scales?.yScale,
+    xBandScale,
+    hasCategoricalAxis,
+    scales?.xScale,
+    xAdj,
+  ])
+
+  const xVoronois = useMemo(() => {
+    if (!xDelaunays || !isVoronoi) return undefined
+
+    const dx = (xBandScale?.step?.() ?? 0) / 2
+
+    return xDelaunays.map((xd) => ({
+      voronoi: xd.delaunay.voronoi([
+        (xd?.xVal ?? 0) + xAdj - dx,
+        margin.top,
+        (xd?.xVal ?? 0) + dx + xAdj,
+        height - margin.bottom,
+      ]),
+      data: xd.data,
+    }))
+  }, [xDelaunays, scales?.xScale, xBandScale, xAdj, width, margin])
+
+  const yDelaunays = useMemo(() => {
+    if (!stackXMidpoints) return undefined
+
+    const delaunays = yBandScale?.domain().map((yVal) => {
+      const thisY = scales?.yScale(yVal)
+      const yGroupData = stackXMidpoints.filter((s) => s.yVal === yVal)
+
+      return {
+        delaunay: Delaunay.from(
+          [...yGroupData],
+          (v) => scales?.xScale(v.xVal) as number,
+          (v) => scales?.yScale(v.yVal) as number
+        ),
+        yVal: thisY,
+        data: yGroupData,
+      }
+    })
+    if (!hasCategoricalAxis) {
+      return delaunays?.sort((a, b) => (a.yVal ?? 0) - (b.yVal ?? 0))
+    }
+    return delaunays
+  }, [
+    stackXMidpoints,
+    scales?.yScale,
+    scales?.xScale,
+    yBandScale,
+    hasCategoricalAxis,
+  ])
+
+  const yVoronois = useMemo(() => {
+    if (!yDelaunays || !isVoronoi) return undefined
+
+    const dy = (yBandScale?.step?.() ?? 0) / 2
+
+    return yDelaunays.map((yd) => ({
+      voronoi: yd.delaunay.voronoi([
+        margin.left,
+        (yd.yVal ?? 0) - dy + yAdj,
+        width - margin.right,
+        (yd.yVal ?? 0) + dy + yAdj,
+      ]),
+      data: yd.data,
+    }))
+  }, [yDelaunays, scales?.yScale, yAdj, width, margin])
 
   const voronoi = useMemo(() => {
     if (!isVoronoi) return undefined
@@ -170,11 +284,18 @@ export const EventArea = ({
         const xRange = scales?.xScale.range()
         const yRange = scales?.yScale.range()
 
-        const xStart = yGrouped && xRange ? xRange[0] : Math.min(x0, x1)
-        const xEnd = yGrouped && xRange ? xRange[1] : Math.max(x0, x1)
+        const xStart =
+          (yDelaunays || yGrouped) && xRange ? xRange[0] : Math.min(x0, x1)
+        const xEnd =
+          (yDelaunays || yGrouped) && xRange ? xRange[1] : Math.max(x0, x1)
         const yStart =
-          xGrouped && yRange ? yRange[1] - BUFFER : Math.min(y0, y1)
-        const yEnd = xGrouped && yRange ? yRange[0] + BUFFER : Math.max(y0, y1)
+          (xDelaunays || xGrouped) && yRange
+            ? yRange[1] - BUFFER
+            : Math.min(y0, y1)
+        const yEnd =
+          (xDelaunays || xGrouped) && yRange
+            ? yRange[0] + BUFFER
+            : Math.max(y0, y1)
 
         if (exclusionLeftRef.current) {
           exclusionLeftRef.current.setAttribute(
@@ -226,7 +347,7 @@ export const EventArea = ({
         }
       }
     },
-    [xGrouped, yGrouped, margin, scales]
+    [xGrouped, yGrouped, margin, scales, xDelaunays, yDelaunays]
   )
 
   const handleBrushStop = useCallback(
@@ -242,8 +363,8 @@ export const EventArea = ({
           const xVal = x(d)
           const yVal = y(d)
 
-          if (xGrouped) return isBetween(xVal, x0, x1)
-          if (yGrouped) return isBetween(yVal, y0, y1)
+          if (xGrouped || xDelaunays) return isBetween(xVal, x0, x1)
+          if (yGrouped || yDelaunays) return isBetween(yVal, y0, y1)
           return isBetween(xVal, x0, x1) && isBetween(yVal, y0, y1)
         })
 
@@ -322,6 +443,8 @@ export const EventArea = ({
       ggData,
       xGrouped,
       yGrouped,
+      xDelaunays,
+      yDelaunays,
       reverseX,
       reverseY,
       aes,
@@ -338,20 +461,76 @@ export const EventArea = ({
       if (readyToFocusRef.current && data && data.length) {
         const [posX, posY] = pointer(event, rectRef.current)
 
-        if (isHeldDownRef.current && brushAction) {
+        if (isHeldDownRef.current && brushAction && !hasCategoricalAxis) {
           handleBrush(posX, posY)
         } else if (showTooltip) {
-          const ind = delaunay.find(posX, posY)
+          let ind = delaunay.find(posX, posY)
+
+          if (xDelaunays) {
+            const xGroupWidth = xBandScale?.step?.() ?? 1
+            const adjPosX =
+              (posX -
+                margin.left +
+                ((xBandScale?.padding?.() ?? 0) * xGroupWidth) / 2) /
+              xGroupWidth
+            const xGroupIndex = Math.min(
+              Math.floor(Math.max(0, adjPosX)),
+              xDelaunays.length - 1
+            )
+            const xStackIndex = xDelaunays[xGroupIndex].delaunay.find(
+              posX,
+              posY
+            )
+            const xStackDatum = xDelaunays[xGroupIndex].data[xStackIndex]
+            ind = data.findIndex(
+              (d) =>
+                aes?.x?.(d) === xStackDatum.xVal &&
+                scales?.groupAccessor?.(d) === xStackDatum.groupVal
+            )
+          }
+
+          if (yDelaunays) {
+            const yGroupHeight = yBandScale?.step?.() ?? 1
+            const adjPosY =
+              posY +
+              margin.top -
+              yAdj +
+              ((yBandScale?.padding?.() ?? 0) * yGroupHeight) / 2
+            const yGroupIndex = Math.min(
+              Math.floor(Math.max(0, adjPosY) / yGroupHeight),
+              yDelaunays.length - 1
+            )
+            const yStackIndex = yDelaunays[yGroupIndex].delaunay.find(
+              posX,
+              posY
+            )
+            const yStackDatum = yDelaunays[yGroupIndex].data[yStackIndex]
+            ind = data.findIndex(
+              (d) =>
+                aes?.y?.(d) === yStackDatum.yVal &&
+                scales?.groupAccessor?.(d) === yStackDatum.groupVal
+            )
+          }
+
           const datum = data[ind]
 
-          const xDomain = scales?.xScale.domain()
+          const xDomain = scales?.xScale.domain() as any[]
+          const yDomain = scales?.yScale.domain() as any[]
+          const datumInXRange =
+            ['x', 'y'].includes(fill ?? '') ||
+            (aes?.x &&
+              xDomain &&
+              (xDomain.includes(aes?.x(datum)) ||
+                isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1])))
 
-          const datumInRange =
-            aes?.x &&
-            xDomain &&
-            isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1])
+          const datumInYRange =
+            ['x', 'y'].includes(fill ?? '') ||
+            (aes?.y &&
+              yDomain &&
+              (yDomain.includes(aes?.y(datum)) ||
+                isBetween(aes?.y(datum) as number, yDomain[0], yDomain[1])))
 
-          if (xGrouped && aes?.x) {
+          if (xGrouped && aes?.x && datumInXRange) {
             const left = x(datum)
 
             // skip if the data hasn't changed
@@ -380,7 +559,7 @@ export const EventArea = ({
               ...prev,
               datum: groupDatum,
             }))
-          } else if (yGrouped && aes?.y) {
+          } else if (yGrouped && aes?.y && datumInYRange) {
             // skip if the data hasn't changed
             if (ttDatum && y(ttDatum[0] === y(datum))) return
 
@@ -399,7 +578,7 @@ export const EventArea = ({
               ...prev,
               datum: groupDatum,
             }))
-          } else if (datumInRange) {
+          } else if (datumInXRange && datumInYRange) {
             if (onMouseOver) onMouseOver({ d: datum, i: ind })
             setTooltip((prev) => ({
               ...prev,
@@ -415,13 +594,21 @@ export const EventArea = ({
       setTooltip,
       width,
       delaunay,
+      yDelaunays,
+      xDelaunays,
       onMouseOver,
       xGrouped,
       yGrouped,
       ttDatum,
       scales,
+      xBandScale,
+      yBandScale,
       handleBrush,
       brushAction,
+      hasCategoricalAxis,
+      fill,
+      margin.top,
+      margin.left,
     ]
   )
 
@@ -490,7 +677,7 @@ export const EventArea = ({
 
       if (event.detail > 1) event.preventDefault()
 
-      if (data && data.length && brushAction) {
+      if (data && data.length && brushAction && !hasCategoricalAxis) {
         heldDownTimeout.current = setTimeout(() => {
           onMouseLeave()
           resetTooltip()
@@ -548,17 +735,73 @@ export const EventArea = ({
       onMouseLeave,
       resetTooltip,
       brushAction,
+      hasCategoricalAxis,
     ]
   )
 
   const handleVoronoiMouseOver = useCallback(
-    (i) => {
-      if (readyToFocusRef.current && data && data.length && !isBrushing) {
-        if (onMouseOver) onMouseOver({ d: data[i], i })
-        if (onDatumFocus) onDatumFocus(data[i], i)
+    (voronoiData: unknown[], i) => {
+      if (
+        readyToFocusRef.current &&
+        voronoiData &&
+        voronoiData.length &&
+        !isBrushing
+      ) {
+        const datum = voronoiData[i]
+        const focusedData: unknown[] = []
+        const focusedIndexes: number[] = []
+
+        if (yGrouped && aes?.y) {
+          voronoiData.forEach((vd, ind) => {
+            if (aes?.y && aes.y(vd)?.toString() === aes.y(datum)?.toString()) {
+              focusedData.push(vd)
+              focusedIndexes.push(ind)
+            }
+          })
+        } else if (data && yDelaunays) {
+          const vd = voronoiData[i] as StackMidpoint<
+            string | number,
+            string | number
+          >
+          const ind = data.findIndex(
+            (d) =>
+              aes?.y?.(d) === vd.yVal &&
+              scales?.groupAccessor?.(d) === vd.groupVal
+          )
+          const vDatum = data[ind]
+          focusedData.push(vDatum)
+          focusedIndexes.push(ind)
+        } else if (data && xDelaunays) {
+          const vd = voronoiData[i] as StackMidpoint<
+            string | number,
+            string | number
+          >
+          const ind = data.findIndex(
+            (d) =>
+              aes?.x?.(d) === vd.xVal &&
+              scales?.groupAccessor?.(d) === vd.groupVal
+          )
+          const vDatum = data[ind]
+          focusedData.push(vDatum)
+          focusedIndexes.push(ind)
+        } else {
+          focusedData.push(datum)
+          focusedIndexes.push(i)
+        }
+
+        if (onMouseOver) onMouseOver({ d: focusedData, i: focusedIndexes })
+        if (onDatumFocus) onDatumFocus(focusedData, focusedIndexes)
       }
     },
-    [data, isBrushing, onMouseOver, onDatumFocus]
+    [
+      isBrushing,
+      onMouseOver,
+      onDatumFocus,
+      yGrouped,
+      yDelaunays,
+      aes?.y,
+      scales?.groupAccessor,
+    ]
   )
 
   return (
@@ -621,16 +864,16 @@ export const EventArea = ({
           </>
         )}
       </g>
-      {voronoi && data && !brushAction && (
+      {!xVoronois && !yVoronois && voronoi && delaunayData && !brushAction && (
         <g onMouseLeave={handleMouseOut} onPointerLeave={handleMouseOut}>
-          {Array.from(voronoi.cellPolygons()).map((_, i) => (
+          {delaunayData.map((_, i) => (
             <path
               key={`cell-${i.toString()}`}
               style={{ pointerEvents: 'all' }}
               d={voronoi.renderCell(i)}
               fill="none"
               // stroke="tomato"
-              onMouseOver={() => handleVoronoiMouseOver(i)}
+              onMouseOver={() => handleVoronoiMouseOver(delaunayData, i)}
               onMouseDown={handleClick}
               onMouseUp={handleBrushStop}
               onDoubleClick={handleUnbrush}
@@ -638,6 +881,46 @@ export const EventArea = ({
           ))}
         </g>
       )}
+      {xVoronois &&
+        !brushAction &&
+        xVoronois.map((v, i) => (
+          <g
+            key={`xGroup-voronoi-${i.toString()}`}
+            onMouseLeave={handleMouseOut}
+            onPointerLeave={handleMouseOut}
+          >
+            {v.data.map((_, j) => (
+              <path
+                key={`cell-${i.toString()}-${j.toString()}`}
+                style={{ pointerEvents: 'all' }}
+                d={v.voronoi.renderCell(j)}
+                fill="none"
+                // stroke="tomato"
+                onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
+              />
+            ))}
+          </g>
+        ))}
+      {yVoronois &&
+        !brushAction &&
+        yVoronois.map((v, i) => (
+          <g
+            key={`yGroup-voronoi-${i.toString()}`}
+            onMouseLeave={handleMouseOut}
+            onPointerLeave={handleMouseOut}
+          >
+            {v.data.map((_, j) => (
+              <path
+                key={`cell-${i.toString()}-${j.toString()}`}
+                style={{ pointerEvents: 'all' }}
+                d={v.voronoi.renderCell(j)}
+                fill="none"
+                // stroke="tomato"
+                onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
+              />
+            ))}
+          </g>
+        ))}
     </>
   )
 }
