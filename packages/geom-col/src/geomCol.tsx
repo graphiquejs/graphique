@@ -5,6 +5,7 @@ import React, {
   SVGAttributes,
   useRef,
   useState,
+  useCallback,
 } from 'react'
 import {
   useGG,
@@ -50,6 +51,7 @@ export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   freeBaseLine?: boolean
   align?: 'center' | 'left'
   position?: 'identity' | 'stack' | 'dodge' | 'fill'
+  focusType?: 'group' | 'individual'
 }
 
 const GeomCol = ({
@@ -71,6 +73,7 @@ const GeomCol = ({
   freeBaseLine,
   align = 'center',
   position = 'stack',
+  focusType = 'group',
   ...props
 }: GeomColProps) => {
   const { ggState } = useGG() || {}
@@ -165,8 +168,8 @@ const GeomCol = ({
     ...unfocusedStyle,
   }
 
-  const fill = useMemo(
-    () => (d: unknown) =>
+  const fill = useCallback(
+    (d: unknown) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -177,8 +180,8 @@ const GeomCol = ({
     [geomAes, copiedScales, fillColor, defaultFill]
   )
 
-  const stroke = useMemo(
-    () => (d: unknown) =>
+  const stroke = useCallback(
+    (d: unknown) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -258,23 +261,27 @@ const GeomCol = ({
     }
   }, [xZoomDomain?.current])
 
-  const x = useMemo(() => {
-    if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
-      const leftAdj = align === 'center' ? xBandScale.bandwidth() / 2 : 0
-      const rightAdj =
-        align === 'center' ? xBandScale.bandwidth() / 2 : xBandScale.bandwidth()
-      scales?.xScale.range([
-        margin.left + leftAdj,
-        width - margin.right - rightAdj,
-      ])
-      return (d: unknown) =>
-        (scales?.xScale(geomAes?.x(d) ?? aes?.x(d)) || 0) - leftAdj
-    }
-    return (d: unknown) => scales?.xScale && scales.xScale(geomAes?.x(d))
-  }, [scales, geomAes, xBandScale, margin, width, align, aes])
+  const x = useCallback(
+    (d: unknown) => {
+      if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
+        const leftAdj = align === 'center' ? xBandScale.bandwidth() / 2 : 0
+        const rightAdj =
+          align === 'center'
+            ? xBandScale.bandwidth() / 2
+            : xBandScale.bandwidth()
+        scales?.xScale.range([
+          margin.left + leftAdj,
+          width - margin.right - rightAdj,
+        ])
+        return (scales?.xScale(geomAes?.x(d) ?? aes?.x(d)) || 0) - leftAdj
+      }
+      return scales?.xScale && scales.xScale(geomAes?.x(d))
+    },
+    [scales, geomAes, xBandScale, margin, width, align, aes]
+  )
 
-  const y = useMemo(
-    () => (d: unknown) =>
+  const y = useCallback(
+    (d: unknown) =>
       scales?.yScale && geomAes?.y && scales.yScale(geomAes?.y(d)),
     [scales, geomAes]
   )
@@ -292,8 +299,8 @@ const GeomCol = ({
     [geomData, group]
   )
 
-  const keyAccessor = useMemo(
-    () => (d: unknown) =>
+  const keyAccessor = useCallback(
+    (d: unknown) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
@@ -310,11 +317,13 @@ const GeomCol = ({
       groups &&
       group
     ) {
-      return stack()
+      const stackWideData = stack()
         .keys(groups)
-        .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)(
-        widen(geomData, geomAes.x, group, geomAes.y)
-      )
+        .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)
+
+      const wideData = widen(geomData, geomAes.x, group, geomAes.y)
+
+      return stackWideData(wideData)
     }
     return null
   }, [geomData, geomAes, group, groups, position])
@@ -337,14 +346,24 @@ const GeomCol = ({
         .range([xBandScale.bandwidth(), 0])
         .padding(dodgePadding)
     }
-    return null
+    return undefined
   }, [scales, position, xBandScale, dodgePadding])
+
+  const resolvedXScale = useCallback(
+    (d) => {
+      if (position === 'dodge') {
+        return (x(d) ?? 0) + (dodgeXScale?.(group?.(d) as string) ?? 0)
+      }
+      return x(d)
+    },
+    [x, dodgeXScale, position, group]
+  )
 
   const groupRef = useRef<SVGGElement>(null)
   const rects = groupRef.current?.getElementsByTagName('rect')
 
-  const getGroupY = useMemo(
-    () => (d: unknown) => {
+  const getGroupStack = useCallback(
+    (d: unknown) => {
       const thisStack =
         stackedData && stackedData.find((sd) => group && sd.key === group(d))
       const groupStack = thisStack?.find(
@@ -355,6 +374,23 @@ const GeomCol = ({
     [stackedData, geomAes, group]
   )
 
+  const stackMidpoints = useMemo(() => {
+    if (!stackedData || focusType === 'group') return undefined
+
+    return stackedData.map((sd) => {
+      const groupVal = sd.key
+      const dataStack = sd.filter((d) => !d.flat().some(Number.isNaN))
+      const yVal = (dataStack[0][0] + dataStack[0][1]) / 2
+      const xVal = dataStack[0].data.key
+
+      return {
+        groupVal,
+        yVal,
+        xVal,
+      }
+    })
+  }, [stackedData, geomData, focusType])
+
   return xBandScale && isVisible ? (
     <>
       <g ref={groupRef} clipPath={`url(#__gg_canvas_${id})`}>
@@ -362,28 +398,18 @@ const GeomCol = ({
           <NodeGroup
             data={[...(geomData as [])]}
             keyAccessor={keyAccessor}
-            start={(d) => {
-              const xAdj =
-                dodgeXScale && scales?.groupAccessor
-                  ? dodgeXScale(scales.groupAccessor(d) as string) || 0
-                  : 0
-              return {
-                width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
-                height: 0,
-                x: (x(d) || 0) + xAdj,
-                y: bottomPos,
-                fill: 'transparent',
-                stroke: 'transparent',
-                fillOpacity: 0,
-                strokeOpacity: 0,
-              }
-            }}
+            start={(d) => ({
+              width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
+              height: 0,
+              x: resolvedXScale(d),
+              y: bottomPos,
+              fill: 'transparent',
+              stroke: 'transparent',
+              fillOpacity: 0,
+              strokeOpacity: 0,
+            })}
             enter={(d) => {
-              const xAdj =
-                dodgeXScale && scales?.groupAccessor
-                  ? dodgeXScale(scales.groupAccessor(d) as string) || 0
-                  : 0
-              const groupData = getGroupY(d)
+              const groupData = getGroupStack(d)
               const thisY1 = groupData
                 ? scales?.yScale(groupData[1])
                 : bottomPos
@@ -395,7 +421,7 @@ const GeomCol = ({
               return {
                 height: [typeof y(d) === 'undefined' ? 0 : barHeight],
                 width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [(x(d) || 0) + xAdj],
+                x: [resolvedXScale(d)],
                 y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
                 fill: [fill(d)],
                 stroke: [stroke(d)],
@@ -405,11 +431,7 @@ const GeomCol = ({
               }
             }}
             update={(d) => {
-              const xAdj =
-                dodgeXScale && scales?.groupAccessor
-                  ? dodgeXScale(scales.groupAccessor(d) as string) || 0
-                  : 0
-              const groupData = getGroupY(d)
+              const groupData = getGroupStack(d)
               const thisY1 = groupData
                 ? scales?.yScale(groupData[1])
                 : bottomPos
@@ -420,7 +442,7 @@ const GeomCol = ({
               return {
                 height: [typeof y(d) === 'undefined' ? 0 : barHeight],
                 width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [(x(d) || 0) + xAdj],
+                x: [resolvedXScale(d)],
                 y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
                 fill: firstRender ? fill(d) : [fill(d)],
                 stroke: firstRender ? stroke(d) : [stroke(d)],
@@ -466,12 +488,19 @@ const GeomCol = ({
           <EventArea
             data={geomData}
             aes={geomAes}
-            x={x}
+            x={resolvedXScale}
             y={() => 0}
-            group="x"
+            fill={position === 'fill' ? 'y' : undefined}
+            group={focusType === 'group' ? 'x' : undefined}
+            xAdj={
+              position === 'dodge'
+                ? (dodgeXScale?.bandwidth() ?? 0) / 2
+                : xBandScale.bandwidth() / 2
+            }
+            xBandScale={xBandScale}
+            stackYMidpoints={stackMidpoints}
             showTooltip={showTooltip}
             brushAction={brushAction}
-            xAdj={xBandScale.bandwidth() / 2}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
               if (rects) {
@@ -500,13 +529,16 @@ const GeomCol = ({
           />
           {showTooltip && (
             <Tooltip
+              x={resolvedXScale}
               y={y}
+              aes={geomAes}
+              stackMidpoints={stackMidpoints}
               xAdj={
-                !scales?.xScale.bandwidth && align === 'center'
-                  ? 0
+                position === 'dodge'
+                  ? (dodgeXScale?.bandwidth() ?? 0) / 2
                   : xBandScale.bandwidth() / 2
               }
-              aes={geomAes}
+              focusType={focusType}
             />
           )}
         </>

@@ -10,6 +10,7 @@ export interface XTooltipProps {
   top: number
   yPosition?: 'above' | 'below'
   value: React.ReactNode
+  align?: 'left' | 'center' | 'right'
 }
 
 export const XTooltip = ({
@@ -18,6 +19,7 @@ export const XTooltip = ({
   top,
   value,
   yPosition = 'below',
+  align = 'center',
 }: XTooltipProps) => {
   const { width } = useGG()?.ggState || { width: 0 }
   const [{ font }] = useAtom(themeState)
@@ -30,7 +32,17 @@ export const XTooltip = ({
   useEffect(() => {
     const containerWidth = containerRef.current?.clientWidth || 0
     const containerHeight = containerRef.current?.clientHeight || 0
-    let leftPosition = containerWidth && left - containerWidth / 2
+    const dxVal = containerWidth / 2
+    let dx
+    if (align === 'center') {
+      dx = dxVal
+    } else if (align === 'right') {
+      dx = 0
+    } else {
+      dx = dxVal * 2
+    }
+
+    let leftPosition = containerWidth && left - dx
     const rightX =
       leftPosition && containerWidth && leftPosition + containerWidth
     if (keepInParent && leftPosition && leftPosition < 2) {
@@ -48,7 +60,7 @@ export const XTooltip = ({
     setTopPos(top - (yPosition === 'above' ? (containerHeight || 0) + 8 : 0))
 
     if (leftPosition) setLeftPos(leftPosition)
-  }, [width, left, top, id, keepInParent, yPosition])
+  }, [width, left, top, id, keepInParent, yPosition, align])
 
   return (
     <XTooltipPortal id={id}>

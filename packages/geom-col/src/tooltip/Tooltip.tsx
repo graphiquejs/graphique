@@ -11,15 +11,31 @@ import {
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
+interface StackMidpoint {
+  groupVal: string
+  yVal: string | number
+  xVal: number
+}
+
 export interface TooltipProps {
+  x: (d: unknown) => number | undefined
   y: (d: unknown) => number | undefined
   xAdj?: number
   aes?: Aes
+  focusType: 'group' | 'individual'
+  stackMidpoints?: StackMidpoint[]
 }
 
-export const Tooltip = ({ y, xAdj = 0, aes }: TooltipProps) => {
+export const Tooltip = ({
+  x,
+  y,
+  xAdj = 0,
+  aes,
+  focusType,
+  stackMidpoints,
+}: TooltipProps) => {
   const { ggState } = useGG() || {}
-  const { id, scales, copiedScales, height, margin } = ggState || {
+  const { data, id, scales, copiedScales, height, margin } = ggState || {
     width: 0,
     height: 0,
   }
@@ -34,22 +50,38 @@ export const Tooltip = ({ y, xAdj = 0, aes }: TooltipProps) => {
   )
 
   const xCoord = useMemo(
-    () => (scales?.xScale(xVal) as number) + xAdj,
-    [scales, xAdj, xVal]
+    () => datum?.[0] && (x(datum[0]) ?? 0) + xAdj,
+    [datum, x, xAdj]
   )
 
   const group = useMemo(
-    () =>
-      aes?.group ||
-      aes?.fill ||
-      aes?.stroke ||
-      aes?.strokeDasharray ||
-      (() => '__group'),
-    [aes]
+    () => scales?.groupAccessor || (() => '__group'),
+    [scales]
   )
 
   const yVal = useMemo(() => {
-    if (geoms?.col?.position === 'fill') return scales?.yScale(1)
+    const isYFilled = geoms?.col?.position === 'fill'
+
+    if (focusType === 'individual' && stackMidpoints && datum) {
+      const datumGroup = group(datum[0])
+      const focusedStack = stackMidpoints.find(
+        ({ xVal: stackX, groupVal }) =>
+          stackX === xVal && groupVal === datumGroup
+      )
+
+      const yAesVal = aes?.y?.(datum[0]) as number
+      const yAesTotal = sum(
+        data?.filter((d) => aes?.x(d) === focusedStack?.xVal) as [],
+        (d) => aes?.y?.(d) as number
+      )
+
+      const dy = isYFilled ? yAesVal / yAesTotal / 2 : yAesVal / 2
+      const stackYVal = focusedStack?.yVal as number
+
+      return focusedStack ? scales?.yScale(stackYVal + dy) ?? 0 : undefined
+    }
+
+    if (isYFilled) return scales?.yScale(1)
     if (
       geoms?.col?.position === 'stack' &&
       datum &&
@@ -61,7 +93,7 @@ export const Tooltip = ({ y, xAdj = 0, aes }: TooltipProps) => {
       )
     }
     return datum ? min(datum, (d) => y(d)) : null
-  }, [datum, scales, geoms, aes])
+  }, [data, datum, scales, geoms, aes, y])
 
   const groupVals = useMemo(() => {
     const vals =
@@ -126,6 +158,7 @@ export const Tooltip = ({ y, xAdj = 0, aes }: TooltipProps) => {
     copiedScales,
     geoms,
     scales,
+    focusType,
   ])
 
   const tooltipValue = content
