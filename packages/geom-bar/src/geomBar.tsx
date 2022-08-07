@@ -5,6 +5,7 @@ import React, {
   SVGAttributes,
   useRef,
   useState,
+  useCallback,
 } from 'react'
 import {
   useGG,
@@ -15,6 +16,7 @@ import {
   widen,
   Aes,
   usePageVisibility,
+  defineGroupAccessor,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -43,6 +45,7 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   freeBaseLine?: boolean
   position?: 'identity' | 'stack' | 'dodge' | 'fill'
   animateOnEnter?: boolean
+  focusType?: 'group' | 'individual'
 }
 
 const GeomBar = ({
@@ -63,6 +66,7 @@ const GeomBar = ({
   freeBaseLine,
   position = 'stack',
   animateOnEnter = true,
+  focusType = 'group',
   ...props
 }: BarProps) => {
   const { ggState } = useGG() || {}
@@ -143,8 +147,8 @@ const GeomBar = ({
     ...unfocusedStyle,
   }
 
-  const fill = useMemo(
-    () => (d: unknown) =>
+  const fill = useCallback(
+    (d: unknown) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -155,8 +159,8 @@ const GeomBar = ({
     [geomAes, copiedScales, fillColor, defaultFill]
   )
 
-  const stroke = useMemo(
-    () => (d: unknown) =>
+  const stroke = useCallback(
+    (d: unknown) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -198,14 +202,14 @@ const GeomBar = ({
     }
   }
 
-  const x = useMemo(
-    () => (d: unknown) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0),
+  const x = useCallback(
+    (d: unknown) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0),
     [scales, geomAes]
   )
 
   const yBandScale = useMemo(() => {
     if (margin && height) {
-      const usedYPadding = geomData && geomData.length > 1 ? yPadding : 0
+      const usedYPadding = geomData ? yPadding : 0
 
       if (scales?.yScale.bandwidth) {
         return scales.yScale.paddingInner(usedYPadding)
@@ -221,28 +225,35 @@ const GeomBar = ({
     return null
   }, [height, scales, margin, yPadding, yDomain, geomData, geomAes])
 
-  const y = useMemo(() => {
-    if (!scales?.yScale.bandwidth && margin && height && yBandScale) {
-      scales?.yScale.range([
-        height - margin.bottom - yBandScale.bandwidth() / 2 - 0.5,
-        margin.top + yBandScale.bandwidth() / 2,
-      ])
-      return (d: unknown) =>
-        (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) -
-        yBandScale.bandwidth() / 2 +
-        0.5
-    }
-    return (d: unknown) =>
-      scales?.yScale && scales.yScale(geomAes?.y && geomAes.y(d))
-  }, [scales, geomAes, margin, height, yBandScale])
+  const y = useCallback(
+    (d: unknown) => {
+      if (!scales?.yScale.bandwidth && margin && height && yBandScale) {
+        scales?.yScale.range([
+          height - margin.bottom - yBandScale.bandwidth() / 2 - 0.5,
+          margin.top + yBandScale.bandwidth() / 2,
+        ])
+        return (
+          (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) -
+          yBandScale.bandwidth() / 2 +
+          0.5
+        )
+      }
+      return scales?.yScale && scales.yScale(geomAes?.y && geomAes.y(d))
+    },
+    [scales, geomAes, margin, height, yBandScale]
+  )
 
-  const keyAccessor = useMemo(
-    () => (d: unknown) =>
+  const group = useMemo(
+    () => defineGroupAccessor(geomAes as Aes),
+    [defineGroupAccessor, geomAes]
+  )
+
+  const keyAccessor = useCallback(
+    (d: unknown) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
-          `${geomAes?.x(d)}-${geomAes.y(d)}-
-          ${
+          `${geomAes?.x(d)}-${geomAes.y(d)}-${
             scales?.groupAccessor ? scales.groupAccessor(d) : '__group'
           }`) as string,
     [geomAes, scales]
@@ -257,11 +268,18 @@ const GeomBar = ({
       scales?.groups &&
       scales?.groupAccessor
     ) {
-      return stack()
+      const stackWideData = stack()
         .keys(scales.groups)
-        .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)(
-        widen(geomData, geomAes.y, scales.groupAccessor, geomAes.x)
+        .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)
+
+      const wideData = widen(
+        geomData,
+        geomAes.y,
+        scales.groupAccessor,
+        geomAes.x
       )
+
+      return stackWideData(wideData)
     }
     return null
   }, [geomData, geomAes, scales, position])
@@ -286,13 +304,22 @@ const GeomBar = ({
     return null
   }, [scales, position, yBandScale, dodgePadding])
 
+  const resolvedYScale = useCallback(
+    (d) => {
+      if (position === 'dodge') {
+        return (y(d) ?? 0) + (dodgeYScale?.(group?.(d) as string) ?? 0)
+      }
+      return y(d)
+    },
+    [y, dodgeYScale, position, group]
+  )
+
   const groupRef = useRef<SVGGElement>(null)
-  // const rects = useMemo(() => groupRef.current?.getElementsByTagName("rect"), [])
   const rects = groupRef.current?.getElementsByTagName('rect')
 
   const leftEdge = useMemo(() => margin?.left || 0, [margin])
 
-  const getGroupX = useMemo(
+  const getGroupStack = useMemo(
     () => (d: unknown) => {
       const thisStack =
         stackedData &&
@@ -308,6 +335,23 @@ const GeomBar = ({
     [stackedData, scales, aes]
   )
 
+  const stackMidpoints = useMemo(() => {
+    if (!stackedData || focusType === 'group') return undefined
+
+    return stackedData.map((sd) => {
+      const groupVal = sd.key
+      const dataStack = sd.filter((d) => !d.flat().some(Number.isNaN))
+      const xVal = (dataStack[0][0] + dataStack[0][1]) / 2
+      const yVal = dataStack[0].data.key
+
+      return {
+        groupVal,
+        yVal,
+        xVal,
+      }
+    })
+  }, [stackedData, geomData, focusType])
+
   return yBandScale && isVisible ? (
     <>
       <g ref={groupRef}>
@@ -316,23 +360,19 @@ const GeomBar = ({
           data={[...(geomData as [])]}
           keyAccessor={keyAccessor}
           start={(d) => {
-            const groupData = getGroupX(d)
+            const groupData = getGroupStack(d)
             const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
             const thisX1 = groupData && scales?.xScale(groupData[1])
             const barWidth = stackedData
               ? thisX1 - (thisX0 || 0)
               : (x(d) || 0) - leftEdge
-            const yAdj =
-              dodgeYScale && scales?.groupAccessor
-                ? dodgeYScale(scales.groupAccessor(d) as string) || 0
-                : 0
             const actualWidth =
               typeof x(d) === 'undefined' ? leftEdge : barWidth
             return {
               width: animateOnEnter ? 0 : actualWidth,
               height: dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
               x: leftEdge,
-              y: (y(d) || 0) + yAdj,
+              y: resolvedYScale(d),
               fill: 'transparent',
               stroke: 'transparent',
               fillOpacity: 0,
@@ -340,23 +380,20 @@ const GeomBar = ({
             }
           }}
           enter={(d) => {
-            const groupData = getGroupX(d)
+            const groupData = getGroupStack(d)
             const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
             const thisX1 = groupData && scales?.xScale(groupData[1])
             const barWidth = stackedData
               ? thisX1 - (thisX0 || 0)
               : (x(d) || 0) - leftEdge
-            const yAdj =
-              dodgeYScale && scales?.groupAccessor
-                ? dodgeYScale(scales.groupAccessor(d) as string) || 0
-                : 0
             const actualWidth =
               typeof x(d) === 'undefined' ? leftEdge : barWidth
+
             return {
               width: animateOnEnter ? [actualWidth] : actualWidth,
               height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
               x: [thisX0],
-              y: [(y(d) || 0) + yAdj],
+              y: [resolvedYScale(d)],
               fill: [fill(d)],
               stroke: [stroke(d)],
               fillOpacity: [fillOpacity],
@@ -365,21 +402,22 @@ const GeomBar = ({
             }
           }}
           update={(d) => {
-            const groupData = getGroupX(d)
+            const groupData = getGroupStack(d)
             const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
             const thisX1 = groupData && scales?.xScale(groupData[1])
             const barWidth = stackedData
               ? thisX1 - (thisX0 || 0)
               : (x(d) || 0) - leftEdge
-            const yAdj =
-              dodgeYScale && scales?.groupAccessor
-                ? dodgeYScale(scales.groupAccessor(d) as string) || 0
-                : 0
+
             return {
               width: [typeof x(d) === 'undefined' ? leftEdge : barWidth],
               height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
               x: [thisX0],
-              y: [typeof y(d) === 'undefined' ? height : (y(d) || 0) + yAdj],
+              y: [
+                typeof resolvedYScale(d) === 'undefined'
+                  ? height
+                  : resolvedYScale(d),
+              ],
               fill: firstRender ? fill(d) : [fill(d)],
               stroke: firstRender ? stroke(d) : [stroke(d)],
               fillOpacity: [fillOpacity],
@@ -421,18 +459,25 @@ const GeomBar = ({
       {showTooltip && (
         <>
           <EventArea
-            x={() => 0}
-            y={y}
-            group="y"
-            yAdj={yBandScale.bandwidth() / 2}
             data={geomData}
             aes={geomAes}
+            x={() => 0}
+            y={resolvedYScale}
+            yBandScale={yBandScale}
+            fill={position === 'fill' ? 'x' : undefined}
+            group={focusType === 'group' ? 'y' : undefined}
+            yAdj={
+              position === 'dodge'
+                ? (dodgeYScale?.bandwidth() ?? 0) / 2
+                : yBandScale.bandwidth() / 2
+            }
+            stackXMidpoints={stackMidpoints}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
-                  focusedIndex: i,
+                  focusedIndex: i ?? [],
                   focusedStyles,
                   unfocusedStyles,
                 })
@@ -452,7 +497,19 @@ const GeomBar = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip x={x} aes={geomAes} yAdj={yBandScale.bandwidth() / 2} />
+          <Tooltip
+            x={x}
+            y={resolvedYScale}
+            aes={geomAes}
+            stackMidpoints={stackMidpoints}
+            yAdj={
+              position === 'dodge'
+                ? (dodgeYScale?.bandwidth() ?? 0) / 2
+                : yBandScale.bandwidth() / 2
+            }
+            focusType={focusType}
+            align={position === 'dodge' ? 'left' : 'center'}
+          />
         </>
       )}
     </>
