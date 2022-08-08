@@ -153,7 +153,7 @@ export const Tooltip = ({
     ? datum && <div>{content(groupVals)}</div>
     : datum && <DefaultTooltip data={groupVals} />
 
-  if (datum && focusType === 'individual')
+  if (datum && groupVals[0] && focusType === 'individual')
     return (
       <div>
         <XTooltip
