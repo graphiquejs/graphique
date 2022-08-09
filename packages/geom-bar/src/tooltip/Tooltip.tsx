@@ -127,6 +127,7 @@ export const Tooltip = ({
             </svg>
           )
           return {
+            datum,
             group: thisGroup,
             mark,
             x: xVal,
