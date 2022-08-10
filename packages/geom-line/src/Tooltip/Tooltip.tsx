@@ -84,6 +84,7 @@ export const Tooltip = ({ x, y, aes }: Props) => {
             </svg>
           )
           return {
+            datum,
             group,
             mark,
             x: xVal,
