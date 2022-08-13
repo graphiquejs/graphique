@@ -9,7 +9,7 @@ function App() {
   // const [yDomain, setYDomain] = useState<number[]>()
   // useEffect(() => setYDomain([900, 2000]), [])
 
-  const [focusedIndex, setFocusedIndex] = useState<number | undefined>()
+  const [focusedIndex, setFocusedIndex] = useState<number[] | undefined>()
 
   return (
     <>
@@ -30,7 +30,7 @@ function App() {
               margin={{ left: 50 }}
             >
               <GeomLine
-                onDatumFocus={(d, i) => setFocusedIndex(i as number)}
+                onDatumFocus={(d, i) => setFocusedIndex(i)}
                 onExit={() => setFocusedIndex(undefined)}
               />
               <Labels y={sym} />
@@ -38,7 +38,7 @@ function App() {
                 datum={
                   typeof focusedIndex === 'undefined'
                     ? undefined
-                    : [stockData[focusedIndex]]
+                    : [stockData[focusedIndex[0]]]
                 }
               />
             </GG>
