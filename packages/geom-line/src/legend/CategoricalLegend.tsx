@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   useGG,
   themeState,
-  fillScaleState,
   strokeScaleState,
   strokeDasharrayState,
   formatMissing,
@@ -27,67 +26,73 @@ export const CategoricalLegend = ({
   fontSize = 12,
   onSelection,
 }: CategoricalLegendProps) => {
-  const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
-  )
-
   const [{ geoms, defaultStroke }] = useAtom(themeState)
-  const [{ domain: fillDomain }] = useAtom(fillScaleState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
   const [{ domain: dashArrayDomain }] = useAtom(strokeDasharrayState)
 
-  const legendGroups =
-    ((fillDomain || strokeDomain || dashArrayDomain) as string[]) ||
-    legendScales.groups
+  const legendGroups = useMemo(
+    () =>
+      strokeDomain ||
+      dashArrayDomain ||
+      legendScales.groups ||
+      legendScales.strokeScale?.domain(),
+    [legendScales, strokeDomain, dashArrayDomain]
+  )
+
+  const [isFocused, setIsFocused] = useState<string[]>(
+    geoms?.line?.usableGroups ?? []
+  )
 
   const { ggState, updateData } = useGG() || {}
-  const { scales, data } = ggState || {}
+  const { data } = ggState || {}
 
-  useEffect(() => {
-    setIsFocused(scales?.groups || [])
-  }, [scales, data])
+  useEffect(() => setIsFocused(geoms?.line?.usableGroups ?? []), [legendData])
 
-  const getGroup: any = legendScales.groupAccessor
-    ? legendScales.groupAccessor
-    : () => legendScales.groups && legendScales.groups[0]
+  const getGroup = useMemo(
+    () => geoms?.line?.groupAccessor || (() => undefined),
+    [geoms]
+  )
 
   const isHorizontal = orientation === 'horizontal'
 
-  const toggleLegendGroup = (g: string) => {
-    const prevFocused = isFocused
-    let focusedGroups
-    if (prevFocused.includes(g)) {
-      if (prevFocused.length === 1) {
-        focusedGroups = legendScales.groups as string[]
-      } else {
-        focusedGroups = prevFocused.filter((p) => p !== g)
-      }
-    } else {
-      focusedGroups = [...prevFocused, g]
-    }
-    setIsFocused(focusedGroups)
+  const toggleLegendGroup = useCallback(
+    (g: string) => {
+      const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
 
-    const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
-
-    if (onSelection) {
-      onSelection(g)
-    }
-    if (data && updateData) {
-      let updatedData
+      let focusedGroups
       if (includedGroups.includes(g)) {
         if (includedGroups.length === 1) {
-          updatedData = legendData as unknown[]
+          focusedGroups = legendGroups
         } else {
-          updatedData = data.filter((d) => getGroup(d) !== g)
+          focusedGroups = includedGroups.filter((p) => p !== g)
         }
       } else {
-        updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
-        )
+        focusedGroups = [...includedGroups, g]
       }
-      updateData(updatedData)
-    }
-  }
+
+      setIsFocused(focusedGroups as string[])
+
+      if (onSelection) {
+        onSelection(g)
+      }
+      if (data && updateData) {
+        let updatedData
+        if (includedGroups.includes(g)) {
+          if (includedGroups.length === 1) {
+            updatedData = legendData as unknown[]
+          } else {
+            updatedData = data.filter((d) => getGroup(d) !== g)
+          }
+        } else {
+          updatedData = legendData.filter(
+            (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          )
+        }
+        updateData(updatedData)
+      }
+    },
+    [legendGroups, getGroup, data]
+  )
 
   return (
     <div
