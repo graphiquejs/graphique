@@ -32,10 +32,10 @@ interface EventAreaProps {
   group?: 'x' | 'y'
   xAdj?: number
   yAdj?: number
-  onMouseOver?: ({ d, i }: { d: any; i: number | number[] }) => void
-  onClick?: ({ d, i }: { d: any; i: number | number[] }) => void
+  onMouseOver?: ({ d, i }: { d: any; i: number[] }) => void
+  onClick?: ({ d, i }: { d: any; i: number[] }) => void
   onMouseLeave: () => void
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
   data?: unknown[]
   stackXMidpoints?: StackMidpoint<string | number, string | number>[]
   stackYMidpoints?: StackMidpoint<string | number, string | number>[]
@@ -146,8 +146,8 @@ export const EventArea = ({
   )
 
   const delaunayData = useMemo(() => data as [], [data])
-  const delaunayX = useCallback((v: any) => (x(v) as number) + xAdj, [x, xAdj])
-  const delaunayY = useCallback((v: any) => (y(v) as number) + yAdj, [y, yAdj])
+  const delaunayX = useCallback((v: any) => (x(v) ?? 0) + xAdj, [x, xAdj])
+  const delaunayY = useCallback((v: any) => (y(v) ?? 0) + yAdj, [y, yAdj])
 
   const delaunay = useMemo(
     () => Delaunay.from(delaunayData, delaunayX, delaunayY),
@@ -579,7 +579,7 @@ export const EventArea = ({
               datum: groupDatum,
             }))
           } else if (datumInXRange && datumInYRange) {
-            if (onMouseOver) onMouseOver({ d: datum, i: ind })
+            if (onMouseOver) onMouseOver({ d: [datum], i: [ind] })
             setTooltip((prev) => ({
               ...prev,
               datum: [datum],
@@ -720,7 +720,7 @@ export const EventArea = ({
 
           onClick({ d: groupDatum, i: groupDatumInd })
         } else {
-          onClick({ d: datum, i: ind })
+          onClick({ d: datum, i: [ind] })
         }
       }
       return width
@@ -828,7 +828,6 @@ export const EventArea = ({
               fill="transparent"
               onMouseMove={handleMouseOver}
               onMouseLeave={handleMouseOut}
-              onTouchStart={(event) => event.preventDefault()}
               onPointerMove={handleMouseOver}
               onPointerLeave={handleMouseOut}
               onMouseDown={handleClick}
