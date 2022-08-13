@@ -38,8 +38,8 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
-  onDatumSelection?: (data: unknown, index: number | number[]) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumSelection?: (data: unknown, index: number[]) => void
   entrance?: 'data' | 'midpoint'
   onExit?: () => void
   fillOpacity?: number
@@ -393,7 +393,7 @@ const GeomPoint = ({
             x={x}
             y={y}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
+            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
               if (points) {
                 focusNodes({
                   nodes: points,
@@ -405,7 +405,7 @@ const GeomPoint = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: any; i: number | number[] }) => {
+                ? ({ d, i }: { d: any; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

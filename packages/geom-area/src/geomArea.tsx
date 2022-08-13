@@ -46,9 +46,8 @@ export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   curve?: CurveFactory
   markerRadius?: number
   markerStroke?: string
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
-  // focus?: "x" | "nearest"
-  // onDatumSelection?: (data: unknown, index: number) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumSelection?: (data: unknown, index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -63,9 +62,7 @@ const GeomArea = ({
   brushAction,
   curve,
   onDatumFocus,
-  // focus = "x",
-  // onDatumSelection,
-  // debugVoronoi,
+  onDatumSelection,
   // focusedStyle,
   // unfocusedStyle,
   onExit,
@@ -697,6 +694,13 @@ const GeomArea = ({
             onMouseLeave={() => {
               if (onExit) onExit()
             }}
+            onClick={
+              onDatumSelection
+                ? ({ d, i }: { d: any; i: number[] }) => {
+                    onDatumSelection(d, i)
+                  }
+                : undefined
+            }
             showTooltip={showTooltip}
             brushAction={brushAction}
           />

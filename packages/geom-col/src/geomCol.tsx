@@ -43,8 +43,8 @@ export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   yDomain?: unknown[]
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
-  onDatumSelection?: (data: unknown, index: number | number[]) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumSelection?: (data: unknown, index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -502,7 +502,7 @@ const GeomCol = ({
             showTooltip={showTooltip}
             brushAction={brushAction}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
+            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -514,7 +514,7 @@ const GeomCol = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number | number[] }) => {
+                ? ({ d, i }: { d: unknown; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

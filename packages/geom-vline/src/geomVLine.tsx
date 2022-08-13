@@ -32,8 +32,8 @@ export interface GeomVLineProps extends SVGAttributes<SVGLineElement> {
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
-  onDatumSelection?: (data: unknown, index: number | number[]) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumSelection?: (data: unknown, index: number[]) => void
   onExit?: () => void
   strokeOpacity?: number
 }
@@ -223,7 +223,7 @@ const GeomVLine = ({
             onDatumFocus={onDatumFocus}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number | number[] }) => {
+                ? ({ d, i }: { d: unknown; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

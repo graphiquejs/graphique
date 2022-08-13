@@ -37,8 +37,8 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   xDomain?: unknown[]
   yDomain?: unknown[]
   showTooltip?: boolean
-  onDatumFocus?: (data: unknown, index: number | number[]) => void
-  onDatumSelection?: (data: unknown, index: number | number[]) => void
+  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumSelection?: (data: unknown, index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -473,7 +473,7 @@ const GeomBar = ({
             }
             stackXMidpoints={stackMidpoints}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number | number[] }) => {
+            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -485,7 +485,7 @@ const GeomBar = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number | number[] }) => {
+                ? ({ d, i }: { d: unknown; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined
