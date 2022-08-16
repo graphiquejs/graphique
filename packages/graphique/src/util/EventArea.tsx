@@ -751,7 +751,14 @@ export const EventArea = ({
         const focusedData: unknown[] = []
         const focusedIndexes: number[] = []
 
-        if (yGrouped && aes?.y) {
+        if (xGrouped && aes?.x) {
+          voronoiData.forEach((vd, ind) => {
+            if (aes?.x && aes.x(vd)?.toString() === aes.x(datum)?.toString()) {
+              focusedData.push(vd)
+              focusedIndexes.push(ind)
+            }
+          })
+        } else if (yGrouped && aes?.y) {
           voronoiData.forEach((vd, ind) => {
             if (aes?.y && aes.y(vd)?.toString() === aes.y(datum)?.toString()) {
               focusedData.push(vd)
@@ -759,31 +766,29 @@ export const EventArea = ({
             }
           })
         } else if (data && yDelaunays) {
-          const vd = voronoiData[i] as StackMidpoint<
-            string | number,
-            string | number
-          >
-          const ind = data.findIndex(
-            (d) =>
+          const vd = datum as StackMidpoint<string | number, string | number>
+
+          data.forEach((d, ind) => {
+            if (
               aes?.y?.(d) === vd.yVal &&
               scales?.groupAccessor?.(d) === vd.groupVal
-          )
-          const vDatum = data[ind]
-          focusedData.push(vDatum)
-          focusedIndexes.push(ind)
+            ) {
+              focusedData.push(d)
+              focusedIndexes.push(ind)
+            }
+          })
         } else if (data && xDelaunays) {
-          const vd = voronoiData[i] as StackMidpoint<
-            string | number,
-            string | number
-          >
-          const ind = data.findIndex(
-            (d) =>
+          const vd = datum as StackMidpoint<string | number, string | number>
+
+          data.forEach((d, ind) => {
+            if (
               aes?.x?.(d) === vd.xVal &&
               scales?.groupAccessor?.(d) === vd.groupVal
-          )
-          const vDatum = data[ind]
-          focusedData.push(vDatum)
-          focusedIndexes.push(ind)
+            ) {
+              focusedData.push(d)
+              focusedIndexes.push(ind)
+            }
+          })
         } else {
           focusedData.push(datum)
           focusedIndexes.push(i)
