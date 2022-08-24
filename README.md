@@ -17,6 +17,9 @@ Graphique allows you to concisely create flexible and reusable interactive visua
 - composing or layering relatively simple graphical objects or [geometries](#geoms) (_what_ to draw)
 - using reasonable defaults that can be configured for flexibility
 
+## Examples/Docs
+Examples and docs: https://graphique.dev
+
 ## Usage
 
 #### Creating a simple, interactive line chart
@@ -78,10 +81,6 @@ To keep your Graphique visualization the width of its parent container, you only
   <GeomLine />
 </GG>
 ```
-
-## Examples
-
-Check out out the Storybook demos here: https://graphique.mattadams.io
 
 ## Design philosophy
 
