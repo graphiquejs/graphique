@@ -9,12 +9,7 @@ import React, {
 import { useAtom } from 'jotai'
 import flattenChildren from 'react-flatten-children'
 import { Aes, DataValue, GGProps } from './types'
-import {
-  autoScale,
-  IScale,
-  defineGroupAccessor,
-  usePageVisibility,
-} from '../util'
+import { autoScale, IScale, defineGroupAccessor, PageVisibility } from '../util'
 import { XAxis, YAxis } from './axes'
 import {
   themeState,
@@ -64,8 +59,6 @@ export const GGBase = ({
   const [fillScale] = useAtom(fillScaleState)
   const [strokeScale] = useAtom(strokeScaleState)
   const [strokeDasharrayScale] = useAtom(strokeDasharrayState)
-
-  const isVisible = usePageVisibility()
 
   const [ggData, setGGData] = useState(data)
 
@@ -270,14 +263,18 @@ export const GGBase = ({
           {labels?.y}
         </div>
         <svg ref={ggRef} width={ggWidth} height={height}>
-          {isVisible && (
-            <>
-              {axisX && <XAxis ggState={ggState} />}
-              {axisY && <YAxis ggState={ggState} />}
-              {geoms}
-              <g id={`__gg-brush-exclusion-${id}`} />
-            </>
-          )}
+          <PageVisibility>
+            {(isVisible) =>
+              isVisible && (
+                <>
+                  {axisX && <XAxis ggState={ggState} />}
+                  {axisY && <YAxis ggState={ggState} />}
+                  {geoms}
+                  <g id={`__gg-brush-exclusion-${id}`} />
+                </>
+              )
+            }
+          </PageVisibility>
         </svg>
         {/* zoom out portal */}
         <div style={{ position: 'relative' }}>
