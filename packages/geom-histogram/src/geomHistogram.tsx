@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   useGG,
   Tooltip,
-  usePageVisibility,
+  PageVisibility,
   xScaleState,
   yScaleState,
   zoomState,
@@ -32,8 +32,6 @@ const GeomHistogram = ({
 }: HistogramProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales } = ggState || {}
-
-  const isVisible = usePageVisibility()
 
   const [, setYScale] = useAtom(yScaleState)
   const [, setXScale] = useAtom(xScaleState)
@@ -121,25 +119,31 @@ const GeomHistogram = ({
     }))
   }, [data, setXScale, setYScale, bins])
 
-  return !firstRender && isVisible ? (
+  return !firstRender ? (
     <>
-      <GeomCol
-        data={binData}
-        aes={{
-          ...aes,
-          x: (d: HistogramBin) => d.x0 as number,
-          y: (d: HistogramBin) => d.n,
-          fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
-          stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
-          key: (d: any) => `${d.group}-${d.n}-${d.x0}`,
-        }}
-        xPadding={xPadding}
-        align={align}
-        position="identity"
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...props}
-      />
-      <Tooltip xFormat={formatRange} />
+      <PageVisibility>
+        {(isVisible) => isVisible && (
+          <>
+            <GeomCol
+              data={binData}
+              aes={{
+                ...aes,
+                x: (d: HistogramBin) => d.x0 as number,
+                y: (d: HistogramBin) => d.n,
+                fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
+                stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
+                key: (d: any) => `${d.group}-${d.n}-${d.x0}`,
+              }}
+              xPadding={xPadding}
+              align={align}
+              position="identity"
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+            <Tooltip xFormat={formatRange} />
+          </>
+        )}
+      </PageVisibility>
     </>
   ) : null
 }

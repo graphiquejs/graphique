@@ -14,7 +14,7 @@ import {
   EventArea,
   Aes,
   defineGroupAccessor,
-  usePageVisibility,
+  PageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -64,8 +64,6 @@ const GeomTile = ({
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, width, margin } =
     ggState || {}
-
-  const isVisible = usePageVisibility()
 
   const geomAes = useMemo(() => {
     if (localAes) {
@@ -226,68 +224,73 @@ const GeomTile = ({
   // const rects = useMemo(() => groupRef.current?.getElementsByTagName("rect"), [])
   const rects = groupRef.current?.getElementsByTagName('rect')
 
-  return xBandScale && yBandScale && isVisible ? (
+  return xBandScale && yBandScale ? (
     <>
       <g ref={groupRef}>
-        {!firstRender && (
-          <NodeGroup
-            data={[...(data as [])]}
-            keyAccessor={keyAccessor}
-            start={(d) => ({
-              x: margin?.left,
-              y: y(d) || 0,
-              fill: 'transparent',
-              stroke: 'transparent',
-              fillOpacity: 0,
-              strokeOpacity: 0,
-            })}
-            enter={(d) => ({
-              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
-              y: [y(d) || 0],
-              fill: [fill(d)],
-              stroke: [stroke(d)],
-              fillOpacity: [fillOpacity],
-              strokeOpacity: [strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
-            update={(d) => ({
-              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
-              y: [typeof y(d) === 'undefined' ? height : y(d)],
-              fill: firstRender ? fill(d) : [fill(d)],
-              stroke: firstRender ? stroke(d) : [stroke(d)],
-              fillOpacity: [fillOpacity],
-              strokeOpacity: [strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
-            leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              y: [height],
-              timing: { duration, ease: easeCubic },
-            })}
-            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-          >
-            {(nodes) => (
-              <>
-                {nodes.map(({ state, key }) => (
-                  <rect
-                    key={key}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
-                    fill={state.fill}
-                    stroke={state.stroke}
-                    x={state.x}
-                    y={state.y}
-                    width={xBandScale.bandwidth()}
-                    height={yBandScale.bandwidth()}
-                    fillOpacity={state.fillOpacity}
-                    strokeOpacity={state.strokeOpacity}
-                  />
-                ))}
-              </>
-            )}
-          </NodeGroup>
-        )}
+        <PageVisibility>
+          {(isVisible) =>
+            !firstRender &&
+            isVisible && (
+              <NodeGroup
+                data={[...(data as [])]}
+                keyAccessor={keyAccessor}
+                start={(d) => ({
+                  x: margin?.left,
+                  y: y(d) || 0,
+                  fill: 'transparent',
+                  stroke: 'transparent',
+                  fillOpacity: 0,
+                  strokeOpacity: 0,
+                })}
+                enter={(d) => ({
+                  x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
+                  y: [y(d) || 0],
+                  fill: [fill(d)],
+                  stroke: [stroke(d)],
+                  fillOpacity: [fillOpacity],
+                  strokeOpacity: [strokeOpacity],
+                  timing: { duration, ease: easeCubic },
+                })}
+                update={(d) => ({
+                  x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
+                  y: [typeof y(d) === 'undefined' ? height : y(d)],
+                  fill: firstRender ? fill(d) : [fill(d)],
+                  stroke: firstRender ? stroke(d) : [stroke(d)],
+                  fillOpacity: [fillOpacity],
+                  strokeOpacity: [strokeOpacity],
+                  timing: { duration, ease: easeCubic },
+                })}
+                leave={() => ({
+                  fill: ['transparent'],
+                  stroke: ['transparent'],
+                  y: [height],
+                  timing: { duration, ease: easeCubic },
+                })}
+                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+              >
+                {(nodes) => (
+                  <>
+                    {nodes.map(({ state, key }) => (
+                      <rect
+                        key={key}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...props}
+                        fill={state.fill}
+                        stroke={state.stroke}
+                        x={state.x}
+                        y={state.y}
+                        width={xBandScale.bandwidth()}
+                        height={yBandScale.bandwidth()}
+                        fillOpacity={state.fillOpacity}
+                        strokeOpacity={state.strokeOpacity}
+                      />
+                    ))}
+                  </>
+                )}
+              </NodeGroup>
+            )
+          }
+        </PageVisibility>
       </g>
       {geomAes && group && showTooltip && (
         <>

@@ -12,7 +12,7 @@ import {
   EventArea,
   Aes,
   DataValue,
-  usePageVisibility,
+  PageVisibility,
 } from '@graphique/graphique'
 import { NodeGroup } from 'react-move'
 import { useAtom } from 'jotai'
@@ -53,8 +53,6 @@ const GeomVLine = ({
 }: GeomVLineProps) => {
   const { ggState } = useGG() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
-
-  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -146,71 +144,76 @@ const GeomVLine = ({
   return (
     <>
       <g ref={groupRef}>
-        {!firstRender && isVisible && (
-          <NodeGroup
-            data={[...(geomData as [])]}
-            keyAccessor={keyAccessor}
-            start={(d) => ({
-              x1: x(d),
-              x2: x(d),
-              y1: bottomPos,
-              y2: bottomPos,
-              stroke: stroke(d),
-              strokeOpacity: 0,
-            })}
-            enter={(d) => {
-              const isOutsideDomain = checkIsOutisdeDomain(d)
-              return {
-                x1: [x(d)],
-                x2: [x(d)],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration, ease: easeCubic },
-              }
-            }}
-            update={(d) => {
-              const isOutsideDomain = checkIsOutisdeDomain(d)
-              return {
-                x1: [x(d)],
-                x2: [x(d)],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
-                timing: { duration, ease: easeCubic },
-              }
-            }}
-            leave={() => ({
-              stroke: ['transparent'],
-              y1: [bottomPos],
-              y2: [bottomPos],
-              timing: { duration, ease: easeCubic },
-            })}
-            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-          >
-            {(nodes) => (
-              <>
-                {nodes.map(({ state, key }) => (
-                  <line
-                    key={key}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
-                    x1={state.x1}
-                    x2={state.x2}
-                    y1={state.y1}
-                    y2={state.y2}
-                    stroke={state.stroke}
-                    strokeWidth={strokeWidth}
-                    strokeOpacity={state.strokeOpacity}
-                    style={{ pointerEvents: 'none' }}
-                  />
-                ))}
-              </>
-            )}
-          </NodeGroup>
-        )}
+        <PageVisibility>
+          {(isVisible) =>
+            !firstRender &&
+            isVisible && (
+              <NodeGroup
+                data={[...(geomData as [])]}
+                keyAccessor={keyAccessor}
+                start={(d) => ({
+                  x1: x(d),
+                  x2: x(d),
+                  y1: bottomPos,
+                  y2: bottomPos,
+                  stroke: stroke(d),
+                  strokeOpacity: 0,
+                })}
+                enter={(d) => {
+                  const isOutsideDomain = checkIsOutisdeDomain(d)
+                  return {
+                    x1: [x(d)],
+                    x2: [x(d)],
+                    y1: [bottomPos],
+                    y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
+                    stroke: [stroke(d)],
+                    strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                    timing: { duration, ease: easeCubic },
+                  }
+                }}
+                update={(d) => {
+                  const isOutsideDomain = checkIsOutisdeDomain(d)
+                  return {
+                    x1: [x(d)],
+                    x2: [x(d)],
+                    y1: [bottomPos],
+                    y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
+                    stroke: [stroke(d)],
+                    strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                    timing: { duration, ease: easeCubic },
+                  }
+                }}
+                leave={() => ({
+                  stroke: ['transparent'],
+                  y1: [bottomPos],
+                  y2: [bottomPos],
+                  timing: { duration, ease: easeCubic },
+                })}
+                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+              >
+                {(nodes) => (
+                  <>
+                    {nodes.map(({ state, key }) => (
+                      <line
+                        key={key}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...props}
+                        x1={state.x1}
+                        x2={state.x2}
+                        y1={state.y1}
+                        y2={state.y2}
+                        stroke={state.stroke}
+                        strokeWidth={strokeWidth}
+                        strokeOpacity={state.strokeOpacity}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    ))}
+                  </>
+                )}
+              </NodeGroup>
+            )
+          }
+        </PageVisibility>
       </g>
       {showTooltip && (
         <>

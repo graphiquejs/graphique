@@ -21,7 +21,7 @@ import {
   BrushAction,
   isDate,
   defineGroupAccessor,
-  usePageVisibility,
+  PageVisibility,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -84,8 +84,6 @@ const GeomCol = ({
   const [{ xDomain: xZoomDomain }] = useAtom(zoomState)
   const [, setXScale] = useAtom(xScaleState)
   const [, setYScale] = useAtom(yScaleState)
-
-  const isVisible = usePageVisibility()
 
   const geomAes = useMemo(() => {
     if (localAes) {
@@ -391,97 +389,102 @@ const GeomCol = ({
     })
   }, [stackedData, geomData, focusType])
 
-  return xBandScale && isVisible ? (
+  return xBandScale ? (
     <>
       <g ref={groupRef} clipPath={`url(#__gg_canvas_${id})`}>
-        {!firstRender && (
-          <NodeGroup
-            data={[...(geomData as [])]}
-            keyAccessor={keyAccessor}
-            start={(d) => ({
-              width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
-              height: 0,
-              x: resolvedXScale(d),
-              y: bottomPos,
-              fill: 'transparent',
-              stroke: 'transparent',
-              fillOpacity: 0,
-              strokeOpacity: 0,
-            })}
-            enter={(d) => {
-              const groupData = getGroupStack(d)
-              const thisY1 = groupData
-                ? scales?.yScale(groupData[1])
-                : bottomPos
-              const thisY0 = groupData && scales?.yScale(groupData[0])
-              const barHeight = stackedData
-                ? thisY0 - thisY1
-                : bottomPos - (y(d) || 0)
+        <PageVisibility>
+          {(isVisible) =>
+            !firstRender &&
+            isVisible && (
+              <NodeGroup
+                data={[...(geomData as [])]}
+                keyAccessor={keyAccessor}
+                start={(d) => ({
+                  width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
+                  height: 0,
+                  x: resolvedXScale(d),
+                  y: bottomPos,
+                  fill: 'transparent',
+                  stroke: 'transparent',
+                  fillOpacity: 0,
+                  strokeOpacity: 0,
+                })}
+                enter={(d) => {
+                  const groupData = getGroupStack(d)
+                  const thisY1 = groupData
+                    ? scales?.yScale(groupData[1])
+                    : bottomPos
+                  const thisY0 = groupData && scales?.yScale(groupData[0])
+                  const barHeight = stackedData
+                    ? thisY0 - thisY1
+                    : bottomPos - (y(d) || 0)
 
-              return {
-                height: [typeof y(d) === 'undefined' ? 0 : barHeight],
-                width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [resolvedXScale(d)],
-                y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
-                fill: [fill(d)],
-                stroke: [stroke(d)],
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
-                timing: { duration, ease: easeCubic },
-              }
-            }}
-            update={(d) => {
-              const groupData = getGroupStack(d)
-              const thisY1 = groupData
-                ? scales?.yScale(groupData[1])
-                : bottomPos
-              const thisY0 = groupData && scales?.yScale(groupData[0])
-              const barHeight = stackedData
-                ? thisY0 - thisY1
-                : bottomPos - (y(d) || 0)
-              return {
-                height: [typeof y(d) === 'undefined' ? 0 : barHeight],
-                width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [resolvedXScale(d)],
-                y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
-                fill: firstRender ? fill(d) : [fill(d)],
-                stroke: firstRender ? stroke(d) : [stroke(d)],
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
-                timing: { duration, ease: easeCubic },
-              }
-            }}
-            leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              height: [0],
-              y: [bottomPos],
-              timing: { duration, ease: easeCubic },
-            })}
-            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-          >
-            {(nodes) => (
-              <>
-                {nodes.map(({ state, key }) => (
-                  <rect
-                    key={key}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
-                    fill={state.fill}
-                    stroke={state.stroke}
-                    x={state.x}
-                    y={state.y}
-                    width={state.width}
-                    height={state.height}
-                    fillOpacity={state.fillOpacity}
-                    strokeOpacity={state.strokeOpacity}
-                    data-testid="__gg_geom_col"
-                  />
-                ))}
-              </>
-            )}
-          </NodeGroup>
-        )}
+                  return {
+                    height: [typeof y(d) === 'undefined' ? 0 : barHeight],
+                    width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
+                    x: [resolvedXScale(d)],
+                    y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
+                    fill: [fill(d)],
+                    stroke: [stroke(d)],
+                    fillOpacity: [fillOpacity],
+                    strokeOpacity: [strokeOpacity],
+                    timing: { duration, ease: easeCubic },
+                  }
+                }}
+                update={(d) => {
+                  const groupData = getGroupStack(d)
+                  const thisY1 = groupData
+                    ? scales?.yScale(groupData[1])
+                    : bottomPos
+                  const thisY0 = groupData && scales?.yScale(groupData[0])
+                  const barHeight = stackedData
+                    ? thisY0 - thisY1
+                    : bottomPos - (y(d) || 0)
+                  return {
+                    height: [typeof y(d) === 'undefined' ? 0 : barHeight],
+                    width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
+                    x: [resolvedXScale(d)],
+                    y: [['stack', 'fill'].includes(position) ? thisY1 : y(d)],
+                    fill: firstRender ? fill(d) : [fill(d)],
+                    stroke: firstRender ? stroke(d) : [stroke(d)],
+                    fillOpacity: [fillOpacity],
+                    strokeOpacity: [strokeOpacity],
+                    timing: { duration, ease: easeCubic },
+                  }
+                }}
+                leave={() => ({
+                  fill: ['transparent'],
+                  stroke: ['transparent'],
+                  height: [0],
+                  y: [bottomPos],
+                  timing: { duration, ease: easeCubic },
+                })}
+                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+              >
+                {(nodes) => (
+                  <>
+                    {nodes.map(({ state, key }) => (
+                      <rect
+                        key={key}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...props}
+                        fill={state.fill}
+                        stroke={state.stroke}
+                        x={state.x}
+                        y={state.y}
+                        width={state.width}
+                        height={state.height}
+                        fillOpacity={state.fillOpacity}
+                        strokeOpacity={state.strokeOpacity}
+                        data-testid="__gg_geom_col"
+                      />
+                    ))}
+                  </>
+                )}
+              </NodeGroup>
+            )
+          }
+        </PageVisibility>
       </g>
       {(showTooltip || brushAction) && (
         <>

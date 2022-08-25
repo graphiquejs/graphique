@@ -26,7 +26,7 @@ import {
   defineGroupAccessor,
   Aes,
   BrushAction,
-  usePageVisibility,
+  PageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
@@ -76,8 +76,6 @@ const GeomPoint = ({
   const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill, animationDuration: duration } = theme
-
-  const isVisible = usePageVisibility()
 
   const initialGeomData = useMemo(() => localData || data, [data, localData])
 
@@ -315,73 +313,78 @@ const GeomPoint = ({
         ref={groupRef}
         clipPath={shouldClip ? `url(#__gg_canvas_${id})` : undefined}
       >
-        {!firstRender && isVisible && (
-          <NodeGroup
-            data={[...(geomData as any[])]}
-            keyAccessor={(d) =>
-              d.gg_gen_index
-                ? `${keyAccessor(d)}-${d.gg_gen_index}`
-                : keyAccessor(d)
-            }
-            start={(d) => ({
-              cx: x(d),
-              cy: entrance === 'data' ? y(d) : bottomPos,
-              fill: fill(d),
-              stroke: stroke(d),
-              r: 0,
-              fillOpacity: 0,
-              strokeOpacity: 0,
-            })}
-            enter={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
-              r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
-              fill: [fill(d)],
-              stroke: [stroke(d)],
-              fillOpacity: [fillOpacity],
-              strokeOpacity: [strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
-            update={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
-              fill: firstRender ? fill(d) : [fill(d)],
-              stroke: firstRender ? stroke(d) : [stroke(d)],
-              r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
-              fillOpacity: [fillOpacity],
-              strokeOpacity: [strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
-            leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              cy: [bottomPos],
-              timing: { duration, ease: easeCubic },
-            })}
-            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-          >
-            {(nodes) => (
-              <>
-                {nodes.map(({ state, key }) => (
-                  <circle
-                    key={key}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
-                    r={state.r >= 0 ? state.r : r}
-                    fill={state.fill}
-                    stroke={state.stroke}
-                    cx={state.cx}
-                    cy={state.cy}
-                    fillOpacity={state.fillOpacity}
-                    strokeOpacity={state.strokeOpacity}
-                    style={{ pointerEvents: 'none' }}
-                    data-testid="__gg_geom_point"
-                  />
-                ))}
-              </>
-            )}
-          </NodeGroup>
-        )}
+        <PageVisibility>
+          {(isVisible) =>
+            !firstRender &&
+            isVisible && (
+              <NodeGroup
+                data={[...(geomData as any[])]}
+                keyAccessor={(d) =>
+                  d.gg_gen_index
+                    ? `${keyAccessor(d)}-${d.gg_gen_index}`
+                    : keyAccessor(d)
+                }
+                start={(d) => ({
+                  cx: x(d),
+                  cy: entrance === 'data' ? y(d) : bottomPos,
+                  fill: fill(d),
+                  stroke: stroke(d),
+                  r: 0,
+                  fillOpacity: 0,
+                  strokeOpacity: 0,
+                })}
+                enter={(d) => ({
+                  cx: [x(d)],
+                  cy: [y(d)],
+                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
+                  fill: [fill(d)],
+                  stroke: [stroke(d)],
+                  fillOpacity: [fillOpacity],
+                  strokeOpacity: [strokeOpacity],
+                  timing: { duration, ease: easeCubic },
+                })}
+                update={(d) => ({
+                  cx: [x(d)],
+                  cy: [y(d)],
+                  fill: firstRender ? fill(d) : [fill(d)],
+                  stroke: firstRender ? stroke(d) : [stroke(d)],
+                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
+                  fillOpacity: [fillOpacity],
+                  strokeOpacity: [strokeOpacity],
+                  timing: { duration, ease: easeCubic },
+                })}
+                leave={() => ({
+                  fill: ['transparent'],
+                  stroke: ['transparent'],
+                  cy: [bottomPos],
+                  timing: { duration, ease: easeCubic },
+                })}
+                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+              >
+                {(nodes) => (
+                  <>
+                    {nodes.map(({ state, key }) => (
+                      <circle
+                        key={key}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...props}
+                        r={state.r >= 0 ? state.r : r}
+                        fill={state.fill}
+                        stroke={state.stroke}
+                        cx={state.cx}
+                        cy={state.cy}
+                        fillOpacity={state.fillOpacity}
+                        strokeOpacity={state.strokeOpacity}
+                        style={{ pointerEvents: 'none' }}
+                        data-testid="__gg_geom_point"
+                      />
+                    ))}
+                  </>
+                )}
+              </NodeGroup>
+            )
+          }
+        </PageVisibility>
       </g>
       {(showTooltip || brushAction) && geomAes && (
         <>
