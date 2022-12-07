@@ -229,39 +229,43 @@ export const GGBase = ({
     <GGglobalCtx.Provider value={{ ggState, updateData }}>
       <div
         id={`__gg_${id}`}
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', height }}
         data-testid="__gg_gg"
       >
-        <div
-          data-testid="__gg_header_label"
-          style={{
-            marginBottom: 4,
-            color: titleColor,
-            fontFamily: font?.family,
-          }}
-        >
-          {labels.header}
-        </div>
-        <div
-          data-testid="__gg_y_label"
-          style={{
-            position: 'relative',
-            top: margin.top,
-            marginLeft: 8,
-            marginBottom: 2,
-            fontSize: axisY?.label?.fontSize || axis?.label?.fontSize || 12,
-            fontFamily:
-              axisY?.label?.fontFamily ||
-              axis?.label?.fontFamily ||
-              font?.family,
-            lineHeight: 1.2,
-            color: axisY?.label?.color || axis?.label?.color,
-            minHeight: 20,
-            fontWeight: 600,
-          }}
-        >
-          {labels?.y}
-        </div>
+        {labels?.header && (
+          <div
+            data-testid="__gg_header_label"
+            style={{
+              marginBottom: 4,
+              color: titleColor,
+              fontFamily: font?.family,
+            }}
+          >
+            {labels.header}
+          </div>
+        )}
+        {labels?.y && (
+          <div
+            data-testid="__gg_y_label"
+            style={{
+              position: 'relative',
+              top: margin.top,
+              marginLeft: 8,
+              marginBottom: 2,
+              fontSize: axisY?.label?.fontSize || axis?.label?.fontSize || 12,
+              fontFamily:
+                axisY?.label?.fontFamily ||
+                axis?.label?.fontFamily ||
+                font?.family,
+              lineHeight: 1.2,
+              color: axisY?.label?.color || axis?.label?.color,
+              minHeight: 20,
+              fontWeight: 600,
+            }}
+          >
+            {labels?.y}
+          </div>
+        )}
         <svg ref={ggRef} width={ggWidth} height={height}>
           <PageVisibility>
             {(isVisible) =>
