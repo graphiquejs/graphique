@@ -2,6 +2,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
   CSSProperties,
   SVGAttributes,
   useRef,
@@ -36,10 +37,11 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   aes?: GeomAes
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
+  focusedKeys?: (string | number)[]
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: any, index: number[]) => void
+  onDatumSelection?: (data: any, index: number[]) => void
   entrance?: 'data' | 'midpoint'
   onExit?: () => void
   fillOpacity?: number
@@ -47,11 +49,14 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   isClipped?: boolean
 }
 
+const DEFAULT_RADIUS = 3.5
+
 const GeomPoint = ({
   data: localData,
   aes: localAes,
   focusedStyle,
   unfocusedStyle,
+  focusedKeys = [],
   onDatumFocus,
   onDatumSelection,
   entrance = 'midpoint',
@@ -61,7 +66,7 @@ const GeomPoint = ({
   fillOpacity = 1,
   strokeOpacity = 1,
   isClipped = true,
-  r = 3.5,
+  r,
   ...props
 }: PointProps) => {
   const { ggState } = useGG() || {}
@@ -94,14 +99,19 @@ const GeomPoint = ({
     [geomAes, defineGroupAccessor]
   )
 
-  const keyAccessor = useMemo(
-    () => (d: unknown) =>
+  const positionKeyAccessor = useCallback(
+    (d: unknown) => 
+      `${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
+        group && group(d)}` as string
+    , [geomAes, group])
+
+
+  const keyAccessor = useCallback(
+    (d: unknown) =>
       geomAes?.key
         ? geomAes.key(d)
-        : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
-            group && group(d)
-          }` as string),
-    [geomAes, group]
+        : positionKeyAccessor(d),
+    [geomAes, group, positionKeyAccessor]
   )
 
   const undefinedX = useMemo(
@@ -159,11 +169,24 @@ const GeomPoint = ({
     })
   }, [initialGeomData, keyAccessor])
 
+  const positionKeys = useMemo(() => (
+    geomData.map(positionKeyAccessor).join('')
+  ), [geomData, positionKeyAccessor])
+
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
     const timeout = setTimeout(() => setFirstRender(false), 0)
     return () => clearTimeout(timeout)
   }, [])
+
+  // useEffect(() => {
+  //   readyToFocusRef.current = false
+  //   const animationDuration = duration ?? 1000
+  //   const timeout = setTimeout(() => {
+  //     readyToFocusRef.current = true
+  //   }, animationDuration + 50)
+  //   return () => clearTimeout(timeout)
+  // }, [firstRender])
 
   useEffect(() => {
     if (firstRender && undefinedX.length > 0) {
@@ -257,6 +280,8 @@ const GeomPoint = ({
   //   scales.xScale?.padding(1)
   // }
   const radius = useMemo(() => {
+    if (r)
+      return () => r
     if (geomData && geomAes?.size && sizeRange && sizeDomain) {
       const domain =
         sizeDomain[0] && sizeDomain[1]
@@ -267,7 +292,7 @@ const GeomPoint = ({
         .range(sizeRange as [number, number])
         .unknown([r])
     }
-    return () => r
+    return () => DEFAULT_RADIUS
   }, [r, geomAes, geomData, sizeRange, sizeDomain])
 
   const x = useMemo(() => {
@@ -291,8 +316,11 @@ const GeomPoint = ({
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 
+  const validFocusedKeys = useMemo(() => focusedKeys.filter(v => v), [focusedKeys])
+
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
+  // const readyToFocusRef = useRef(false)
 
   const [shouldClip, setShouldClip] = useState(
     isClipped || isFixedX || isFixedY
@@ -320,9 +348,9 @@ const GeomPoint = ({
               <NodeGroup
                 data={[...(geomData as any[])]}
                 keyAccessor={(d) =>
-                  d.gg_gen_index
-                    ? `${keyAccessor(d)}-${d.gg_gen_index}`
-                    : keyAccessor(d)
+                  geomAes?.key
+                    ? keyAccessor(d)
+                    : `${keyAccessor(d)}-${d.gg_gen_index}`
                 }
                 start={(d) => ({
                   cx: x(d),
@@ -363,22 +391,32 @@ const GeomPoint = ({
               >
                 {(nodes) => (
                   <>
-                    {nodes.map(({ state, key }) => (
-                      <circle
-                        key={key}
-                        // eslint-disable-next-line react/jsx-props-no-spreading
-                        {...props}
-                        r={state.r >= 0 ? state.r : r}
-                        fill={state.fill}
-                        stroke={state.stroke}
-                        cx={state.cx}
-                        cy={state.cy}
-                        fillOpacity={state.fillOpacity}
-                        strokeOpacity={state.strokeOpacity}
-                        style={{ pointerEvents: 'none' }}
-                        data-testid="__gg_geom_point"
-                      />
-                    ))}
+                    {nodes.map(({ state, key }) => {
+                      let styles = {}
+                      if (validFocusedKeys.includes(key))
+                        styles = focusedStyles
+                      if (validFocusedKeys?.length > 0 && !validFocusedKeys.includes(key))
+                        styles = unfocusedStyles
+                      return (
+                        <circle
+                          key={key}
+                          // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...props}
+                          r={state.r >= 0 ? state.r : r}
+                          fill={state.fill}
+                          stroke={state.stroke}
+                          cx={state.cx}
+                          cy={state.cy}
+                          fillOpacity={state.fillOpacity}
+                          strokeOpacity={state.strokeOpacity}
+                          style={{
+                            pointerEvents: 'none',
+                            ...styles,
+                          }}
+                          data-testid="__gg_geom_point"
+                        />
+                      )
+                    })}
                   </>
                 )}
               </NodeGroup>
@@ -397,10 +435,14 @@ const GeomPoint = ({
             y={y}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: unknown; i: number[] }) => {
+              const focusedIndexes = geomData.flatMap((gd, fi) => (
+                validFocusedKeys.includes(keyAccessor(gd)) ? fi : []
+              ))
+
               if (points) {
                 focusNodes({
                   nodes: points,
-                  focusedIndex: i,
+                  focusedIndex: [...focusedIndexes, ...[i].flat()],
                   focusedStyles,
                   unfocusedStyles,
                 })
@@ -416,10 +458,21 @@ const GeomPoint = ({
             onMouseLeave={() => {
               if (points) {
                 unfocusNodes({ nodes: points, baseStyles })
+                if (validFocusedKeys && validFocusedKeys.length) {
+                  focusNodes({
+                    nodes: points,
+                    focusedIndex: geomData.flatMap((d, i) => (
+                      validFocusedKeys.includes(keyAccessor(d)) ? i : []
+                    )),
+                    focusedStyles,
+                    unfocusedStyles,
+                  })
+                }
               }
 
               if (onExit) onExit()
             }}
+            positionKeys={positionKeys}
           />
           {showTooltip && <Tooltip aes={geomAes} group={group} />}
         </>
