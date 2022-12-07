@@ -9,10 +9,10 @@ export interface AppearanceLegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
-  format?: (v: unknown, i: number) => string
+  format?: (v: any, i: number) => string
   // numTicks?: number
   // width?: number
-  onSelection?: (v: unknown) => void
+  onSelection?: (v: string) => void
 }
 
 export const Legend = ({

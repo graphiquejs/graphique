@@ -12,9 +12,9 @@ export interface CategoricalLegendProps {
   legendData: unknown[]
   legendScales: IScale
   orientation?: 'vertical' | 'horizontal'
-  labelFormat?: (v: unknown, i: number) => string
+  labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
-  onSelection?: (v: unknown) => void
+  onSelection?: (v: string) => void
 }
 
 export const CategoricalLegend = ({
