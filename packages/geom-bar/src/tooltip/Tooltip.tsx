@@ -61,8 +61,13 @@ export const Tooltip = ({
     [scales]
   )
 
+  const hasGroup = useMemo(() => {
+    const datumGroup = datum?.length && group(datum?.[0])?.toString()
+    return datumGroup && scales?.groups?.includes(datumGroup)
+  }, [scales?.groups])
+
   const xVal = useMemo(() => {
-    if (focusType === 'individual' && stackMidpoints && datum) {
+    if (focusType === 'individual' && stackMidpoints && datum && datum?.length) {
       const datumGroup = group(datum[0])
       const focusedStack = stackMidpoints.find(
         ({ yVal: stackY, groupVal }) =>
@@ -82,7 +87,7 @@ export const Tooltip = ({
     ) {
       return scales.xScale(sum(datum.map((d) => aes.x(d) as number)))
     }
-    return datum ? max(datum, (d) => x(d)) : null
+    return datum ? max(datum, (d) => x(d)) : undefined
   }, [datum, scales, geoms, aes, focusType, stackMidpoints, yVal, group])
 
   const groupVals = useMemo(() => {
@@ -154,7 +159,7 @@ export const Tooltip = ({
     ? datum && <div>{content(groupVals)}</div>
     : datum && <DefaultTooltip data={groupVals} />
 
-  if (datum && groupVals[0] && focusType === 'individual')
+  if (datum && groupVals[0] && focusType === 'individual' && hasGroup)
     return (
       <div>
         <XTooltip
@@ -168,7 +173,7 @@ export const Tooltip = ({
       </div>
     )
 
-  return datum && groupVals[0] ? (
+  return datum && groupVals[0] && hasGroup ? (
     <div>
       <YTooltip
         id={id as string}
