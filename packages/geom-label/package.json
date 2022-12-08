@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-label",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "For creating labels based on data in Graphique",
   "keywords": [
     "react",
