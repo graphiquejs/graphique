@@ -22,7 +22,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": ">=6",
     "jotai": "^1.1.2",
-    "lerna": "^4.0.0",
+    "lerna": "^6.1.0",
     "lint-staged": ">=10",
     "microbundle": "^0.13.3",
     "prettier": "^2.3.2",
