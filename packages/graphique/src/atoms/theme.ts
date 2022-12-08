@@ -43,6 +43,7 @@ export interface ThemeProps {
     bar?: BarColProps
     col?: BarColProps
     area?: AreaProps
+    label?: PointThemeProps
   }
   font?: {
     family?: string

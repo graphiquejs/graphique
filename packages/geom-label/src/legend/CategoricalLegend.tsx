@@ -4,12 +4,12 @@ import {
   themeState,
   fillScaleState,
   strokeScaleState,
-  IScale,
   formatMissing,
+  IScale,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-export interface Props {
+export interface CategoricalLegendProps {
   legendData: unknown[]
   legendScales: IScale
   orientation?: 'vertical' | 'horizontal'
@@ -25,7 +25,7 @@ export const CategoricalLegend = ({
   labelFormat,
   fontSize = 12,
   onSelection,
-}: Props) => {
+}: CategoricalLegendProps) => {
   const [isFocused, setIsFocused] = useState<string[]>(
     legendScales.groups || []
   )
@@ -96,7 +96,7 @@ export const CategoricalLegend = ({
         alignItems: isHorizontal ? 'center' : undefined,
       }}
     >
-      {geoms?.tile?.fillOpacity &&
+      {geoms?.label?.fillOpacity &&
         legendGroups?.map((g: string, i, groups) => (
           <div
             key={g}
@@ -136,28 +136,29 @@ export const CategoricalLegend = ({
                   justifyContent: 'center',
                 }}
               >
-                <svg width={14} height={14}>
-                  <rect
-                    width={14}
-                    height={14}
+                <svg width={12} height={12}>
+                  <circle
+                    r={4}
+                    cx={6}
+                    cy={6}
                     fill={
-                      geoms?.tile?.fill ||
+                      geoms?.label?.fill ||
                       (legendScales.fillScale
                         ? legendScales.fillScale(g)
                         : 'none')
                     }
                     stroke={
-                      geoms?.tile?.stroke ||
+                      geoms?.label?.stroke ||
                       (legendScales.strokeScale
                         ? legendScales.strokeScale(g)
                         : 'none')
                     }
                     strokeWidth={1.8}
                     fillOpacity={
-                      isFocused.includes(g) ? geoms?.tile?.fillOpacity : 0.5
+                      isFocused.includes(g) ? geoms?.label?.fillOpacity : 0.5
                     }
                     strokeOpacity={
-                      isFocused.includes(g) ? geoms?.tile?.strokeOpacity : 0.5
+                      isFocused.includes(g) ? geoms?.label?.strokeOpacity : 0.5
                     }
                     style={{
                       transition: 'fill-opacity 200ms',

@@ -251,6 +251,8 @@ const GeomLine = ({
                       y(d),
                     ]) as []
 
+                    const thisKey = (geomAes?.key?.(groupData[0])) ?? `${geomID}-${g}`
+
                     const thisStrokeGroups =
                       geomStrokeScale && geomAes?.stroke
                         ? Array.from(
@@ -283,7 +285,7 @@ const GeomLine = ({
 
                     return (
                       <Animate
-                        key={`${geomID}-${g}`}
+                        key={thisKey}
                         start={{
                           path: drawLine(
                             groupLineData.map((d: [any, any]) => {

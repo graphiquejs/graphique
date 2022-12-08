@@ -10,6 +10,7 @@ import React, {
 import {
   useGG,
   themeState,
+  tooltipState,
   focusNodes,
   unfocusNodes,
   EventArea,
@@ -37,8 +38,8 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   xDomain?: unknown[]
   yDomain?: unknown[]
   showTooltip?: boolean
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: any, index: number[]) => void
+  onDatumSelection?: (data: any, index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -84,6 +85,7 @@ const GeomBar = ({
   }, [aes, localAes])
 
   const [theme, setTheme] = useAtom(themeState)
+  const [{ datum: tooltipDatum }] = useAtom(tooltipState)
 
   const {
     fill: fillColor,
@@ -256,6 +258,10 @@ const GeomBar = ({
           }`) as string,
     [geomAes, scales]
   )
+
+  const tooltipDatumKeys = useMemo(() => (
+    tooltipDatum?.map(keyAccessor) ?? []
+  ), [tooltipDatum, keyAccessor])
 
   const stackedData = useMemo(() => {
     if (
@@ -435,22 +441,33 @@ const GeomBar = ({
               >
                 {(nodes) => (
                   <>
-                    {nodes.map(({ state, key }) => (
-                      <rect
-                        key={key}
-                        // eslint-disable-next-line react/jsx-props-no-spreading
-                        {...props}
-                        fill={state.fill}
-                        stroke={state.stroke}
-                        x={state.x}
-                        y={state.y}
-                        width={state.width}
-                        height={state.height}
-                        fillOpacity={state.fillOpacity}
-                        strokeOpacity={state.strokeOpacity}
-                        data-testid="__gg_geom_bar"
-                      />
-                    ))}
+                    {nodes.map(({ state, key }) => {
+                      let styles
+                      if (tooltipDatumKeys.includes(key))
+                        styles = focusedStyles
+                      if (tooltipDatumKeys?.length > 0 && !tooltipDatumKeys.includes(key))
+                        styles = unfocusedStyles
+                      return (
+                        <rect
+                          key={key}
+                          // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...props}
+                          fill={state.fill}
+                          stroke={state.stroke}
+                          x={state.x}
+                          y={state.y}
+                          width={state.width}
+                          height={state.height}
+                          fillOpacity={state.fillOpacity}
+                          strokeOpacity={state.strokeOpacity}
+                          style={{
+                            pointerEvents: 'none',
+                            ...styles,
+                          }}
+                          data-testid="__gg_geom_bar"
+                        />
+                      )
+                    })}
                   </>
                 )}
               </NodeGroup>

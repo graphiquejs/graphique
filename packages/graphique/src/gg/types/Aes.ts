@@ -35,5 +35,5 @@ export interface Aes {
    *
    * (useful for `<GeomPoint>`)
    * */
-  key?: (d: any) => string | number
+  key?: (d?: any) => string | number
 }

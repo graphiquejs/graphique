@@ -9,8 +9,6 @@ import React, {
 } from 'react'
 import { NodeGroup } from 'react-move'
 import { easeCubic } from 'd3-ease'
-import { scaleSqrt } from 'd3-scale'
-import { extent } from 'd3-array'
 import { interpolate } from 'd3-interpolate'
 import { useAtom } from 'jotai'
 import {
@@ -19,7 +17,6 @@ import {
   unfocusNodes,
   EventArea,
   themeState,
-  radiusScaleState,
   zoomState,
   xScaleState,
   yScaleState,
@@ -32,9 +29,10 @@ import {
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
 
-export interface PointProps extends SVGAttributes<SVGCircleElement> {
+export interface LabelProps extends SVGAttributes<SVGTextElement> {
   data?: unknown[]
   aes?: GeomAes
+  label?: React.ReactNode | ((d: any) => React.ReactNode)
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   focusedKeys?: (string | number)[]
@@ -49,11 +47,10 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   isClipped?: boolean
 }
 
-const DEFAULT_RADIUS = 3.5
-
-const GeomPoint = ({
+const GeomLabel = ({
   data: localData,
   aes: localAes,
+  label,
   focusedStyle,
   unfocusedStyle,
   focusedKeys = [],
@@ -61,26 +58,23 @@ const GeomPoint = ({
   onDatumSelection,
   entrance = 'midpoint',
   onExit,
-  showTooltip = true,
+  showTooltip = false,
   brushAction,
   fillOpacity = 1,
   strokeOpacity = 1,
   isClipped = true,
-  r,
   ...props
-}: PointProps) => {
+}: LabelProps) => {
   const { ggState } = useGG() || {}
-  const { id, data, aes, scales, copiedScales, height, margin } = ggState || {}
+  const { id, data, aes, scales, copiedScales, width, height, margin } = ggState || { width: 0}
 
   const [theme, setTheme] = useAtom(themeState)
-  const [radiusScale] = useAtom(radiusScaleState)
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
   const [{ isFixed: isFixedX }] = useAtom(xScaleState)
   const [{ isFixed: isFixedY }] = useAtom(yScaleState)
 
-  const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
-  const { defaultFill, animationDuration: duration } = theme
+  const { defaultFill, animationDuration: duration, font } = theme
 
   const initialGeomData = useMemo(() => localData || data, [data, localData])
 
@@ -99,20 +93,22 @@ const GeomPoint = ({
     [geomAes, defineGroupAccessor]
   )
 
-  const positionKeyAccessor = useCallback(
-    (d: unknown) => 
-      `${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
-        group && group(d)}` as string
-    , [geomAes, group])
-
-
   const keyAccessor = useCallback(
     (d: unknown) =>
       geomAes?.key
         ? geomAes.key(d)
-        : positionKeyAccessor(d),
-    [geomAes, group, positionKeyAccessor]
+        : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
+            group && group(d)
+          }` as string),
+    [geomAes, group]
   )
+
+  const getLabel = useMemo(() => {
+    if (!geomAes?.label && !label)
+      throw new Error('You need to provide a `label` or map a `label` in `aes` in order to use GeomLabel')
+      
+    return geomAes?.label
+  }, [geomAes, label])
 
   const undefinedX = useMemo(
     () =>
@@ -169,35 +165,22 @@ const GeomPoint = ({
     })
   }, [initialGeomData, keyAccessor])
 
-  const positionKeys = useMemo(() => (
-    geomData.map(positionKeyAccessor).join('')
-  ), [geomData, positionKeyAccessor])
-
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
     const timeout = setTimeout(() => setFirstRender(false), 0)
     return () => clearTimeout(timeout)
   }, [])
 
-  // useEffect(() => {
-  //   readyToFocusRef.current = false
-  //   const animationDuration = duration ?? 1000
-  //   const timeout = setTimeout(() => {
-  //     readyToFocusRef.current = true
-  //   }, animationDuration + 50)
-  //   return () => clearTimeout(timeout)
-  // }, [firstRender])
-
   useEffect(() => {
     if (firstRender && undefinedX.length > 0) {
       console.warn(
-        `Ignoring ${undefinedX.length} points with missing x values.`
+        `Ignoring ${undefinedX.length} labels with missing x values.`
       )
     }
 
     if (firstRender && undefinedY.length > 0) {
       console.warn(
-        `Ignoring ${undefinedY.length} points with missing y values.`
+        `Ignoring ${undefinedY.length} labels with missing y values.`
       )
     }
   }, [firstRender, undefinedX, undefinedY])
@@ -212,7 +195,7 @@ const GeomPoint = ({
       ...prev,
       geoms: {
         ...prev.geoms,
-        point: {
+        label: {
           fillOpacity: props.style?.fillOpacity || fillOpacity,
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
@@ -262,14 +245,14 @@ const GeomPoint = ({
     [geomAes, copiedScales, fillColor, defaultFill]
   )
 
-  const stroke = useMemo(
+  const getStroke = useMemo(
     () => (d: unknown) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
             | string
             | undefined)
-        : 'none'),
+        : '#fff'),
     [geomAes, copiedScales, strokeColor]
   )
 
@@ -279,21 +262,6 @@ const GeomPoint = ({
   // if (scales?.xScale?.bandwidth) {
   //   scales.xScale?.padding(1)
   // }
-  const radius = useMemo(() => {
-    if (r)
-      return () => r
-    if (geomData && geomAes?.size && sizeRange && sizeDomain) {
-      const domain =
-        sizeDomain[0] && sizeDomain[1]
-          ? sizeDomain
-          : (extent(geomData, geomAes.size as () => number) as number[])
-      return scaleSqrt()
-        .domain(domain)
-        .range(sizeRange as [number, number])
-        .unknown([r])
-    }
-    return () => DEFAULT_RADIUS
-  }, [r, geomAes, geomData, sizeRange, sizeDomain])
 
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
@@ -316,11 +284,8 @@ const GeomPoint = ({
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 
-  const validFocusedKeys = useMemo(() => focusedKeys.filter(v => v), [focusedKeys])
-
   const groupRef = useRef<SVGGElement>(null)
-  const points = groupRef.current?.getElementsByTagName('circle')
-  // const readyToFocusRef = useRef(false)
+  const texts = groupRef.current?.getElementsByTagName('text')
 
   const [shouldClip, setShouldClip] = useState(
     isClipped || isFixedX || isFixedY
@@ -353,68 +318,86 @@ const GeomPoint = ({
                     : `${keyAccessor(d)}-${d.gg_gen_index}`
                 }
                 start={(d) => ({
-                  cx: x(d),
-                  cy: entrance === 'data' ? y(d) : bottomPos,
+                  x: x(d),
+                  y: entrance === 'data' ? y(d) : bottomPos,
                   fill: fill(d),
-                  stroke: stroke(d),
-                  r: 0,
-                  fillOpacity: 0,
-                  strokeOpacity: 0,
+                  stroke: getStroke(d),
+                  // fillOpacity: 0,
+                  // strokeOpacity: 0,
                 })}
                 enter={(d) => ({
-                  cx: [x(d)],
-                  cy: [y(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
-                  fill: [fill(d)],
-                  stroke: [stroke(d)],
-                  fillOpacity: [fillOpacity],
-                  strokeOpacity: [strokeOpacity],
+                  x: [x(d)],
+                  y: [y(d)],
+                  fill: fill(d),
+                  stroke: getStroke(d),
+                  // fillOpacity: [fillOpacity],
+                  // strokeOpacity: [strokeOpacity],
                   timing: { duration, ease: easeCubic },
                 })}
                 update={(d) => ({
-                  cx: [x(d)],
-                  cy: [y(d)],
-                  fill: firstRender ? fill(d) : [fill(d)],
-                  stroke: firstRender ? stroke(d) : [stroke(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
-                  fillOpacity: [fillOpacity],
-                  strokeOpacity: [strokeOpacity],
+                  x: [x(d)],
+                  y: [y(d)],
+                  fill: fill(d),
+                  stroke: getStroke(d),
+                  // fillOpacity: firstRender ? fillOpacity : [fillOpacity],
+                  // strokeOpacity: firstRender ? strokeOpacity : [strokeOpacity],
                   timing: { duration, ease: easeCubic },
                 })}
                 leave={() => ({
-                  fill: ['transparent'],
-                  stroke: ['transparent'],
-                  cy: [bottomPos],
+                  fill: 'transparent',
+                  stroke: 'transparent',
+                  // strokeOpacity: 0,
+                  // y: [bottomPos],
                   timing: { duration, ease: easeCubic },
                 })}
                 interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
               >
                 {(nodes) => (
                   <>
-                    {nodes.map(({ state, key }) => {
+                    {nodes.map(({ state, key, data: nodeData }) => {
                       let styles = {}
-                      if (validFocusedKeys.includes(key))
+                      if (focusedKeys.includes(key))
                         styles = focusedStyles
-                      if (validFocusedKeys?.length > 0 && !validFocusedKeys.includes(key))
+                      if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
                         styles = unfocusedStyles
+                      
                       return (
-                        <circle
+                        <text
                           key={key}
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...props}
-                          r={state.r >= 0 ? state.r : r}
-                          fill={state.fill}
-                          stroke={state.stroke}
-                          cx={state.cx}
-                          cy={state.cy}
                           fillOpacity={state.fillOpacity}
                           strokeOpacity={state.strokeOpacity}
+                          stroke={state.stroke}
+                          fill={state.fill}
+                          strokeWidth={strokeWidth ?? 3}
+                          paintOrder="stroke"
+                          pointerEvents="none"
+                          textAnchor={props.textAnchor ?? (
+                            state.x > (width / 2) ? 'end' : undefined
+                          )}
+                          dx={props.dx ?? (
+                            state.x > width / 2 ? -7 : 7
+                          )}
+                          dy={props.dy ?? 3.8}
+                          x={state.x}
+                          y={state.y}
                           style={{
-                            pointerEvents: 'none',
+                            fontFamily: (props.style?.fontFamily)
+                              ?? props.fontFamily
+                              ?? (font?.family)
+                              ?? "-apple-system, sans-serif",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            strokeLinecap: "round",
+                            strokeLinejoin: "round",
+                            // stroke: strokeColor ?? '#fff',
                             ...styles,
                           }}
-                          data-testid="__gg_geom_point"
-                        />
+                          data-testid="__gg_geom_label"
+                        >
+                          {label ?? (getLabel && getLabel(nodeData))}
+                        </text>
                       )
                     })}
                   </>
@@ -436,12 +419,12 @@ const GeomPoint = ({
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: unknown; i: number[] }) => {
               const focusedIndexes = geomData.flatMap((gd, fi) => (
-                validFocusedKeys.includes(keyAccessor(gd)) ? fi : []
+                focusedKeys.includes(keyAccessor(gd)) ? fi : []
               ))
 
-              if (points) {
+              if (texts) {
                 focusNodes({
-                  nodes: points,
+                  nodes: texts,
                   focusedIndex: [...focusedIndexes, ...[i].flat()],
                   focusedStyles,
                   unfocusedStyles,
@@ -456,23 +439,24 @@ const GeomPoint = ({
                 : undefined
             }
             onMouseLeave={() => {
-              if (points) {
-                unfocusNodes({ nodes: points, baseStyles })
-                if (validFocusedKeys && validFocusedKeys.length) {
-                  focusNodes({
-                    nodes: points,
-                    focusedIndex: geomData.flatMap((d, i) => (
-                      validFocusedKeys.includes(keyAccessor(d)) ? i : []
-                    )),
-                    focusedStyles,
-                    unfocusedStyles,
-                  })
+              if (texts) {
+                if (showTooltip) {
+                  unfocusNodes({ nodes: texts, baseStyles })
+                  if (focusedKeys) {
+                    focusNodes({
+                      nodes: texts,
+                      focusedIndex: geomData.flatMap((d, i) => (
+                        focusedKeys.includes(keyAccessor(d)) ? i : []
+                      )),
+                      focusedStyles,
+                      unfocusedStyles,
+                    })
+                  }
                 }
               }
 
               if (onExit) onExit()
             }}
-            positionKeys={positionKeys}
           />
           {showTooltip && <Tooltip aes={geomAes} group={group} />}
         </>
@@ -481,5 +465,5 @@ const GeomPoint = ({
   )
 }
 
-GeomPoint.displayName = 'GeomPoint'
-export { GeomPoint }
+GeomLabel.displayName = 'GeomLabel'
+export { GeomLabel }

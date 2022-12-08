@@ -35,7 +35,7 @@ interface EventAreaProps {
   onMouseOver?: ({ d, i }: { d: any; i: number[] }) => void
   onClick?: ({ d, i }: { d: any; i: number[] }) => void
   onMouseLeave: () => void
-  onDatumFocus?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: any, index: number[]) => void
   data?: unknown[]
   stackXMidpoints?: StackMidpoint<string | number, string | number>[]
   stackYMidpoints?: StackMidpoint<string | number, string | number>[]
@@ -46,6 +46,7 @@ interface EventAreaProps {
     y0?: DataValue
     y1?: DataValue
   }
+  positionKeys?: string
   disabled?: boolean
   fill?: 'x' | 'y'
   showTooltip?: boolean
@@ -66,6 +67,7 @@ export const EventArea = ({
   onDatumFocus,
   data,
   aes,
+  positionKeys,
   disabled,
   showTooltip = true,
   brushAction,
@@ -136,6 +138,7 @@ export const EventArea = ({
     animationDuration,
     xZoomDomain,
     yZoomDomain,
+    positionKeys,
   ])
 
   const hasCategoricalAxis = useMemo(
@@ -817,7 +820,7 @@ export const EventArea = ({
             <clipPath id={`__gg_canvas_${id}`}>
               <rect
                 width={width - margin.right - margin.left + BUFFER * 2}
-                height={height - margin.bottom - margin.top + BUFFER * 2}
+                height={height - margin.bottom - margin.top}
                 x={margin.left - BUFFER}
                 y={margin.top - BUFFER}
                 fill="transparent"
@@ -826,7 +829,7 @@ export const EventArea = ({
             <rect
               ref={rectRef}
               width={width - margin.right - margin.left + BUFFER * 2}
-              height={height - margin.bottom - margin.top + BUFFER * 2}
+              height={height - margin.bottom - margin.top}
               x={margin.left - BUFFER}
               y={margin.top - BUFFER}
               // stroke="tomato"
@@ -908,23 +911,23 @@ export const EventArea = ({
       {yVoronois &&
         !brushAction &&
         yVoronois.map((v, i) => (
-          <g
-            key={`yGroup-voronoi-${i.toString()}`}
-            onMouseLeave={handleMouseOut}
-            onPointerLeave={handleMouseOut}
-          >
-            {v.data.map((_, j) => (
-              <path
-                key={`cell-${i.toString()}-${j.toString()}`}
-                style={{ pointerEvents: 'all' }}
-                d={v.voronoi.renderCell(j)}
-                fill="none"
-                // stroke="tomato"
-                onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
-              />
-            ))}
-          </g>
-        ))}
+            <g
+              key={`yGroup-voronoi-${i.toString()}`}
+              onMouseLeave={handleMouseOut}
+              onPointerLeave={handleMouseOut}
+            >
+              {v.data.map((_, j) => (
+                <path
+                  key={`cell-${i.toString()}-${j.toString()}`}
+                  style={{ pointerEvents: 'all' }}
+                  d={v.voronoi.renderCell(j)}
+                  fill="none"
+                  // stroke="tomato"
+                  onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
+                />
+              ))}
+            </g>
+          ))}
     </>
   )
 }
