@@ -45,7 +45,7 @@ const ggProps = {
     top: 0,
     bottom: 0,
   },
-  height: 70,
+  height: 64,
 }
 
 interface CountryFilterProps {
@@ -176,7 +176,7 @@ function App() {
           <GG
             data={data2}
             {...ggProps}
-            height={18}
+            height={16}
           >
             <GeomBar
               focusType='individual'
