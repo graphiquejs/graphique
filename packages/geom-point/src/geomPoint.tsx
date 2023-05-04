@@ -139,6 +139,8 @@ const GeomPoint = ({
     [initialGeomData]
   )
 
+  const validFocusedKeys = useMemo(() => focusedKeys.filter(v => v), [focusedKeys])
+
   const geomData = useMemo(() => {
     const presentData = initialGeomData?.filter(
       (d) =>
@@ -315,8 +317,6 @@ const GeomPoint = ({
     return (d: unknown) =>
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
-
-  const validFocusedKeys = useMemo(() => focusedKeys.filter(v => v), [focusedKeys])
 
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')

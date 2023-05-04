@@ -95,7 +95,7 @@ export const SizeLegend = ({
       .attr('stroke', 'currentColor')
       .style('opacity', 0.6)
       .attr('stroke-width', 1.5)
-      .attr('stroke-dasharray', '0 4')
+      .attr('stroke-dasharray', '0.05 4')
       .attr('stroke-linecap', 'round')
       .attr('cx', 0)
       .data(legendData, (_, i) => i)
@@ -202,7 +202,7 @@ export const SizeLegend = ({
 
   return scale.domain()[0] && scale.domain()[1] ? (
     <div style={{ fontFamily: font?.family, ...style }}>
-      <div style={{ color: legend?.titleColor }}>{title}</div>
+      {title && <div style={{ color: legend?.titleColor }}>{title}</div>}
       <div style={{ marginTop: 8 }}>
         <svg height={scale(maxVal) * 2 + 4} width={width}>
           <g

@@ -37,12 +37,11 @@ export const Legend = ({
   return hasAppearanceAes ? (
     <div
       style={{
-        marginTop: 12,
         fontFamily: font?.family,
         ...style,
       }}
     >
-      <div style={{ color: legend?.titleColor }}>{title}</div>
+      {title && <div style={{ color: legend?.titleColor }}>{title}</div>}
       {copiedData && copiedScales && groups ? (
         <CategoricalLegend
           legendData={copiedData}
