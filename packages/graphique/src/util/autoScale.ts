@@ -6,8 +6,8 @@ import {
   scaleSequential,
 } from 'd3-scale'
 import { extent, max, sum } from 'd3-array'
-import { XYScaleProps, VisualEncodingProps } from '../atoms/scales/types'
-import { DataValue, XYScaleTypes, VisualEncodingTypes, GGProps } from '../gg'
+import type { XYScaleProps, VisualEncodingProps } from '../atoms/scales/types'
+import type { DataValue, XYScaleTypes, VisualEncodingTypes, GGProps } from '../gg'
 import {
   defaultScheme,
   defaultInterpolator,

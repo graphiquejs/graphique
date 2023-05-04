@@ -1,9 +1,9 @@
-export { Aes, DataValue } from "./Aes"
-export {
+export type { Aes, DataValue } from "./Aes"
+export type {
   XYScale,
   XYScaleTypes,
   VisualEncoding,
   VisualEncodingTypes,
 } from "./Scales"
 export * from './Brush'
-export { GGProps } from "./GG"
+export type { GGProps } from "./GG"

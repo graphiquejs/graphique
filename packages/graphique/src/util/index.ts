@@ -1,5 +1,5 @@
 export { parseDate, formatDate, formatMonth, isDate } from './dates'
-export { autoScale, IScale } from './autoScale'
+export { autoScale, type IScale } from './autoScale'
 export { debounce } from './debounce'
 export { focusNodes, unfocusNodes } from './directlyStyleNodes'
 export { getYAlongPath } from './getYAlongPath'

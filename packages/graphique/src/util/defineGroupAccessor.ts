@@ -1,4 +1,4 @@
-import { Aes } from "../gg";
+import type { Aes } from "../gg";
 
 export const defineGroupAccessor = (aes: Aes, allowUndefined = false) => {
     if (!aes && allowUndefined) return undefined

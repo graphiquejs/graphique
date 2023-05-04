@@ -1,5 +1,5 @@
 import { atom } from "jotai"
-import { DataValue, VisualEncodingTypes } from "../gg"
+import type { DataValue, VisualEncodingTypes } from "../gg"
 
 interface PointThemeProps {
   fillOpacity?: number | string

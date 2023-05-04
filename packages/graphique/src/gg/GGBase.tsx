@@ -8,8 +8,10 @@ import React, {
 } from 'react'
 import { useAtom } from 'jotai'
 import flattenChildren from 'react-flatten-children'
-import { Aes, DataValue, GGProps } from './types'
-import { autoScale, IScale, defineGroupAccessor, PageVisibility } from '../util'
+import PageVisibility from 'react-page-visibility'
+import type { Aes, DataValue, GGProps } from './types'
+import { defineGroupAccessor } from '../util/defineGroupAccessor'
+import { type IScale, autoScale } from '../util/autoScale'
 import { XAxis, YAxis } from './axes'
 import {
   themeState,
