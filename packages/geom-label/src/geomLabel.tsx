@@ -66,7 +66,7 @@ const GeomLabel = ({
   ...props
 }: LabelProps) => {
   const { ggState } = useGG() || {}
-  const { id, data, aes, scales, copiedScales, width, height, margin } = ggState || { width: 0}
+  const { id, data, aes, scales, copiedScales, width, height, margin } = ggState || { width: 0 }
 
   const [theme, setTheme] = useAtom(themeState)
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
@@ -361,6 +361,8 @@ const GeomLabel = ({
                       if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
                         styles = unfocusedStyles
                       
+                      const nodeX = x(nodeData) ?? 0
+                      
                       return (
                         <text
                           key={key}
@@ -374,10 +376,10 @@ const GeomLabel = ({
                           paintOrder="stroke"
                           pointerEvents="none"
                           textAnchor={props.textAnchor ?? (
-                            state.x > (width / 2) ? 'end' : undefined
+                            nodeX > (width / 2) ? 'end' : undefined
                           )}
                           dx={props.dx ?? (
-                            state.x > width / 2 ? -7 : 7
+                            nodeX > width / 2 ? -7 : 7
                           )}
                           dy={props.dy ?? 3.8}
                           x={state.x}
