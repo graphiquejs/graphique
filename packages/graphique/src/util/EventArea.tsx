@@ -11,7 +11,8 @@ import {
   yScaleState,
   zoomState,
 } from '../atoms'
-import { useGG, Aes, DataValue, BrushAction } from '../gg'
+import type { Aes, DataValue, BrushAction } from '../gg'
+import { useGG } from '../gg/GGBase'
 import { ZoomOutButton } from '../gg/zoom'
 import {
   BrushCoords,
@@ -820,7 +821,7 @@ export const EventArea = ({
             <clipPath id={`__gg_canvas_${id}`}>
               <rect
                 width={width - margin.right - margin.left + BUFFER * 2}
-                height={height - margin.bottom - margin.top}
+                height={height - margin.bottom - margin.top + BUFFER * 2 }
                 x={margin.left - BUFFER}
                 y={margin.top - BUFFER}
                 fill="transparent"
@@ -829,7 +830,7 @@ export const EventArea = ({
             <rect
               ref={rectRef}
               width={width - margin.right - margin.left + BUFFER * 2}
-              height={height - margin.bottom - margin.top}
+              height={height - margin.bottom - margin.top + BUFFER}
               x={margin.left - BUFFER}
               y={margin.top - BUFFER}
               // stroke="tomato"
