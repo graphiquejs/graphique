@@ -11,13 +11,14 @@ import {
   ScaleFill,
   ScaleRadius,
   Theme,
+  GGProps,
 } from '@graphique/graphique'
 import { gapminder, GapMinder } from '@graphique/datasets'
-import { GeomPoint, Legend } from '@graphique/geom-point'
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point'
 import { GeomLine } from '@graphique/geom-line'
 import { GeomLabel } from '@graphique/geom-label'
-import { scaleLog } from 'd3-scale'
 import { GeomBar } from '@graphique/geom-bar';
+import { scaleLog } from 'd3-scale'
 
 interface Data {
   x: number;
@@ -35,7 +36,7 @@ const data2 = [
   { x: 100, group: 'e' },
 ]
 
-const ggProps = {
+const ggProps: Omit<GGProps, 'data'> = {
   aes: {
     x: (d: Data) => d.x,
     y: () => '',
@@ -123,7 +124,7 @@ const xExtent = [
 ]
 const yExtent = [
   Math.min(...yVals),
-  Math.max(...yVals),
+  Math.max(...yVals) * 1.05,
 ]
 const popExtent = [Math.min(...pops), Math.max(...pops)] as [number, number]
 
@@ -147,12 +148,13 @@ function App() {
   const [focused, setFocused] = useState<Data[] | undefined>([])
 
   return (
-    <div style={{ maxWidth: 1200, padding: '0 50px' }}>
-      <div id='group' style={{ margin: 50, marginBottom: 200 }}>
+    <div style={{ maxWidth: 1200, padding: '0 10px' }}>
+      <div id='group' style={{ marginTop: 50, marginBottom: 200 }}>
         <div>
           <GG
             data={data1}
             {...ggProps}
+            isContainerWidth
           >
             <GeomBar
               focusType='individual'
@@ -169,6 +171,7 @@ function App() {
               axisX={null}
               axisY={null}
               grid={{ stroke: null }}
+              animationDuration={0}
             />
           </GG>
         </div>
@@ -177,6 +180,7 @@ function App() {
             data={data2}
             {...ggProps}
             height={16}
+            isContainerWidth
           >
             <GeomBar
               focusType='individual'
@@ -189,11 +193,17 @@ function App() {
             <Tooltip
               datum={focused}
             />
-            <Theme axisX={null} axisY={null} grid={{ stroke: null }} />
+            <Theme
+              axisX={null}
+              axisY={null}
+              grid={{ stroke: null }}
+              animationDuration={0}
+            />
             <ScaleFill values={['lightcoral', '#555']} />
           </GG>
         </div>
       </div>
+      <div>
       <GG
         data={data.filter(d => selectedContinents.includes(d.continent))}
         aes={{
@@ -250,12 +260,15 @@ function App() {
               ([mousedOverCountry, selectedCountry].includes(d.country))
                 && selectedContinents.includes(d.continent)
             ))
+            .sort((a) => a.country === selectedCountry ? -1 : 1)
           }
           aes={{ key: (d: GapMinder) => d.country }}
           entrance='data'
           fill='currentColor'
           strokeOpacity={0.7}
-        />
+          />
+          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <SizeLegend width={170} />
         <Legend
           onSelection={(v) => setSelectedContinents((prev) => {
             if (prev.length === 1 && prev[0] === v)
@@ -267,7 +280,8 @@ function App() {
                 : [v, ...prev]
             )
           })}
-        />
+            />
+          </div>
         <ScaleX
           type={scaleLog}
           domain={xExtent}
@@ -282,8 +296,10 @@ function App() {
         />
         <ScaleFill domain={continents} />
         <ScaleStroke domain={continents} />
-      </GG>
-      <CountryFilter onChange={(e) => {
+        </GG>
+      </div>
+      <div style={{marginTop: 100}}>
+        <CountryFilter onChange={(e) => {
         const thisCountry = e.target.value
         const thisContinent = data.find(d => d.country === thisCountry)?.continent
 
@@ -293,6 +309,7 @@ function App() {
         }
       }} />
       <YearFilter onChange={e => setSelectedYear(Number(e.target.value))} />
+      </div>
     </div>
   )
 }
