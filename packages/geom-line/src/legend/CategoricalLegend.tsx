@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   useGG,
   themeState,
@@ -46,7 +46,9 @@ export const CategoricalLegend = ({
   const { ggState, updateData } = useGG() || {}
   const { data } = ggState || {}
 
-  useEffect(() => setIsFocused(geoms?.line?.usableGroups ?? []), [legendData])
+  useEffect(() => {
+    setIsFocused(geoms?.line?.usableGroups ?? [])
+  }, [data])
 
   const getGroup = useMemo(
     () => geoms?.line?.groupAccessor || (() => undefined),
@@ -55,44 +57,41 @@ export const CategoricalLegend = ({
 
   const isHorizontal = orientation === 'horizontal'
 
-  const toggleLegendGroup = useCallback(
-    (g: string) => {
-      const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
+  const toggleLegendGroup = (g: string) => {
+    const prevFocused = isFocused
+    let focusedGroups
+    if (prevFocused.includes(g)) {
+      if (prevFocused.length === 1) {
+        focusedGroups = legendScales.groups as string[]
+      } else {
+        focusedGroups = prevFocused.filter((p) => p !== g)
+      }
+    } else {
+      focusedGroups = [...prevFocused, g]
+    }
+    setIsFocused(focusedGroups)
 
-      let focusedGroups
+    const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
+
+    if (onSelection) {
+      onSelection(g)
+    }
+    if (data && updateData) {
+      let updatedData
       if (includedGroups.includes(g)) {
         if (includedGroups.length === 1) {
-          focusedGroups = legendGroups
+          updatedData = legendData as unknown[]
         } else {
-          focusedGroups = includedGroups.filter((p) => p !== g)
+          updatedData = data.filter((d) => getGroup(d) !== g)
         }
       } else {
-        focusedGroups = [...includedGroups, g]
+        updatedData = legendData.filter(
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+        )
       }
-
-      setIsFocused(focusedGroups as string[])
-
-      if (onSelection) {
-        onSelection(g)
-      }
-      if (data && updateData) {
-        let updatedData
-        if (includedGroups.includes(g)) {
-          if (includedGroups.length === 1) {
-            updatedData = legendData as unknown[]
-          } else {
-            updatedData = data.filter((d) => getGroup(d) !== g)
-          }
-        } else {
-          updatedData = legendData.filter(
-            (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
-          )
-        }
-        updateData(updatedData)
-      }
-    },
-    [legendGroups, getGroup, data]
-  )
+      updateData(updatedData)
+    }
+  }
 
   return (
     <div
@@ -130,7 +129,7 @@ export const CategoricalLegend = ({
                 display: 'flex',
                 alignItems: 'center',
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (['Enter', ' '].includes(e.key)) {
                   toggleLegendGroup(g)
                 }
