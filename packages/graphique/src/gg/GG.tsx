@@ -8,7 +8,7 @@ import React, {
 import { Provider } from 'jotai'
 import { generateID, debounce } from '../util'
 import { GGBase } from './GGBase'
-import { RootGGProps } from './types/GG'
+import type { RootGGProps } from './types/GG'
 
 export const GG = ({ children, ...props }: RootGGProps) => {
   const { data, aes, width, height, margin, isContainerWidth } = { ...props }
@@ -23,7 +23,7 @@ export const GG = ({ children, ...props }: RootGGProps) => {
   }, [isContainerWidth])
 
   useEffect(() => {
-    const resize = debounce(80, () => setGGWidth(ggRef.current?.clientWidth))
+    const resize = debounce(0, () => setGGWidth(ggRef.current?.clientWidth))
     if (isContainerWidth) {
       window.addEventListener('resize', resize)
     }
