@@ -64,7 +64,7 @@ export const Tooltip = ({
   const hasGroup = useMemo(() => {
     const datumGroup = datum?.length && group(datum?.[0])?.toString()
     return datumGroup && scales?.groups?.includes(datumGroup)
-  }, [scales?.groups])
+  }, [scales?.groups, group, datum])
 
   const xVal = useMemo(() => {
     if (focusType === 'individual' && stackMidpoints && datum && datum?.length) {
