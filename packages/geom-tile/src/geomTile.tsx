@@ -298,6 +298,7 @@ const GeomTile = ({
             x={x}
             y={y}
             data={data}
+            aes={geomAes}
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}
             onDatumFocus={onDatumFocus}
