@@ -364,7 +364,7 @@ const GeomPoint = ({
                 enter={(d) => ({
                   cx: [x(d)],
                   cy: [y(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
+                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : radius(d)],
                   fill: [fill(d)],
                   stroke: [stroke(d)],
                   fillOpacity: [fillOpacity],
@@ -376,7 +376,7 @@ const GeomPoint = ({
                   cy: [y(d)],
                   fill: firstRender ? fill(d) : [fill(d)],
                   stroke: firstRender ? stroke(d) : [stroke(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : r],
+                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : radius(d)],
                   fillOpacity: [fillOpacity],
                   strokeOpacity: [strokeOpacity],
                   timing: { duration, ease: easeCubic },
