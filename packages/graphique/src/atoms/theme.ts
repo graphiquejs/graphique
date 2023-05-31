@@ -13,6 +13,7 @@ interface PointThemeProps {
   strokeScale?: VisualEncodingTypes
   usableGroups?: string[]
   groupAccessor?: DataValue
+  size?: (d: any) => number | null | undefined
 }
 
 interface BarColProps extends PointThemeProps {

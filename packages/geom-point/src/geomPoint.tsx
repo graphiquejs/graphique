@@ -49,8 +49,6 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   isClipped?: boolean
 }
 
-const DEFAULT_RADIUS = 3.5
-
 const GeomPoint = ({
   data: localData,
   aes: localAes,
@@ -66,7 +64,7 @@ const GeomPoint = ({
   fillOpacity = 1,
   strokeOpacity = 1,
   isClipped = true,
-  r,
+  r = 3.5,
   ...props
 }: PointProps) => {
   const { ggState } = useGG() || {}
@@ -219,6 +217,7 @@ const GeomPoint = ({
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
           strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
+          size: geomAes?.size
         },
       },
     }))
@@ -282,8 +281,6 @@ const GeomPoint = ({
   //   scales.xScale?.padding(1)
   // }
   const radius = useMemo(() => {
-    if (r)
-      return () => r
     if (geomData && geomAes?.size && sizeRange && sizeDomain) {
       const domain =
         sizeDomain[0] && sizeDomain[1]
@@ -294,7 +291,7 @@ const GeomPoint = ({
         .range(sizeRange as [number, number])
         .unknown([r])
     }
-    return () => DEFAULT_RADIUS
+    return () => r
   }, [r, geomAes, geomData, sizeRange, sizeDomain])
 
   const x = useMemo(() => {
