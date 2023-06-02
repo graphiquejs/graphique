@@ -36,10 +36,10 @@ export const SizeLegend = ({
   const [{ domain: sizeDomain, range: sizeRange }] =
     useAtom(radiusScaleState) || {}
 
-  const [{ font, legend, animationDuration }] = useAtom(themeState) || {}
+  const [{ font, legend, animationDuration, geoms }] = useAtom(themeState) || {}
 
   const { ggState } = useGG() || {}
-  const { aes, data } = ggState || {}
+  const { data } = ggState || {}
 
   const legendRef = useRef<SVGGElement | null>(null)
 
@@ -47,11 +47,11 @@ export const SizeLegend = ({
     if (sizeDomain && sizeDomain[0] && sizeDomain[1]) {
       return sizeDomain
     }
-    if (data && aes?.size) {
-      return extent(data, aes.size) as [number, number]
+    if (data && geoms?.point?.size) {
+      return extent(data, geoms.point.size) as [number, number]
     }
     return []
-  }, [data, aes, sizeDomain])
+  }, [data, geoms, sizeDomain])
 
   const scale = useMemo(
     () =>
