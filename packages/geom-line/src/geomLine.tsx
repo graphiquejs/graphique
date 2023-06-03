@@ -36,6 +36,7 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   showTooltip?: boolean
   showLineMarker?: boolean
   brushAction?: BrushAction
+  isZoomedOut?: boolean
   curve?: CurveFactory
   markerRadius?: number
   markerStroke?: string
@@ -54,6 +55,7 @@ const GeomLine = ({
   showTooltip = true,
   showLineMarker = true,
   brushAction,
+  isZoomedOut,
   curve,
   entrance = 'midpoint',
   onDatumSelection,
@@ -280,7 +282,7 @@ const GeomLine = ({
                     const thisDasharray =
                       strokeDasharray ||
                       (copiedScales?.strokeDasharrayScale
-                        ? copiedScales.strokeDasharrayScale(g)
+                        ? copiedScales.strokeDasharrayScale(geomAes?.strokeDasharray?.(groupData[0]))
                         : strokeDasharray)
 
                     return (
@@ -442,6 +444,7 @@ const GeomLine = ({
             onDatumFocus={onDatumFocus}
             showTooltip={showTooltip}
             brushAction={brushAction}
+            isZoomedOut={isZoomedOut}
           />
           {showTooltip && (
             <>
