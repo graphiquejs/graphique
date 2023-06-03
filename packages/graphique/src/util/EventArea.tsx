@@ -13,7 +13,7 @@ import {
 } from '../atoms'
 import type { Aes, DataValue, BrushAction } from '../gg'
 import { useGG } from '../gg/GGBase'
-import { ZoomOutButton } from '../gg/zoom'
+import { ZoomOutButton, useUnZoom } from '../gg/zoom'
 import {
   BrushCoords,
   isBetween,
@@ -52,6 +52,7 @@ interface EventAreaProps {
   fill?: 'x' | 'y'
   showTooltip?: boolean
   brushAction?: BrushAction
+  isZoomedOut?: boolean
 }
 
 const BUFFER = 2
@@ -72,6 +73,7 @@ export const EventArea = ({
   disabled,
   showTooltip = true,
   brushAction,
+  isZoomedOut,
   stackXMidpoints,
   stackYMidpoints,
   xBandScale,
@@ -106,6 +108,8 @@ export const EventArea = ({
     { xDomain: xZoomDomain, yDomain: yZoomDomain, onZoom, onUnzoom },
     setZoom,
   ] = useAtom(zoomState)
+
+  const unZoom = useUnZoom()
 
   const rectRef = useRef<SVGRectElement>(null)
   const readyToFocusRef = useRef(false)
@@ -584,6 +588,7 @@ export const EventArea = ({
             }))
           } else if (datumInXRange && datumInYRange) {
             if (onMouseOver) onMouseOver({ d: [datum], i: [ind] })
+
             setTooltip((prev) => ({
               ...prev,
               datum: [datum],
@@ -633,25 +638,7 @@ export const EventArea = ({
       handleMouseOut(event)
 
       if (brushAction === 'zoom') {
-        setYScale((prev) => ({
-          ...prev,
-          domain: yZoomDomain?.original,
-        }))
-        setXScale((prev) => ({
-          ...prev,
-          domain: xZoomDomain?.original,
-        }))
-        setZoom((prev) => ({
-          ...prev,
-          xDomain: {
-            ...prev.xDomain,
-            current: undefined,
-          },
-          yDomain: {
-            ...prev.yDomain,
-            current: undefined,
-          },
-        }))
+        unZoom()
       }
 
       if (showTooltip) resetTooltip()
@@ -670,6 +657,7 @@ export const EventArea = ({
       brushAction,
       showTooltip,
       onUnzoom,
+      unZoom,
     ]
   )
 
@@ -860,7 +848,7 @@ export const EventArea = ({
                 ))}
               </BrushExclusion>
             )}
-            {(xZoomDomain?.current || yZoomDomain?.current) && (
+            {((xZoomDomain?.current || yZoomDomain?.current) && !isZoomedOut) && (
               <ZoomOutButton
                 id={id}
                 x={width - margin.right}
