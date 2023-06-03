@@ -58,6 +58,13 @@ export const Tooltip = ({ x, y, aes }: Props) => {
         )
         .map((md) => {
           const group = geoms?.line?.groupAccessor?.(md)
+
+          const dashArray = geoms?.line?.strokeDasharray ?? (
+            aes.strokeDasharray && copiedScales?.strokeDasharrayScale
+              ? copiedScales.strokeDasharrayScale(aes.strokeDasharray(md))
+              : undefined
+          )
+
           const mark = (
             <svg width={18} height={8}>
               <line
@@ -72,12 +79,7 @@ export const Tooltip = ({ x, y, aes }: Props) => {
                     ? copiedScales.strokeScale(group)
                     : defaultStroke)
                 }
-                strokeDasharray={
-                  geoms?.line?.strokeDasharray ||
-                  (copiedScales?.strokeDasharrayScale
-                    ? copiedScales.strokeDasharrayScale(group)
-                    : undefined)
-                }
+                strokeDasharray={dashArray}
                 strokeWidth={geoms?.line?.strokeWidth}
                 strokeOpacity={geoms?.line?.strokeOpacity}
               />

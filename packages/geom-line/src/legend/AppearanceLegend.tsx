@@ -5,7 +5,7 @@ import { CategoricalLegend } from './CategoricalLegend'
 // import { ColorBandLegend } from "./ColorBandLegend"
 // import { IScale } from "util/autoScale"
 
-export interface AppearanceLegendProps {
+interface AppearanceLegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
@@ -13,6 +13,7 @@ export interface AppearanceLegendProps {
   // numTicks?: number
   // width?: number
   onSelection?: (v: string) => void
+  ignoreDasharray?: boolean
 }
 
 export const Legend = ({
@@ -23,6 +24,7 @@ export const Legend = ({
   // numTicks,
   // width,
   onSelection,
+  ignoreDasharray = false,
 }: AppearanceLegendProps) => {
   const { ggState } = useGG() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
@@ -47,24 +49,25 @@ export const Legend = ({
       <div style={{ color: legend?.titleColor }}>{title}</div>
       {
         copiedData &&
-        (copiedScales || line?.strokeScale) &&
-        (groups || line?.usableGroups) ? (
-          <CategoricalLegend
-            legendData={copiedData}
-            orientation={orientation}
-            legendScales={
-              {
-                ...copiedScales,
-                strokeScale: line
-                  ? line.strokeScale
-                  : copiedScales?.strokeScale,
-                groups: line?.usableGroups,
-              } as IScale
-            }
-            labelFormat={format}
-            fontSize={fontSize}
-            onSelection={onSelection}
-          />
+          (copiedScales || line?.strokeScale) &&
+          (groups || line?.usableGroups) ? (
+            <CategoricalLegend
+              legendData={copiedData}
+              orientation={orientation}
+              legendScales={
+                {
+                  ...copiedScales,
+                  strokeScale: line
+                    ? line.strokeScale
+                    : copiedScales?.strokeScale,
+                  groups: line?.usableGroups,
+                } as IScale
+              }
+              labelFormat={format}
+              fontSize={fontSize}
+              onSelection={onSelection}
+              ignoreDasharray={ignoreDasharray}  
+            />
         ) : null
         // <ColorBandLegend
         //   scales={copiedScales as IScale}

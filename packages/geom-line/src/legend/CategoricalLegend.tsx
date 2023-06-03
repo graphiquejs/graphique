@@ -16,6 +16,7 @@ export interface CategoricalLegendProps {
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
+  ignoreDasharray?: boolean
 }
 
 export const CategoricalLegend = ({
@@ -25,6 +26,7 @@ export const CategoricalLegend = ({
   labelFormat,
   fontSize = 12,
   onSelection,
+  ignoreDasharray,
 }: CategoricalLegendProps) => {
   const [{ geoms, defaultStroke }] = useAtom(themeState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
@@ -44,11 +46,21 @@ export const CategoricalLegend = ({
   )
 
   const { ggState, updateData } = useGG() || {}
-  const { data } = ggState || {}
+  const { data, copiedData } = ggState || {}
+
+  const [firstRender, setFirstRender] = useState(true)
+  useEffect(() => {
+    const timeout = setTimeout(() => setFirstRender(false), 0)
+    return () => clearTimeout(timeout)
+  }, [])
 
   useEffect(() => {
     setIsFocused(geoms?.line?.usableGroups ?? [])
-  }, [data])
+  }, [copiedData])
+
+  useEffect(() => {
+    setIsFocused(legendGroups ?? [])
+  }, [])
 
   const getGroup = useMemo(
     () => geoms?.line?.groupAccessor || (() => undefined),
@@ -104,81 +116,85 @@ export const CategoricalLegend = ({
       }}
     >
       {geoms?.line &&
-        legendGroups?.map((g: string, i, groups) => (
-          <div
-            key={g}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: isHorizontal ? 6 : 2,
-            }}
-          >
+        legendGroups?.map((g: string, i, groups) => {
+          const strokeOpacity = (
+            isFocused.includes(g)
+              ? geoms?.line?.strokeOpacity
+              : geoms?.line?.strokeOpacity || 1 * 0.5
+          )
+
+          return (
             <div
-              tabIndex={0}
-              role="button"
+              key={g}
               style={{
-                cursor: 'pointer',
-                // scales?.fillScale?.domain().includes(g) ||
-                // legendScales.groups?.includes(g)
-                //   ? "pointer"
-                //   : "not-allowed",
-                marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
-                fontSize,
-                opacity: isFocused.includes(g) ? 1 : 0.5,
-                transition: 'opacity 200ms',
                 display: 'flex',
                 alignItems: 'center',
+                marginBottom: isHorizontal ? 6 : 2,
               }}
-              onKeyDown={(e) => {
-                if (['Enter', ' '].includes(e.key)) {
-                  toggleLegendGroup(g)
-                }
-              }}
-              onClick={() => toggleLegendGroup(g)}
             >
               <div
+                tabIndex={0}
+                role="button"
                 style={{
+                  cursor: 'pointer',
+                  // scales?.fillScale?.domain().includes(g) ||
+                  // legendScales.groups?.includes(g)
+                  //   ? "pointer"
+                  //   : "not-allowed",
+                  marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
+                  fontSize,
+                  opacity: isFocused.includes(g) ? 1 : 0.5,
+                  transition: 'opacity 200ms',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
                 }}
+                onKeyDown={(e) => {
+                  if (['Enter', ' '].includes(e.key)) {
+                    toggleLegendGroup(g)
+                  }
+                }}
+                onClick={() => toggleLegendGroup(g)}
               >
-                <svg width={18} height={8}>
-                  <line
-                    x1={0}
-                    x2={18}
-                    y1={4}
-                    y2={4}
-                    stroke={
-                      geoms?.line?.stroke ||
-                      (legendScales.strokeScale
-                        ? legendScales.strokeScale(g)
-                        : defaultStroke)
-                    }
-                    strokeWidth={geoms?.line?.strokeWidth}
-                    strokeOpacity={
-                      isFocused.includes(g)
-                        ? geoms?.line?.strokeOpacity
-                        : geoms?.line?.strokeOpacity || 1 * 0.5
-                    }
-                    strokeDasharray={
-                      geoms?.line?.strokeDasharray ||
-                      (legendScales.strokeDasharrayScale
-                        ? legendScales.strokeDasharrayScale(g)
-                        : undefined)
-                    }
-                    style={{
-                      transition: 'stroke-opacity 200ms',
-                    }}
-                  />
-                </svg>
-              </div>
-              <div style={{ marginLeft: 4, fontSize }}>
-                {labelFormat ? labelFormat(g, i) : formatMissing(g)}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <svg width={18} height={8}>
+                    <line
+                      x1={0}
+                      x2={18}
+                      y1={4}
+                      y2={4}
+                      stroke={
+                        geoms?.line?.stroke ||
+                        (legendScales.strokeScale
+                          ? legendScales.strokeScale(g)
+                          : defaultStroke)
+                      }
+                      strokeWidth={geoms?.line?.strokeWidth}
+                      strokeOpacity={firstRender ? 0 : strokeOpacity}
+                      strokeDasharray={
+                        (legendScales.strokeDasharrayScale && !ignoreDasharray
+                          ? legendScales.strokeDasharrayScale(g)
+                          : undefined)
+                      }
+                      style={{
+                        transition: 'stroke-opacity 500ms',
+                      }}
+                    />
+                  </svg>
+                </div>
+                <div style={{ marginLeft: 4, fontSize }}>
+                  {labelFormat ? labelFormat(g, i) : formatMissing(g)}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        }
+        )}
     </div>
   )
 }
