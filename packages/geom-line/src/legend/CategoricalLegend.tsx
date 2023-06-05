@@ -46,17 +46,13 @@ export const CategoricalLegend = ({
   )
 
   const { ggState, updateData } = useGG() || {}
-  const { data, copiedData } = ggState || {}
+  const { data } = ggState || {}
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
     const timeout = setTimeout(() => setFirstRender(false), 0)
     return () => clearTimeout(timeout)
   }, [])
-
-  useEffect(() => {
-    setIsFocused(geoms?.line?.usableGroups ?? [])
-  }, [copiedData])
 
   useEffect(() => {
     setIsFocused(legendGroups ?? [])
@@ -66,6 +62,12 @@ export const CategoricalLegend = ({
     () => geoms?.line?.groupAccessor || (() => undefined),
     [geoms]
   )
+
+  useEffect(() => {
+    const dataGroups = Array.from(new Set(data!.map(getGroup))) as []
+    
+    setIsFocused(dataGroups ?? [])
+  }, [data, getGroup])
 
   const isHorizontal = orientation === 'horizontal'
 
