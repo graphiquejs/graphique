@@ -36,7 +36,7 @@ export const SizeLegend = ({
   const [{ domain: sizeDomain, range: sizeRange }] =
     useAtom(radiusScaleState) || {}
 
-  const [{ font, legend, animationDuration, geoms }] = useAtom(themeState) || {}
+  const [{ font, animationDuration, geoms }] = useAtom(themeState) || {}
 
   const { ggState } = useGG() || {}
   const { data } = ggState || {}
@@ -202,7 +202,7 @@ export const SizeLegend = ({
 
   return scale.domain()[0] && scale.domain()[1] ? (
     <div style={{ fontFamily: font?.family, ...style }}>
-      {title && <div style={{ color: legend?.titleColor }}>{title}</div>}
+      {title}
       <div style={{ marginTop: 8 }}>
         <svg height={scale(maxVal) * 2 + 4} width={width}>
           <g

@@ -25,7 +25,7 @@ export const Legend = ({
 }: LegendProps) => {
   const { ggState } = useGG() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
-  const [{ font, legend }] = useAtom(themeState)
+  const [{ font }] = useAtom(themeState)
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -48,7 +48,7 @@ export const Legend = ({
         ...style,
       }}
     >
-      <div style={{ color: legend?.titleColor }}>{title}</div>
+      {title}
       {copiedData && copiedScales && groups ? (
         <CategoricalLegend
           legendData={copiedData}
