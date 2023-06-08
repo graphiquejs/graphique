@@ -98,7 +98,6 @@ export interface ThemeProps {
     showAxisLine?: boolean
   } | null
   legend?: {
-    titleColor?: string
     labelColor?: string
     tickColor?: string
   }
