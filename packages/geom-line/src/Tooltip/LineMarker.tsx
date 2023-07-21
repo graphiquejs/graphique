@@ -15,7 +15,6 @@ export interface LineMarkerProps {
   markerRadius: number
   markerStroke: string
   aes: GeomAes
-  // onDatumFocus?: (data: unknown) => void
 }
 
 export const LineMarker = ({
@@ -26,7 +25,7 @@ export const LineMarker = ({
   aes,
 }: LineMarkerProps) => {
   const { ggState } = useGG() || {}
-  const { copiedScales, width, height, margin, id } = ggState || {}
+  const { copiedScales, width, height, margin, id, scales } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)
   const [{ defaultStroke, geoms }] = useAtom(themeState) || {}
@@ -56,6 +55,7 @@ export const LineMarker = ({
             stroke="#888"
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
+            data-testid='__gg_geom_line_marker'
           />
           {datum.map((d, i) => {
             const formattedGroup = copiedScales?.groupAccessor
@@ -65,6 +65,8 @@ export const LineMarker = ({
             const inRange =
               (y(d) as number) <= copiedScales?.yScale.range()[0] &&
               (y(d) as number) >= copiedScales?.yScale.range()[1]
+            
+            const inGroups = scales?.groups?.includes(formattedGroup)
 
             const thisFill =
               line?.stroke ||
@@ -73,7 +75,7 @@ export const LineMarker = ({
                 : defaultStroke)
             return (
               typeof y(d) !== 'undefined' &&
-              inRange && (
+              inRange && inGroups && (
                 <g
                   key={`group-marker-${
                     d.label || formattedGroup
@@ -100,6 +102,7 @@ export const LineMarker = ({
                     cy={y(d)}
                     fillOpacity={line?.strokeOpacity || 0.9}
                     strokeOpacity={0.7}
+                    data-testid='__gg_geom_line_marker_point'
                   />
                 </g>
               )

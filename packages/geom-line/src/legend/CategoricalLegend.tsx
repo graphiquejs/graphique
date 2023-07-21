@@ -37,7 +37,8 @@ export const CategoricalLegend = ({
       strokeDomain ||
       dashArrayDomain ||
       legendScales.groups ||
-      legendScales.strokeScale?.domain(),
+      legendScales.strokeScale?.domain() ||
+      legendScales.strokeDasharrayScale?.domain(),
     [legendScales, strokeDomain, dashArrayDomain]
   )
 
@@ -116,6 +117,7 @@ export const CategoricalLegend = ({
         flexWrap: 'wrap',
         alignItems: isHorizontal ? 'center' : undefined,
       }}
+      data-testid="__gg_geom_line_legend"
     >
       {geoms?.line &&
         legendGroups?.map((g: string, i, groups) => {
@@ -139,10 +141,6 @@ export const CategoricalLegend = ({
                 role="button"
                 style={{
                   cursor: 'pointer',
-                  // scales?.fillScale?.domain().includes(g) ||
-                  // legendScales.groups?.includes(g)
-                  //   ? "pointer"
-                  //   : "not-allowed",
                   marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                   fontSize,
                   opacity: isFocused.includes(g) ? 1 : 0.5,

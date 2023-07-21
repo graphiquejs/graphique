@@ -2,16 +2,12 @@ import React, { CSSProperties } from 'react'
 import { useGG, themeState, IScale } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
-// import { ColorBandLegend } from "./ColorBandLegend"
-// import { IScale } from "util/autoScale"
 
-interface AppearanceLegendProps {
+export interface AppearanceLegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
   format?: (v: any, i: number) => string
-  // numTicks?: number
-  // width?: number
   onSelection?: (v: string) => void
   ignoreDasharray?: boolean
 }
@@ -21,8 +17,6 @@ export const Legend = ({
   style,
   orientation = 'vertical',
   format,
-  // numTicks,
-  // width,
   onSelection,
   ignoreDasharray = false,
 }: AppearanceLegendProps) => {
@@ -69,13 +63,6 @@ export const Legend = ({
               ignoreDasharray={ignoreDasharray}  
             />
         ) : null
-        // <ColorBandLegend
-        //   scales={copiedScales as IScale}
-        //   tickFormat={format}
-        //   numTicks={numTicks}
-        //   fontSize={fontSize}
-        //   width={width}
-        // />
       }
     </div>
   ) : null
