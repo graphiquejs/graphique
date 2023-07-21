@@ -6,7 +6,10 @@
   "extends": ["airbnb-typescript", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": [
+      "./tsconfig.json",
+      "./tsconfig.eslint.json"
+    ]
   },
   "ignorePatterns": ["packages/**/dist/**/*"],
   "rules": {

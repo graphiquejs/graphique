@@ -1,0 +1,949 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`a line chart matches a snapshot matches a snapshot of a line chart with multiple settings 1`] = `
+<DocumentFragment>
+  <div>
+    <div
+      data-testid="__gg_gg"
+      id="__gg_test-id"
+      style="position: relative; height: 450px;"
+    >
+      <svg
+        height="450"
+        width="500"
+      >
+        <g
+          fill="none"
+          font-family="sans-serif"
+          font-size="10"
+          text-anchor="middle"
+          transform="translate(0, 410)"
+        >
+          <path
+            class="domain"
+            d="M30.5,0.5H480.5"
+            fill="none"
+            stroke="none"
+          />
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(158.47291578501904,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="6"
+            />
+            <text
+              data-testid="__gg_x_tick_label"
+              dy="0.71em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              y="9"
+            >
+              2019
+            </text>
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(286.7974055145024,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="6"
+            />
+            <text
+              data-testid="__gg_x_tick_label"
+              dy="0.71em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              y="9"
+            >
+              2020
+            </text>
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(415.47346918845017,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="6"
+            />
+            <text
+              data-testid="__gg_x_tick_label"
+              dy="0.71em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              y="9"
+            >
+              2021
+            </text>
+          </g>
+        </g>
+        <g
+          fill="none"
+          font-family="sans-serif"
+          font-size="10"
+          text-anchor="middle"
+          transform="translate(0, 410)"
+        >
+          <path
+            class="domain"
+            d="M30.5,0.5H480.5"
+            stroke="none"
+          />
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(158.47291578501904,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="-400"
+            />
+            <text
+              dy="0.71em"
+              fill="currentColor"
+              y="3"
+            />
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(286.7974055145024,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="-400"
+            />
+            <text
+              dy="0.71em"
+              fill="currentColor"
+              y="3"
+            />
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(415.47346918845017,0)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              y2="-400"
+            />
+            <text
+              dy="0.71em"
+              fill="currentColor"
+              y="3"
+            />
+          </g>
+        </g>
+        <g
+          fill="none"
+          font-family="sans-serif"
+          font-size="10"
+          text-anchor="end"
+          transform="translate(30, 0)"
+        >
+          <path
+            class="domain"
+            d="M0.5,410.5V10.5"
+            fill="none"
+            stroke="none"
+          />
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,382.926755498008)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="-6"
+            />
+            <text
+              data-testid="__gg_y_tick_label"
+              dy="0.32em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              x="-9"
+            >
+              500
+            </text>
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,285.09395085833603)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="-6"
+            />
+            <text
+              data-testid="__gg_y_tick_label"
+              dy="0.32em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              x="-9"
+            >
+              1,000
+            </text>
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,187.26114621866418)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="-6"
+            />
+            <text
+              data-testid="__gg_y_tick_label"
+              dy="0.32em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              x="-9"
+            >
+              1,500
+            </text>
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,89.42834157899222)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="-6"
+            />
+            <text
+              data-testid="__gg_y_tick_label"
+              dy="0.32em"
+              fill="currentColor"
+              style="font-size: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+              x="-9"
+            >
+              2,000
+            </text>
+          </g>
+        </g>
+        <g
+          fill="none"
+          font-family="sans-serif"
+          font-size="10"
+          text-anchor="end"
+          transform="translate(30, 0)"
+        >
+          <path
+            class="domain"
+            d="M0.5,410.5V10.5"
+            stroke="none"
+          />
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,382.926755498008)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="450"
+            />
+            <text
+              dy="0.32em"
+              fill="currentColor"
+              x="-3"
+            />
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,285.09395085833603)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="450"
+            />
+            <text
+              dy="0.32em"
+              fill="currentColor"
+              x="-3"
+            />
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,187.26114621866418)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="450"
+            />
+            <text
+              dy="0.32em"
+              fill="currentColor"
+              x="-3"
+            />
+          </g>
+          <g
+            class="tick"
+            opacity="1"
+            transform="translate(0,89.42834157899222)"
+          >
+            <line
+              stroke="currentColor"
+              style="opacity: 0.08;"
+              x2="450"
+            />
+            <text
+              dy="0.32em"
+              fill="currentColor"
+              x="-3"
+            />
+          </g>
+        </g>
+        <g>
+          <path
+            clip-path="url(#__gg_canvas_test-id)"
+            d="M30,225L32.461,225L34.922,225L37.383,225L39.844,225L42.305,225L44.766,225L47.227,225L49.688,225L52.149,225L54.596,225L57.057,225L59.518,225L61.979,225L64.44,225L66.901,225L69.362,225L71.823,225L74.284,225L76.745,225L79.206,225L81.667,225L84.128,225L86.589,225L89.05,225L91.511,225L94.323,225L96.784,225L99.245,225L101.706,225L104.167,225L106.628,225L109.089,225L111.551,225L114.012,225L116.473,225L118.934,225L121.395,225L123.856,225L126.317,225L128.778,225L131.239,225L133.7,225L136.161,225L138.636,225L141.097,225L143.91,225L146.371,225L148.832,225L151.293,225L153.754,225L156.215,225L158.676,225L161.137,225L163.598,225L166.059,225L168.52,225L170.981,225L173.442,225L175.903,225L178.364,225L180.825,225L183.272,225L185.733,225L188.194,225L190.655,225L193.116,225L196.631,225L199.092,225L201.553,225L204.014,225L206.475,225L209.288,225L211.749,225L214.21,225L216.671,225L219.132,225L221.593,225L224.054,225L226.515,225L228.976,225L231.437,225L233.898,225L236.359,225L238.82,225L241.281,225L243.742,225L246.203,225L248.664,225L251.125,225L253.586,225L256.047,225L258.508,225L260.969,225L263.43,225L265.906,225L268.367,225L270.828,225L273.289,225L275.75,225L278.211,225L280.672,225L283.133,225L285.594,225M416.028,225L418.489,225L420.95,225L423.411,225L425.872,225L428.333,225L430.794,225L433.255,225L435.716,225L438.177,225L440.624,225L443.085,225L445.546,225L448.007,225L450.468,225L452.929,225L455.39,225L457.851,225L460.312,225L462.773,225L465.234,225L467.695,225L470.156,225L472.617,225L475.078,225L477.539,225L480,225"
+            data-testid="__gg_geom_line"
+            fill="none"
+            opacity="0.7"
+            stroke="#4e79a7"
+            stroke-dasharray="0"
+            stroke-opacity="1"
+            stroke-width="1.8"
+            style="pointer-events: none;"
+          />
+          <path
+            clip-path="url(#__gg_canvas_test-id)"
+            d="M30,225L32.461,225L34.922,225L37.383,225L39.844,225L42.305,225L44.766,225L47.227,225L49.688,225L52.149,225L54.596,225L57.057,225L59.518,225L61.979,225L64.44,225L66.901,225L69.362,225L71.823,225L74.284,225L76.745,225L79.206,225L81.667,225L84.128,225L86.589,225L89.05,225L91.511,225L94.323,225L96.784,225L99.245,225L101.706,225L104.167,225L106.628,225L109.089,225L111.551,225L114.012,225L116.473,225L118.934,225L121.395,225L123.856,225L126.317,225L128.778,225L131.239,225L133.7,225L136.161,225L138.636,225L141.097,225L143.91,225L146.371,225L148.832,225L151.293,225L153.754,225L156.215,225L158.676,225L161.137,225L163.598,225L166.059,225L168.52,225L170.981,225L173.442,225L175.903,225L178.364,225L180.825,225L183.272,225L185.733,225L188.194,225L190.655,225L193.116,225L196.631,225L199.092,225L201.553,225L204.014,225L206.475,225L209.288,225L211.749,225L214.21,225L216.671,225L219.132,225L221.593,225L224.054,225L226.515,225L228.976,225L231.437,225L233.898,225L236.359,225L238.82,225L241.281,225L243.742,225L246.203,225L248.664,225L251.125,225L253.586,225L256.047,225L258.508,225L260.969,225L263.43,225L265.906,225L268.367,225L270.828,225L273.289,225L275.75,225L278.211,225L280.672,225L283.133,225L285.594,225M416.028,225L418.489,225L420.95,225L423.411,225L425.872,225L428.333,225L430.794,225L433.255,225L435.716,225L438.177,225L440.624,225L443.085,225L445.546,225L448.007,225L450.468,225L452.929,225L455.39,225L457.851,225L460.312,225L462.773,225L465.234,225L467.695,225L470.156,225L472.617,225L475.078,225L477.539,225L480,225"
+            data-testid="__gg_geom_line"
+            fill="none"
+            opacity="0.7"
+            stroke="#f28e2c"
+            stroke-dasharray="2,2"
+            stroke-opacity="1"
+            stroke-width="1.8"
+            style="pointer-events: none;"
+          />
+          <path
+            clip-path="url(#__gg_canvas_test-id)"
+            d="M30,225L32.461,225L34.922,225L37.383,225L39.844,225L42.305,225L44.766,225L47.227,225L49.688,225L52.149,225L54.596,225L57.057,225L59.518,225L61.979,225L64.44,225L66.901,225L69.362,225L71.823,225L74.284,225L76.745,225L79.206,225L81.667,225L84.128,225L86.589,225L89.05,225L91.511,225L94.323,225L96.784,225L99.245,225L101.706,225L104.167,225L106.628,225L109.089,225L111.551,225L114.012,225L116.473,225L118.934,225L121.395,225L123.856,225L126.317,225L128.778,225L131.239,225L133.7,225L136.161,225L138.636,225L141.097,225L143.91,225L146.371,225L148.832,225L151.293,225L153.754,225L156.215,225L158.676,225L161.137,225L163.598,225L166.059,225L168.52,225L170.981,225L173.442,225L175.903,225L178.364,225L180.825,225L183.272,225L185.733,225L188.194,225L190.655,225L193.116,225L196.631,225L199.092,225L201.553,225L204.014,225L206.475,225L209.288,225L211.749,225L214.21,225L216.671,225L219.132,225L221.593,225L224.054,225L226.515,225L228.976,225L231.437,225L233.898,225L236.359,225L238.82,225L241.281,225L243.742,225L246.203,225L248.664,225L251.125,225L253.586,225L256.047,225L258.508,225L260.969,225L263.43,225L265.906,225L268.367,225L270.828,225L273.289,225L275.75,225L278.211,225L280.672,225L283.133,225L285.594,225M416.028,225L418.489,225L420.95,225L423.411,225L425.872,225L428.333,225L430.794,225L433.255,225L435.716,225L438.177,225L440.624,225L443.085,225L445.546,225L448.007,225L450.468,225L452.929,225L455.39,225L457.851,225L460.312,225L462.773,225L465.234,225L467.695,225L470.156,225L472.617,225L475.078,225L477.539,225L480,225"
+            data-testid="__gg_geom_line"
+            fill="none"
+            opacity="0.7"
+            stroke="#59a14f"
+            stroke-dasharray="5,4"
+            stroke-opacity="1"
+            stroke-width="1.8"
+            style="pointer-events: none;"
+          />
+          <path
+            clip-path="url(#__gg_canvas_test-id)"
+            d="M30,225L32.461,225L34.922,225L37.383,225L39.844,225L42.305,225L44.766,225L47.227,225L49.688,225L52.149,225L54.596,225L57.057,225L59.518,225L61.979,225L64.44,225L66.901,225L69.362,225L71.823,225L74.284,225L76.745,225L79.206,225L81.667,225L84.128,225L86.589,225L89.05,225L91.511,225L94.323,225L96.784,225L99.245,225L101.706,225L104.167,225L106.628,225L109.089,225L111.551,225L114.012,225L116.473,225L118.934,225L121.395,225L123.856,225L126.317,225L128.778,225L131.239,225L133.7,225L136.161,225L138.636,225L141.097,225L143.91,225L146.371,225L148.832,225L151.293,225L153.754,225L156.215,225L158.676,225L161.137,225L163.598,225L166.059,225L168.52,225L170.981,225L173.442,225L175.903,225L178.364,225L180.825,225L183.272,225L185.733,225L188.194,225L190.655,225L193.116,225L196.631,225L199.092,225L201.553,225L204.014,225L206.475,225L209.288,225L211.749,225L214.21,225L216.671,225L219.132,225L221.593,225L224.054,225L226.515,225L228.976,225L231.437,225L233.898,225L236.359,225L238.82,225L241.281,225L243.742,225L246.203,225L248.664,225L251.125,225L253.586,225L256.047,225L258.508,225L260.969,225L263.43,225L265.906,225L268.367,225L270.828,225L273.289,225L275.75,225L278.211,225L280.672,225L283.133,225L285.594,225M416.028,225L418.489,225L420.95,225L423.411,225L425.872,225L428.333,225L430.794,225L433.255,225L435.716,225L438.177,225L440.624,225L443.085,225L445.546,225L448.007,225L450.468,225L452.929,225L455.39,225L457.851,225L460.312,225L462.773,225L465.234,225L467.695,225L470.156,225L472.617,225L475.078,225L477.539,225L480,225"
+            data-testid="__gg_geom_line"
+            fill="none"
+            opacity="0.7"
+            stroke="#e15759"
+            stroke-dasharray="2,8,2"
+            stroke-opacity="1"
+            stroke-width="1.8"
+            style="pointer-events: none;"
+          />
+          <path
+            clip-path="url(#__gg_canvas_test-id)"
+            d="M30,225L32.461,225L34.922,225L37.383,225L39.844,225L42.305,225L44.766,225L47.227,225L49.688,225L52.149,225L54.596,225L57.057,225L59.518,225L61.979,225L64.44,225L66.901,225L69.362,225L71.823,225L74.284,225L76.745,225L79.206,225L81.667,225L84.128,225L86.589,225L89.05,225L91.511,225L94.323,225L96.784,225L99.245,225L101.706,225L104.167,225L106.628,225L109.089,225L111.551,225L114.012,225L116.473,225L118.934,225L121.395,225L123.856,225L126.317,225L128.778,225L131.239,225L133.7,225L136.161,225L138.636,225L141.097,225L143.91,225L146.371,225L148.832,225L151.293,225L153.754,225L156.215,225L158.676,225L161.137,225L163.598,225L166.059,225L168.52,225L170.981,225L173.442,225L175.903,225L178.364,225L180.825,225L183.272,225L185.733,225L188.194,225L190.655,225L193.116,225L196.631,225L199.092,225L201.553,225L204.014,225L206.475,225L209.288,225L211.749,225L214.21,225L216.671,225L219.132,225L221.593,225L224.054,225L226.515,225L228.976,225L231.437,225L233.898,225L236.359,225L238.82,225L241.281,225L243.742,225L246.203,225L248.664,225L251.125,225L253.586,225L256.047,225L258.508,225L260.969,225L263.43,225L265.906,225L268.367,225L270.828,225L273.289,225L275.75,225L278.211,225L280.672,225L283.133,225L285.594,225M416.028,225L418.489,225L420.95,225L423.411,225L425.872,225L428.333,225L430.794,225L433.255,225L435.716,225L438.177,225L440.624,225L443.085,225L445.546,225L448.007,225L450.468,225L452.929,225L455.39,225L457.851,225L460.312,225L462.773,225L465.234,225L467.695,225L470.156,225L472.617,225L475.078,225L477.539,225L480,225"
+            data-testid="__gg_geom_line"
+            fill="none"
+            opacity="0.7"
+            stroke="#76b7b2"
+            stroke-dasharray="15,4"
+            stroke-opacity="1"
+            stroke-width="1.8"
+            style="pointer-events: none;"
+          />
+        </g>
+        <g>
+          <clippath
+            id="__gg_canvas_test-id"
+          >
+            <rect
+              fill="transparent"
+              height="404"
+              width="454"
+              x="28"
+              y="8"
+            />
+          </clippath>
+          <rect
+            data-testid="__gg_event_area"
+            fill="transparent"
+            height="402"
+            width="454"
+            x="28"
+            y="8"
+          />
+        </g>
+        <g
+          class="__gg-tooltip-test-id"
+          style="transform: translateX(128.7776294801263px);"
+        >
+          <line
+            data-testid="__gg_geom_line_marker"
+            stroke="#888"
+            stroke-dasharray="2"
+            stroke-width="1.5"
+            style="pointer-events: none;"
+            y1="410"
+            y2="10"
+          />
+          <g
+            style="pointer-events: none;"
+          >
+            <circle
+              cy="280.73801806270126"
+              fill="#4e79a7"
+              fill-opacity="0.5"
+              r="7.5"
+            />
+            <circle
+              cy="280.73801806270126"
+              data-testid="__gg_geom_line_marker_point"
+              fill="#4e79a7"
+              fill-opacity="1"
+              r="3.5"
+              stroke="#fff"
+              stroke-opacity="0.7"
+              stroke-width="1.09375"
+            />
+          </g>
+          <g
+            style="pointer-events: none;"
+          >
+            <circle
+              cy="315.75036499408947"
+              fill="#f28e2c"
+              fill-opacity="0.5"
+              r="7.5"
+            />
+            <circle
+              cy="315.75036499408947"
+              data-testid="__gg_geom_line_marker_point"
+              fill="#f28e2c"
+              fill-opacity="1"
+              r="3.5"
+              stroke="#fff"
+              stroke-opacity="0.7"
+              stroke-width="1.09375"
+            />
+          </g>
+          <g
+            style="pointer-events: none;"
+          >
+            <circle
+              cy="394.0542723789572"
+              fill="#59a14f"
+              fill-opacity="0.5"
+              r="7.5"
+            />
+            <circle
+              cy="394.0542723789572"
+              data-testid="__gg_geom_line_marker_point"
+              fill="#59a14f"
+              fill-opacity="1"
+              r="3.5"
+              stroke="#fff"
+              stroke-opacity="0.7"
+              stroke-width="1.09375"
+            />
+          </g>
+          <g
+            style="pointer-events: none;"
+          >
+            <circle
+              cy="333.2833205716016"
+              fill="#e15759"
+              fill-opacity="0.5"
+              r="7.5"
+            />
+            <circle
+              cy="333.2833205716016"
+              data-testid="__gg_geom_line_marker_point"
+              fill="#e15759"
+              fill-opacity="1"
+              r="3.5"
+              stroke="#fff"
+              stroke-opacity="0.7"
+              stroke-width="1.09375"
+            />
+          </g>
+          <g
+            style="pointer-events: none;"
+          >
+            <circle
+              cy="321.10734500468556"
+              fill="#76b7b2"
+              fill-opacity="0.5"
+              r="7.5"
+            />
+            <circle
+              cy="321.10734500468556"
+              data-testid="__gg_geom_line_marker_point"
+              fill="#76b7b2"
+              fill-opacity="1"
+              r="3.5"
+              stroke="#fff"
+              stroke-opacity="0.7"
+              stroke-width="1.09375"
+            />
+          </g>
+        </g>
+        <g
+          id="__gg-brush-exclusion-test-id"
+        />
+      </svg>
+      <div
+        style="position: relative;"
+      >
+        <div
+          data-testid="__gg_zoom_out_button"
+          id="__gg-zoom-out-button-test-id"
+        />
+      </div>
+      <div
+        style="position: relative;"
+      >
+        <div
+          data-testid="__gg_x_tooltip"
+          id="__gg-tooltip-x-test-id"
+        />
+        <div
+          data-testid="__gg_y_tooltip"
+          id="__gg-tooltip-y-test-id"
+        >
+          <div
+            style="font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif; left: 136.7776294801263px; pointer-events: none; position: absolute; white-space: nowrap; top: -126.01333579759296px;"
+          >
+            <div
+              style="font-size: 12px; padding: 4px 6px 4px 6px; color: rgb(17, 17, 17); background: rgba(254, 254, 254, 0.914); border: 1px solid #eee; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 4px;"
+            >
+              <div
+                style="margin-top: 2px; margin-bottom: 6px; color: rgb(85, 85, 85);"
+              >
+                Oct 10, 2018
+              </div>
+              <div>
+                <div
+                  style="margin-top: 3px; margin-bottom: 2px; display: flex; align-items: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#4e79a7"
+                      stroke-dasharray="0"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                  <div
+                    style="display: flex; align-items: flex-end; margin-left: 4px;"
+                  >
+                    <div
+                      style="margin-right: 5px;"
+                    >
+                      <span>
+                        AAPL 
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style="font-weight: 500; font-size: 13px;"
+                  >
+                    1,019.71
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div
+                  style="margin-top: 3px; margin-bottom: 2px; display: flex; align-items: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#f28e2c"
+                      stroke-dasharray="2,2"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                  <div
+                    style="display: flex; align-items: flex-end; margin-left: 4px;"
+                  >
+                    <div
+                      style="margin-right: 5px;"
+                    >
+                      <span>
+                        AMZN 
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style="font-weight: 500; font-size: 13px;"
+                  >
+                    840.77
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div
+                  style="margin-top: 3px; margin-bottom: 2px; display: flex; align-items: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#59a14f"
+                      stroke-dasharray="5,4"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                  <div
+                    style="display: flex; align-items: flex-end; margin-left: 4px;"
+                  >
+                    <div
+                      style="margin-right: 5px;"
+                    >
+                      <span>
+                        FB 
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style="font-weight: 500; font-size: 13px;"
+                  >
+                    440.57
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div
+                  style="margin-top: 3px; margin-bottom: 2px; display: flex; align-items: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#e15759"
+                      stroke-dasharray="2,8,2"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                  <div
+                    style="display: flex; align-items: flex-end; margin-left: 4px;"
+                  >
+                    <div
+                      style="margin-right: 5px;"
+                    >
+                      <span>
+                        GOOG 
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style="font-weight: 500; font-size: 13px;"
+                  >
+                    751.16
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div
+                  style="margin-top: 3px; margin-bottom: 2px; display: flex; align-items: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#76b7b2"
+                      stroke-dasharray="15,4"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                  <div
+                    style="display: flex; align-items: flex-end; margin-left: 4px;"
+                  >
+                    <div
+                      style="margin-right: 5px;"
+                    >
+                      <span>
+                        MSFT 
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    style="font-weight: 500; font-size: 13px;"
+                  >
+                    813.39
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div
+          style="margin-top: 12px; font-family: system-ui, BlinkMacSystemFont, Segoe UI,
+                Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                Helvetica Neue, sans-serif;"
+        >
+          Stonks
+          <div
+            data-testid="__gg_geom_line_legend"
+            style="margin-top: 8px; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;"
+          >
+            <div
+              style="display: flex; align-items: center; margin-bottom: 6px;"
+            >
+              <div
+                role="button"
+                style="cursor: pointer; margin-right: 12px; font-size: 12px; opacity: 1; transition: opacity 200ms; display: flex; align-items: center;"
+                tabindex="0"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#4e79a7"
+                      stroke-dasharray="0"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      style="transition: stroke-opacity 500ms;"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                </div>
+                <div
+                  style="margin-left: 4px; font-size: 12px;"
+                >
+                  AAPL
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: flex; align-items: center; margin-bottom: 6px;"
+            >
+              <div
+                role="button"
+                style="cursor: pointer; margin-right: 12px; font-size: 12px; opacity: 1; transition: opacity 200ms; display: flex; align-items: center;"
+                tabindex="0"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#f28e2c"
+                      stroke-dasharray="2,2"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      style="transition: stroke-opacity 500ms;"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                </div>
+                <div
+                  style="margin-left: 4px; font-size: 12px;"
+                >
+                  AMZN
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: flex; align-items: center; margin-bottom: 6px;"
+            >
+              <div
+                role="button"
+                style="cursor: pointer; margin-right: 12px; font-size: 12px; opacity: 1; transition: opacity 200ms; display: flex; align-items: center;"
+                tabindex="0"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#59a14f"
+                      stroke-dasharray="5,4"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      style="transition: stroke-opacity 500ms;"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                </div>
+                <div
+                  style="margin-left: 4px; font-size: 12px;"
+                >
+                  FB
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: flex; align-items: center; margin-bottom: 6px;"
+            >
+              <div
+                role="button"
+                style="cursor: pointer; margin-right: 12px; font-size: 12px; opacity: 1; transition: opacity 200ms; display: flex; align-items: center;"
+                tabindex="0"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#e15759"
+                      stroke-dasharray="2,8,2"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      style="transition: stroke-opacity 500ms;"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                </div>
+                <div
+                  style="margin-left: 4px; font-size: 12px;"
+                >
+                  GOOG
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: flex; align-items: center; margin-bottom: 6px;"
+            >
+              <div
+                role="button"
+                style="cursor: pointer; margin-right: 2px; font-size: 12px; opacity: 1; transition: opacity 200ms; display: flex; align-items: center;"
+                tabindex="0"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: center;"
+                >
+                  <svg
+                    height="8"
+                    width="18"
+                  >
+                    <line
+                      stroke="#76b7b2"
+                      stroke-dasharray="15,4"
+                      stroke-opacity="1"
+                      stroke-width="1.8"
+                      style="transition: stroke-opacity 500ms;"
+                      x1="0"
+                      x2="18"
+                      y1="4"
+                      y2="4"
+                    />
+                  </svg>
+                </div>
+                <div
+                  style="margin-left: 4px; font-size: 12px;"
+                >
+                  MSFT
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

@@ -31,8 +31,8 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "build": "microbundle build --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js",
-    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern --compress -o dist/index.js"
+    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js",
+    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js"
   },
   "dependencies": {
     "d3-array": "^3.0.1",
@@ -50,12 +50,17 @@
     "react-dom": ">=16"
   },
   "devDependencies": {
+    "@graphique/datasets": "^1.1.6",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/user-event": "^14.4.3",
     "@types/d3-array": "^3.0.1",
     "@types/d3-ease": "^3.0.0",
     "@types/d3-interpolate": "^3.0.1",
     "@types/d3-interpolate-path": "^2.0.0",
+    "@types/d3-scale-chromatic": "^3.0.0",
     "@types/d3-shape": "^3.0.0",
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0"
+    "@types/react-dom": "^17.0.0",
+    "d3-scale-chromatic": "^3.0.0"
   }
 }

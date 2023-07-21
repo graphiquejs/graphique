@@ -835,6 +835,7 @@ export const EventArea = ({
                 cursor:
                   onClick && readyToFocusRef.current ? 'pointer' : undefined,
               }}
+              data-testid='__gg_event_area'
             />
             {isBrushing && (
               <BrushExclusion id={id}>
@@ -873,6 +874,7 @@ export const EventArea = ({
               onMouseDown={handleClick}
               onMouseUp={handleBrushStop}
               onDoubleClick={handleUnbrush}
+              data-testid={`__gg_event_voronoi_${i}`}
             />
           ))}
         </g>

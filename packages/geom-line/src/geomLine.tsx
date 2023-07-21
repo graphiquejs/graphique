@@ -126,16 +126,21 @@ const GeomLine = ({
     return () => clearTimeout(timeout)
   }, [])
 
-  const strokeGroups = useMemo(
-    () =>
-      geomAes?.stroke
+  const strokeGroups = useMemo(() => (
+    geomAes?.stroke
         ? (Array.from(new Set(copiedData?.map(geomAes.stroke))) as string[])
-        : undefined,
-    [copiedData, geomAes]
+      : undefined
+    ), [copiedData, geomAes]
   )
 
+  const strokeDasharrayGroups = useMemo(() => (
+    geomAes?.strokeDasharray
+      ? (Array.from(new Set(copiedData?.map(geomAes?.strokeDasharray))) as string[])
+      : undefined
+  ), [copiedData, geomAes])
+
   const group = useMemo(
-    () => geomAes?.group ?? geomAes?.stroke ?? scales?.groupAccessor,
+    () => geomAes?.group ?? geomAes?.stroke ?? geomAes?.strokeDasharray ?? scales?.groupAccessor,
     [geomAes, scales]
   )
 
@@ -156,7 +161,7 @@ const GeomLine = ({
         ) as VisualEncodingTypes
     }
     return undefined
-  }, [geomAes, strokeGroups])
+  }, [geomAes, strokeGroups, strokeScaleColors])
 
   useEffect(() => {
     setTheme((prev) => ({
@@ -169,8 +174,8 @@ const GeomLine = ({
           strokeDasharray,
           stroke: strokeColor,
           strokeScale: geomStrokeScale,
-          groupAccessor: geomAes.stroke,
-          usableGroups: strokeGroups,
+          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray,
+          usableGroups: strokeGroups ?? strokeDasharrayGroups,
         },
       },
     }))

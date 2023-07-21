@@ -23,7 +23,7 @@ interface Props {
 
 export const Tooltip = ({ x, y, aes }: Props) => {
   const { ggState } = useGG() || {}
-  const { id, copiedScales, width, height, margin } = ggState || {
+  const { id, copiedScales, width, height, margin, scales } = ggState || {
     height: 0,
   }
 
@@ -41,7 +41,16 @@ export const Tooltip = ({ x, y, aes }: Props) => {
   )
   const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
-  const meanYVal = useMemo(() => (datum && mean(datum.map(y))) || 0, [datum, y])
+  const meanYVal = useMemo(() => {
+    const datumInGroups = datum?.filter((d) => {
+      const group = geoms?.line?.groupAccessor?.(d)
+      const inGroups = scales?.groups?.includes(group as string)
+
+      return inGroups
+    })
+
+    return datumInGroups && (mean(datumInGroups.map(y))) || 0
+  }, [datum, y, geoms, scales])
   const xVal = useMemo(
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
     [datum, aes]
@@ -53,9 +62,15 @@ export const Tooltip = ({ x, y, aes }: Props) => {
     const vals =
       datum &&
       datum
-        .filter(
-          (d) => aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null
-        )
+        .filter((d) => {
+          const group = geoms?.line?.groupAccessor?.(d)
+          const inGroups = scales?.groups?.includes(group as string)
+
+          return aes?.y &&
+            typeof aes.y(d) !== 'undefined' &&
+            aes.y(d) !== null &&
+            inGroups
+        })
         .map((md) => {
           const group = geoms?.line?.groupAccessor?.(md)
 
