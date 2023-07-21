@@ -10,5 +10,8 @@
     "moduleResolution": "node",
     "jsx": "react",
   },
-  "exclude": ["packages/**/node_modules"],
+  "exclude": [
+    "packages/**/node_modules",
+    "packages/**/src/__tests__"
+  ],
 }
