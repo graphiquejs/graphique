@@ -30,7 +30,7 @@ import {
   PageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
-import { Tooltip } from './tooltip'
+import { Tooltip } from './Tooltip'
 
 export interface PointProps extends SVGAttributes<SVGCircleElement> {
   data?: unknown[]
@@ -98,7 +98,7 @@ const GeomPoint = ({
   )
 
   const positionKeyAccessor = useCallback(
-    (d: unknown) => 
+    (d: unknown) =>
       `${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
         group && group(d)}` as string
     , [geomAes, group])

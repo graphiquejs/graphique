@@ -27,7 +27,7 @@ import {
   PageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
-import { Tooltip } from './tooltip'
+import { Tooltip } from './Tooltip'
 
 export interface LabelProps extends SVGAttributes<SVGTextElement> {
   data?: unknown[]
@@ -106,7 +106,7 @@ const GeomLabel = ({
   const getLabel = useMemo(() => {
     if (!geomAes?.label && !label)
       throw new Error('You need to provide a `label` or map a `label` in `aes` in order to use GeomLabel')
-      
+
     return geomAes?.label
   }, [geomAes, label])
 
@@ -360,9 +360,9 @@ const GeomLabel = ({
                         styles = focusedStyles
                       if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
                         styles = unfocusedStyles
-                      
+
                       const nodeX = x(nodeData) ?? 0
-                      
+
                       return (
                         <text
                           key={key}
