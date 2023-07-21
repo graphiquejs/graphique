@@ -8,7 +8,7 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["packages/**/dist/**/*"],
+  "ignorePatterns": ["packages/**/dist/**/*", "__data__"],
   "rules": {
     "import/prefer-default-export": "off",
     "react/require-default-props": "off",
