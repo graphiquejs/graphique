@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-line",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "For line charts and other lines",
   "keywords": [
     "react",
@@ -50,7 +50,7 @@
     "react-dom": ">=16"
   },
   "devDependencies": {
-    "@graphique/datasets": "^1.1.6",
+    "@graphique/datasets": "^1.1.7",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^14.4.3",
     "@types/d3-array": "^3.0.1",
