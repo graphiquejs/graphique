@@ -194,6 +194,24 @@ Customize the look and feel of your Graphique visualizations.
 
 ## Dev
 
+### Testing
+
+```sh
+npm test
+```
+
+#### Run only some tests
+
+For example, you can also choose to run only some tests with things like:
+
+```sh
+# run only GeomLine tests
+npm test GeomLine
+
+# run only Tooltip tests (multiple Geoms)
+npm test Tooltip
+```
+
 ### Demo local pacakages
 
 For a place to try out new package changes locally, there's an included React app located in `demo` that you can start with
