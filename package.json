@@ -5,7 +5,9 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "./packages/*",
+    "./packages/datasets",
+    "./packages/graphique",
+    "./packages/geom*",
     "./demo"
   ],
   "devDependencies": {
@@ -49,6 +51,7 @@
   "scripts": {
     "lint": "npm run lint -w ./packages",
     "test": "jest",
+    "build:packages": "npm run build -w packages",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./.storybook/site",
     "prepare": "husky install",
