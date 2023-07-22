@@ -36,7 +36,7 @@ import {
 import { min, max, sum, extent } from 'd3-array'
 import { useAtom } from 'jotai'
 import type { GeomAes, StackedArea } from './types'
-import { LineMarker, Tooltip } from './Tooltip'
+import { LineMarker, Tooltip } from './tooltip'
 
 export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   data?: unknown[]

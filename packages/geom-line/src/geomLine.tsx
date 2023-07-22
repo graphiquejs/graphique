@@ -27,7 +27,7 @@ import { interpolatePath } from 'd3-interpolate-path'
 import { line, CurveFactory, curveLinear } from 'd3-shape'
 import { scaleOrdinal } from 'd3-scale'
 import { useAtom } from 'jotai'
-import { LineMarker, Tooltip } from './Tooltip'
+import { LineMarker, Tooltip } from './tooltip'
 import { type GeomAes } from './types'
 
 export interface LineProps extends SVGAttributes<SVGPathElement> {
