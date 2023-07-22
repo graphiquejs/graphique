@@ -1,7 +1,7 @@
 import React from 'react'
 import { screen, act, within } from '@testing-library/react'
 import { type Aes } from '@graphique/graphique'
-import { stocks, Stock } from '@graphique/datasets'
+import { stocks, type Stock } from '@graphique/datasets'
 import { GeomLine } from '..'
 import { 
   GGLine,
