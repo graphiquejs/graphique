@@ -155,7 +155,7 @@ You can add one or more `Scale`s directly to customize things like its type ([d3
 - `GeomArea`: area + stacked area charts and ribbon-like things
 - `GeomVLine`: vertical lines / markers
 - `GeomHLine`: horizontal lines / markers
-- TODO: `GeomLabel`, `GeomSmooth`, `GeomSegment`, `GeomDensity`, and more on the way!
+- TODO: `GeomSmooth`, `GeomSegment`, `GeomDensity`, and more on the way!
 
 <h3 id='labels'><code>Labels</code></h2>
 
@@ -194,15 +194,28 @@ Customize the look and feel of your Graphique visualizations.
 
 ## Dev
 
+### Setup
+
+Start by installing all the necessary dependencies for the workspaces in the monorepo:
+
+```bash
+npm install
+```
+
+Next, build the packages to get imports in tests and the demo app working:
+
+```bash
+npm run build:packages
+```
+
 ### Testing
 
 ```sh
+# all the tests
 npm test
 ```
 
-#### Run only some tests
-
-For example, you can also choose to run only some tests with things like:
+You can also choose to run only some tests with things like:
 
 ```sh
 # run only GeomLine tests
