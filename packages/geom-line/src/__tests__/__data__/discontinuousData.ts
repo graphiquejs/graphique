@@ -1,4 +1,4 @@
-import { stocks } from '@graphique/datasets'
+import { stocks, type Stock } from '@graphique/datasets'
 
 const MIN_DATE = new Date(2020, 0, 1)
 const MAX_DATE = new Date(2021, 0, 1)
@@ -11,6 +11,6 @@ const undefinedYValData = stocks.map((s) => {
     ...s,
     marketCap: isInRange ? undefined : s.marketCap,
   })
-})
+}) as Stock[]
 
 export { undefinedYValData }

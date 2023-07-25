@@ -41,16 +41,23 @@ export const Tooltip = ({ x, y, aes }: Props) => {
   )
   const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
-  const meanYVal = useMemo(() => {
-    const datumInGroups = datum?.filter((d) => {
-      const group = geoms?.line?.groupAccessor?.(d)
-      const inGroups = scales?.groups?.includes(group as string)
+  const datumInGroups = useMemo(() => {
+    const groups = scales?.groups
 
-      return inGroups
-    })
+    return groups
+      ? datum?.filter((d) => {
+          const group = geoms?.line?.groupAccessor?.(d)
+            const inGroups = scales?.groups?.includes(group as string)
+            
+          return inGroups
+      })
+      : datum
+  }, [datum, geoms, scales])
 
-    return datumInGroups && (mean(datumInGroups.map(y))) || 0
-  }, [datum, y, geoms, scales])
+  const meanYVal = useMemo(() => (
+    datumInGroups && (mean(datumInGroups.map(y))) || 0
+  ), [datumInGroups, y])
+
   const xVal = useMemo(
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
     [datum, aes]
@@ -59,18 +66,11 @@ export const Tooltip = ({ x, y, aes }: Props) => {
   const cappedYVal = max([0, min([meanYVal, height]) as number]) as number
 
   const lineVals = useMemo(() => {
-    const vals =
-      datum &&
-      datum
-        .filter((d) => {
-          const group = geoms?.line?.groupAccessor?.(d)
-          const inGroups = scales?.groups?.includes(group as string)
-
-          return aes?.y &&
+    const vals = datumInGroups?.filter((d) => (
+          aes?.y &&
             typeof aes.y(d) !== 'undefined' &&
-            aes.y(d) !== null &&
-            inGroups
-        })
+            aes.y(d) !== null
+        ))
         .map((md) => {
           const group = geoms?.line?.groupAccessor?.(md)
 
