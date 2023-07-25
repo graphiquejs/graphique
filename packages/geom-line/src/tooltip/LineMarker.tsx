@@ -66,7 +66,9 @@ export const LineMarker = ({
               (y(d) as number) <= copiedScales?.yScale.range()[0] &&
               (y(d) as number) >= copiedScales?.yScale.range()[1]
             
-            const inGroups = scales?.groups?.includes(formattedGroup)
+            const inGroups = scales?.groups
+              ? scales.groups.includes(formattedGroup)
+              : true
 
             const thisFill =
               line?.stroke ||

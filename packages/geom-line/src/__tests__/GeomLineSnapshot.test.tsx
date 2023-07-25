@@ -1,42 +1,80 @@
 import React from 'react'
-import { GG, Theme, Tooltip } from '@graphique/graphique'
-import { render, screen } from '@testing-library/react'
+import { GG, type Aes, Theme } from '@graphique/graphique'
+import { screen, act } from '@testing-library/react'
 import { GeomLine, Legend } from '..'
 import { type Stock } from '../../../datasets'
 import { undefinedYValData } from './__data__/discontinuousData'
+import { setup } from './shared'
 
 // useful for controlling the randomly-generated ID given to graphique objects
 jest.mock('nanoid', () => ({
   nanoid: jest.fn(() => 'test-id')
-}));
+}))
 
-const focusedData = undefinedYValData.filter((d) => d.date === '10/10/2018')
+jest.useFakeTimers()
 
-const TestComponent = () => render(
+const DEFAULT_AES: Aes = {
+  x: (d: Stock) => new Date(d.date),
+  y: (d: Stock) => d.marketCap,
+}
+
+interface TestComponentProps {
+  aes?: Aes
+  data?: Stock[]
+}
+
+const TestComponent = ({ aes = DEFAULT_AES, data = undefinedYValData }: TestComponentProps) => (
   <GG
-    data={undefinedYValData}
-    aes={{
-      x: (d: Stock) => new Date(d.date),
-      y: (d: Stock) => d.marketCap,
-      stroke: (d: Stock) => d.symbol,
-      strokeDasharray: (d: Stock) => d.symbol
-    }}
+    data={data}
+    aes={aes}
   >
     <GeomLine
       strokeWidth='1.8'
       opacity={0.7}
     />
-    <Legend title='Stonks' orientation='horizontal' />
-    <Tooltip datum={focusedData} />
     <Theme animationDuration={0} />
+    <Legend title='Stonks' orientation='horizontal' />
   </GG>
 )
 
 describe('a line chart matches a snapshot', () => {
-  it('matches a snapshot of a line chart with multiple settings', async () => {
-    const { asFragment } = TestComponent()
+  it('with multiple settings', async () => {
+    const { user, asFragment } = setup(
+      <TestComponent
+        aes={{
+          ...DEFAULT_AES,
+          stroke: (d: Stock) => d.symbol,
+          strokeDasharray: (d: Stock) => d.symbol
+        }}
+      />
+    )
 
     await screen.findAllByTestId('__gg_geom_line')
+    
+    act(() => jest.runOnlyPendingTimers())
+
+    const eventArea = await screen.findByTestId('__gg_event_area')
+    await user.pointer({ target: eventArea, coords: { clientX: 100, clientY: 200 } })
+
+    act(() => jest.runOnlyPendingTimers())
+
+    expect(asFragment()).toMatchSnapshot()
+  })
+
+  it('for a single-line chart', async () => {
+    const singleGroupData = undefinedYValData.filter(d => d.symbol === 'AAPL')
+
+    const { user, asFragment } = setup(<TestComponent data={singleGroupData} />)
+
+    await screen.findByTestId('__gg_geom_line')
+
+    act(() => jest.runOnlyPendingTimers())
+
+    const eventArea = await screen.findByTestId('__gg_event_area')
+    await user.pointer({ target: eventArea, coords: { clientX: 100, clientY: 200 } })
+
+    act(() => jest.runOnlyPendingTimers())
+
     expect(asFragment()).toMatchSnapshot()
   })
 })
