@@ -16,17 +16,26 @@ interface PointThemeProps {
   size?: (d: any) => number | null | undefined
 }
 
+type SharedPositions = 'identity' | 'stack' | 'fill'
+export type BarColPositions = SharedPositions | 'dodge'
+export type AreaPositions = SharedPositions
+  //  | 'stream'
+
 interface BarColProps extends PointThemeProps {
-  position?: "identity" | "stack" | "dodge" | "fill"
+  position?: BarColPositions
 }
 
 interface AreaProps extends PointThemeProps {
   /** controls how to draw the area */
-  position?: 'identity' | 'stack' | 'fill' | 'stream'
+  position?: AreaPositions
   /** a functional mapping to `data` representing an initial **y** value */
   y0?: DataValue
   /** a functional mapping to `data` representing a secondary **y** value */
   y1?: DataValue
+}
+
+interface HistProps {
+  binWidth?: number
 }
 
 export interface ThemeProps {
@@ -43,6 +52,7 @@ export interface ThemeProps {
     tile?: PointThemeProps
     bar?: BarColProps
     col?: BarColProps
+    histogram?: HistProps
     area?: AreaProps
     label?: PointThemeProps
   }

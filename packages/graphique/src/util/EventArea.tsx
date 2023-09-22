@@ -100,7 +100,7 @@ export const EventArea = ({
   }
 
   const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
-  const [{ animationDuration }] = useAtom(themeState)
+  const [{ animationDuration, geoms }] = useAtom(themeState)
   const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
     useAtom(yScaleState)
   const [{ reverse: reverseX }, setXScale] = useAtom(xScaleState)
@@ -167,7 +167,8 @@ export const EventArea = ({
 
     const delaunays = xBandScale?.domain().map((xVal) => {
       const thisX = scales?.xScale(xVal)
-      const xGroupData = stackYMidpoints.filter((s) => s.xVal === xVal)
+      
+      const xGroupData = stackYMidpoints.filter((s) => s.xVal === xVal.valueOf())
 
       return {
         delaunay: Delaunay.from(
@@ -461,6 +462,7 @@ export const EventArea = ({
       xZoomDomain,
       yZoomDomain,
       onZoom,
+      geoms
     ]
   )
 
@@ -492,7 +494,7 @@ export const EventArea = ({
             const xStackDatum = xDelaunays[xGroupIndex].data[xStackIndex]
             ind = data.findIndex(
               (d) =>
-                aes?.x?.(d) === xStackDatum.xVal &&
+                aes?.x?.(d)?.valueOf() === xStackDatum.xVal &&
                 scales?.groupAccessor?.(d) === xStackDatum.groupVal
             )
           }
@@ -523,13 +525,14 @@ export const EventArea = ({
           const datum = data[ind]
 
           const xDomain = scales?.xScale.domain() as any[]
+
           const yDomain = scales?.yScale.domain() as any[]
           const datumInXRange =
             ['x', 'y'].includes(fill ?? '') ||
             (aes?.x &&
               xDomain &&
-              (xDomain.includes(aes?.x(datum)) ||
-                isBetween(aes?.x(datum) as number, xDomain[0], xDomain[1])))
+              (xDomain.includes(aes?.x(datum)?.valueOf()) ||
+                isBetween(aes?.x(datum)?.valueOf() as number, xDomain[0], xDomain[1])))
 
           const datumInYRange =
             ['x', 'y'].includes(fill ?? '') ||
@@ -658,6 +661,7 @@ export const EventArea = ({
       showTooltip,
       onUnzoom,
       unZoom,
+      geoms,
     ]
   )
 
@@ -693,7 +697,7 @@ export const EventArea = ({
           const groupDatumInd: number[] = []
 
           data.forEach((d, i) => {
-            if (aes.x && aes.x(d) === aes.x(datum)) {
+            if (aes.x && aes.x(d)?.valueOf() === aes.x(datum)?.valueOf()) {
               groupDatum.push(d)
               groupDatumInd.push(i)
             }
@@ -774,7 +778,7 @@ export const EventArea = ({
 
           data.forEach((d, ind) => {
             if (
-              aes?.x?.(d) === vd.xVal &&
+              aes?.x?.(d)?.valueOf() === vd.xVal &&
               scales?.groupAccessor?.(d) === vd.groupVal
             ) {
               focusedData.push(d)
