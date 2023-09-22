@@ -16,6 +16,7 @@ import {
   strokeScaleState,
   VisualEncodingTypes,
   BrushAction,
+  AreaPositions,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -51,8 +52,7 @@ export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
-  // TODO: add 'stream' position
-  position?: 'identity' | 'stack' | 'fill'
+  position?: AreaPositions
 }
 
 const GeomArea = ({

@@ -111,10 +111,6 @@ export const CategoricalLegend = ({
               role="button"
               style={{
                 cursor: 'pointer',
-                // scales?.fillScale?.domain().includes(g) ||
-                // legendScales.groups?.includes(g)
-                //   ? "pointer"
-                //   : "not-allowed",
                 marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                 fontSize,
                 opacity: isFocused.includes(g) ? 1 : 0.5,
@@ -122,7 +118,7 @@ export const CategoricalLegend = ({
                 display: 'flex',
                 alignItems: 'center',
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (['Enter', ' '].includes(e.key)) {
                   toggleLegendGroup(g)
                 }

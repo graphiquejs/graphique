@@ -40,7 +40,7 @@ export const Tooltip = ({
     height: 0,
   }
 
-  const [{ datum, xAxis, xFormat, yFormat, content }] = useAtom(tooltipState)
+  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom(tooltipState)
 
   const [{ geoms }] = useAtom(themeState)
 
@@ -55,23 +55,24 @@ export const Tooltip = ({
   )
 
   const group = useMemo(
-    () => scales?.groupAccessor || (() => '__group'),
-    [scales]
+    () => geoms?.col?.groupAccessor || (() => '__group'),
+    [geoms]
   )
 
   const yVal = useMemo(() => {
     const isYFilled = geoms?.col?.position === 'fill'
 
     if (focusType === 'individual' && stackMidpoints && datum) {
+
       const datumGroup = group(datum[0])
       const focusedStack = stackMidpoints.find(
         ({ xVal: stackX, groupVal }) =>
-          stackX === xVal && groupVal === datumGroup
+          stackX === xVal.valueOf() && groupVal === datumGroup
       )
 
       const yAesVal = aes?.y?.(datum[0]) as number
       const yAesTotal = sum(
-        data?.filter((d) => aes?.x(d) === focusedStack?.xVal) as [],
+        data?.filter((d) => aes?.x(d)?.valueOf() === focusedStack?.xVal.valueOf()) as [],
         (d) => aes?.y?.(d) as number
       )
 
@@ -99,10 +100,11 @@ export const Tooltip = ({
     const vals =
       datum &&
       datum
-        .filter((d) => aes?.y && aes.y(d))
-        // .sort((a, b) =>
-        //   (group(a)?.toString() || 0) < (group(b)?.toString() || 0) ? -1 : 1
-        // )
+        .filter((d) => (
+          aes?.y &&
+            typeof aes.y(d) !== 'undefined' &&
+            aes.y(d) !== null
+        ))
         .map((md) => {
           const thisGroup = group(md)
 
@@ -169,7 +171,7 @@ export const Tooltip = ({
     <XTooltip
       id={id as string}
       left={xCoord}
-      top={-(height - (groupVals[0].y || 0))}
+      top={position === 'data' ? -(height - (groupVals[0].y || 0)) : (-height + margin?.top ?? 0)}
       value={typeof xAxis === 'function' ? xAxis(xVal) : tooltipValue}
       yPosition="above"
     />
