@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import { stocks } from '@graphique/datasets'
 import { undefinedYValData } from './__data__/discontinuousData'
 import { GeomLine } from '..'
@@ -13,6 +13,8 @@ import {
   NUM_GROUPS,
 } from './shared'
 
+jest.useFakeTimers()
+
 describe('line chart basics with GeomLine', () => {
   it('renders a single-lined line chart correctly', async () => {
     render(
@@ -24,6 +26,8 @@ describe('line chart basics with GeomLine', () => {
         }}
       />
     )
+
+    act(() => jest.runAllTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
