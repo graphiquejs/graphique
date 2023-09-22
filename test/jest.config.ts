@@ -3,6 +3,7 @@ import type { Config } from 'jest'
 const config: Config = {
   preset: 'ts-jest',
   resetModules: true,
+  rootDir: "../",
   transform: {
 		'^.+\\.(ts|tsx)?$': 'ts-jest',
 	},
@@ -19,7 +20,7 @@ const config: Config = {
     '^@graphique/(.*)$': '<rootDir>/packages/$1/'
   },
   setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.ts',
+    '<rootDir>/test/jest.setup.ts',
     '@testing-library/jest-dom/extend-expect',
   ],
   roots: ['<rootDir>/packages/'],
