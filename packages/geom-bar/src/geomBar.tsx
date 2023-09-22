@@ -91,6 +91,7 @@ const GeomBar = ({
     fill: fillColor,
     stroke: strokeColor,
     strokeWidth,
+    opacity,
   } = {
     ...props,
   }
@@ -109,7 +110,7 @@ const GeomBar = ({
         ...prev.geoms,
         bar: {
           position,
-          fillOpacity: props.style?.fillOpacity || fillOpacity,
+          fillOpacity: props.style?.fillOpacity || props.style?.opacity || opacity || fillOpacity,
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
           strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
@@ -248,6 +249,14 @@ const GeomBar = ({
     [defineGroupAccessor, geomAes]
   )
 
+  const groups = useMemo(
+    () =>
+      group
+        ? (Array.from(new Set(geomData?.map(group))) as string[])
+        : undefined,
+    [geomData, group]
+  )
+
   const keyAccessor = useCallback(
     (d: unknown) =>
       (geomAes?.key
@@ -302,7 +311,7 @@ const GeomBar = ({
     if (position === 'dodge' && scales?.groups && yBandScale) {
       return scaleBand()
         .domain(scales?.groups.reverse())
-        .range([yBandScale.bandwidth(), 0])
+        .range([0, yBandScale.bandwidth()])
         .padding(dodgePadding)
     }
     return null
@@ -342,19 +351,34 @@ const GeomBar = ({
   const stackMidpoints = useMemo(() => {
     if (!stackedData || focusType === 'group') return undefined
 
-    return stackedData.map((sd) => {
+    return stackedData.flatMap((sd) => {
       const groupVal = sd.key
       const dataStack = sd.filter((d) => !d.flat().some(Number.isNaN))
-      const xVal = (dataStack[0][0] + dataStack[0][1]) / 2
-      const yVal = dataStack[0].data.key
+      
+      return dataStack.map((ds) => {
+        const xVal = (ds[0] + ds[1]) / 2
+        const yVal = ds.data.key
 
-      return {
-        groupVal,
-        yVal,
-        xVal,
-      }
+        return {
+          groupVal,
+          yVal,
+          xVal,
+        }
+      })
     })
   }, [stackedData, geomData, focusType])
+
+  const dodgeYAdj = useMemo(() => {
+    const bw = yBandScale?.bandwidth() ?? 0
+    const paddingAdj = (position === 'dodge' ? dodgePadding : 0) / (groups ? groups.length : 1)
+    const isGroupFocused = focusType === 'group'
+    
+    return position === 'dodge' && !isGroupFocused
+      ? (dodgeYScale?.bandwidth() ?? 0)/2
+    : bw/2 - (paddingAdj * bw)
+    // : (paddingAdj * bw)
+      // : 0
+  }, [groups, yBandScale, dodgePadding, focusType])
 
   return yBandScale ? (
     <>
@@ -481,12 +505,12 @@ const GeomBar = ({
             data={geomData}
             aes={geomAes}
             x={() => 0}
-            y={resolvedYScale}
+            y={(position === 'dodge' && focusType === 'group') ? y : resolvedYScale}
             yBandScale={yBandScale}
             fill={position === 'fill' ? 'x' : undefined}
             group={focusType === 'group' ? 'y' : undefined}
             yAdj={
-              position === 'dodge'
+              position === 'dodge' && focusType === 'individual'
                 ? (dodgeYScale?.bandwidth() ?? 0) / 2
                 : yBandScale.bandwidth() / 2
             }
@@ -518,12 +542,12 @@ const GeomBar = ({
           />
           <Tooltip
             x={x}
-            y={resolvedYScale}
+            y={focusType === 'group' ? y : resolvedYScale}
             aes={geomAes}
             stackMidpoints={stackMidpoints}
             yAdj={
               position === 'dodge'
-                ? (dodgeYScale?.bandwidth() ?? 0) / 2
+                ? dodgeYAdj
                 : yBandScale.bandwidth() / 2
             }
             focusType={focusType}

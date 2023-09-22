@@ -1,11 +1,10 @@
 import React from 'react'
-import { render } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import {
   GG, Aes, defaultScheme, defaultDasharrays,
 } from '@graphique/graphique'
 import { stocks, type Stock } from '@graphique/datasets'
 import { GeomLine } from '..'
+import { setup } from '../../../../test/utils'
 
 const GROUPS = Array.from(new Set(stocks.map(s => s.symbol)))
 const NUM_GROUPS = GROUPS.length
@@ -18,13 +17,6 @@ const DEFAULT_AES: Aes = {
   y: (d: Stock) => d.marketCap,
   stroke: (d: Stock) => d.symbol,
 }
-
-const setup = (jsx: React.ReactElement) => ({
-  user: userEvent.setup({
-    advanceTimers: jest.advanceTimersByTime,
-  }),
-  ...render(jsx),
-})
 
 interface LineProps {
   data?: unknown[]

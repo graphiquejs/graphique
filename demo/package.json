@@ -39,7 +39,7 @@
     "customize-cra": "^1.0.0",
     "react-app-rewired": "^2.2.1"
   },
-    "prettier": {
+  "prettier": {
     "printWidth": 80,
     "semi": false,
     "singleQuote": true,

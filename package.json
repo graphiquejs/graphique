@@ -11,6 +11,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@testing-library/react": "^12.1.5",
+    "@testing-library/user-event": "^14.5.1",
     "@types/d3-scale-chromatic": "^3.0.0",
     "@types/jest": "^29.5.3",
     "@types/node": "^20.4.2",
@@ -48,7 +49,7 @@
   },
   "scripts": {
     "lint": "npm run lint -w ./packages",
-    "test": "jest",
+    "test": "jest --config test/jest.config.ts",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o ./.storybook/site",
     "prepare": "husky install",
