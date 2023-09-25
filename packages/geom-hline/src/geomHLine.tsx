@@ -196,6 +196,7 @@ const GeomHLine = ({
                         strokeWidth={strokeWidth}
                         strokeOpacity={state.strokeOpacity}
                         style={{ pointerEvents: 'none' }}
+                        data-testid="__gg_geom_hline"
                       />
                     ))}
                   </>

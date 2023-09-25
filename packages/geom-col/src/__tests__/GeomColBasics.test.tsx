@@ -46,8 +46,6 @@ describe('column chart basics with GeomCol', () => {
     xTickLabels.forEach((label, i) => {
       expect(label).toHaveTextContent(COLS[i])
     })
-
-    screen.logTestingPlaygroundURL()
   })
   
   it('renders stacked (default) columns as expected', async () => {
