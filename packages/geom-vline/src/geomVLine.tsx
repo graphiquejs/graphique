@@ -206,6 +206,7 @@ const GeomVLine = ({
                         strokeWidth={strokeWidth}
                         strokeOpacity={state.strokeOpacity}
                         style={{ pointerEvents: 'none' }}
+                        data-testid="__gg_geom_vline"
                       />
                     ))}
                   </>
