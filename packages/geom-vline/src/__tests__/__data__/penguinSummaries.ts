@@ -6,10 +6,10 @@ type PenguinSummary = Penguin & {
 }
 
 const beakLengthsBySpecies: PenguinSummary[] = bivariateSummary(penguins, 'species', undefined, d => d?.beakLength!, 'avg')
-const flipperLengthBySpecies: PenguinSummary[] = bivariateSummary(penguins, 'species', undefined, d => d?.flipperLength!, 'avg')
+const flipperLengthsBySpecies: PenguinSummary[] = bivariateSummary(penguins, 'species', undefined, d => d?.flipperLength!, 'avg')
 
 export {
   beakLengthsBySpecies,
-  flipperLengthBySpecies,
+  flipperLengthsBySpecies,
   type PenguinSummary
 }
