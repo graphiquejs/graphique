@@ -52,6 +52,8 @@
     "react-dom": ">=16"
   },
   "devDependencies": {
+    "@graphique/datasets": "^1.1.7",
+    "@testing-library/react": "^12.1.5",
     "@types/d3-array": "^3.0.1",
     "@types/d3-axis": "^3.0.1",
     "@types/d3-ease": "^3.0.0",
