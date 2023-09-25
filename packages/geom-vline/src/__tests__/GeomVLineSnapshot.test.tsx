@@ -1,5 +1,5 @@
 import React from 'react'
-import { Stock, penguins } from '@graphique/datasets'
+import { Penguin, Stock, penguins } from '@graphique/datasets'
 import { act, screen } from '@testing-library/react'
 import { DEFAULT_AES, GGVLine, setup } from './shared'
 import { beakLengthsBySpecies, type PenguinSummary } from './__data__/penguinSummaries'
@@ -35,7 +35,13 @@ describe('a chart with vertical lines matches a snapshot', () => {
 
   it('with another geom', async () => {
     const { user, asFragment } = setup(
-      <GGVLine data={penguins.filter(d => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}>
+      <GGVLine
+        data={penguins.filter(d => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}
+        aes={{
+          ...DEFAULT_AES,
+          fill: (d: Penguin) => d.species
+        }}
+      >
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
