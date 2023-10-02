@@ -4,6 +4,7 @@ import {
   tooltipState,
   themeState,
   DataValue,
+  formatMissing,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { sum, min } from 'd3-array'
@@ -17,7 +18,6 @@ export interface LineMarkerProps {
   aes: GeomAes
   markerRadius: number
   markerStroke: string
-  // onDatumFocus?: (data: unknown) => void
 }
 
 export const LineMarker = ({
@@ -45,10 +45,7 @@ export const LineMarker = ({
       ] as number[]),
     [datum, x, width]
   )
-  // const shouldStack = useMemo(
-  //   () => area?.position && ['stack', 'fill', 'stream'].includes(area.position),
-  //   [area]
-  // )
+
   const getY = useMemo(() => (aes?.y1 ? y1 : y), [y1, y, aes])
 
   return height && margin ? (
@@ -65,12 +62,26 @@ export const LineMarker = ({
             stroke="#888"
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
+            data-testid='__gg_geom_area_marker'
           />
           {datum.map((d, i, stacks) => {
-            let thisYCoord
+            const formattedGroup = copiedScales?.groupAccessor
+              ? formatMissing(copiedScales?.groupAccessor(d))
+              : '__group'
+            
+            const inGroups = scales?.groups
+              ? scales.groups.includes(formattedGroup)
+              : true
+            
+            let thisYCoord: any[]
+
+            // not in groups
+            if (!inGroups) {
+              thisYCoord = []
+            }
 
             // stacked area (sum)
-            if (area?.position === 'stack') {
+            else if (area?.position === 'stack') {
               const yTotal = stacks
                 .slice(0, i + 1)
                 // @ts-ignore
@@ -96,16 +107,21 @@ export const LineMarker = ({
             }
 
             const thisFill =
-              area?.fill ||
+              area?.fill && !['none', 'transparent'].includes(area?.fill ?? '') ? area.fill : 
               (area?.fillScale && aes.fill && area.fillScale(aes.fill(d))) ||
               (copiedScales?.fillScale && aes?.fill
-                ? copiedScales.fillScale(aes.fill(d))
-                : defaultFill)
+                ? (copiedScales.fillScale(aes.fill(d)))
+                : ((area?.stroke ||
+                  (area?.strokeScale && aes.stroke && area.strokeScale(aes.stroke(d))) ||
+                    (copiedScales?.strokeScale?.(aes?.stroke?.(d)))
+                ) ?? defaultFill)
+              )
 
             return thisYCoord?.map((c, j) => {
               const inRange =
                 c <= copiedScales?.yScale.range()[0] &&
                 c >= copiedScales?.yScale.range()[1]
+              
               return (
                 getY(d) &&
                 inRange && (
@@ -135,6 +151,7 @@ export const LineMarker = ({
                       cy={c as number}
                       fillOpacity={area?.strokeOpacity || 0.9}
                       strokeOpacity={0.7}
+                      data-testid='__gg_geom_area_marker_point'
                     />
                   </g>
                 )

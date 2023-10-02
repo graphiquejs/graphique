@@ -29,7 +29,7 @@ export const CategoricalLegend = ({
     legendScales.groups || legendScales.fillScale?.domain() || []
   )
 
-  const [{ geoms }] = useAtom(themeState)
+  const [{ geoms, defaultFill }] = useAtom(themeState)
   const [{ domain }] = useAtom(fillScaleState)
 
   const legendGroups = useMemo(
@@ -120,10 +120,6 @@ export const CategoricalLegend = ({
               role="button"
               style={{
                 cursor: 'pointer',
-                // scales?.fillScale?.domain().includes(g) ||
-                // legendScales.groups?.includes(g)
-                //   ? "pointer"
-                //   : "not-allowed",
                 marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                 fontSize,
                 opacity: focused.includes(g) ? 1 : 0.5,
@@ -131,7 +127,7 @@ export const CategoricalLegend = ({
                 display: 'flex',
                 alignItems: 'center',
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (['Enter', ' '].includes(e.key)) {
                   toggleLegendGroup(g)
                 }
@@ -153,7 +149,7 @@ export const CategoricalLegend = ({
                       geoms?.area?.fill ||
                       (legendScales.fillScale
                         ? legendScales.fillScale(g)
-                        : 'none')
+                        : defaultFill)
                     }
                     stroke={
                       geoms?.area?.stroke ||

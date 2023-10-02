@@ -22,11 +22,10 @@ interface Props {
   y0: DataValue
   y1: DataValue
   aes: GeomAes
-  group?: DataValue
   geomID: string
 }
 
-export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
+export const Tooltip = ({ x, y, y0, y1, aes, geomID }: Props) => {
   const { ggState } = useGG() || {}
   const { id, scales, copiedScales, width, height, margin } = ggState || {
     height: 0,
@@ -52,11 +51,24 @@ export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
     [datum, y, y1]
   )
 
+  const datumInGroups = useMemo(() => {
+    const groups = scales?.groups
+
+    return groups
+      ? datum?.filter((d) => {
+        const group = geoms?.area?.groupAccessor?.(d)
+        const inGroups = scales?.groups?.includes(group as string)
+            
+        return inGroups && group
+      })
+      : datum
+  }, [datum, geoms, scales])
+
   const meanYVal = useMemo(
     () =>
-      (datum &&
+      (datumInGroups &&
         mean(
-          datum.map((d, i, stacks) => {
+          datumInGroups.map((d, i, stacks) => {
             let thisYCoord
 
             // stacked area (sum)
@@ -88,7 +100,7 @@ export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
           })
         )) ||
       0,
-    [datum, y, y0, y1]
+    [datumInGroups, y, y0, y1]
   )
 
   const cappedYVal = max([0, min([meanYVal, height]) as number]) as number
@@ -99,75 +111,70 @@ export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
   )
 
   const areaVals = useMemo(() => {
-    const vals =
-      datum &&
-      datum
-        .filter(
-          (d) =>
-            (aes?.y1 &&
-              typeof aes.y1(d) !== 'undefined' &&
-              aes.y1(d) !== null) ||
-            (aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null)
-        )
-        .map((md) => {
-          const thisGroup = group ? group(md) : undefined
+    const vals = datumInGroups?.filter((d) => (
+      (aes?.y1 &&
+        typeof aes.y1(d) !== 'undefined' &&
+        aes.y1(d) !== null) ||
+      (aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null)
+    ))
+    .map((md) => {
+      const thisGroup = geoms?.area?.groupAccessor?.(md)
+      const autoGrouped = thisGroup === '__group'
 
-          let formattedY
+      let formattedY
 
-          if (aes?.y) {
-            formattedY = yFormat ? yFormat(aes.y(md)) : aes.y(md)
-          }
+      if (aes?.y) {
+        formattedY = yFormat ? yFormat(aes.y(md)) : aes.y(md)
+      }
 
-          if (aes?.y1) {
-            formattedY = yFormat ? yFormat(aes.y1(md)) : aes.y1(md)
-          }
+      if (aes?.y1) {
+        formattedY = yFormat ? yFormat(aes.y1(md)) : aes.y1(md)
+      }
 
-          const mark = (
-            <svg width={15} height={15}>
-              <rect
-                transform="translate(1, 1)"
-                width={12}
-                height={12}
-                fill={
-                  area?.fill ||
-                  (area?.fillScale && area.fillScale(thisGroup)) ||
-                  (copiedScales?.fillScale
-                    ? copiedScales.fillScale(thisGroup)
-                    : defaultFill)
-                }
-                stroke={
-                  area?.stroke ||
-                  (area?.strokeScale && area.strokeScale(thisGroup)) ||
-                  (copiedScales?.strokeScale
-                    ? copiedScales.strokeScale(thisGroup)
-                    : defaultStroke)
-                }
-                strokeDasharray={
-                  area?.strokeDasharray ||
-                  (copiedScales?.strokeDasharrayScale
-                    ? copiedScales.strokeDasharrayScale(thisGroup)
-                    : undefined)
-                }
-                strokeWidth={0.6}
-                fillOpacity={area?.fillOpacity}
-                strokeOpacity={area?.strokeOpacity}
-              />
-            </svg>
-          )
-          return {
-            group:
-              (group && group(md)) ||
-              (copiedScales?.groupAccessor && copiedScales.groupAccessor(md)),
-            mark: group ? mark : undefined,
-            x: xVal,
-            y: (aes?.y1 && aes?.y1(md)) || (aes?.y && aes.y(md)),
-            formattedY,
-            formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
-          }
-        })
+      const mark = (
+        <svg width={15} height={15}>
+          <rect
+            transform="translate(1, 1)"
+            width={12}
+            height={12}
+            fill={
+              area?.fill ||
+              (area?.fillScale && area.fillScale(thisGroup)) ||
+              (copiedScales?.fillScale
+                ? copiedScales.fillScale(thisGroup)
+                : defaultFill)
+            }
+            stroke={
+              area?.stroke ||
+              (area?.strokeScale && area.strokeScale(thisGroup)) ||
+              (copiedScales?.strokeScale
+                ? copiedScales.strokeScale(thisGroup)
+                : undefined)
+            }
+            strokeDasharray={
+              area?.strokeDasharray ||
+              (copiedScales?.strokeDasharrayScale
+                ? copiedScales.strokeDasharrayScale(thisGroup)
+                : undefined)
+            }
+            strokeWidth={0.6}
+            fillOpacity={area?.fillOpacity}
+            strokeOpacity={area?.strokeOpacity}
+          />
+        </svg>
+      )
+      return {
+        group: autoGrouped ? undefined : thisGroup,
+        mark: thisGroup && !autoGrouped ? mark : undefined,
+        x: xVal,
+        y: (aes?.y1 && aes?.y1(md)) ?? (aes?.y && aes.y(md)),
+        formattedY,
+        formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+      }
+    })
     return vals as TooltipContent[]
   }, [
-    datum,
+    datumInGroups,
     xVal,
     aes,
     yFormat,
@@ -175,7 +182,6 @@ export const Tooltip = ({ x, y, y0, y1, aes, group, geomID }: Props) => {
     copiedScales,
     geoms,
     defaultStroke,
-    group,
   ])
 
   const tooltipValue = content ? (
