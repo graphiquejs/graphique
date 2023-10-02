@@ -2,6 +2,13 @@ import { useCallback } from 'react'
 import { useAtom } from 'jotai'
 import { xScaleState, yScaleState, zoomState } from '../../atoms'
 
+type CustomExtent = (number | undefined)[]
+
+interface CustomExtents {
+  customXExtent?: CustomExtent
+  customYExtent?: CustomExtent
+}
+
 export const useUnZoom = () => {
   const [, setYScale] = useAtom(yScaleState)
   const [, setXScale] = useAtom(xScaleState)
@@ -11,14 +18,14 @@ export const useUnZoom = () => {
     setZoom,
   ] = useAtom(zoomState)
 
-  const unZoom = useCallback(() => {
+  const unZoom = useCallback(({ customXExtent, customYExtent }: CustomExtents) => {
     setYScale((prev) => ({
       ...prev,
-      domain: yZoomDomain?.original,
+      domain: customYExtent ?? yZoomDomain?.original,
     }))
     setXScale((prev) => ({
       ...prev,
-      domain: xZoomDomain?.original,
+      domain: customXExtent ?? xZoomDomain?.original,
     }))
     setZoom((prev) => ({
       ...prev,
@@ -31,7 +38,13 @@ export const useUnZoom = () => {
         current: undefined,
       },
     }))
-  }, [setYScale, setXScale, setZoom])
+  }, [
+    setYScale,
+    setXScale,
+    setZoom,
+    xZoomDomain?.original,
+    yZoomDomain?.original,
+  ])
 
   return unZoom
 }
