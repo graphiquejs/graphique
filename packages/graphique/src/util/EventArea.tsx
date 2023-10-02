@@ -47,6 +47,9 @@ interface EventAreaProps {
     y0?: DataValue
     y1?: DataValue
   }
+  customXExtent?: (number | undefined)[]
+  customYExtent?: (number | undefined)[]
+  getYValExtent?: (data: unknown[]) => (number | undefined)[]
   positionKeys?: string
   disabled?: boolean
   fill?: 'x' | 'y'
@@ -69,6 +72,9 @@ export const EventArea = ({
   onDatumFocus,
   data,
   aes,
+  customXExtent,
+  customYExtent,
+  getYValExtent,
   positionKeys,
   disabled,
   showTooltip = true,
@@ -137,8 +143,8 @@ export const EventArea = ({
     }, duration + 50)
     return () => clearTimeout(timeout)
   }, [
-    ggData?.length,
-    data?.length,
+    ggData,
+    data,
     width,
     animationDuration,
     xZoomDomain,
@@ -377,7 +383,10 @@ export const EventArea = ({
           return isBetween(xVal, x0, x1) && isBetween(yVal, y0, y1)
         })
 
-        if (brushedData && brushedData.length) {
+        const hasXVals = brushedData?.some(v => aes?.x?.(v))
+        const hasYVals = brushedData?.some(v => aes?.y?.(v) ?? aes?.y0?.(v))
+
+        if (brushedData && brushedData.length && hasXVals && hasYVals) {
           let newXDomain = [
             scales?.xScale.invert(Math.min(x0, x1)),
             scales?.xScale.invert(Math.max(x0, x1)),
@@ -385,7 +394,9 @@ export const EventArea = ({
 
           newXDomain = reverseX ? newXDomain.reverse() : newXDomain
 
-          const brushedYExtent = extent(
+          const brushedYExtent = getYValExtent
+            ? getYValExtent(brushedData)
+            : extent(
             brushedData
               .map((d) => {
                 const yVal = (aes?.y && aes.y(d)) as number
@@ -395,7 +406,7 @@ export const EventArea = ({
                 return extent([yVal, y0Val, y1Val])
               })
               .flat() as number[]
-          )
+            )
 
           let reconciledYExtent = givenYDomain
             ? [
@@ -462,7 +473,8 @@ export const EventArea = ({
       xZoomDomain,
       yZoomDomain,
       onZoom,
-      geoms
+      geoms,
+      getYValExtent,
     ]
   )
 
@@ -641,7 +653,7 @@ export const EventArea = ({
       handleMouseOut(event)
 
       if (brushAction === 'zoom') {
-        unZoom()
+        unZoom({ customXExtent, customYExtent })
       }
 
       if (showTooltip) resetTooltip()
@@ -655,6 +667,7 @@ export const EventArea = ({
       setYScale,
       setXScale,
       setZoom,
+      customYExtent,
       yZoomDomain?.original,
       xZoomDomain?.original,
       brushAction,

@@ -133,8 +133,6 @@ export const GGBase = ({
   const y0Aes = areaGeom?.props?.aes?.y0
   const y1Aes = areaGeom?.props?.aes?.y1
 
-  const hasPositionFill = geomPositions.some((v) => v === 'fill')
-  const hasPositionStack = geomPositions.some((v) => v === 'stack')
   const hasZeroXBaseLine = geomZeroXBaseLines.some((v) => v)
   const hasZeroYBaseLine = geomZeroYBaseLines.some((v) => v)
 
@@ -154,8 +152,6 @@ export const GGBase = ({
           geomAesYs,
           y0Aes,
           y1Aes,
-          hasPositionFill,
-          hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           geomGroupAccessors,
@@ -179,8 +175,6 @@ export const GGBase = ({
           geomAesYs,
           y0Aes,
           y1Aes,
-          hasPositionFill,
-          hasPositionStack,
           hasZeroXBaseLine,
           hasZeroYBaseLine,
           geomGroupAccessors,
