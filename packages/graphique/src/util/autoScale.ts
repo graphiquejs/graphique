@@ -5,7 +5,7 @@ import {
   scaleOrdinal,
   scaleSequential,
 } from 'd3-scale'
-import { extent, max, sum } from 'd3-array'
+import { extent } from 'd3-array'
 import type { XYScaleProps, VisualEncodingProps } from '../atoms/scales/types'
 import type { DataValue, XYScaleTypes, VisualEncodingTypes, GGProps } from '../gg'
 import {
@@ -32,8 +32,6 @@ export interface AutoScale extends GGProps {
     y: XYScaleProps
     hasZeroXBaseLine: boolean
     hasZeroYBaseLine: boolean
-    hasPositionFill: boolean
-    hasPositionStack: boolean
     geomGroupAccessors: DataValue[]
     y0Aes?: DataValue
     y1Aes?: DataValue
@@ -72,8 +70,6 @@ export const autoScale = ({
     strokeDasharray: strokeDasharrayState,
     hasZeroXBaseLine,
     hasZeroYBaseLine,
-    hasPositionFill,
-    hasPositionStack,
     geomGroupAccessors,
     y0Aes,
     y1Aes,
@@ -177,11 +173,6 @@ export const autoScale = ({
   if (reverseX) xScale?.domain(xScale.domain().reverse())
 
   let yScale
-  if (hasPositionFill) {
-    yScale = scaleLinear()
-      .range([height - margin.bottom, margin.top])
-      .domain([0, 1])
-  }
   // else if (y0Aes && y1Aes) {
 
   //   const firstY = data.map(y1Aes).find((d) => d !== null && d !== undefined)
@@ -234,7 +225,7 @@ export const autoScale = ({
     //     .domain(domain)
     //   // .padding(0.2)
     // }
-   else if (resolvedYAes) {
+   if (resolvedYAes) {
     const firstY = data.map(resolvedYAes).find((d) => d !== null && d !== undefined)
 
     if (isDate(firstY)) {
@@ -248,43 +239,21 @@ export const autoScale = ({
         .range([height - margin.bottom, margin.top])
         .domain(hasDomain ? domain : [0, 1])
     } else if (typeof firstY === 'number') {
+      const defaultDomain = extent(data, thisYAes as (d: unknown) => number)
 
-      if (hasPositionStack) {
-        const groupYMaximums = calculatedGroups.map(
-          (g) =>
-            max(
-              [
-                0,
-                max(
-                  data.filter((d) => group && group(d) === g),
-                  (d) => resolvedYAes(d) as number
-                ) as number
-              ]
-            )
-        )
+      const domain = yScaleDomain ?? [
+        hasZeroYBaseLine ? 0 : defaultDomain[0],
+        defaultDomain[1],
+      ]
 
-        yScale = scaleLinear()
-          .range([height - margin.bottom, margin.top])
-          .domain([0, sum(groupYMaximums)])
+      const hasDomain =
+        typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
 
-      } else {
+      const yType: any = yScaleType || scaleLinear
 
-        const defaultDomain = extent(data, thisYAes as (d: unknown) => number)
-
-        const domain = yScaleDomain ?? [
-          hasZeroYBaseLine ? 0 : defaultDomain[0],
-          defaultDomain[1],
-        ]
-
-        const hasDomain =
-          typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
-
-        const yType: any = yScaleType || scaleLinear
-
-        yScale = yType()
-          .range([height - margin.bottom, margin.top])
-          .domain(hasDomain ? domain : [0, 1])
-      }
+      yScale = yType()
+        .range([height - margin.bottom, margin.top])
+        .domain(hasDomain ? domain : [0, 1])
     } else if (!firstY || typeof firstY === 'string') {
       // hasCategoricalVar = true
       // maintain the existing order
@@ -308,13 +277,6 @@ export const autoScale = ({
       .domain([0, 1])
   }
   if (reverseY) yScale?.domain(yScale.domain().reverse())
-
-  // setZoom(prev => ({
-  //   ...prev,
-  //   xDomain: {
-  //     current: xScale.domain(),
-  //   }
-  // }))
 
   // fill
   let fillScale
