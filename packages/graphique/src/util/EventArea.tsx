@@ -147,6 +147,9 @@ export const EventArea = ({
     // disable focusing in event area when data is changing
     JSON.stringify(ggData),
     JSON.stringify(data),
+    // disable focusing when coordinate mapping is changing
+    x?.toString(),
+    y?.toString(),
     width,
     animationDuration,
     xZoomDomain,
