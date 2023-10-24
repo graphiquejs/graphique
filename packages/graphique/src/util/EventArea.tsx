@@ -135,21 +135,24 @@ export const EventArea = ({
 
   const [isBrushing, setIsBrushing] = useState(false)
 
+  const xVals = data?.map(x)
+  const yVals = data?.map(y)
+
   useEffect(() => {
     readyToFocusRef.current = false
     const duration = animationDuration ?? 1000
     const timeout = setTimeout(() => {
       readyToFocusRef.current = true
     }, duration + 50)
-
+    
     return () => clearTimeout(timeout)
   }, [
     // disable focusing in event area when data is changing
     JSON.stringify(ggData),
     JSON.stringify(data),
     // disable focusing when coordinate mapping is changing
-    x?.toString(),
-    y?.toString(),
+    JSON.stringify(xVals),
+    JSON.stringify(yVals),
     width,
     animationDuration,
     xZoomDomain,
