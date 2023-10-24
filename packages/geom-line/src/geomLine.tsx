@@ -174,7 +174,7 @@ const GeomLine = ({
           strokeDasharray,
           stroke: strokeColor,
           strokeScale: geomStrokeScale,
-          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray,
+          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray ?? geomAes.group,
           usableGroups: strokeGroups ?? strokeDasharrayGroups,
         },
       },

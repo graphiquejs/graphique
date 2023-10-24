@@ -141,10 +141,12 @@ export const EventArea = ({
     const timeout = setTimeout(() => {
       readyToFocusRef.current = true
     }, duration + 50)
+
     return () => clearTimeout(timeout)
   }, [
-    ggData,
-    data,
+    // disable focusing in event area when data is changing
+    JSON.stringify(ggData),
+    JSON.stringify(data),
     width,
     animationDuration,
     xZoomDomain,

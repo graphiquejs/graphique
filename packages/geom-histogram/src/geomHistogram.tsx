@@ -31,6 +31,7 @@ const GeomHistogram = ({
   bins = 30,
   isRelative = false,
   rangeFormat,
+  showTooltip,
   ...props
 }: HistogramProps) => {
   const { ggState } = useGG() || {}
@@ -47,7 +48,7 @@ const GeomHistogram = ({
 
   const rangeFormatter = useCallback(
     (x0: number, x1: number) => {
-      const [x0String, x1String] = [x0.toLocaleString(), x1.toLocaleString()]
+      const [x0String, x1String] = [x0?.toLocaleString(), x1?.toLocaleString()]
 
       if (rangeFormat)
         return rangeFormat(x0, x1)
@@ -172,11 +173,13 @@ const GeomHistogram = ({
   }, [data, setXScale, setYScale, bins, isRelative])
 
   useEffect(() => {
-    setTooltip(prev => ({
-      ...prev,
-      xFormat: formatRange,
-    }))
-  }, [formatRange])
+    if (showTooltip) {
+      setTooltip(prev => ({
+        ...prev,
+        xFormat: formatRange,
+      }))
+    }
+  }, [formatRange, showTooltip])
 
   return !firstRender ? (
     <>
@@ -196,6 +199,7 @@ const GeomHistogram = ({
               xPadding={xPadding}
               align={reversedX ? 'right' : align}
               position="identity"
+              showTooltip={showTooltip}
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...props}
             />
