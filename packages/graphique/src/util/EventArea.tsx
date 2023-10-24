@@ -144,6 +144,7 @@ export const EventArea = ({
     const timeout = setTimeout(() => {
       readyToFocusRef.current = true
     }, duration + 50)
+    
     return () => clearTimeout(timeout)
   }, [
     // disable focusing in event area when data is changing
