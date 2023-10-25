@@ -20,13 +20,13 @@ export const focusNodes = ({
 }: FocusProps) => {
   const styleNodes = nodes
 
-  const focusedIndices = [focusedIndex].flat()
+  const focusedIndices = typeof focusedIndex !== 'undefined' ? [focusedIndex].flat() : undefined
 
-  const toUnfocus = Array.from(nodes).filter(
-    (_, ind) => !focusedIndices.includes(ind)
+  const toUnfocus = Array.from(nodes)?.filter(
+    (_, ind) => focusedIndices && !focusedIndices.includes(ind)
   )
 
-  toUnfocus.forEach((node) => {
+  toUnfocus?.forEach((node) => {
     const styleNode = node
     Object.entries(unfocusedStyles).forEach(([key, val]) => {
       styleNode.style[key as any] = val as string
@@ -34,7 +34,7 @@ export const focusNodes = ({
   })
 
   Object.entries(focusedStyles).forEach(([key, val]) => {
-    focusedIndices.forEach((ind) => {
+    focusedIndices?.forEach((ind) => {
       styleNodes[ind].style[key as any] = val as string
     })
   })

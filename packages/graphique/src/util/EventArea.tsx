@@ -382,7 +382,7 @@ export const EventArea = ({
         resetTooltip()
         resetBrush()
 
-        const brushedData = ggData?.filter((d) => {
+        const brushedData = data?.filter((d) => {
           const xVal = x(d)
           const yVal = y(d)
 

@@ -31,7 +31,7 @@ const GeomHistogram = ({
   bins = 30,
   isRelative = false,
   rangeFormat,
-  showTooltip,
+  showTooltip = true,
   ...props
 }: HistogramProps) => {
   const { ggState } = useGG() || {}
@@ -170,7 +170,7 @@ const GeomHistogram = ({
         max(binData, (d) => isRelative ? d.n / total : d.n) as number
       ],
     }))
-  }, [data, setXScale, setYScale, bins, isRelative])
+  }, [JSON.stringify(binData), setXScale, setYScale, bins, isRelative])
 
   useEffect(() => {
     if (showTooltip) {
