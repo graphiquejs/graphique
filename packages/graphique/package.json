@@ -1,6 +1,6 @@
 {
   "name": "@graphique/graphique",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "A data visualization system for React based on the Grammar of Graphics.",
   "keywords": [
     "react",
