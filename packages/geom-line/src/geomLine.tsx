@@ -9,6 +9,7 @@ import React, {
 import {
   useGG,
   themeState,
+  tooltipState,
   generateID,
   EventArea,
   BrushAction,
@@ -74,6 +75,7 @@ const GeomLine = ({
   const { data, aes, scales, copiedScales, copiedData, height, id } =
     ggState || {}
   const [theme, setTheme] = useAtom(themeState)
+  const [{ datum: tooltipDatum }] = useAtom(tooltipState)
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
 
@@ -237,8 +239,33 @@ const GeomLine = ({
     ...unfocusedStyle,
   }
 
-  // map through groups to draw a line for each group
+  useEffect(() => {
+    const thisDatum = tooltipDatum?.[0]
+    if (
+      thisDatum &&
+      group &&
+      groups &&
+      groups?.length > 1 &&
+      lines &&
+      lines?.length > 0 &&
+      focusType === 'closest'
+    ) {
+      const datumGroup = group(thisDatum)
 
+      const focusedIndex = groups
+        ?.map((g, i) => (g === datumGroup ? i : -1))
+        .filter((v) => v >= 0)
+      
+        focusNodes({
+          nodes: lines,
+          focusedIndex,
+          focusedStyles,
+          unfocusedStyles,
+        })
+    }
+  }, [tooltipDatum, group, groups, lines, focusType, firstRender])
+
+  // map through groups to draw a line for each group
   return (
     <>
       <g ref={groupRef}>
@@ -418,26 +445,6 @@ const GeomLine = ({
               }
 
               if (onExit) onExit()
-            }}
-            onMouseOver={({ d }) => {
-              if (
-                lines &&
-                groups &&
-                groups.length > 1 &&
-                focusType === 'closest'
-              ) {
-                const datumGroup = group?.(d[0])
-                const focusedIndex = groups
-                  ?.map((g, i) => (g === datumGroup ? i : -1))
-                  .filter((v) => v >= 0)
-
-                focusNodes({
-                  nodes: lines,
-                  focusedIndex,
-                  focusedStyles,
-                  unfocusedStyles,
-                })
-              }
             }}
             onClick={
               onDatumSelection
