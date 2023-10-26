@@ -256,12 +256,14 @@ const GeomLine = ({
         ?.map((g, i) => (g === datumGroup ? i : -1))
         .filter((v) => v >= 0)
       
-        focusNodes({
-          nodes: lines,
-          focusedIndex,
-          focusedStyles,
-          unfocusedStyles,
-        })
+      focusNodes({
+        nodes: lines,
+        focusedIndex,
+        focusedStyles,
+        unfocusedStyles,
+      })
+    } else if (lines && focusType === 'closest') {
+      unfocusNodes({ nodes: lines, baseStyles })
     }
   }, [tooltipDatum, group, groups, lines, focusType, firstRender])
 
