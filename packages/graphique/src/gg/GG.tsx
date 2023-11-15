@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react'
 import { Provider } from 'jotai'
-import { generateID, debounce } from '../util'
+import { generateID } from '../util'
 import { GGBase } from './GGBase'
 import type { RootGGProps } from './types/GG'
 
@@ -23,12 +23,19 @@ export const GG = ({ children, ...props }: RootGGProps) => {
   }, [isContainerWidth])
 
   useEffect(() => {
-    const resize = debounce(0, () => setGGWidth(ggRef.current?.clientWidth))
-    if (isContainerWidth) {
-      window.addEventListener('resize', resize)
+    const observer = new ResizeObserver((entries) => {
+      const rect = entries[0].contentRect;
+      if (isContainerWidth)
+        setGGWidth(rect.width)
+    });
+    if (ggRef.current && isContainerWidth)
+      observer.observe(ggRef.current)
+
+    return () => {
+      if (ggRef.current && isContainerWidth)
+        observer.unobserve(ggRef.current)
     }
-    return () => window.removeEventListener('resize', resize)
-  }, [isContainerWidth])
+  }, [isContainerWidth]);
 
   const id = useMemo(() => generateID(), [])
 
