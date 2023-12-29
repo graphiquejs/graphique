@@ -7,6 +7,7 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
+  TooltipProps,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, min, max } from 'd3-array'
@@ -28,7 +29,7 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
   }
 
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
   const left = useMemo(
@@ -107,10 +108,10 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
             x: xVal,
             y: aes?.y && aes.y(md),
             formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
-            formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+            formattedX: xFormat ? xFormat(xVal) : xVal?.toString(),
           }
         })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [datum, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
 
   const tooltipValue = content ? (
