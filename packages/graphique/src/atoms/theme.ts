@@ -29,9 +29,9 @@ interface AreaProps<Datum> extends PointThemeProps<Datum> {
   /** controls how to draw the area */
   position?: AreaPositions
   /** a functional mapping to `data` representing an initial **y** value */
-  y0?: DataValue<Datum>
+  y0?: (d: Datum) => number | undefined
   /** a functional mapping to `data` representing a secondary **y** value */
-  y1?: DataValue<Datum>
+  y1?: (d: Datum) => number | undefined
 }
 
 interface HistProps {
