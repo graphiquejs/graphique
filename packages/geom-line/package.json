@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-line",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "For line charts and other lines",
   "keywords": [
     "react",
