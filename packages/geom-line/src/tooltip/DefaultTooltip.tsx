@@ -7,15 +7,15 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-export interface DefaultTooltipProps {
-  data: TooltipContent[]
+export interface DefaultTooltipProps<Datum> {
+  data: TooltipContent<Datum>[]
   hasXAxisTooltip?: boolean
 }
 
-export const DefaultTooltip = ({
+export const DefaultTooltip = <Datum,>({
   data,
   hasXAxisTooltip,
-}: DefaultTooltipProps) => {
+}: DefaultTooltipProps<Datum>) => {
   const xVal = data && data[0] ? data[0]?.formattedX : undefined
 
   const [{ tooltip }] = useAtom(themeState)
@@ -34,7 +34,7 @@ export const DefaultTooltip = ({
           {xVal}
         </div>
       )}
-      {data.map((d: TooltipContent, i: number) => {
+      {data.map((d, i) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div

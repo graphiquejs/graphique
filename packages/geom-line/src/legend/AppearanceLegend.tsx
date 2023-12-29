@@ -3,8 +3,7 @@ import { useGG, themeState, IScale } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface AppearanceLegendProps<Datum> {
+export interface AppearanceLegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
@@ -20,7 +19,7 @@ export const Legend = <Datum,>({
   format,
   onSelection,
   ignoreDasharray = false,
-}: AppearanceLegendProps<Datum>) => {
+}: AppearanceLegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font, geoms }] = useAtom(themeState)
