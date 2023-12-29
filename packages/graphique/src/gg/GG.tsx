@@ -10,7 +10,7 @@ import { generateID } from '../util'
 import { GGBase } from './GGBase'
 import type { RootGGProps } from './types/GG'
 
-export const GG = ({ children, ...props }: RootGGProps) => {
+export const GG = <Datum,>({ children, ...props }: RootGGProps<Datum>) => {
   const { data, aes, width, height, margin, isContainerWidth } = { ...props }
   const ggRef = useRef<HTMLDivElement>(null)
 
@@ -43,7 +43,7 @@ export const GG = ({ children, ...props }: RootGGProps) => {
     <div ref={ggRef}>
       <Provider>
         <GGBase
-          data={data.map((d: any, i) => ({
+          data={data.map((d: Datum, i) => ({
             ...d,
             gg_gen_index: i,
           }))}

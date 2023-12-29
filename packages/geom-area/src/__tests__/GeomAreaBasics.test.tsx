@@ -10,7 +10,7 @@ import {
   NUM_GROUPS,
   DEFAULT_AES,
   undefinedYValData,
-} from "./shared"
+} from './shared'
 import { GeomArea } from '../geomArea'
 
 jest.useFakeTimers()
@@ -75,10 +75,10 @@ describe('area chart basics with GeomArea', () => {
           y: undefined,
         }}
       >
-        <GeomArea
+        <GeomArea<Stock>
           aes={{
-            y0: (d: Stock) => d.marketCap - (d.marketCap * 0.1),
-            y1: (d: Stock) => d.marketCap + (d.marketCap * 0.1) 
+            y0: d => d.marketCap - (d.marketCap * 0.1),
+            y1: d => d.marketCap + (d.marketCap * 0.1) 
           }}
         />
       </GGArea>
@@ -127,9 +127,9 @@ describe('area chart basics with GeomArea', () => {
     expect(() => {
       render(
         <GGArea {...DEFAULT_AREA_PROPS}>
-          <GeomArea
+          <GeomArea<Stock>
             aes={{
-              y1: (d: Stock) => d.marketCap + (d.marketCap * 0.1)
+              y1: d => d.marketCap + (d.marketCap * 0.1)
             }}
           />
         </GGArea>
@@ -148,10 +148,10 @@ describe('area chart basics with GeomArea', () => {
             y: undefined
           }}
         >
-          <GeomArea
+          <GeomArea<Stock>
             aes={{
-              y0: (d: Stock) => d.marketCap - (d.marketCap * 0.1),
-              y1: (d: Stock) => d.marketCap + (d.marketCap * 0.1)
+              y0: d => d.marketCap - (d.marketCap * 0.1),
+              y1: d => d.marketCap + (d.marketCap * 0.1)
             }}
             position='stack'
           />

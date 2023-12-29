@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState, IScale } from '@graphique/graphique'
+import { useGG, themeState } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 import { ColorBandLegend } from './ColorBandLegend'
@@ -14,7 +14,7 @@ export interface AppearanceLegendProps {
   onSelection?: (v: string) => void
 }
 
-export const Legend = ({
+export const Legend = <Datum,>({
   title,
   style,
   orientation = 'vertical',
@@ -23,7 +23,7 @@ export const Legend = ({
   width,
   onSelection,
 }: AppearanceLegendProps) => {
-  const { ggState } = useGG() || {}
+  const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font }] = useAtom(themeState)
 
@@ -54,7 +54,7 @@ export const Legend = ({
         />
       ) : (
         <ColorBandLegend
-          scales={copiedScales as IScale}
+          scales={copiedScales}
           tickFormat={format}
           numTicks={numTicks}
           fontSize={fontSize}

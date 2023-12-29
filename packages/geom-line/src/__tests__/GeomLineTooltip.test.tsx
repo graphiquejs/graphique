@@ -30,7 +30,7 @@ interface Props {
   aes?: typeof DEFAULT_AES
 }
 
-const aesthetics: Aes = {
+const aesthetics: Aes<Stock> = {
   ...DEFAULT_AES,
   strokeDasharray: DEFAULT_AES.stroke
 }

@@ -1,17 +1,17 @@
 import { DataValue, Aes } from "@graphique/graphique"
 
-export type GeomAes = Omit<Aes, 'x' | 'size'> &
+export type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'size'> &
 {
-  x?: DataValue
+  x?: DataValue<Datum>
   /** a functional mapping to `data` representing an initial **y** value */
-  y0?: DataValue
+  y0?: DataValue<Datum>
   /** a functional mapping to `data` representing a secondary **y** value */
-  y1?: DataValue
+  y1?: DataValue<Datum>
 }
 
 export type StackedArea = {
   x: number
-  i: number
+  group: string
   y0: number
   y1: number
 }

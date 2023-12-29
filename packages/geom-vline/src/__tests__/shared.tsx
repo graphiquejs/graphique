@@ -11,19 +11,24 @@ const NUM_GROUPS = GROUPS.length
 const DEFAULT_GROUP_STROKES = defaultScheme.slice(0, NUM_GROUPS)
 const DEFAULT_STROKE_WIDTH = '1.5'
 const DEFAULT_SINGLE_STROKE = '#777777ee'
-const DEFAULT_AES: Aes = {
-  x: (d: PenguinSummary) => d.beakLength,
-  y: (d: PenguinSummary) => d.flipperLength,
-  stroke: (d: PenguinSummary) => d.species,
+const DEFAULT_AES: Aes<PenguinSummary> = {
+  x: d => d.beakLength,
+  y: d => d.flipperLength,
+  stroke: d => d.species,
 }
 
-interface VLineProps {
-  data?: unknown[]
-  aes?: Aes
+interface VLineProps<Datum> {
+  data?: Datum[]
+  aes?: Aes<Datum>
+  children?: React.ReactNode
 }
 
-const GGVLine: React.FC<VLineProps> = (
-  { data = beakLengthsBySpecies, aes = DEFAULT_AES, children = <GeomVLine /> }
+const GGVLine = <Datum,>(
+  {
+    data = beakLengthsBySpecies as Datum[],
+    aes = DEFAULT_AES as Aes<Datum>,
+    children = <GeomVLine />,
+  }: VLineProps<Datum>
 ) => (
   <GG
     data={data}

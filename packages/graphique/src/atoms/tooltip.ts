@@ -2,7 +2,7 @@ import React from 'react'
 import { atom } from 'jotai'
 import { isDate, formatDate } from '../util/dates'
 
-export interface TooltipContent {
+export interface TooltipContent<Datum> {
   label?: string
   group?: string | number | Date | null
   mark?: JSX.Element
@@ -11,13 +11,13 @@ export interface TooltipContent {
   formattedX?: string
   formattedY?: string
   formattedMeasure?: string
-  datum: any
+  datum?: Datum
   containerWidth: number
   xLab?: string
   yLab?: string
 }
 
-export interface TooltipProps {
+export interface TooltipProps<Datum> {
   x0?: any
   y0?: any
   left?: number
@@ -30,9 +30,9 @@ export interface TooltipProps {
   xFormat?: (d: unknown) => string
   yFormat?: (d: unknown) => string
   measureFormat?: (d: unknown) => string
-  content?: (value: TooltipContent[]) => React.ReactNode | undefined
-  xAxis?: ((x: string | number | Date) => React.ReactNode) | boolean
-  datum?: any[]
+  content?: (value: TooltipContent<Datum>[]) => React.ReactNode | undefined
+  xAxis?: ((x?: string | number | Date | null) => React.ReactNode) | boolean
+  datum?: Datum[]
 }
 
 const defaultDataFormatter = (v: unknown) => {
@@ -42,7 +42,7 @@ const defaultDataFormatter = (v: unknown) => {
   return v as any
 }
 
-export const tooltipState = atom<TooltipProps>({
+export const tooltipState = atom<TooltipProps<any>>({
   position: 'data',
   keepInParent: true,
   xFormat: defaultDataFormatter,

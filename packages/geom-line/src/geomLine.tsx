@@ -31,9 +31,9 @@ import { useAtom } from 'jotai'
 import { LineMarker, Tooltip } from './tooltip'
 import { type GeomAes } from './types'
 
-export interface LineProps extends SVGAttributes<SVGPathElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface LineProps<Datum> extends SVGAttributes<SVGPathElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   showTooltip?: boolean
   showLineMarker?: boolean
   brushAction?: BrushAction
@@ -45,12 +45,12 @@ export interface LineProps extends SVGAttributes<SVGPathElement> {
   focusType?: 'x' | 'closest'
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum, index: number[]) => void
   onExit?: () => void
 }
 
-const GeomLine = ({
+const GeomLine = <Datum,>({
   data: localData,
   aes: localAes,
   showTooltip = true,
@@ -70,8 +70,8 @@ const GeomLine = ({
   markerStroke = '#fff',
   focusType = 'x',
   ...props
-}: LineProps) => {
-  const { ggState } = useGG() || {}
+}: LineProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, copiedData, height, id } =
     ggState || {}
   const [theme, setTheme] = useAtom(themeState)
@@ -87,7 +87,7 @@ const GeomLine = ({
         ...localAes,
       }
     }
-    return aes as GeomAes
+    return aes as GeomAes<Datum>
   }, [aes, localAes])
 
   const allXUndefined = useMemo(() => {
@@ -194,12 +194,12 @@ const GeomLine = ({
   ])
 
   const x = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
     [scales, geomAes]
   )
   const y = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       geomAes?.y && scales?.yScale && scales.yScale(geomAes?.y(d)),
     [scales, geomAes]
   )
@@ -439,7 +439,7 @@ const GeomLine = ({
             data={geomData}
             aes={geomAes}
             group={focusType === 'x' ? 'x' : undefined}
-            x={(v: unknown) => x(v)}
+            x={(v: Datum) => x(v)}
             y={focusType === 'x' ? () => 0 : y}
             onMouseLeave={() => {
               if (lines) {

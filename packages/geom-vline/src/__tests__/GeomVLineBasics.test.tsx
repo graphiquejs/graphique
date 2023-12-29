@@ -1,14 +1,14 @@
 import React from 'react'
 import { render, screen, act } from '@testing-library/react'
-import { Stock, penguins } from '@graphique/datasets'
+import { penguins } from '@graphique/datasets'
 import {
   GGVLine,
   NUM_GROUPS,
   DEFAULT_GROUP_STROKES,
   DEFAULT_AES,
   DEFAULT_STROKE_WIDTH,
-} from "./shared"
-import { beakLengthsBySpecies, type PenguinSummary } from './__data__/penguinSummaries'
+} from './shared'
+import { beakLengthsBySpecies } from './__data__/penguinSummaries'
 import { GeomVLine } from '../geomVLine'
 import { aaplMarketcap } from './__data__/aaplMarketcap'
 
@@ -20,7 +20,7 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         aes={{
           ...DEFAULT_AES,
-          x: (d: PenguinSummary) => d.count!
+          x: d => d.count!
         }}
       />
     )
@@ -50,8 +50,8 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: (d: Stock) => new Date(d.date),
-          y: (d: Stock) => d.marketCap,
+          x: d => new Date(d.date),
+          y: d => d.marketCap,
         }}
       />
     )
@@ -72,8 +72,8 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: (d: Stock) => new Date(d.date),
-          y: (d: Stock) => d.marketCap,
+          x: d => new Date(d.date),
+          y: d => d.marketCap,
         }}
       >
         <GeomVLine data={[aaplMarketcap[45]]} />
@@ -97,7 +97,7 @@ describe('vertical line basics with GeomVLine', () => {
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: (d: PenguinSummary) => d.count!
+            x: d => d.count!
           }}
         />
       </GGVLine>

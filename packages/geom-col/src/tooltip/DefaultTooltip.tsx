@@ -8,12 +8,12 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-interface Props {
-  data: TooltipContent[]
+interface Props<Datum> {
+  data: TooltipContent<Datum>[]
 }
 
-export const DefaultTooltip = ({ data }: Props) => {
-  const { ggState } = useGG() || {}
+export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { aes } = ggState || {}
 
   const xVal = data && data[0].formattedX
@@ -32,13 +32,13 @@ export const DefaultTooltip = ({ data }: Props) => {
       >
         {xVal}
       </div>
-      {data.map((d: TooltipContent, i: number) => {
+      {data.map((d, i) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div
             key={
               aes?.key
-                ? aes.key(d)
+                ? aes.key(d.datum)
                 : `group-tooltip-${
                     d.label || d.group !== '__group' ? formattedGroup : i
                   }`

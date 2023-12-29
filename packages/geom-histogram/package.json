@@ -41,7 +41,7 @@
     "jotai": "^1.1.2"
   },
   "peerDependencies": {
-    "@graphique/graphique": ">=1",
+    "@graphique/graphique": ">=2",
     "react": ">=16",
     "react-dom": ">=16"
   },

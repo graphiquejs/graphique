@@ -25,9 +25,9 @@ import { Tooltip } from './tooltip'
 
 export { Legend } from './legend'
 
-export interface GeomTileProps extends SVGAttributes<SVGRectElement> {
-  data?: unknown[]
-  aes?: Aes
+export interface GeomTileProps<Datum> extends SVGAttributes<SVGRectElement> {
+  data?: Datum[]
+  aes?: Aes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   xPadding?: number
@@ -36,14 +36,14 @@ export interface GeomTileProps extends SVGAttributes<SVGRectElement> {
   yDomain?: unknown[]
   showTooltip?: boolean
   focusedDatum?: any
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
 }
 
-const GeomTile = ({
+const GeomTile = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -60,8 +60,8 @@ const GeomTile = ({
   fillOpacity = 1,
   strokeOpacity = 1,
   ...props
-}: GeomTileProps) => {
-  const { ggState } = useGG() || {}
+}: GeomTileProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, width, margin } =
     ggState || {}
 
@@ -130,7 +130,7 @@ const GeomTile = ({
   }
 
   const fill = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       fillColor ||
       (aes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -142,7 +142,7 @@ const GeomTile = ({
   )
 
   const stroke = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       strokeColor ||
       (aes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(aes.stroke(d) as any) as string | undefined)
@@ -152,7 +152,7 @@ const GeomTile = ({
 
   const xBandScale = useMemo(() => {
     if (margin && width) {
-      if (scales?.xScale.bandwidth) {
+      if (typeof scales?.xScale.bandwidth !== 'undefined') {
         return scales.xScale.paddingInner(xPadding)
       }
       const uniqueXs = Array.from(new Set(data?.map((d) => aes?.x(d))))
@@ -166,7 +166,7 @@ const GeomTile = ({
 
   const yBandScale = useMemo(() => {
     if (margin && height) {
-      if (scales?.yScale.bandwidth) {
+      if (typeof scales?.yScale.bandwidth !== 'undefined') {
         return scales.yScale.paddingInner(yPadding)
       }
       const uniqueYs = Array.from(new Set(data?.map((d) => aes?.y && aes.y(d))))
@@ -184,10 +184,10 @@ const GeomTile = ({
         margin.left + xBandScale.bandwidth() / 2,
         width - margin.right - xBandScale.bandwidth() / 2 - 0.5,
       ])
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.xScale(aes?.x(d)) || 0) - xBandScale.bandwidth() / 2 + 0.5
     }
-    return (d: unknown) => scales?.xScale && scales.xScale(aes?.x(d))
+    return (d: Datum) => scales?.xScale && scales.xScale(aes?.x(d))
   }, [scales, aes, xBandScale, margin, width])
 
   const y = useMemo(() => {
@@ -196,12 +196,12 @@ const GeomTile = ({
         height - margin.bottom - yBandScale.bandwidth() / 2 - 0.5,
         margin.top + yBandScale.bandwidth() / 2,
       ])
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.yScale(aes?.y && aes.y(d)) || 0) -
         yBandScale.bandwidth() / 2 +
         0.5
     }
-    return (d: unknown) => scales?.yScale && aes?.y && scales.yScale(aes.y(d))
+    return (d: Datum) => scales?.yScale && aes?.y && scales.yScale(aes.y(d))
   }, [scales, aes, margin, height, yBandScale])
 
   const group = useMemo(
@@ -213,7 +213,7 @@ const GeomTile = ({
   )
 
   const keyAccessor = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y && `${geomAes?.x(d)}-${geomAes?.y(d)}`) as string,
@@ -232,7 +232,7 @@ const GeomTile = ({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(data as [])]}
+                data={[...data]}
                 keyAccessor={keyAccessor}
                 start={(d) => ({
                   x: margin?.left,
@@ -302,7 +302,7 @@ const GeomTile = ({
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
+            onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -314,7 +314,7 @@ const GeomTile = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: any; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

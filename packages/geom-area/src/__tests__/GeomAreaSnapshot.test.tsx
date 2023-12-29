@@ -21,11 +21,11 @@ jest.mock('nanoid', () => ({
 jest.useFakeTimers()
 
 interface TestComponentProps {
-  aes?: Aes
+  aes?: Aes<Stock>
   data?: Stock[]
   position?: AreaPositions
-  y0?: DataValue
-  y1?: DataValue
+  y0?: DataValue<Stock>
+  y1?: DataValue<Stock>
 }
 
 const TestComponent = ({
@@ -110,8 +110,8 @@ describe('area charts match snapshots', () => {
           ...DEFAULT_AES,
           y: undefined,
         }}
-        y0={(d: Stock) => d.marketCap - (d.marketCap * 0.1)}
-        y1={(d: Stock) => d.marketCap + (d.marketCap * 0.1)}
+        y0={d => d.marketCap - (d.marketCap * 0.1)}
+        y1={d => d.marketCap + (d.marketCap * 0.1)}
       />
     )
     await prepareTesting(user)

@@ -3,17 +3,17 @@ import { axisLeft, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
 import 'd3-transition'
 import { useAtom } from 'jotai'
-import { themeState, yScaleState, tooltipState } from '../../atoms'
+import { themeState, yScaleState, tooltipState, TooltipProps } from '../../atoms'
 import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
 
-export interface YAxisProps {
+export interface YAxisProps<Datum> {
   ggState: {
     id: string | undefined
-    copiedData: unknown[]
-    data: unknown[]
-    aes: Aes
+    copiedData: Datum[]
+    data: Datum[]
+    aes: Aes<Datum>
     width: number
     height: number
     margin: {
@@ -22,13 +22,13 @@ export interface YAxisProps {
       bottom: number
       left: number
     }
-    copiedScales: IScale
-    scales: IScale
+    copiedScales: IScale<Datum>
+    scales: IScale<Datum>
   }
   animate?: boolean
 }
 
-export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
+export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) => {
   const [{ axis: axisTheme, axisY, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, height, width, margin, scales } = ggState || {
@@ -42,7 +42,7 @@ export const YAxis = ({ ggState, animate = true }: YAxisProps) => {
     },
   }
   const scale = scales?.yScale as AxisScale<number | string | Date>
-  const [{ datum }] = useAtom(tooltipState)
+  const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ format, numTicks, highlightOnFocus, className }] =
     useAtom(yScaleState)

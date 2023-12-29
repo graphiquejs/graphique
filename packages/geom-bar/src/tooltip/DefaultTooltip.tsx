@@ -7,11 +7,11 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-interface Props {
-  data: TooltipContent[]
+interface Props<Datum> {
+  data: TooltipContent<Datum>[]
 }
 
-export const DefaultTooltip = ({ data }: Props) => {
+export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
   const yVal = data && data[0].formattedY
 
   const [{ tooltip }] = useAtom(themeState)
@@ -28,7 +28,7 @@ export const DefaultTooltip = ({ data }: Props) => {
       >
         {yVal}
       </div>
-      {data.map((d: TooltipContent, i: number) => {
+      {data.map((d, i) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div

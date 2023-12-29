@@ -15,7 +15,7 @@ export interface AppearanceLegendProps {
   onSelection?: (v: string) => void
 }
 
-export const Legend = ({
+export const Legend = <Datum,>({
   title,
   style,
   orientation = 'vertical',
@@ -24,7 +24,7 @@ export const Legend = ({
   // width,
   onSelection,
 }: AppearanceLegendProps) => {
-  const { ggState } = useGG() || {}
+  const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font, geoms }] = useAtom(themeState)
 
@@ -60,7 +60,7 @@ export const Legend = ({
                   ? area.strokeScale
                   : copiedScales?.strokeScale,
                 fillScale: area ? area.fillScale : copiedScales?.fillScale,
-              } as IScale
+              } as IScale<Datum>
             }
             labelFormat={format}
             fontSize={fontSize}

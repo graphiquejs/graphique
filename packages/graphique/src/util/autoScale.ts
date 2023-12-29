@@ -16,36 +16,36 @@ import {
 import { defineGroupAccessor } from './defineGroupAccessor'
 import { isDate } from './dates'
 
-export interface IScale {
+export interface IScale<Datum> {
   xScale: XYScaleTypes
   yScale: XYScaleTypes
   fillScale?: VisualEncodingTypes
   strokeScale?: VisualEncodingTypes
   strokeDasharrayScale?: VisualEncodingTypes
-  groupAccessor: DataValue | undefined
+  groupAccessor: DataValue<Datum> | undefined
   groups?: string[]
 }
 
-export interface AutoScale extends GGProps {
+export interface AutoScale<Datum> extends GGProps<Datum> {
   scalesState: {
     x: XYScaleProps
     y: XYScaleProps
     hasZeroXBaseLine: boolean
     hasZeroYBaseLine: boolean
-    geomGroupAccessors: DataValue[]
-    y0Aes?: DataValue
-    y1Aes?: DataValue
-    geomAesYs: DataValue[]
-    geomAesStrokes: DataValue[]
-    geomAesFills: DataValue[]
+    geomGroupAccessors: DataValue<Datum>[]
+    y0Aes?: DataValue<Datum>
+    y1Aes?: DataValue<Datum>
+    geomAesYs: DataValue<Datum>[]
+    geomAesStrokes: DataValue<Datum>[]
+    geomAesFills: DataValue<Datum>[]
     fill?: VisualEncodingProps
     stroke?: VisualEncodingProps
     strokeDasharray?: VisualEncodingProps
   }
-  copiedData: unknown[]
+  copiedData: Datum[]
 }
 
-export const autoScale = ({
+export const autoScale = <Datum,>({
   scalesState,
   data,
   copiedData,
@@ -53,7 +53,7 @@ export const autoScale = ({
   width = 500,
   height = 450,
   margin: suppliedMargin,
-}: AutoScale): IScale => {
+}: AutoScale<Datum>): IScale<Datum> => {
   const margin = {
     top: 10,
     right: 20,

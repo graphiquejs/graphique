@@ -6,8 +6,6 @@ import {
   themeState,
   generateID,
   EventArea,
-  Aes,
-  DataValue,
   isDate,
   widen,
   yScaleState,
@@ -19,6 +17,7 @@ import {
   VisualEncodingTypes,
   BrushAction,
   AreaPositions,
+  type Aes,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -42,23 +41,23 @@ import type { GeomAes, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
 import { useHandleSpecificationErrors } from './hooks/useHandleSpecificationErrors'
 
-export interface GeomAreaProps extends SVGAttributes<SVGPathElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface GeomAreaProps<Datum> extends SVGAttributes<SVGPathElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   showTooltip?: boolean
   brushAction?: BrushAction
   curve?: CurveFactory
   markerRadius?: number
   markerStroke?: string
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum, index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
   position?: AreaPositions
 }
 
-const GeomArea = ({
+const GeomArea = <Datum,>({
   data: localData,
   aes: localAes,
   showTooltip = true,
@@ -76,8 +75,8 @@ const GeomArea = ({
   markerStroke = '#fff',
   position = 'identity',
   ...props
-}: GeomAreaProps) => {
-  const { ggState } = useGG() || {}
+}: GeomAreaProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
   const [{ values: fillScaleColors, domain: fillDomain }] =
@@ -92,9 +91,9 @@ const GeomArea = ({
       return {
         ...aes,
         ...localAes,
-      } as GeomAes
+      }
     }
-    return aes as GeomAes
+    return aes as GeomAes<Datum>
   }, [aes, localAes])
 
   const geomData = localData || data
@@ -168,7 +167,7 @@ const GeomArea = ({
   const group = useMemo(
     () =>
       geomAes?.group ?? geomAes?.fill
-        ? defineGroupAccessor(geomAes as Aes)
+        ? defineGroupAccessor(geomAes as Aes<Datum>)
         : (scales?.groupAccessor ?? (() => '__group')),
     [geomAes, defineGroupAccessor]
   )
@@ -194,12 +193,12 @@ const GeomArea = ({
   )
 
   const x = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       geomAes?.x && scales?.xScale && scales.xScale(geomAes?.x(d)),
     [scales, geomAes]
   )
   const y = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       geomAes?.y && scales?.yScale && scales.yScale(geomAes?.y(d)),
     [scales, geomAes]
   )
@@ -209,7 +208,7 @@ const GeomArea = ({
     [position]
   )
 
-  const getYValExtent = useCallback((areaData: unknown[]) => {
+  const getYValExtent = useCallback((areaData: Datum[]) => {
     // reset the yScale based on position
     const existingYExtent = [0, 1]
 
@@ -221,7 +220,6 @@ const GeomArea = ({
       group &&
       groups &&
       areaData &&
-      scales?.xScale &&
       geomAes?.x
     ) {
       const groupYMaximums = groups.map((g) =>
@@ -311,25 +309,25 @@ const GeomArea = ({
   }, [yValExtent])
 
   const y0 = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       geomAes?.y0 && scales?.yScale && scales.yScale(geomAes.y0(d)),
     [scales, geomAes]
-  ) as DataValue
+  )
 
   const y1 = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       geomAes?.y1 && scales?.yScale && scales.yScale(geomAes.y1(d)),
     [scales, geomAes]
-  ) as DataValue
+  )
 
   const drawStackArea = useMemo(
     () =>
-      area()
-        .x((d: any) => scales?.xScale(d.x) as number)
-        .y0((d: any) => scales?.yScale?.(d.y0) as number)
-        .y1((d: any) => scales?.yScale?.(d.y1) as number)
-        .defined((d: any) => {
-          const dataVal: StackedArea = d
+      area<StackedArea>()
+        .x((d) => scales?.xScale(d.x) as number)
+        .y0((d) => scales?.yScale?.(d.y0) as number)
+        .y1((d) => scales?.yScale?.(d.y1) as number)
+        .defined((d) => {
+          const dataVal = d
           const xVal = isDate(dataVal.x) ? dataVal.x.valueOf() : dataVal.x
 
           const areDefined =
@@ -350,10 +348,10 @@ const GeomArea = ({
 
   const drawArea = useMemo(
     () =>
-      area()
+      area<Datum>()
         .x((d) => x(d) as number)
         .y0((d) => (localAes?.y0 ? (y0(d) as number) : scales?.yScale(0)))
-        .y1((d: any) => (localAes?.y1 ? (y1(d) as number) : (y(d) as number)))
+        .y1((d) => (localAes?.y1 ? (y1(d) as number) : (y(d) as number)))
         .defined((d) => {
           const xVal =
             geomAes.x &&

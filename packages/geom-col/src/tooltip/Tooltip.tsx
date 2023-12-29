@@ -5,6 +5,7 @@ import {
   useGG,
   tooltipState,
   TooltipContent,
+  type TooltipProps as TooltipState,
   XTooltip,
   Aes,
   themeState,
@@ -17,30 +18,30 @@ interface StackMidpoint {
   xVal: number
 }
 
-export interface TooltipProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
+export interface TooltipProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   xAdj?: number
-  aes?: Aes
+  aes?: Aes<Datum>
   focusType: 'group' | 'individual'
   stackMidpoints?: StackMidpoint[]
 }
 
-export const Tooltip = ({
+export const Tooltip = <Datum,>({
   x,
   y,
   xAdj = 0,
   aes,
   focusType,
   stackMidpoints,
-}: TooltipProps) => {
-  const { ggState } = useGG() || {}
+}: TooltipProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, id, scales, copiedScales, height, margin } = ggState || {
     width: 0,
     height: 0,
   }
 
-  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom(tooltipState)
+  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom<TooltipState<Datum>>(tooltipState)
 
   const [{ geoms }] = useAtom(themeState)
 
@@ -67,7 +68,7 @@ export const Tooltip = ({
       const datumGroup = group(datum[0])
       const focusedStack = stackMidpoints.find(
         ({ xVal: stackX, groupVal }) =>
-          stackX === xVal.valueOf() && groupVal === datumGroup
+          stackX === xVal?.valueOf() && groupVal === datumGroup
       )
 
       const yAesVal = aes?.y?.(datum[0]) as number
@@ -145,10 +146,10 @@ export const Tooltip = ({
             x: xVal,
             y: yVal,
             formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
-            formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+            formattedX: xFormat ? xFormat(xVal) : xVal?.toString(),
           }
         })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [
     datum,
     xVal,

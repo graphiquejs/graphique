@@ -12,19 +12,20 @@ const DEFAULT_GROUP_STROKES = defaultScheme.slice(0, NUM_GROUPS)
 const DEFAULT_DASHARRAYS = defaultDasharrays.slice(0, NUM_GROUPS)
 const DEFAULT_STROKE_WIDTH = '2.5'
 const DEFAULT_SINGLE_STROKE = '#777777ee'
-const DEFAULT_AES: Aes = {
-  x: (d: Stock) => new Date(d.date),
-  y: (d: Stock) => d.marketCap,
-  stroke: (d: Stock) => d.symbol,
+const DEFAULT_AES: Aes<Stock> = {
+  x: d => new Date(d.date),
+  y: d => d.marketCap,
+  stroke: d => d.symbol,
 }
 
-interface LineProps {
-  data?: unknown[]
-  aes?: Aes
+interface LineProps<Datum> {
+  data?: Datum[]
+  aes?: Aes<Datum>
+  children?: React.ReactNode
 }
 
-const GGLine: React.FC<LineProps> = (
-  { data = stocks, aes = DEFAULT_AES, children = <GeomLine /> }
+const GGLine = (
+  { data = stocks, aes = DEFAULT_AES, children = <GeomLine /> }: LineProps<Stock>
 ) => (
   <GG
     data={data}

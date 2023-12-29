@@ -10,17 +10,17 @@ import {
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
-export interface TooltipProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
+export interface TooltipProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   xAdj: number
   yAdj: number
-  datum?: any
-  group: DataValue
-  aes: Aes
+  datum?: Datum[]
+  group: DataValue<Datum>
+  aes: Aes<Datum>
 }
 
-export const Tooltip = ({
+export const Tooltip = <Datum,>({
   x,
   y,
   xAdj,
@@ -28,8 +28,8 @@ export const Tooltip = ({
   datum,
   group,
   aes,
-}: TooltipProps) => {
-  const { ggState } = useGG() || {}
+}: TooltipProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, height, width } = ggState || { width: 0, height: 0 }
 
   const [
@@ -60,7 +60,7 @@ export const Tooltip = ({
     [label]
   )
 
-  const tooltipContents: TooltipContent[] = [
+  const tooltipContents: TooltipContent<Datum>[] = [
     {
       x: thisDatum && (x(thisDatum) as number),
       y: thisDatum && (y(thisDatum) as number),

@@ -11,13 +11,13 @@ import {
 import { DefaultTooltip } from './DefaultTooltip'
 import { type GeomAes } from '../types'
 
-interface Props {
-  aes: GeomAes
-  group?: DataValue
+interface Props<Datum> {
+  aes: GeomAes<Datum>
+  group?: DataValue<Datum>
 }
 
-export const Tooltip = ({ aes, group }: Props) => {
-  const { ggState } = useGG() || {}
+export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, scales, height, width } = ggState || { width: 0, height: 0 }
 
   const [
@@ -54,7 +54,7 @@ export const Tooltip = ({ aes, group }: Props) => {
     [datum, group]
   )
 
-  const tooltipContents: TooltipContent[] = [
+  const tooltipContents: TooltipContent<Datum>[] = [
     {
       x: datum && aes?.x && xScale && xScale(aes.x(datum)),
       y: datum && aes?.y && yScale && yScale(aes.y(datum)),

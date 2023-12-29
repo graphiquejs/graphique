@@ -18,17 +18,17 @@ interface StackMidpoint {
   xVal: number
 }
 
-export interface TooltipProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
+export interface TooltipProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   yAdj?: number
-  aes?: Aes
+  aes?: Aes<Datum>
   focusType: 'group' | 'individual'
   align: 'left' | 'center' | 'right'
   stackMidpoints?: StackMidpoint[]
 }
 
-export const Tooltip = ({
+export const Tooltip = <Datum,>({
   x,
   y,
   yAdj = 0,
@@ -36,8 +36,8 @@ export const Tooltip = ({
   focusType,
   align,
   stackMidpoints,
-}: TooltipProps) => {
-  const { ggState } = useGG() || {}
+}: TooltipProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, scales, copiedScales, height } = ggState || {
     height: 0,
   }
@@ -141,7 +141,7 @@ export const Tooltip = ({
             formattedY: yFormat ? yFormat(yVal) : yVal.toString(),
           }
         })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [
     datum,
     yVal,
