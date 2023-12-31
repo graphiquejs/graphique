@@ -66,16 +66,16 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
       label,
       formattedMeasure:
         measureFormat ? measureFormat(label ?? thisGroup) : undefined,
-      datum,
+      datum: tooltipDatum,
       containerWidth: width,
     },
   ]
 
   const tooltipValue = content
-    ? datum && <div>{content(tooltipContents)}</div>
-    : datum && <DefaultTooltip data={tooltipContents} />
+    ? tooltipDatum && <div>{content(tooltipContents)}</div>
+    : tooltipDatum && <DefaultTooltip data={tooltipContents} />
 
-  const shouldShow = datum && tooltipContents[0].y !== undefined
+  const shouldShow = tooltipDatum && tooltipContents[0].y !== undefined
 
   return shouldShow ? (
     <div>

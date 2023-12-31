@@ -7,6 +7,7 @@ import {
   TooltipContent,
   YTooltip,
   DataValue,
+  TooltipProps,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 import { type GeomAes } from '../types'
@@ -22,7 +23,7 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
 
   const [
     { datum: tooltipDatum, position, xFormat, yFormat, measureFormat, content },
-  ] = useAtom(tooltipState)
+  ] = useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ x: xLab, y: yLab }] = useAtom(labelsState)
 
@@ -72,9 +73,9 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
       label,
       formattedMeasure:
         measureFormat &&
-        (label || thisGroup) &&
+        (label || String(thisGroup)) &&
         measureFormat(label || thisGroup),
-      datum,
+      datum: tooltipDatum,
       containerWidth: width,
     },
   ]

@@ -7,6 +7,7 @@ import {
   YTooltip,
   Aes,
   DataValue,
+  TooltipProps,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
@@ -23,7 +24,7 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
   }
 
   const [{ datum: tooltipDatum, xFormat, yFormat, measureFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
 
   const datum = useMemo(() => tooltipDatum && tooltipDatum[0], [tooltipDatum])
 
@@ -65,18 +66,18 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
       label,
       formattedMeasure:
         measureFormat &&
-        (label || thisGroup) &&
+        (label || String(thisGroup)) &&
         measureFormat(label || thisGroup),
-      datum,
+      datum: tooltipDatum,
       containerWidth: width,
     },
   ]
 
   const tooltipValue = content
-    ? datum && <div>{content(tooltipContents)}</div>
-    : datum && <DefaultTooltip data={tooltipContents} />
+    ? tooltipDatum && <div>{content(tooltipContents)}</div>
+    : tooltipDatum && <DefaultTooltip data={tooltipContents} />
 
-  const shouldShow = datum && tooltipContents[0].x !== undefined
+  const shouldShow = tooltipDatum && tooltipContents[0].x !== undefined
 
   return shouldShow ? (
     <div>

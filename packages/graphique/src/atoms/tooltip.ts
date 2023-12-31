@@ -11,7 +11,7 @@ export interface TooltipContent<Datum> {
   formattedX?: string
   formattedY?: string
   formattedMeasure?: string
-  datum?: Datum
+  datum?: Datum[]
   containerWidth: number
   xLab?: string
   yLab?: string
@@ -30,7 +30,7 @@ export interface TooltipProps<Datum> {
   xFormat?: (d: unknown) => string
   yFormat?: (d: unknown) => string
   measureFormat?: (d: unknown) => string
-  content?: (value: TooltipContent<Datum>[]) => React.ReactNode | undefined
+  content?: (value?: TooltipContent<Datum>[]) => React.ReactNode | undefined
   xAxis?: ((x?: string | number | Date | null) => React.ReactNode) | boolean
   datum?: Datum[]
 }

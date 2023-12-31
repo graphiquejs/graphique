@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react'
 import { ScaleBand } from 'd3-scale'
 import { Delaunay } from 'd3-delaunay'
-import { useAtom } from 'jotai'
+import { SetStateAction, useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
 import { extent, max, min } from 'd3-array'
 import {
@@ -10,6 +10,7 @@ import {
   xScaleState,
   yScaleState,
   zoomState,
+  TooltipProps,
 } from '../atoms'
 import type { Aes, DataValue, BrushAction } from '../gg'
 import { useGG } from '../gg/GGBase'
@@ -105,7 +106,9 @@ export const EventArea = <Datum,>({
     },
   }
 
-  const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
+  const [{ datum: ttDatum }, setTooltip] = (
+    useAtom<TooltipProps<Datum>, SetStateAction<TooltipProps<Datum>>, void>(tooltipState)
+  )
   const [{ animationDuration, geoms }] = useAtom(themeState)
   const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
     useAtom(yScaleState)
@@ -167,7 +170,7 @@ export const EventArea = <Datum,>({
     [scales?.xScale, scales?.yScale]
   )
 
-  const delaunayData = useMemo(() => data as [], [data])
+  const delaunayData = useMemo(() => data ?? [], [data])
   const delaunayX = useCallback((v: any) => (x(v) ?? 0) + xAdj, [x, xAdj])
   const delaunayY = useCallback((v: any) => (y(v) ?? 0) + yAdj, [y, yAdj])
 

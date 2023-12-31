@@ -7,6 +7,7 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
+  TooltipProps,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, sum, min, max } from 'd3-array'
@@ -31,7 +32,7 @@ export const Tooltip = <Datum,>({ x, y, y0, y1, aes, geomID }: Props<Datum>) => 
   }
 
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ geoms, defaultStroke, defaultFill }] = useAtom(themeState)
   const { area } = geoms || {}
@@ -165,10 +166,11 @@ export const Tooltip = <Datum,>({ x, y, y0, y1, aes, geomID }: Props<Datum>) => 
       return {
         group: autoGrouped ? undefined : thisGroup,
         mark: thisGroup && !autoGrouped ? mark : undefined,
+        datum,
         x: xVal,
         y: (aes?.y1 && aes?.y1(md)) ?? (aes?.y && aes.y(md)),
         formattedY,
-        formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+        formattedX: xFormat ? xFormat(xVal) : String(xVal),
       }
     })
     return vals as TooltipContent<Datum>[]
