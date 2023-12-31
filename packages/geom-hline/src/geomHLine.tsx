@@ -119,12 +119,12 @@ const GeomHLine = <Datum,>({
   )
 
   const keyAccessor = useMemo(
-    () => (d: Datum) =>
+    () => (d: Datum, i: number) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
-          }` as string),
+          }-${i}` as string),
     [geomAes, scales]
   )
 

@@ -130,12 +130,12 @@ const GeomVLine = <Datum,>({
   )
 
   const keyAccessor = useMemo(
-    () => (d: Datum) =>
+    () => (d: Datum, i: number) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
-          }` as string),
+          }-${i}` as string),
     [geomAes, scales]
   )
 
@@ -149,7 +149,7 @@ const GeomVLine = <Datum,>({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(geomData as [])]}
+                data={[...geomData]}
                 keyAccessor={keyAccessor}
                 start={(d) => ({
                   x1: x(d),
