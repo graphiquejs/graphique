@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-point",
-  "version": "1.4.7",
+  "version": "2.0.1",
   "description": "For points, scatterplots, and bubbles",
   "keywords": [
     "react",
@@ -46,7 +46,7 @@
     "react-move": "^6.5.0"
   },
   "peerDependencies": {
-    "@graphique/graphique": ">=1",
+    "@graphique/graphique": ">=2",
     "react": ">=16",
     "react-dom": ">=16"
   },

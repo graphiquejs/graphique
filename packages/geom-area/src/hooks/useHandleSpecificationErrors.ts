@@ -1,17 +1,17 @@
 import { AreaPositions } from "@graphique/graphique"
 import { GeomAes } from "../types"
 
-interface SpecificationErrorProps {
-  geomAes?: GeomAes
+interface SpecificationErrorProps<Datum> {
+  geomAes?: GeomAes<Datum>
   shouldStack?: boolean
   position?: AreaPositions
 }
 
 const GEOM = 'GeomArea'
 
-const useHandleSpecificationErrors = ({ 
+const useHandleSpecificationErrors = <Datum>({ 
   geomAes, shouldStack, position,
- }: SpecificationErrorProps) => {
+ }: SpecificationErrorProps<Datum>) => {
   if (shouldStack && !geomAes?.y) {
     throw new Error(`${GEOM}: aes.y is required when using position="${position}"`)
   }

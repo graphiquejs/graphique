@@ -22,24 +22,23 @@ import {
   yScaleState,
   isDate,
   defineGroupAccessor,
-  Aes,
   BrushAction,
   PageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
 
-export interface LabelProps extends SVGAttributes<SVGTextElement> {
-  data?: unknown[]
-  aes?: GeomAes
-  label?: React.ReactNode | ((d: any) => React.ReactNode)
+export interface LabelProps<Datum> extends SVGAttributes<SVGTextElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
+  label?: React.ReactNode | ((d: Datum) => React.ReactNode)
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   focusedKeys?: (string | number)[]
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: any, index: number[]) => void
-  onDatumSelection?: (data: any, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   entrance?: 'data' | 'midpoint'
   onExit?: () => void
   fillOpacity?: number
@@ -47,7 +46,7 @@ export interface LabelProps extends SVGAttributes<SVGTextElement> {
   isClipped?: boolean
 }
 
-const GeomLabel = ({
+const GeomLabel = <Datum,>({
   data: localData,
   aes: localAes,
   label,
@@ -64,8 +63,8 @@ const GeomLabel = ({
   strokeOpacity = 1,
   isClipped = true,
   ...props
-}: LabelProps) => {
-  const { ggState } = useGG() || {}
+}: LabelProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales, width, height, margin } = ggState || { width: 0 }
 
   const [theme, setTheme] = useAtom(themeState)
@@ -89,12 +88,12 @@ const GeomLabel = ({
   }, [aes, localAes])
 
   const group = useMemo(
-    () => geomAes && defineGroupAccessor(geomAes as Aes),
+    () => geomAes && defineGroupAccessor(geomAes),
     [geomAes, defineGroupAccessor]
   )
 
   const keyAccessor = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
@@ -162,7 +161,7 @@ const GeomLabel = ({
         }))
       }
       return dataWithKey?.flat()
-    })
+    }) as Datum[]
   }, [initialGeomData, keyAccessor])
 
   const [firstRender, setFirstRender] = useState(true)
@@ -234,7 +233,7 @@ const GeomLabel = ({
   }
 
   const fill = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -246,10 +245,10 @@ const GeomLabel = ({
   )
 
   const getStroke = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
+        ? (copiedScales.strokeScale(geomAes.stroke(d)) as
             | string
             | undefined)
         : '#fff'),
@@ -265,22 +264,22 @@ const GeomLabel = ({
 
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.xScale(geomAes?.x && geomAes.x(d)) || 0) +
         scales?.xScale.bandwidth() / 2 +
         0.9
     }
-    return (d: unknown) =>
+    return (d: Datum) =>
       scales?.xScale && geomAes?.x && (scales.xScale(geomAes.x(d)) || 0)
   }, [scales, geomAes])
 
   const y = useMemo(() => {
     if (scales?.yScale.bandwidth) {
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) +
         scales?.yScale.bandwidth() / 2
     }
-    return (d: unknown) =>
+    return (d: Datum) =>
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 
@@ -311,7 +310,7 @@ const GeomLabel = ({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(geomData as any[])]}
+                data={[...geomData]}
                 keyAccessor={(d) =>
                   geomAes?.key
                     ? keyAccessor(d)
@@ -389,11 +388,10 @@ const GeomLabel = ({
                               ?? props.fontFamily
                               ?? (font?.family)
                               ?? "-apple-system, sans-serif",
-                            fontSize: 11,
-                            fontWeight: 600,
+                            fontSize: props?.fontSize ?? 11,
+                            fontWeight: props?.fontWeight ?? 600,
                             strokeLinecap: "round",
                             strokeLinejoin: "round",
-                            // stroke: strokeColor ?? '#fff',
                             ...styles,
                           }}
                           data-testid="__gg_geom_label"
@@ -419,7 +417,7 @@ const GeomLabel = ({
             x={x}
             y={y}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
+            onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
               const focusedIndexes = geomData.flatMap((gd, fi) => (
                 focusedKeys.includes(keyAccessor(gd)) ? fi : []
               ))
@@ -435,7 +433,7 @@ const GeomLabel = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: any; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

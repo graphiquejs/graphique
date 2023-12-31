@@ -1,25 +1,26 @@
 import React, { useMemo } from 'react'
 import {
+  TooltipProps,
   tooltipState,
   useGG,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-export interface LineMarkerProps {
-  x: (d: unknown) => number | undefined
+export interface LineMarkerProps<Datum> {
+  x: (d: Datum) => number | undefined
   xAdj?: number
 }
 
-export const LineMarker = ({
+export const LineMarker = <Datum,>({
   x,
   xAdj = 0,
-}: LineMarkerProps) => {
-  const { ggState } = useGG() || {}
+}: LineMarkerProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, height, margin } = ggState || {
     height: 0,
   }
 
-  const [{ datum }] = useAtom(tooltipState)
+  const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
 
   const xCoord = useMemo(
     () => datum?.[0] && (x(datum[0]) ?? 0) + xAdj,

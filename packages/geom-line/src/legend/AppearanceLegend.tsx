@@ -7,12 +7,12 @@ export interface AppearanceLegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
-  format?: (v: any, i: number) => string
+  format?: (v: string, i: number) => string
   onSelection?: (v: string) => void
   ignoreDasharray?: boolean
 }
 
-export const Legend = ({
+export const Legend = <Datum,>({
   title,
   style,
   orientation = 'vertical',
@@ -20,7 +20,7 @@ export const Legend = ({
   onSelection,
   ignoreDasharray = false,
 }: AppearanceLegendProps) => {
-  const { ggState } = useGG() || {}
+  const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font, geoms }] = useAtom(themeState)
 
@@ -55,7 +55,7 @@ export const Legend = ({
                     ? line.strokeScale
                     : copiedScales?.strokeScale,
                   groups: line?.usableGroups,
-                } as IScale
+                } as IScale<Datum>
               }
               labelFormat={format}
               fontSize={fontSize}

@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  useGG,
   TooltipContent,
   TooltipContainer,
   formatMissing,
@@ -8,14 +7,11 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-interface Props {
-  data: TooltipContent[]
+interface Props<Datum> {
+  data: TooltipContent<Datum>[]
 }
 
-export const DefaultTooltip = ({ data }: Props) => {
-  const { ggState } = useGG() || {}
-  const { aes } = ggState || {}
-
+export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
   const xVal = data && data[0].formattedX
 
   const [{ tooltip }] = useAtom(themeState)
@@ -32,17 +28,13 @@ export const DefaultTooltip = ({ data }: Props) => {
       >
         {xVal}
       </div>
-      {data.map((d: TooltipContent, i: number) => {
+      {data.map((d, i) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div
-            key={
-              aes?.key
-                ? aes.key(d)
-                : `group-tooltip-${
-                    d.label || d.group !== '__group' ? formattedGroup : i
-                  }`
-            }
+            key={`group-tooltip-${
+              d.label || d.group !== '__group' ? formattedGroup : i
+            }`}
           >
             <div
               style={{

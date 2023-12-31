@@ -7,6 +7,7 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
+  TooltipProps,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, min, max } from 'd3-array'
@@ -15,20 +16,20 @@ import { type GeomAes } from '../types'
 
 export { LineMarker } from './LineMarker'
 
-interface Props {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
-  aes: GeomAes
+interface Props<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
+  aes: GeomAes<Datum>
 }
 
-export const Tooltip = ({ x, y, aes }: Props) => {
-  const { ggState } = useGG() || {}
+export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, copiedScales, width, height, margin, scales } = ggState || {
     height: 0,
   }
 
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
   const left = useMemo(
@@ -107,10 +108,10 @@ export const Tooltip = ({ x, y, aes }: Props) => {
             x: xVal,
             y: aes?.y && aes.y(md),
             formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
-            formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+            formattedX: xFormat ? xFormat(xVal) : xVal?.toString(),
           }
         })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [datum, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
 
   const tooltipValue = content ? (

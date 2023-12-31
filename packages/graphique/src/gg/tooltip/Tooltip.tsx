@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useAtom } from "jotai"
 import { tooltipState, TooltipProps } from "../../atoms"
 
-export const Tooltip = ({
+export const Tooltip = <Datum,>({
   keepInParent,
   position,
   xAxis,
@@ -13,7 +13,7 @@ export const Tooltip = ({
   datum,
   dx,
   dy,
-}: TooltipProps) => {
+}: TooltipProps<Datum>) => {
   const [, setTooltip] = useAtom(tooltipState)
 
   useEffect(() => {

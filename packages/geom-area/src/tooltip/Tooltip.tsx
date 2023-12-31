@@ -7,7 +7,7 @@ import {
   XTooltip,
   YTooltip,
   TooltipContainer,
-  DataValue,
+  TooltipProps,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, sum, min, max } from 'd3-array'
@@ -16,23 +16,23 @@ import type { GeomAes } from '../types'
 
 export { LineMarker } from './LineMarker'
 
-interface Props {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
-  y0: DataValue
-  y1: DataValue
-  aes: GeomAes
+interface Props<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
+  y0: (d: Datum) => number | undefined
+  y1: (d: Datum) => number | undefined
+  aes: GeomAes<Datum>
   geomID: string
 }
 
-export const Tooltip = ({ x, y, y0, y1, aes, geomID }: Props) => {
-  const { ggState } = useGG() || {}
+export const Tooltip = <Datum,>({ x, y, y0, y1, aes, geomID }: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, scales, copiedScales, width, height, margin } = ggState || {
     height: 0,
   }
 
   const [{ datum, position, xAxis, xFormat, yFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ geoms, defaultStroke, defaultFill }] = useAtom(themeState)
   const { area } = geoms || {}
@@ -166,13 +166,14 @@ export const Tooltip = ({ x, y, y0, y1, aes, geomID }: Props) => {
       return {
         group: autoGrouped ? undefined : thisGroup,
         mark: thisGroup && !autoGrouped ? mark : undefined,
+        datum,
         x: xVal,
         y: (aes?.y1 && aes?.y1(md)) ?? (aes?.y && aes.y(md)),
         formattedY,
-        formattedX: xFormat ? xFormat(xVal) : xVal.toString(),
+        formattedX: xFormat ? xFormat(xVal) : String(xVal),
       }
     })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [
     datumInGroups,
     xVal,

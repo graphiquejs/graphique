@@ -1,8 +1,8 @@
 import React from 'react'
-import { Penguin, Stock, penguins } from '@graphique/datasets'
+import { penguins } from '@graphique/datasets'
 import { act, screen } from '@testing-library/react'
 import { DEFAULT_AES, GGVLine, setup } from './shared'
-import { beakLengthsBySpecies, type PenguinSummary } from './__data__/penguinSummaries'
+import { beakLengthsBySpecies } from './__data__/penguinSummaries'
 import { GeomVLine } from '../geomVLine'
 import { GeomPoint } from '../../../geom-point'
 import { aaplMarketcap } from './__data__/aaplMarketcap'
@@ -21,7 +21,7 @@ describe('a chart with vertical lines matches a snapshot', () => {
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: (d: PenguinSummary) => d.count!,
+            x: d => d.count!,
           }}
           strokeDasharray='2,1'
         />
@@ -39,13 +39,13 @@ describe('a chart with vertical lines matches a snapshot', () => {
         data={penguins.filter(d => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}
         aes={{
           ...DEFAULT_AES,
-          fill: (d: Penguin) => d.species
+          fill: d => d.species
         }}
       >
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: (d: PenguinSummary) => d.count!,
+            x: d => d.count!,
           }}
           strokeDasharray='2,1'
           showTooltip={false}
@@ -69,8 +69,8 @@ describe('a chart with vertical lines matches a snapshot', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: (d: Stock) => new Date(d.date),
-          y: (d: Stock) => d.marketCap
+          x: d => new Date(d.date),
+          y: d => d.marketCap
         }}
       >
         <GeomVLine

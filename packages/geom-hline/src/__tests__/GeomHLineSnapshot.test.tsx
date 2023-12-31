@@ -1,12 +1,11 @@
 import React from 'react'
-import { Penguin, penguins } from '@graphique/datasets'
+import { penguins } from '@graphique/datasets'
 import { act, screen } from '@testing-library/react'
 import {
   GGHLine,
   DEFAULT_AES,
   flipperLengthsBySpecies,
-  setup,
-  type PenguinSummary,
+  setup
 } from './shared'
 import { GeomHLine } from '../geomHLine'
 import { GeomPoint } from '../../../geom-point/dist'
@@ -25,7 +24,7 @@ describe('a chart with vertical lines matches a snapshot', () => {
         <GeomHLine
           data={flipperLengthsBySpecies}
           aes={{
-            y: (d: PenguinSummary) => d.count!,
+            y: d => d.count!
           }}
           strokeDasharray='2,1'
         />
@@ -43,13 +42,13 @@ describe('a chart with vertical lines matches a snapshot', () => {
         data={penguins.filter(d => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}
         aes={{
           ...DEFAULT_AES,
-          fill: (d: Penguin) => d.species
+          fill: d => d.species
         }}
       >
         <GeomHLine
           data={flipperLengthsBySpecies}
           aes={{
-            y: (d: PenguinSummary) => d.count!,
+            y: d => d.count!,
           }}
           strokeDasharray='2,1'
           showTooltip={false}

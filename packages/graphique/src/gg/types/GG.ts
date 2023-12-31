@@ -1,11 +1,11 @@
 import { ReactNode } from 'react'
 import { Aes } from './Aes'
 
-export interface RootGGProps {
+export interface RootGGProps<Datum> {
   /** the data used to create the base, an array of objects */
-  data: unknown[]
+  data: Datum[]
   /** the mapping of data characteristics to visual characteristics */
-  aes: Aes
+  aes: Aes<Datum>
   /** the width of the visualization area in pixels (defaults to `550`)
    *
    * Use `isContainerWidth` if you'd like it to be as wide as the parent container.
@@ -27,7 +27,7 @@ export interface RootGGProps {
   children?: ReactNode
 }
 
-export interface GGProps extends RootGGProps {
+export interface GGProps<Datum> extends RootGGProps<Datum> {
   parentWidth?: number
   id?: string
 }

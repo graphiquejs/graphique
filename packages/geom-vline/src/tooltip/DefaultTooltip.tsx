@@ -7,17 +7,17 @@ import {
   themeState,
 } from '@graphique/graphique'
 
-interface Props {
-  data: TooltipContent[]
+interface Props<Datum> {
+  data: TooltipContent<Datum>[]
 }
 
-export const DefaultTooltip = ({ data }: Props) => {
+export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
   const [{ x: xLab }] = useAtom(labelsState)
   const [{ tooltip }] = useAtom(themeState)
 
   return data ? (
     <TooltipContainer>
-      {data.map((d: TooltipContent) => (
+      {data.map(d => (
         <div key={`group-tooltip-${d.label ?? ''}`}>
           <div
             style={{

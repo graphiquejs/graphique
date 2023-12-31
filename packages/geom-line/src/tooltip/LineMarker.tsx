@@ -9,22 +9,22 @@ import { min } from 'd3-array'
 import { useAtom } from 'jotai'
 import { type GeomAes } from '../types'
 
-export interface LineMarkerProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
+export interface LineMarkerProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   markerRadius: number
   markerStroke: string
-  aes: GeomAes
+  aes: GeomAes<Datum>
 }
 
-export const LineMarker = ({
+export const LineMarker = <Datum,>({
   x,
   y,
   markerRadius,
   markerStroke,
   aes,
-}: LineMarkerProps) => {
-  const { ggState } = useGG() || {}
+}: LineMarkerProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { copiedScales, width, height, margin, id, scales } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)

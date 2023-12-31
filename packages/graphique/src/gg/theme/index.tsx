@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { themeState, ThemeProps } from '../../atoms'
 
-export const Theme = ({
+export const Theme = <Datum,>({
   titleColor,
   markerStroke,
   defaultStroke,
@@ -15,7 +15,7 @@ export const Theme = ({
   legend,
   tooltip,
   animationDuration,
-}: ThemeProps) => {
+}: ThemeProps<Datum>) => {
   const [, setTheme] = useAtom(themeState)
   const reconcileAxis = (
     thisAxis: typeof axisX | typeof axisY,

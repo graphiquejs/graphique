@@ -1,5 +1,5 @@
-export type DataValue = (
-  d: any
+export type DataValue<Datum> = (
+  d: Datum
 ) =>
   | number
   | Date
@@ -8,32 +8,32 @@ export type DataValue = (
   | (Date & { valueOf(): number } & string)
   | ({ toString(): string } & string)
 
-export interface Aes {
+export interface Aes<Datum> {
   /** a functional mapping to `data` used to create an **x** scale */
-  x: DataValue
+  x: DataValue<Datum>
   /** a functional mapping to `data` used to create a **y** scale */
-  y?: DataValue
+  y?: DataValue<Datum>
   /** a functional mapping to `data` used to create a **stroke** scale */
-  stroke?: DataValue
+  stroke?: DataValue<Datum>
   /** a functional mapping to `data` used to create a **strokeDasharray** scale */
-  strokeDasharray?: DataValue
+  strokeDasharray?: DataValue<Datum>
   /** a functional mapping to `data` used to create a
    * continuous **size** scale
    *
    * Right now it's only used with `<GeomPoint>` to create a radius scale for points.
    */
-  size?: (d: any) => number | null | undefined
+  size?: (d: Datum) => number | null | undefined
   /** a functional mapping to `data` used to create a **fill** scale */
-  fill?: DataValue
+  fill?: DataValue<Datum>
   /** a functional mapping to `data` used to create
    * distinct groups explicitly (without an associated scale) */
-  group?: DataValue
+  group?: DataValue<Datum>
   /** a functional mapping to `data` used to label tooltips */
-  label?: (d: any) => string | null | undefined
+  label?: (d?: Datum) => string
   /** a functional mapping to `data` used to distinguish
    * individual data points
    *
    * (useful for `<GeomPoint>`)
    * */
-  key?: (d?: any) => string | number
+  key?: (d?: Datum) => string
 }

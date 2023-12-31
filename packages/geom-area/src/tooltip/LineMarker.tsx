@@ -3,24 +3,23 @@ import {
   useGG,
   tooltipState,
   themeState,
-  DataValue,
   formatMissing,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { sum, min } from 'd3-array'
 import type { GeomAes } from '../types'
 
-export interface LineMarkerProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
-  y0: DataValue
-  y1: DataValue
-  aes: GeomAes
+export interface LineMarkerProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
+  y0: (d: Datum) => number | undefined
+  y1: (d: Datum) => number | undefined
+  aes: GeomAes<Datum>
   markerRadius: number
   markerStroke: string
 }
 
-export const LineMarker = ({
+export const LineMarker = <Datum,>({
   x,
   y,
   y0,
@@ -28,8 +27,8 @@ export const LineMarker = ({
   aes,
   markerRadius,
   markerStroke,
-}: LineMarkerProps) => {
-  const { ggState } = useGG() || {}
+}: LineMarkerProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { scales, copiedScales, width, height, margin, id } = ggState || {}
 
   const [{ datum }] = useAtom(tooltipState)

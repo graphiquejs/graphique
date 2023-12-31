@@ -9,23 +9,23 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-export interface CategoricalLegendProps {
-  legendData: unknown[]
-  legendScales: IScale
+export interface CategoricalLegendProps<Datum> {
+  legendData: Datum[]
+  legendScales: IScale<Datum>
   orientation?: 'vertical' | 'horizontal'
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
 }
 
-export const CategoricalLegend = ({
+export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
   orientation = 'vertical',
   labelFormat,
   fontSize = 12,
   onSelection,
-}: CategoricalLegendProps) => {
+}: CategoricalLegendProps<Datum>) => {
   const [isFocused, setIsFocused] = useState<string[]>(
     legendScales.groups || []
   )
@@ -37,14 +37,14 @@ export const CategoricalLegend = ({
   const legendGroups =
     ((fillDomain || strokeDomain) as string[]) || legendScales.groups
 
-  const { ggState, updateData } = useGG() || {}
+  const { ggState, updateData } = useGG<Datum>() || {}
   const { scales, data } = ggState || {}
 
   useEffect(() => {
     setIsFocused(scales?.groups || [])
   }, [scales, data])
 
-  const getGroup: any = legendScales.groupAccessor
+  const getGroup = legendScales.groupAccessor
     ? legendScales.groupAccessor
     : () => legendScales.groups && legendScales.groups[0]
 
@@ -73,7 +73,7 @@ export const CategoricalLegend = ({
       let updatedData
       if (includedGroups.includes(g)) {
         if (includedGroups.length === 1) {
-          updatedData = legendData as unknown[]
+          updatedData = legendData
         } else {
           updatedData = data.filter((d) => getGroup(d) !== g)
         }

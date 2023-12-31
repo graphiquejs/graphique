@@ -4,7 +4,8 @@ import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 import { ColorBandLegend } from './ColorBandLegend'
 
-export interface AppearanceLegendProps {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface AppearanceLegendProps<Datum> {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
@@ -14,7 +15,7 @@ export interface AppearanceLegendProps {
   onSelection?: (v: string) => void
 }
 
-export const Legend = ({
+export const Legend = <Datum,>({
   title,
   style,
   orientation = 'vertical',
@@ -22,8 +23,8 @@ export const Legend = ({
   numTicks,
   width,
   onSelection,
-}: AppearanceLegendProps) => {
-  const { ggState } = useGG() || {}
+}: AppearanceLegendProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font }] = useAtom(themeState)
 
@@ -53,7 +54,7 @@ export const Legend = ({
         />
       ) : (
         <ColorBandLegend
-          scales={copiedScales as IScale}
+          scales={copiedScales as IScale<Datum>}
           tickFormat={format}
           numTicks={numTicks}
           fontSize={fontSize}

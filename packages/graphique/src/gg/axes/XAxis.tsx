@@ -2,17 +2,17 @@ import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { axisBottom, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
 import { useAtom } from 'jotai'
-import { labelsState, themeState, xScaleState, tooltipState } from '../../atoms'
+import { labelsState, themeState, xScaleState, tooltipState, TooltipProps } from '../../atoms'
 import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
 
-export interface XAxisProps {
+export interface XAxisProps<Datum> {
   ggState: {
     id: string | undefined
-    copiedData: unknown[]
-    data: unknown[]
-    aes: Aes
+    copiedData: Datum[]
+    data: Datum[]
+    aes: Aes<Datum>
     width: number
     height: number
     margin: {
@@ -21,13 +21,13 @@ export interface XAxisProps {
       bottom: number
       left: number
     }
-    copiedScales: IScale
-    scales: IScale
+    copiedScales: IScale<Datum>
+    scales: IScale<Datum>
   }
   animate?: boolean
 }
 
-export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
+export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) => {
   const [{ axis: axisTheme, axisX, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, width, margin, height, scales } = ggState || {
@@ -41,7 +41,7 @@ export const XAxis = ({ ggState, animate = true }: XAxisProps) => {
     },
   }
   const scale = scales?.xScale as AxisScale<number | string | Date>
-  const [{ datum }] = useAtom(tooltipState)
+  const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
   const [labels] = useAtom(labelsState)
   const [{ format, numTicks, highlightOnFocus, className }] =
     useAtom(xScaleState)

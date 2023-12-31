@@ -1,10 +1,10 @@
 import React from 'react'
 import { GG, type Aes, type BarColPositions, Theme, Tooltip } from '@graphique/graphique'
 import { screen, act } from '@testing-library/react'
-import { Stock, stocks } from '@graphique/datasets'
+import { stocks } from '@graphique/datasets'
 import { GeomCol, Legend } from '..'
 import { arrestsByDay, arrestsByDayAndCrime } from './__data__/crimeTotals'
-import { CrimeTotal, DEFAULT_AES, GGCol, setup } from './shared'
+import { type CrimeCount, DEFAULT_AES, GGCol, setup } from './shared'
 
 // useful for controlling the randomly-generated ID given to graphique objects
 jest.mock('nanoid', () => ({
@@ -13,8 +13,8 @@ jest.mock('nanoid', () => ({
 
 jest.useFakeTimers()
 
-interface TestComponentProps {
-  aes?: Aes
+interface TestComponentProps<CrimeTotal> {
+  aes?: Aes<CrimeTotal>
   data?: CrimeTotal[]
   position?: BarColPositions
   focusType?: 'group' | 'individual'
@@ -25,7 +25,7 @@ const TestComponent = ({
   data = arrestsByDayAndCrime,
   position = 'stack',
   focusType = 'individual',
-}: TestComponentProps) => (
+}: TestComponentProps<CrimeCount>) => (
   <GG
     data={data}
     aes={aes}
@@ -97,7 +97,7 @@ describe('column charts match snapshots', () => {
       <TestComponent
         aes={{
           ...DEFAULT_AES,
-          stroke: (d: CrimeTotal) => d.offenseCategory!,
+          stroke: d => d.offenseCategory!,
         }}
         position='dodge'
       />
@@ -165,8 +165,8 @@ describe('column charts match snapshots', () => {
           new Date(d.date) >= new Date('2019-07-01')
         ))}
         aes={{
-          x: (d: Stock) => new Date(d.date),
-          y: (d: Stock) => d.marketCap,
+          x: d => new Date(d.date),
+          y: d => d.marketCap,
         }}
       >
         <GeomCol

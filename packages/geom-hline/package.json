@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-hline",
-  "version": "0.4.2",
+  "version": "1.0.1",
   "description": "For drawing horizontal lines (usually used as markers)",
   "keywords": [
     "react",
@@ -47,7 +47,7 @@
     "react-move": "^6.5.0"
   },
   "peerDependencies": {
-    "@graphique/graphique": ">=1",
+    "@graphique/graphique": ">=2",
     "react": ">=16",
     "react-dom": ">=16"
   },

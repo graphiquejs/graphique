@@ -8,24 +8,17 @@ import {
   yScaleState,
   zoomState,
 } from '@graphique/graphique'
-import { GeomCol, GeomColProps } from '@graphique/geom-col'
+import { GeomCol, GeomColProps, type HistogramBin } from '@graphique/geom-col'
 import { bin, min, max } from 'd3-array'
 import { useAtom } from 'jotai'
 
-export interface HistogramProps extends GeomColProps {
+export interface HistogramProps<Datum> extends GeomColProps<Datum> {
   bins?: number
   rangeFormat?: (x0: number, x1: number) => string
   isRelative?: boolean
 }
 
-export type HistogramBin = {
-  n: number
-  group: string
-  x0?: number
-  x1?: number
-}
-
-const GeomHistogram = ({
+const GeomHistogram = <Datum,>({
   xPadding = 0,
   align = 'left',
   bins = 30,
@@ -33,8 +26,8 @@ const GeomHistogram = ({
   rangeFormat,
   showTooltip = true,
   ...props
-}: HistogramProps) => {
-  const { ggState } = useGG() || {}
+}: HistogramProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales } = ggState || {}
 
   const [, setYScale] = useAtom(yScaleState)
@@ -61,7 +54,7 @@ const GeomHistogram = ({
 
   const createBins = useCallback(
     () =>
-      bin()
+      bin<Datum, number>()
         .value((d) => (aes?.x ? aes?.x(d) : d) as number)
         .thresholds(bins),
     [bins, aes]
@@ -76,7 +69,7 @@ const GeomHistogram = ({
   const binData = useMemo(() => {
     const overallBins: HistogramBin[][] = []
 
-    const binned = createBins()(data as unknown as ArrayLike<number>)
+    const binned = createBins()(data)
 
     groups.forEach((g) => {
       const thisBinData: HistogramBin[] = binned.map((thisBin) => ({
@@ -94,7 +87,7 @@ const GeomHistogram = ({
   const originalBinData = useMemo(() => {
     const overallBins: HistogramBin[][] = []
 
-    const binned = createBins()(data as unknown as ArrayLike<number>)
+    const binned = createBins()(data)
 
     groups.forEach((g) => {
       const thisBinData: HistogramBin[] = binned.map((thisBin) => ({
@@ -186,7 +179,7 @@ const GeomHistogram = ({
       <PageVisibility>
         {(isVisible) => isVisible && (
           <>
-            <GeomCol
+            <GeomCol<any>
               data={binData}
               aes={{
                 ...aes,
@@ -194,7 +187,7 @@ const GeomHistogram = ({
                 y: (d: HistogramBin) => isRelative ? d.n / total : d.n,
                 fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
                 stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
-                key: (d: any) => `${d.group}-${d.n}-${d.x0}`,
+                key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
               }}
               xPadding={xPadding}
               align={reversedX ? 'right' : align}

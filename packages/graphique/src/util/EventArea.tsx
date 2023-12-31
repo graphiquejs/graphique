@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react'
 import { ScaleBand } from 'd3-scale'
 import { Delaunay } from 'd3-delaunay'
-import { useAtom } from 'jotai'
+import { SetStateAction, useAtom } from 'jotai'
 import { pointer } from 'd3-selection'
 import { extent, max, min } from 'd3-array'
 import {
@@ -10,6 +10,7 @@ import {
   xScaleState,
   yScaleState,
   zoomState,
+  TooltipProps,
 } from '../atoms'
 import type { Aes, DataValue, BrushAction } from '../gg'
 import { useGG } from '../gg/GGBase'
@@ -27,29 +28,29 @@ interface StackMidpoint<X, Y> {
   yVal: Y
 }
 
-interface EventAreaProps {
-  x: (d: any) => number | undefined
-  y: (d: any) => number | undefined
+interface EventAreaProps<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   group?: 'x' | 'y'
   xAdj?: number
   yAdj?: number
-  onMouseOver?: ({ d, i }: { d: any; i: number[] }) => void
-  onClick?: ({ d, i }: { d: any; i: number[] }) => void
+  onMouseOver?: ({ d, i }: { d: Datum[]; i: number[] }) => void
+  onClick?: ({ d, i }: { d: Datum[]; i: number[] }) => void
   onMouseLeave: () => void
-  onDatumFocus?: (data: any, index: number[]) => void
-  data?: unknown[]
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  data?: Datum[]
   stackXMidpoints?: StackMidpoint<string | number, string | number>[]
   stackYMidpoints?: StackMidpoint<string | number, string | number>[]
   xBandScale?: ScaleBand<string>
   yBandScale?: ScaleBand<string>
-  aes?: Omit<Aes, 'x'> & {
-    x?: DataValue
-    y0?: DataValue
-    y1?: DataValue
+  aes?: Omit<Aes<Datum>, 'x'> & {
+    x?: DataValue<Datum>
+    y0?: DataValue<Datum>
+    y1?: DataValue<Datum>
   }
   customXExtent?: (number | undefined)[]
   customYExtent?: (number | undefined)[]
-  getYValExtent?: (data: unknown[]) => (number | undefined)[]
+  getYValExtent?: (data: Datum[]) => (number | undefined)[]
   positionKeys?: string
   disabled?: boolean
   fill?: 'x' | 'y'
@@ -60,7 +61,7 @@ interface EventAreaProps {
 
 const BUFFER = 2
 
-export const EventArea = ({
+export const EventArea = <Datum,>({
   x,
   y,
   group,
@@ -85,7 +86,7 @@ export const EventArea = ({
   xBandScale,
   yBandScale,
   fill,
-}: EventAreaProps) => {
+}: EventAreaProps<Datum>) => {
   const { ggState } = useGG() || {}
   const {
     width,
@@ -105,7 +106,9 @@ export const EventArea = ({
     },
   }
 
-  const [{ datum: ttDatum }, setTooltip] = useAtom(tooltipState)
+  const [{ datum: ttDatum }, setTooltip] = (
+    useAtom<TooltipProps<Datum>, SetStateAction<TooltipProps<Datum>>, void>(tooltipState)
+  )
   const [{ animationDuration, geoms }] = useAtom(themeState)
   const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
     useAtom(yScaleState)
@@ -167,7 +170,7 @@ export const EventArea = ({
     [scales?.xScale, scales?.yScale]
   )
 
-  const delaunayData = useMemo(() => data as [], [data])
+  const delaunayData = useMemo(() => data ?? [], [data])
   const delaunayX = useCallback((v: any) => (x(v) ?? 0) + xAdj, [x, xAdj])
   const delaunayY = useCallback((v: any) => (y(v) ?? 0) + yAdj, [y, yAdj])
 
@@ -219,7 +222,7 @@ export const EventArea = ({
         (xd?.xVal ?? 0) + dx + xAdj,
         height - margin.bottom,
       ]),
-      data: xd.data,
+      data: xd.data as Datum[],
     }))
   }, [xDelaunays, scales?.xScale, xBandScale, xAdj, width, margin])
 
@@ -264,7 +267,7 @@ export const EventArea = ({
         width - margin.right,
         (yd.yVal ?? 0) + dy + yAdj,
       ]),
-      data: yd.data,
+      data: yd.data as Datum[],
     }))
   }, [yDelaunays, scales?.yScale, yAdj, width, margin])
 
@@ -567,7 +570,7 @@ export const EventArea = ({
             // skip if the data hasn't changed
             if (ttDatum && x(ttDatum[0]) === left) return
 
-            const groupDatum: unknown[] = []
+            const groupDatum: Datum[] = []
             const groupDatumInd: number[] = []
 
             data.forEach((d, i) => {
@@ -592,9 +595,9 @@ export const EventArea = ({
             }))
           } else if (yGrouped && aes?.y && datumInYRange) {
             // skip if the data hasn't changed
-            if (ttDatum && y(ttDatum[0] === y(datum))) return
+            if (ttDatum && y(ttDatum[0]) === y(datum)) return
 
-            const groupDatum: unknown[] = []
+            const groupDatum: Datum[] = []
             const groupDatumInd: number[] = []
 
             data.forEach((d, i) => {
@@ -714,7 +717,7 @@ export const EventArea = ({
         const datum = data[ind]
 
         if (xGrouped && aes?.x) {
-          const groupDatum: unknown[] = []
+          const groupDatum: Datum[] = []
           const groupDatumInd: number[] = []
 
           data.forEach((d, i) => {
@@ -725,7 +728,7 @@ export const EventArea = ({
           })
           onClick({ d: groupDatum, i: groupDatumInd })
         } else if (yGrouped && aes?.y) {
-          const groupDatum: unknown[] = []
+          const groupDatum: Datum[] = []
           const groupDatumInd: number[] = []
 
           data.forEach((d, i) => {
@@ -737,7 +740,7 @@ export const EventArea = ({
 
           onClick({ d: groupDatum, i: groupDatumInd })
         } else {
-          onClick({ d: datum, i: [ind] })
+          onClick({ d: [datum], i: [ind] })
         }
       }
       return width
@@ -757,7 +760,7 @@ export const EventArea = ({
   )
 
   const handleVoronoiMouseOver = useCallback(
-    (voronoiData: unknown[], i) => {
+    (voronoiData: Datum[], i: number) => {
       if (
         readyToFocusRef.current &&
         voronoiData &&
@@ -765,7 +768,7 @@ export const EventArea = ({
         !isBrushing
       ) {
         const datum = voronoiData[i]
-        const focusedData: unknown[] = []
+        const focusedData: Datum[] = []
         const focusedIndexes: number[] = []
 
         if (xGrouped && aes?.x) {

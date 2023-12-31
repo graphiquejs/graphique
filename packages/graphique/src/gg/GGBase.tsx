@@ -23,7 +23,7 @@ import {
   strokeDasharrayState,
 } from '../atoms'
 
-export interface ContextProps {
+export interface ContextProps<Datum> {
   ggState: {
     id?: string
     width: number
@@ -34,18 +34,18 @@ export interface ContextProps {
       bottom: number
       left: number
     }
-    data: unknown[]
-    copiedData: unknown[]
-    aes: Aes
-    copiedScales: IScale
-    scales: IScale
+    data: Datum[]
+    copiedData: Datum[]
+    aes: Aes<Datum>
+    copiedScales: IScale<Datum>
+    scales: IScale<Datum>
   }
-  updateData: (newData: unknown[]) => void
+  updateData: (newData: Datum[]) => void
 }
 
-const GGglobalCtx = createContext<ContextProps | undefined>(undefined)
+const GGglobalCtx = createContext<ContextProps<any> | undefined>(undefined)
 
-export const GGBase = ({
+export const GGBase = <Datum,>({
   data,
   aes,
   width = 500,
@@ -53,7 +53,7 @@ export const GGBase = ({
   margin: suppliedMargin,
   id,
   children,
-}: GGProps) => {
+}: GGProps<Datum>) => {
   const [labels] = useAtom(labelsState)
   const [{ font, titleColor, axis, axisX, axisY }] = useAtom(themeState)
   const [xScale] = useAtom(xScaleState)
@@ -93,12 +93,12 @@ export const GGBase = ({
   const geomZeroXBaseLines: (boolean | undefined)[] = []
   const geomZeroYBaseLines: (boolean | undefined)[] = []
   const geomAesXs = []
-  const geomAesYs: DataValue[] = []
-  const geomAesY0s: DataValue[] = []
-  const geomAesY1s: DataValue[] = []
-  const geomGroupAccessors: DataValue[] = []
-  const geomAesStrokes: DataValue[] = []
-  const geomAesFills: DataValue[] = []
+  const geomAesYs: DataValue<Datum>[] = []
+  const geomAesY0s: DataValue<Datum>[] = []
+  const geomAesY1s: DataValue<Datum>[] = []
+  const geomGroupAccessors: DataValue<Datum>[] = []
+  const geomAesStrokes: DataValue<Datum>[] = []
+  const geomAesFills: DataValue<Datum>[] = []
 
   geoms.forEach((g: any) => {
     const geomProps = g.props
@@ -295,4 +295,4 @@ export const GGBase = ({
   ) : null
 }
 
-export const useGG = () => useContext(GGglobalCtx)
+export const useGG = <Datum,>() => useContext(GGglobalCtx as React.Context<ContextProps<Datum>>)

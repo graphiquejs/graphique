@@ -11,8 +11,8 @@ import { select } from 'd3-selection'
 import { axisBottom } from 'd3-axis'
 import { range, quantile } from 'd3-array'
 
-export interface ColorBandLegendProps {
-  scales: IScale
+export interface ColorBandLegendProps<Datum> {
+  scales: IScale<Datum>
   tickFormat?: (v: unknown, i: number) => string
   width?: number
   tickSize?: number
@@ -27,7 +27,7 @@ export interface ColorBandLegendProps {
   fontSize?: number | string
 }
 
-export const ColorBandLegend = ({
+export const ColorBandLegend = <Datum,>({
   scales,
   tickFormat,
   width = 320,
@@ -36,7 +36,7 @@ export const ColorBandLegend = ({
   margin,
   numTicks = width / 64,
   fontSize = 10,
-}: ColorBandLegendProps) => {
+}: ColorBandLegendProps<Datum>) => {
   const legendRef = useRef<SVGSVGElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const axisRef = useRef<SVGGElement | null>(null)
@@ -66,7 +66,7 @@ export const ColorBandLegend = ({
     ...margin,
   }
   const drawLegend = useCallback(
-    (scale: any, font?: string) => {
+    (scale, font?: string) => {
       if (
         legendRef.current &&
         canvasRef.current &&

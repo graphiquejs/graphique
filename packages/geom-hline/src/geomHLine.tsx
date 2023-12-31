@@ -19,23 +19,23 @@ import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { Tooltip } from './tooltip'
 
-type GeomAes = Omit<Aes, 'x' | 'fill' | 'size'>
+type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'fill' | 'size'>
 
 const DEFAULT_TICK_SIZE = 6
 
-export interface GeomHLineProps extends SVGAttributes<SVGLineElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface GeomHLineProps<Datum> extends SVGAttributes<SVGLineElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   strokeOpacity?: number
 }
 
-const GeomHLine = ({
+const GeomHLine = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -47,8 +47,8 @@ const GeomHLine = ({
   strokeWidth = 1.5,
   strokeOpacity = 1,
   ...props
-}: GeomHLineProps) => {
-  const { ggState } = useGG() || {}
+}: GeomHLineProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, width, margin } = ggState || {}
 
   const geomData = localData || data
@@ -89,7 +89,7 @@ const GeomHLine = ({
   }, [setTheme, strokeColor, strokeOpacity, strokeWidth, props.style])
 
   const stroke = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -100,13 +100,13 @@ const GeomHLine = ({
   )
 
   const y = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       scales?.yScale && geomAes?.y && scales.yScale(geomAes.y(d)),
     [scales, geomAes]
   )
 
   const checkIsOutisdeDomain = useMemo(
-    () => (d: unknown) => {
+    () => (d: Datum) => {
       const domain = scales?.yScale && scales.yScale.domain()
 
       return (
@@ -119,12 +119,12 @@ const GeomHLine = ({
   )
 
   const keyAccessor = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum, i: number) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
-          }` as string),
+          }-${i}` as string),
     [geomAes, scales]
   )
 
@@ -210,14 +210,14 @@ const GeomHLine = ({
         <>
           <EventArea
             data={geomData?.filter((d) => !checkIsOutisdeDomain(d))}
-            aes={geomAes as Aes}
+            aes={geomAes as Aes<Datum>}
             x={() => 0}
             y={y}
             group="y"
             onDatumFocus={onDatumFocus}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined
@@ -226,7 +226,7 @@ const GeomHLine = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip aes={geomAes as Aes} />
+          <Tooltip aes={geomAes as Aes<Datum>} />
         </>
       )}
     </>

@@ -1,5 +1,5 @@
 import { Aes, DataValue } from '@graphique/graphique'
 
-export type GeomAes = Omit<Aes, 'x' | 'fill' | 'size'> & {
-  x?: DataValue
+export type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'fill' | 'size'> & {
+  x?: DataValue<Datum>
 }

@@ -7,8 +7,8 @@ import {
   DEFAULT_GROUP_STROKES,
   DEFAULT_AES,
   DEFAULT_STROKE_WIDTH,
-} from "./shared"
-import { flipperLengthsBySpecies, type PenguinSummary } from './shared'
+  flipperLengthsBySpecies,
+} from './shared'
 import { GeomHLine } from '../geomHLine'
 
 jest.useFakeTimers()
@@ -19,7 +19,7 @@ describe('horizontal line basics with GeomHLine', () => {
       <GGHLine
         aes={{
           ...DEFAULT_AES,
-          y: (d: PenguinSummary) => d.count!
+          y: d => d.count!
         }}
       />
     )
@@ -50,7 +50,7 @@ describe('horizontal line basics with GeomHLine', () => {
         <GeomHLine
           data={flipperLengthsBySpecies}
           aes={{
-            y: (d: PenguinSummary) => d.count!
+            y: d => d.count!
           }}
         />
       </GGHLine>

@@ -6,17 +6,17 @@ import { GeomArea } from '..'
 
 const GROUPS = Array.from(new Set(stocks.map(c => c.symbol)))
 const NUM_GROUPS = GROUPS.length
-const DEFAULT_AES: Aes = {
-  x: (d: Stock) => new Date(d.date),
-  y: (d: Stock) => d.marketCap,
-  fill: (d: Stock) => d.symbol
+const DEFAULT_AES: Aes<Stock> = {
+  x: d => new Date(d.date),
+  y: d => d.marketCap,
+  fill: d => d.symbol
 }
 const DEFAULT_GROUP_FILLS = defaultScheme.slice(0, NUM_GROUPS)
 const DEFAULT_FILL = '#777777ee'
 
-interface AreaProps<T> {
-  data: T[]
-  aes: Aes
+interface AreaProps<Stock> {
+  data: Stock[]
+  aes: Aes<Stock>
   children?: React.ReactNode
 }
 
@@ -30,7 +30,7 @@ const DEFAULT_AREA_PROPS: AreaProps<Stock> = {
   children: <GeomArea />
 }
 
-const GGArea: React.FC<AreaProps<unknown>> = (props = DEFAULT_AREA_PROPS) => (
+const GGArea: React.FC<AreaProps<Stock>> = (props = DEFAULT_AREA_PROPS) => (
   <GG
     data={props.data}
     aes={props.aes}

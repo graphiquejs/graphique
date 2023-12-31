@@ -17,7 +17,6 @@ import {
   unfocusNodes,
   EventArea,
   widen,
-  Aes,
   BrushAction,
   isDate,
   defineGroupAccessor,
@@ -33,13 +32,13 @@ import { scaleBand } from 'd3-scale'
 import { extent, min, max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip, LineMarker } from './tooltip'
-import { GeomAes } from './types'
+import { GeomAes, HistogramBin } from './types'
 
 const STACKED_OR_FILLED: BarColPositions[] = ['stack', 'fill']
 
-export interface GeomColProps extends SVGAttributes<SVGRectElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface GeomColProps<Datum> extends SVGAttributes<SVGRectElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   xPadding?: number
@@ -48,8 +47,8 @@ export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   yDomain?: unknown[]
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -59,7 +58,7 @@ export interface GeomColProps extends SVGAttributes<SVGRectElement> {
   focusType?: 'group' | 'individual'
 }
 
-const GeomCol = ({
+const GeomCol = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -80,8 +79,8 @@ const GeomCol = ({
   position = 'stack',
   focusType = 'group',
   ...props
-}: GeomColProps) => {
-  const { ggState } = useGG() || {}
+}: GeomColProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin, width, id } =
     ggState || {}
 
@@ -98,9 +97,9 @@ const GeomCol = ({
       return {
         ...aes,
         ...localAes,
-      } as Aes
+      }
     }
-    return aes as Aes
+    return aes
   }, [aes, localAes])
 
   const geomData = useMemo(() => {
@@ -177,7 +176,7 @@ const GeomCol = ({
   }
 
   const fill = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -188,10 +187,10 @@ const GeomCol = ({
   )
 
   const stroke = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
+        ? (copiedScales.strokeScale(geomAes.stroke(d)) as
             | string
             | undefined)
         : 'none'),
@@ -234,7 +233,7 @@ const GeomCol = ({
 
   const xBandScale = useMemo(() => {
     if (margin && width) {
-      if (scales?.xScale.bandwidth) {
+      if (typeof scales?.xScale?.bandwidth !== 'undefined') {
         return scales.xScale.paddingInner(xPadding)
       }
       const uniqueXs = Array.from(new Set(geomData?.map((d) => geomAes?.x(d))))
@@ -273,8 +272,8 @@ const GeomCol = ({
 
   useEffect(() => {
     const isHistogram = !!theme?.geoms?.histogram
-    const histStart = isHistogram ? min(geomData as any[], d => d.x0) : null
-    const histEnd = isHistogram ? max(geomData as any[], d => d.x1) : null
+    const histStart = isHistogram ? min(geomData as HistogramBin[], d => d.x0) : null
+    const histEnd = isHistogram ? max(geomData as HistogramBin[], d => d.x1) : null
 
     if (isHistogram) {
       setXScale((prev) => ({
@@ -285,7 +284,7 @@ const GeomCol = ({
   }, [theme, setXScale, xZoomDomain])
 
   const x = useCallback(
-    (d: unknown) => {
+    (d: Datum) => {
       if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
         let leftAdj = 0
         let rightAdj = 0
@@ -318,13 +317,13 @@ const GeomCol = ({
   )
 
   const y = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       scales?.yScale && geomAes?.y && scales.yScale(geomAes?.y(d)),
     [scales, geomAes]
   )
 
   const group = useMemo(
-    () => defineGroupAccessor(geomAes as Aes),
+    () => defineGroupAccessor(geomAes),
     [defineGroupAccessor, geomAes]
   )
 
@@ -337,7 +336,7 @@ const GeomCol = ({
   )
 
   const keyAccessor = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
@@ -400,7 +399,7 @@ const GeomCol = ({
   const rects = groupRef.current?.getElementsByTagName('rect')
 
   const getGroupStack = useCallback(
-    (d: unknown) => {
+    (d: Datum) => {
       const thisStack =
         stackedData && stackedData.find((sd) => group && sd.key === group(d))
       const groupStack = thisStack?.find(
@@ -459,7 +458,7 @@ const GeomCol = ({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(geomData as [])]}
+                data={[...(geomData)]}
                 keyAccessor={keyAccessor}
                 start={(d) => ({
                   width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
@@ -568,7 +567,7 @@ const GeomCol = ({
             showTooltip={showTooltip}
             brushAction={brushAction}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
+            onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -580,7 +579,7 @@ const GeomCol = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

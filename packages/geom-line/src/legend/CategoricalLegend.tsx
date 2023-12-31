@@ -9,9 +9,9 @@ import {
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
-export interface CategoricalLegendProps {
-  legendData: unknown[]
-  legendScales: IScale
+export interface CategoricalLegendProps<Datum> {
+  legendData: Datum[]
+  legendScales: IScale<Datum>
   orientation?: 'vertical' | 'horizontal'
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
@@ -19,7 +19,7 @@ export interface CategoricalLegendProps {
   ignoreDasharray?: boolean
 }
 
-export const CategoricalLegend = ({
+export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
   orientation = 'vertical',
@@ -27,7 +27,7 @@ export const CategoricalLegend = ({
   fontSize = 12,
   onSelection,
   ignoreDasharray,
-}: CategoricalLegendProps) => {
+}: CategoricalLegendProps<Datum>) => {
   const [{ geoms, defaultStroke }] = useAtom(themeState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
   const [{ domain: dashArrayDomain }] = useAtom(strokeDasharrayState)
@@ -46,7 +46,7 @@ export const CategoricalLegend = ({
     geoms?.line?.usableGroups ?? []
   )
 
-  const { ggState, updateData } = useGG() || {}
+  const { ggState, updateData } = useGG<Datum>() || {}
   const { data } = ggState || {}
 
   const [firstRender, setFirstRender] = useState(true)
@@ -92,10 +92,10 @@ export const CategoricalLegend = ({
       onSelection(g)
     }
     if (data && updateData) {
-      let updatedData
+      let updatedData: Datum[]
       if (includedGroups.includes(g)) {
         if (includedGroups.length === 1) {
-          updatedData = legendData as unknown[]
+          updatedData = legendData
         } else {
           updatedData = data.filter((d) => getGroup(d) !== g)
         }

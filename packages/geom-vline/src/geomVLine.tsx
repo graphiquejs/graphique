@@ -20,25 +20,25 @@ import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { Tooltip } from './tooltip'
 
-type GeomAes = Omit<Aes, 'x' | 'y' | 'fill' | 'size'> & {
-  x?: DataValue
+type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'y' | 'fill' | 'size'> & {
+  x?: DataValue<Datum>
 }
 
 const DEFAULT_TICK_SIZE = 6
 
-export interface GeomVLineProps extends SVGAttributes<SVGLineElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface GeomVLineProps<Datum> extends SVGAttributes<SVGLineElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   showTooltip?: boolean
-  onDatumFocus?: (data: unknown, index: number[]) => void
-  onDatumSelection?: (data: unknown, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   strokeOpacity?: number
 }
 
-const GeomVLine = ({
+const GeomVLine = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -50,8 +50,8 @@ const GeomVLine = ({
   strokeWidth = 1.5,
   strokeOpacity = 1,
   ...props
-}: GeomVLineProps) => {
-  const { ggState } = useGG() || {}
+}: GeomVLineProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
 
   const geomData = localData || data
@@ -100,7 +100,7 @@ const GeomVLine = ({
   }, [setTheme, strokeColor, strokeOpacity, strokeWidth, props.style])
 
   const stroke = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -111,13 +111,13 @@ const GeomVLine = ({
   )
 
   const x = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
     [scales, geomAes]
   )
 
   const checkIsOutisdeDomain = useMemo(
-    () => (d: unknown) => {
+    () => (d: Datum) => {
       const domain = scales?.xScale && scales.xScale.domain()
 
       return (
@@ -130,12 +130,12 @@ const GeomVLine = ({
   )
 
   const keyAccessor = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum, i: number) =>
       geomAes?.key
         ? geomAes.key(d)
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
-          }` as string),
+          }-${i}` as string),
     [geomAes, scales]
   )
 
@@ -149,7 +149,7 @@ const GeomVLine = ({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(geomData as [])]}
+                data={[...geomData]}
                 keyAccessor={keyAccessor}
                 start={(d) => ({
                   x1: x(d),
@@ -220,14 +220,14 @@ const GeomVLine = ({
         <>
           <EventArea
             data={geomData?.filter((d) => !checkIsOutisdeDomain(d))}
-            aes={geomAes as Aes}
+            aes={geomAes}
             x={x}
             y={() => 0}
             group="x"
             onDatumFocus={onDatumFocus}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined
@@ -236,7 +236,7 @@ const GeomVLine = ({
               if (onExit) onExit()
             }}
           />
-          <Tooltip aes={geomAes as Aes} />
+          <Tooltip aes={geomAes} />
         </>
       )}
     </>

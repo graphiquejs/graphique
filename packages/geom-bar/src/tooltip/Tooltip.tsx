@@ -9,6 +9,7 @@ import {
   YTooltip,
   Aes,
   themeState,
+  TooltipProps,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
@@ -18,17 +19,17 @@ interface StackMidpoint {
   xVal: number
 }
 
-export interface TooltipProps {
-  x: (d: unknown) => number | undefined
-  y: (d: unknown) => number | undefined
+interface Props<Datum> {
+  x: (d: Datum) => number | undefined
+  y: (d: Datum) => number | undefined
   yAdj?: number
-  aes?: Aes
+  aes?: Aes<Datum>
   focusType: 'group' | 'individual'
   align: 'left' | 'center' | 'right'
   stackMidpoints?: StackMidpoint[]
 }
 
-export const Tooltip = ({
+export const Tooltip = <Datum,>({
   x,
   y,
   yAdj = 0,
@@ -36,13 +37,13 @@ export const Tooltip = ({
   focusType,
   align,
   stackMidpoints,
-}: TooltipProps) => {
-  const { ggState } = useGG() || {}
+}: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, scales, copiedScales, height } = ggState || {
     height: 0,
   }
 
-  const [{ datum, xFormat, yFormat, content }] = useAtom(tooltipState)
+  const [{ datum, xFormat, yFormat, content }] = useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ geoms }] = useAtom(themeState)
 
@@ -52,7 +53,7 @@ export const Tooltip = ({
   )
 
   const yCoord = useMemo(
-    () => datum?.[0] && (y(datum[0]) ?? 0) + (focusType === 'group' ? yAdj : 0),
+    () => (datum?.[0] && (y(datum?.[0]) ?? 0) + (focusType === 'group' ? yAdj : 0)) || 0,
     [yAdj, datum, y, focusType]
   )
 
@@ -138,10 +139,10 @@ export const Tooltip = ({
             x: xVal,
             y: yVal,
             formattedX: xFormat ? xFormat(aes?.x(md)) : aes?.x(md),
-            formattedY: yFormat ? yFormat(yVal) : yVal.toString(),
+            formattedY: yFormat ? yFormat(yVal) : String(yVal),
           }
         })
-    return vals as TooltipContent[]
+    return vals as TooltipContent<Datum>[]
   }, [
     datum,
     yVal,

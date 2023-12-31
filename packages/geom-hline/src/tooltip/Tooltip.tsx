@@ -7,23 +7,24 @@ import {
   YTooltip,
   Aes,
   DataValue,
+  TooltipProps,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 
-interface Props {
-  aes: Aes
-  group?: DataValue
+interface Props<Datum> {
+  aes: Aes<Datum>
+  group?: DataValue<Datum>
 }
 
-export const Tooltip = ({ aes, group }: Props) => {
-  const { ggState } = useGG() || {}
+export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, scales, width, height, margin } = ggState || {
     width: 0,
     height: 0,
   }
 
   const [{ datum: tooltipDatum, xFormat, yFormat, measureFormat, content }] =
-    useAtom(tooltipState)
+    useAtom<TooltipProps<Datum>>(tooltipState)
 
   const datum = useMemo(() => tooltipDatum && tooltipDatum[0], [tooltipDatum])
 
@@ -49,7 +50,7 @@ export const Tooltip = ({ aes, group }: Props) => {
     [datum, group]
   )
 
-  const tooltipContents: TooltipContent[] = [
+  const tooltipContents: TooltipContent<Datum>[] = [
     {
       x: datum && aes?.x && xScale && xScale(aes.x(datum)),
       y: datum && aes?.y && yScale && yScale(aes.y(datum)),
@@ -64,19 +65,17 @@ export const Tooltip = ({ aes, group }: Props) => {
       group: thisGroup,
       label,
       formattedMeasure:
-        measureFormat &&
-        (label || thisGroup) &&
-        measureFormat(label || thisGroup),
-      datum,
+        measureFormat ? measureFormat(label ?? thisGroup) : undefined,
+      datum: tooltipDatum,
       containerWidth: width,
     },
   ]
 
   const tooltipValue = content
-    ? datum && <div>{content(tooltipContents)}</div>
-    : datum && <DefaultTooltip data={tooltipContents} />
+    ? tooltipDatum && <div>{content(tooltipContents)}</div>
+    : tooltipDatum && <DefaultTooltip data={tooltipContents} />
 
-  const shouldShow = datum && tooltipContents[0].y !== undefined
+  const shouldShow = tooltipDatum && tooltipContents[0].y !== undefined
 
   return shouldShow ? (
     <div>

@@ -11,15 +11,15 @@ const NUM_GROUPS = GROUPS.length
 const DEFAULT_GROUP_STROKES = defaultScheme.slice(0, NUM_GROUPS)
 const DEFAULT_STROKE_WIDTH = '1.5'
 const DEFAULT_SINGLE_STROKE = '#777777ee'
-const DEFAULT_AES: Aes = {
-  x: (d: PenguinSummary) => d.beakLength,
-  y: (d: PenguinSummary) => d.flipperLength,
-  stroke: (d: PenguinSummary) => d.species,
+const DEFAULT_AES: Aes<PenguinSummary> = {
+  x: d => d.beakLength,
+  y: d => d.flipperLength,
+  stroke: d => d.species,
 }
 
 interface HLineProps {
-  data?: unknown[]
-  aes?: Aes
+  data?: PenguinSummary[]
+  aes?: Aes<PenguinSummary>
 }
 
 const GGHLine: React.FC<HLineProps> = (

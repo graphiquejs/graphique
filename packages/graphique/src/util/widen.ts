@@ -1,10 +1,10 @@
 import { isDate } from "./dates"
 
-export const widen = (
-  data: unknown[],
-  pivot: (d: unknown) => any,
-  getGroup: (d: unknown) => any,
-  count: (d: unknown) => any
+export const widen = <Datum>(
+  data: Datum[],
+  pivot: (d: Datum) => any,
+  getGroup: (d: Datum) => any,
+  count: (d: Datum) => any
 ) => {
   const pivots = Array.from(new Set(data.map(d => isDate(pivot(d)) ? pivot(d).valueOf() : pivot(d))))
   const groups = Array.from(new Set(data.map(getGroup)))

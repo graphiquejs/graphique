@@ -13,13 +13,13 @@ jest.mock('nanoid', () => ({
 
 jest.useFakeTimers()
 
-const DEFAULT_AES: Aes = {
-  x: (d: Stock) => new Date(d.date),
-  y: (d: Stock) => d.marketCap,
+const DEFAULT_AES: Aes<Stock> = {
+  x: d => new Date(d.date),
+  y: d => d.marketCap,
 }
 
 interface TestComponentProps {
-  aes?: Aes
+  aes?: Aes<Stock>
   data?: Stock[]
 }
 
@@ -43,8 +43,8 @@ describe('a line chart matches a snapshot', () => {
       <TestComponent
         aes={{
           ...DEFAULT_AES,
-          stroke: (d: Stock) => d.symbol,
-          strokeDasharray: (d: Stock) => d.symbol
+          stroke: d => d.symbol,
+          strokeDasharray: d => d.symbol
         }}
       />
     )

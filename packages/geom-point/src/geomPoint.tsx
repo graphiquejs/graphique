@@ -32,16 +32,16 @@ import {
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
 
-export interface PointProps extends SVGAttributes<SVGCircleElement> {
-  data?: unknown[]
-  aes?: GeomAes
+export interface PointProps<Datum> extends SVGAttributes<SVGCircleElement> {
+  data?: Datum[]
+  aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   focusedKeys?: (string | number)[]
   showTooltip?: boolean
   brushAction?: BrushAction
-  onDatumFocus?: (data: any, index: number[]) => void
-  onDatumSelection?: (data: any, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   entrance?: 'data' | 'midpoint'
   onExit?: () => void
   fillOpacity?: number
@@ -49,7 +49,7 @@ export interface PointProps extends SVGAttributes<SVGCircleElement> {
   isClipped?: boolean
 }
 
-const GeomPoint = ({
+const GeomPoint = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -66,8 +66,8 @@ const GeomPoint = ({
   isClipped = true,
   r = 3.5,
   ...props
-}: PointProps) => {
-  const { ggState } = useGG() || {}
+}: PointProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales, height, margin } = ggState || {}
 
   const [theme, setTheme] = useAtom(themeState)
@@ -93,19 +93,19 @@ const GeomPoint = ({
   }, [aes, localAes])
 
   const group = useMemo(
-    () => geomAes && defineGroupAccessor(geomAes as Aes),
+    () => geomAes && defineGroupAccessor(geomAes as Aes<Datum>),
     [geomAes, defineGroupAccessor]
   )
 
   const positionKeyAccessor = useCallback(
-    (d: unknown) => 
+    (d: Datum) => 
       `${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
         group && group(d)}` as string
     , [geomAes, group])
 
 
   const keyAccessor = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       geomAes?.key
         ? geomAes.key(d)
         : positionKeyAccessor(d),
@@ -252,7 +252,7 @@ const GeomPoint = ({
   }
 
   const fill = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -264,7 +264,7 @@ const GeomPoint = ({
   )
 
   const stroke = useMemo(
-    () => (d: unknown) =>
+    () => (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -296,22 +296,22 @@ const GeomPoint = ({
 
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.xScale(geomAes?.x && geomAes.x(d)) || 0) +
         scales?.xScale.bandwidth() / 2 +
         0.9
     }
-    return (d: unknown) =>
+    return (d: Datum) =>
       scales?.xScale && geomAes?.x && (scales.xScale(geomAes.x(d)) || 0)
   }, [scales, geomAes])
 
   const y = useMemo(() => {
     if (scales?.yScale.bandwidth) {
-      return (d: unknown) =>
+      return (d: Datum) =>
         (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) +
         scales?.yScale.bandwidth() / 2
     }
-    return (d: unknown) =>
+    return (d: Datum) =>
       scales?.yScale && geomAes?.y && (scales.yScale(geomAes.y(d)) || 0)
   }, [scales, geomAes])
 

@@ -28,9 +28,9 @@ import { max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip } from './tooltip'
 
-export interface BarProps extends SVGAttributes<SVGRectElement> {
-  data?: unknown[]
-  aes?: Aes
+export interface BarProps<Datum> extends SVGAttributes<SVGRectElement> {
+  data?: Datum[]
+  aes?: Aes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   yPadding?: number
@@ -38,8 +38,8 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   xDomain?: unknown[]
   yDomain?: unknown[]
   showTooltip?: boolean
-  onDatumFocus?: (data: any, index: number[]) => void
-  onDatumSelection?: (data: any, index: number[]) => void
+  onDatumFocus?: (data: Datum[], index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -49,7 +49,7 @@ export interface BarProps extends SVGAttributes<SVGRectElement> {
   focusType?: 'group' | 'individual'
 }
 
-const GeomBar = ({
+const GeomBar = <Datum,>({
   data: localData,
   aes: localAes,
   focusedStyle,
@@ -69,8 +69,8 @@ const GeomBar = ({
   animateOnEnter = true,
   focusType = 'group',
   ...props
-}: BarProps) => {
-  const { ggState } = useGG() || {}
+}: BarProps<Datum>) => {
+  const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
 
   const geomData = localData || data
@@ -149,7 +149,7 @@ const GeomBar = ({
   }
 
   const fill = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(
@@ -161,7 +161,7 @@ const GeomBar = ({
   )
 
   const stroke = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
@@ -204,7 +204,7 @@ const GeomBar = ({
   }
 
   const x = useCallback(
-    (d: unknown) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0),
+    (d: Datum) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0),
     [scales, geomAes]
   )
 
@@ -212,7 +212,7 @@ const GeomBar = ({
     if (margin && height) {
       const usedYPadding = geomData ? yPadding : 0
 
-      if (scales?.yScale.bandwidth) {
+      if (typeof scales?.yScale.bandwidth !== 'undefined') {
         return scales.yScale.paddingInner(usedYPadding)
       }
       const uniqueYs = Array.from(
@@ -227,7 +227,7 @@ const GeomBar = ({
   }, [height, scales, margin, yPadding, yDomain, geomData, geomAes])
 
   const y = useCallback(
-    (d: unknown) => {
+    (d: Datum) => {
       if (!scales?.yScale.bandwidth && margin && height && yBandScale) {
         scales?.yScale.range([
           height - margin.bottom - yBandScale.bandwidth() / 2 - 0.5,
@@ -245,7 +245,7 @@ const GeomBar = ({
   )
 
   const group = useMemo(
-    () => defineGroupAccessor(geomAes as Aes),
+    () => defineGroupAccessor(geomAes),
     [defineGroupAccessor, geomAes]
   )
 
@@ -258,7 +258,7 @@ const GeomBar = ({
   )
 
   const keyAccessor = useCallback(
-    (d: unknown) =>
+    (d: Datum) =>
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y &&
@@ -333,7 +333,7 @@ const GeomBar = ({
   const leftEdge = useMemo(() => margin?.left || 0, [margin])
 
   const getGroupStack = useMemo(
-    () => (d: unknown) => {
+    () => (d: Datum) => {
       const thisStack =
         stackedData &&
         stackedData.find(
@@ -516,7 +516,7 @@ const GeomBar = ({
             }
             stackXMidpoints={stackMidpoints}
             onDatumFocus={onDatumFocus}
-            onMouseOver={({ i }: { d: unknown; i: number[] }) => {
+            onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
               if (rects) {
                 focusNodes({
                   nodes: rects,
@@ -528,7 +528,7 @@ const GeomBar = ({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: unknown; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined

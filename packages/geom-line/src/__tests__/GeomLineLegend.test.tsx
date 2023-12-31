@@ -2,7 +2,6 @@
 /* eslint-disable no-await-in-loop */
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
-import { type Stock } from '@graphique/datasets'
 import { ScaleStroke } from '@graphique/graphique'
 import { schemeDark2 } from 'd3-scale-chromatic'
 import { GeomLine, Legend } from '..'
@@ -71,7 +70,7 @@ describe("GeomLine's legend", () => {
         aes={{
           ...DEFAULT_AES,
           stroke: undefined,
-          strokeDasharray: (d: Stock) => d.symbol,
+          strokeDasharray: d => d.symbol,
         }}
       />
     )
@@ -141,7 +140,7 @@ describe("GeomLine's legend", () => {
       <GGLineLegend
         aes={{
           ...DEFAULT_AES,
-          strokeDasharray: (d: Stock) => d.symbol,
+          strokeDasharray: d => d.symbol,
         }}
       >
         <Legend ignoreDasharray />
