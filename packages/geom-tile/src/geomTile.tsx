@@ -35,7 +35,6 @@ export interface GeomTileProps<Datum> extends SVGAttributes<SVGRectElement> {
   xDomain?: unknown[]
   yDomain?: unknown[]
   showTooltip?: boolean
-  focusedDatum?: any
   onDatumFocus?: (data: Datum[], index: number[]) => void
   onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
@@ -56,7 +55,6 @@ const GeomTile = <Datum,>({
   xPadding = 0,
   yPadding = 0,
   showTooltip = true,
-  focusedDatum,
   fillOpacity = 1,
   strokeOpacity = 1,
   ...props
@@ -332,7 +330,6 @@ const GeomTile = <Datum,>({
             y={y}
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}
-            datum={focusedDatum}
             group={group}
             aes={geomAes}
           />
