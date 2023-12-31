@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-vline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "For drawing vertical lines (usually used as markers)",
   "keywords": [
     "react",
