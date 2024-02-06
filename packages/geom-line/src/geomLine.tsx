@@ -20,6 +20,7 @@ import {
   strokeScaleState,
   VisualEncodingTypes,
   defaultScheme,
+  DataValue,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -43,6 +44,7 @@ export interface LineProps<Datum> extends SVGAttributes<SVGPathElement> {
   markerStroke?: string
   entrance?: 'data' | 'midpoint'
   focusType?: 'x' | 'closest'
+  focusGroupAccessor?: DataValue<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   onDatumFocus?: (data: Datum[], index: number[]) => void
@@ -69,6 +71,7 @@ const GeomLine = <Datum,>({
   markerRadius = 3.5,
   markerStroke = '#fff',
   focusType = 'x',
+  focusGroupAccessor,
   ...props
 }: LineProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
@@ -176,7 +179,7 @@ const GeomLine = <Datum,>({
           strokeDasharray,
           stroke: strokeColor,
           strokeScale: geomStrokeScale,
-          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray ?? geomAes.group,
+          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray ?? geomAes?.group,
           usableGroups: strokeGroups ?? strokeDasharrayGroups,
         },
       },
@@ -239,20 +242,36 @@ const GeomLine = <Datum,>({
     ...unfocusedStyle,
   }
 
+  const focusGroups = useMemo(() => {
+    const hasStrokeGrouping = geomAes?.stroke || geomAes?.strokeDasharray
+    if (focusGroupAccessor && focusType === 'closest' && hasStrokeGrouping) {
+      const groupStroke = geomAes?.stroke ?? geomAes.strokeDasharray
+      const numStrokes = new Set(geomData?.map(groupStroke!)).size
+
+      const repeatedFocusGroups = Array(numStrokes)
+        .fill((Array.from(new Set(geomData?.map(focusGroupAccessor)))) as string[]).flat()
+
+      return repeatedFocusGroups
+    }
+    return groups
+  }, [groups, strokeGroups, geomData])
+
   useEffect(() => {
     const thisDatum = tooltipDatum?.[0]
     if (
       thisDatum &&
       group &&
       groups &&
-      groups?.length > 1 &&
+      focusGroups &&
+      focusGroups?.length > 1 &&
+      focusGroups?.length <= groups?.length &&
       lines &&
       lines?.length > 0 &&
       focusType === 'closest'
     ) {
-      const datumGroup = group(thisDatum)
+      const datumGroup = focusGroupAccessor?.(thisDatum) ?? group(thisDatum)
 
-      const focusedIndex = groups
+      const focusedIndex = focusGroups
         ?.map((g, i) => (g === datumGroup ? i : -1))
         .filter((v) => v >= 0)
       
@@ -265,7 +284,9 @@ const GeomLine = <Datum,>({
     } else if (lines && focusType === 'closest') {
       unfocusNodes({ nodes: lines, baseStyles })
     }
-  }, [tooltipDatum, group, groups, lines, focusType, firstRender])
+  }, [
+    tooltipDatum, group, groups, focusGroups, focusGroupAccessor, lines, focusType, firstRender
+  ])
 
   // map through groups to draw a line for each group
   return (

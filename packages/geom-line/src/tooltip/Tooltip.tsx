@@ -43,12 +43,12 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
   const hasYVal = useMemo(() => datum?.some(y), [datum, y])
 
   const datumInGroups = useMemo(() => {
-    const groups = scales?.groups
+    const groups = scales?.strokeScale?.domain() ?? scales?.strokeDasharrayScale?.domain() ?? geoms?.line?.usableGroups
 
     return groups
       ? datum?.filter((d) => {
           const group = geoms?.line?.groupAccessor?.(d)
-            const inGroups = scales?.groups?.includes(group as string)
+          const inGroups = groups.includes(group as string)
             
           return inGroups
       })
@@ -73,12 +73,18 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
             aes.y(d) !== null
         ))
         .map((md) => {
-          const group = geoms?.line?.groupAccessor?.(md)
+          const group = aes?.stroke?.(md) ?? aes?.strokeDasharray?.(md) ?? geoms?.line?.groupAccessor?.(md)
 
           const dashArray = geoms?.line?.strokeDasharray ?? (
             aes.strokeDasharray && copiedScales?.strokeDasharrayScale
               ? copiedScales.strokeDasharrayScale(aes.strokeDasharray(md))
               : undefined
+          )
+
+          const stroke = geoms?.line?.stroke ?? (
+            aes.stroke && copiedScales?.strokeScale
+              ? copiedScales.strokeScale(aes.stroke(md))
+              : defaultStroke
           )
 
           const mark = (
@@ -88,13 +94,7 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
                 x2={18}
                 y1={4}
                 y2={4}
-                stroke={
-                  geoms?.line?.stroke ||
-                  geoms?.line?.strokeScale?.(group) ||
-                  (copiedScales?.strokeScale
-                    ? copiedScales.strokeScale(group)
-                    : defaultStroke)
-                }
+                stroke={stroke}
                 strokeDasharray={dashArray}
                 strokeWidth={geoms?.line?.strokeWidth}
                 strokeOpacity={geoms?.line?.strokeOpacity}
@@ -112,7 +112,7 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
           }
         })
     return vals as TooltipContent<Datum>[]
-  }, [datum, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
+  }, [datum, datumInGroups, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
 
   const tooltipValue = content ? (
     <div>{content(lineVals)}</div>
