@@ -102,10 +102,10 @@ export const autoScale = <Datum,>({
 
   // identify groups
   const group = (
-    aes?.group ||
     aes?.fill ||
     aes?.stroke ||
-    aes?.strokeDasharray
+    aes?.strokeDasharray ||
+    aes?.group
   ) ? 
   defineGroupAccessor(aes) :
   geomGroupAccessor
@@ -116,7 +116,7 @@ export const autoScale = <Datum,>({
     : // .sort()
       // .map(g => (g === null ? "[null]" : g))
       // .sort()
-      ['__group']
+    ['__group']
 
   const thisYAes = aes.y || (geomAesYs.length ? geomAesYs[0] : undefined)
   const resolvedYAes = thisYAes ?? y1Aes ?? y0Aes
