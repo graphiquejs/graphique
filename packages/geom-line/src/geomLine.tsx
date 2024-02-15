@@ -245,34 +245,34 @@ const GeomLine = <Datum,>({
   const focusGroups = useMemo(() => {
     const hasStrokeGrouping = geomAes?.stroke || geomAes?.strokeDasharray
     if (focusGroupAccessor && focusType === 'closest' && hasStrokeGrouping) {
-      const groupStroke = geomAes?.stroke ?? geomAes.strokeDasharray
-      const numStrokes = new Set(geomData?.map(groupStroke!)).size
+      const groupStroke = geomAes?.group ?? geomAes?.stroke ?? geomAes.strokeDasharray
+      
+      const expandedGroups = Array.from(new Set(geomData?.map((d) => (
+        `${focusGroupAccessor(d)}-${groupStroke?.(d)}`
+      ))))
 
-      const repeatedFocusGroups = Array(numStrokes)
-        .fill((Array.from(new Set(geomData?.map(focusGroupAccessor)))) as string[]).flat()
-
-      return repeatedFocusGroups
+      return expandedGroups
     }
     return groups
   }, [groups, strokeGroups, geomData])
 
   useEffect(() => {
     const thisDatum = tooltipDatum?.[0]
+
     if (
       thisDatum &&
       group &&
       groups &&
       focusGroups &&
       focusGroups?.length > 1 &&
-      focusGroups?.length <= groups?.length &&
       lines &&
       lines?.length > 0 &&
       focusType === 'closest'
     ) {
-      const datumGroup = focusGroupAccessor?.(thisDatum) ?? group(thisDatum)
+      const datumGroup = `${focusGroupAccessor ? focusGroupAccessor(thisDatum) : group(thisDatum)}`
 
       const focusedIndex = focusGroups
-        ?.map((g, i) => (g === datumGroup ? i : -1))
+        ?.map((g, i) => (g.includes(datumGroup) ? i : -1))
         .filter((v) => v >= 0)
       
       focusNodes({

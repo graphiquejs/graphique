@@ -698,7 +698,7 @@ exports[`area charts match snapshots discontinuous data, filled 1`] = `
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -893,7 +893,7 @@ exports[`area charts match snapshots discontinuous data, filled 1`] = `
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>
@@ -1937,7 +1937,7 @@ exports[`area charts match snapshots position="fill", filled 1`] = `
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -2132,7 +2132,7 @@ exports[`area charts match snapshots position="fill", filled 1`] = `
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>
@@ -3138,7 +3138,7 @@ exports[`area charts match snapshots position="identity" (default), filled 1`] =
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -3333,7 +3333,7 @@ exports[`area charts match snapshots position="identity" (default), filled 1`] =
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>
@@ -4339,7 +4339,7 @@ exports[`area charts match snapshots position="stack", filled 1`] = `
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -4534,7 +4534,7 @@ exports[`area charts match snapshots position="stack", filled 1`] = `
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>
@@ -6362,7 +6362,7 @@ exports[`area charts match snapshots y0, y1 set — grouped "ribbons" 1`] = `
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -6557,7 +6557,7 @@ exports[`area charts match snapshots y0, y1 set — grouped "ribbons" 1`] = `
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>

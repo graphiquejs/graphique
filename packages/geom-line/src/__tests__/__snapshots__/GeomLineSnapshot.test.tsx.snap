@@ -1083,7 +1083,7 @@ exports[`a line chart matches a snapshot with multiple settings 1`] = `
                       style="margin-right: 5px;"
                     >
                       <span>
-                        FB 
+                        META 
                       </span>
                     </div>
                   </div>
@@ -1284,7 +1284,7 @@ exports[`a line chart matches a snapshot with multiple settings 1`] = `
                 <div
                   style="margin-left: 4px; font-size: 12px;"
                 >
-                  FB
+                  META
                 </div>
               </div>
             </div>
