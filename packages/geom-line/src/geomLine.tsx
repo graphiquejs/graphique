@@ -48,7 +48,7 @@ export interface LineProps<Datum> extends SVGAttributes<SVGPathElement> {
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   onDatumFocus?: (data: Datum[], index: number[]) => void
-  onDatumSelection?: (data: Datum, index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
 }
 
@@ -471,7 +471,7 @@ const GeomLine = <Datum,>({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: any; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined
