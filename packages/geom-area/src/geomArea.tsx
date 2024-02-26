@@ -50,7 +50,7 @@ export interface GeomAreaProps<Datum> extends SVGAttributes<SVGPathElement> {
   markerRadius?: number
   markerStroke?: string
   onDatumFocus?: (data: Datum[], index: number[]) => void
-  onDatumSelection?: (data: Datum, index: number[]) => void
+  onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -653,7 +653,7 @@ const GeomArea = <Datum,>({
             }}
             onClick={
               onDatumSelection
-                ? ({ d, i }: { d: any; i: number[] }) => {
+                ? ({ d, i }: { d: Datum[]; i: number[] }) => {
                     onDatumSelection(d, i)
                   }
                 : undefined
