@@ -924,7 +924,7 @@ export const EventArea = <Datum,>({
                 style={{ pointerEvents: 'all' }}
                 d={v.voronoi.renderCell(j)}
                 fill="none"
-                stroke="tomato"
+                // stroke="tomato"
                 onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
               />
             ))}
