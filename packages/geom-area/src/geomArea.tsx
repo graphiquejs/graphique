@@ -10,14 +10,12 @@ import {
   widen,
   yScaleState,
   zoomState,
-  defineGroupAccessor,
   defaultScheme,
   fillScaleState,
   strokeScaleState,
   VisualEncodingTypes,
   BrushAction,
   AreaPositions,
-  type Aes,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -167,9 +165,9 @@ const GeomArea = <Datum,>({
   const group = useMemo(
     () =>
       geomAes?.group ?? geomAes?.fill
-        ? defineGroupAccessor(geomAes as Aes<Datum>)
+        ? geomAes?.group ?? geomAes?.fill
         : (scales?.groupAccessor ?? (() => '__group')),
-    [geomAes, defineGroupAccessor]
+    [geomAes]
   )
 
   const groups = useMemo(
@@ -418,7 +416,7 @@ const GeomArea = <Datum,>({
           fill: fillColor,
           fillScale: geomFillScale,
           strokeScale: geomStrokeScale,
-          groupAccessor: group,
+          groupAccessor: geomAes?.fill ?? geomAes?.group,
           usableGroups: groups,
           y0,
           y1,
