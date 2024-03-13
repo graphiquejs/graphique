@@ -256,7 +256,8 @@ export const EventArea = <Datum,>({
   ])
 
   const yVoronois = useMemo(() => {
-    if (!yDelaunays || !isVoronoi) return undefined
+    const isValid = (width - (margin.left + margin.right) > 0)
+    if (!yDelaunays || !isVoronoi || !isValid) return undefined
 
     const dy = (yBandScale?.step?.() ?? 0) / 2
 
@@ -272,7 +273,9 @@ export const EventArea = <Datum,>({
   }, [yDelaunays, scales?.yScale, yAdj, width, margin])
 
   const voronoi = useMemo(() => {
-    if (!isVoronoi) return undefined
+    const isValid = (width - (margin.left + margin.right) > 0)
+      && (height - (margin.bottom + margin.top) > 0)
+    if (!isVoronoi || !isValid) return undefined
 
     return delaunay.voronoi([
       margin.left,
@@ -921,7 +924,7 @@ export const EventArea = <Datum,>({
                 style={{ pointerEvents: 'all' }}
                 d={v.voronoi.renderCell(j)}
                 fill="none"
-                // stroke="tomato"
+                stroke="tomato"
                 onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
               />
             ))}
