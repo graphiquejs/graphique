@@ -174,7 +174,7 @@ export const Tooltip = <Datum,>({
       </div>
     )
 
-  return datum && groupVals[0] && hasGroup ? (
+  return datum && groupVals[0] ? (
     <div>
       <YTooltip
         id={id as string}
