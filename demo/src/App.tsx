@@ -1,11 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import React from 'react'
-import {
-  GG,
-  ScaleRadius,
-} from '@graphique/graphique'
+import { GG, ScaleRadius } from '@graphique/graphique'
 import { penguins, Penguin } from '@graphique/datasets'
 import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point'
+import { GeomVLine } from '@graphique/geom-vline'
+import { GeomHLine } from '@graphique/geom-hline'
 
 function App() {
   return (
@@ -14,18 +13,26 @@ function App() {
         <GG
           data={penguins}
           aes={{
-            x: (d: Penguin) => d.flipperLength,
-            y: (d: Penguin) => d.bodyMass,
-            fill: (d: Penguin) => d.species,
+            x: (d) => d.flipperLength,
+            y: (d) => d.bodyMass,
+            fill: (d) => d.species,
           }}
           margin={{ left: 50 }}
         >
-          <GeomPoint
+          <GeomPoint<Penguin>
             isClipped={false}
             aes={{
-              size: (d: Penguin) => d.beakDepth
+              size: (d) => d.beakDepth,
             }}
             opacity={0.6}
+          />
+          <GeomVLine<Partial<Penguin>>
+            data={[{ flipperLength: 200 }]}
+            showTooltip={false}
+          />
+          <GeomHLine<Partial<Penguin>>
+            data={[{ bodyMass: 4000 }]}
+            showTooltip={false}
           />
           <Legend />
           <SizeLegend />
