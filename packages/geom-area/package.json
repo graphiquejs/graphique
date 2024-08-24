@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-area",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "For area charts, stacked area charts, or streamgraphs",
   "keywords": [
     "react",
@@ -57,7 +57,7 @@
     "react-dom": ">=16"
   },
   "devDependencies": {
-    "@graphique/datasets": "^1.2.0",
+    "@graphique/datasets": "^1.3.0",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^14.5.1",
     "@types/d3-array": "^3.0.1",
