@@ -1,6 +1,6 @@
 {
   "name": "@graphique/geom-tile",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "For rectangular charts like heatmaps",
   "keywords": [
     "react",
@@ -16,13 +16,19 @@
     "/dist"
   ],
   "type": "module",
-  "module": "./dist/index.module.js",
+  "module": "./dist/index.js",
   "main": "./dist/index.cjs",
   "source": "./src/index.ts",
-  "exports": "./dist/index.module.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
   "types": "./dist/index.d.ts",
   "sideEffects": false,
-  "repository": "https://github.com/graphiquejs/graphique.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/graphiquejs/graphique.git"
+  },
   "author": "Matt Adams",
   "license": "MIT",
   "publishConfig": {
@@ -31,8 +37,9 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js",
-    "watch": "microbundle watch --jsx React.createElement --jsxFragment React.Fragment -f modern,cjs --compress -o dist/index.js"
+    "typecheck": "attw --pack",
+    "build": "tsup --minify",
+    "watch": "tsup --watch"
   },
   "dependencies": {
     "d3-array": "^3.0.1",

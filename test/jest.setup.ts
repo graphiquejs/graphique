@@ -4,6 +4,3 @@ window.cancelAnimationFrame = (id: any): void => {
 }
 
 global.ResizeObserver = require('resize-observer-polyfill')
-
-Object.defineProperty(document, 'visibilityState', { value: 'visible', writable: true })
-Object.defineProperty(document, 'hidden', { value: false, writable: true })

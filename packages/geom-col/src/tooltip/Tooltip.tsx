@@ -172,7 +172,7 @@ export const Tooltip = <Datum,>({
     <XTooltip
       id={id as string}
       left={xCoord}
-      top={position === 'data' ? -(height - (groupVals[0].y || 0)) : (-height + margin?.top ?? 0)}
+      top={position === 'data' ? -(height - (groupVals[0].y || 0)) : (-height + margin?.top)}
       value={typeof xAxis === 'function' ? xAxis(xVal) : tooltipValue}
       yPosition="above"
     />

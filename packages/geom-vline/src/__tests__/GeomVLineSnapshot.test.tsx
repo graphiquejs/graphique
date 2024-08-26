@@ -1,10 +1,10 @@
 import React from 'react'
 import { penguins } from '@graphique/datasets'
+import { GeomPoint } from '@graphique/geom-point'
 import { act, screen } from '@testing-library/react'
 import { DEFAULT_AES, GGVLine, setup } from './shared'
 import { beakLengthsBySpecies } from './__data__/penguinSummaries'
 import { GeomVLine } from '../geomVLine'
-import { GeomPoint } from '../../../geom-point'
 import { aaplMarketcap } from './__data__/aaplMarketcap'
 
 // useful for controlling the randomly-generated ID given to graphique objects

@@ -1,10 +1,15 @@
 export type Crime = {
+  /** crime arrested for */
   offenseCategory: string
+  /** formatted day of week arrest made */
   dow: string
+  /** formatted hour of day arrest made */
   hr: string
+  /** number of arrests made in time period */
   count: number
 }
 
+/** **Crime counts in Orlando, FL summarized by offense and time of day between 2009 and 2015**. Data originally collected from [City of Orlando Open Data](https://data.cityoforlando.net/). */
 export const crimes: Crime[] = [
   {
     offenseCategory: 'Theft',

@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from 'react'
 import { useAtom } from 'jotai'
-import flattenChildren from 'react-flatten-children'
+import flattenChildren from 'react-keyed-flatten-children'
 import PageVisibility from 'react-page-visibility'
 import type { Aes, DataValue, GGProps } from './types'
 import { defineGroupAccessor } from '../util/defineGroupAccessor'
