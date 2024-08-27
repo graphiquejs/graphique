@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from 'react'
 import { useAtom } from 'jotai'
-import flattenChildren from 'react-keyed-flatten-children'
+import flattenChildren from 'react-flatten-children'
 import PageVisibility from 'react-page-visibility'
 import type { Aes, DataValue, GGProps } from './types'
 import { defineGroupAccessor } from '../util/defineGroupAccessor'
@@ -127,7 +127,7 @@ export const GGBase = <Datum,>({
   })
 
   const areaGeom: any = geoms.find((g: any) =>
-    g.type.displayName.includes('Area')
+    g.type.displayName.includes('Area'),
   )
 
   const y0Aes = areaGeom?.props?.aes?.y0
@@ -208,7 +208,7 @@ export const GGBase = <Datum,>({
       strokeDasharrayScale,
       hasZeroXBaseLine,
       hasZeroYBaseLine,
-    ]
+    ],
   )
 
   const updateData = (newData: typeof data) => {
@@ -295,4 +295,5 @@ export const GGBase = <Datum,>({
   ) : null
 }
 
-export const useGG = <Datum,>() => useContext(GGglobalCtx as React.Context<ContextProps<Datum>>)
+export const useGG = <Datum,>() =>
+  useContext(GGglobalCtx as React.Context<ContextProps<Datum>>)
