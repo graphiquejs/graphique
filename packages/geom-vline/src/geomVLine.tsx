@@ -81,7 +81,7 @@ const GeomVLine = <Datum,>({
       height && margin
         ? height - margin.bottom + DEFAULT_TICK_SIZE
         : DEFAULT_TICK_SIZE,
-    [height, margin]
+    [height, margin],
   )
 
   useEffect(() => {
@@ -107,13 +107,13 @@ const GeomVLine = <Datum,>({
             | string
             | undefined)
         : defaultStroke),
-    [geomAes, copiedScales, strokeColor, defaultStroke]
+    [geomAes, copiedScales, strokeColor, defaultStroke],
   )
 
   const x = useMemo(
     () => (d: Datum) =>
       scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const checkIsOutisdeDomain = useMemo(
@@ -126,7 +126,7 @@ const GeomVLine = <Datum,>({
           (x(d) as number) > scales.xScale(domain[1]))
       )
     },
-    [scales, x]
+    [scales, x],
   )
 
   const keyAccessor = useMemo(
@@ -136,7 +136,7 @@ const GeomVLine = <Datum,>({
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
           }-${i}` as string),
-    [geomAes, scales]
+    [geomAes, scales],
   )
 
   const groupRef = useRef<SVGGElement>(null)

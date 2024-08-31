@@ -26,6 +26,7 @@ describe('a chart with vertical lines matches a snapshot', () => {
       </GGHLine>,
     )
 
+    await screen.findAllByTestId('__gg_geom_hline')
     act(() => jest.runAllTimers())
 
     expect(asFragment()).toMatchSnapshot()
@@ -52,6 +53,7 @@ describe('a chart with vertical lines matches a snapshot', () => {
       </GGHLine>,
     )
 
+    await screen.findAllByTestId('__gg_geom_hline')
     act(() => jest.runAllTimers())
 
     const eventArea = await screen.findByTestId('__gg_event_area')

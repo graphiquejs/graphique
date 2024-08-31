@@ -14,16 +14,20 @@ import {
   DEFAULT_AES,
   DEFAULT_SINGLE_STROKE,
   DEFAULT_DASHARRAYS,
-  setup
+  setup,
 } from './shared'
 
 const [FOCUSED_OPACITY, UNFOCUSED_OPACITY] = ['1', '0.5']
 
 interface Props {
   aes?: typeof DEFAULT_AES
+  children?: React.ReactNode
 }
 
-const GGLineLegend: React.FC<Props> = ({ aes = DEFAULT_AES, children = <Legend /> }) => (
+const GGLineLegend: React.FC<Props> = ({
+  aes = DEFAULT_AES,
+  children = <Legend />,
+}) => (
   <GGLine aes={aes}>
     <GeomLine />
     {children}
@@ -48,7 +52,7 @@ describe("GeomLine's legend", () => {
     expect(legendItems).toHaveLength(NUM_GROUPS)
 
     // has labels for each item
-    const legendLabels = legendItems.map(l => l.textContent)
+    const legendLabels = legendItems.map((l) => l.textContent)
     expect(legendLabels.every((l, i) => l === GROUPS[i])).toBeTruthy()
 
     // has markers for each item
@@ -56,7 +60,9 @@ describe("GeomLine's legend", () => {
       const lineMarker = l.querySelector('line')
       expect(lineMarker).toBeInTheDocument()
       expect(lineMarker?.getAttribute('stroke')).toBe(DEFAULT_GROUP_STROKES[i])
-      expect(lineMarker?.getAttribute('stroke-width')).toBe(DEFAULT_STROKE_WIDTH)
+      expect(lineMarker?.getAttribute('stroke-width')).toBe(
+        DEFAULT_STROKE_WIDTH,
+      )
     })
 
     // default vertical appearance
@@ -70,13 +76,13 @@ describe("GeomLine's legend", () => {
         aes={{
           ...DEFAULT_AES,
           stroke: undefined,
-          strokeDasharray: d => d.symbol,
+          strokeDasharray: (d) => d.symbol,
         }}
-      />
+      />,
     )
     const legend = await screen.findByTestId('__gg_geom_line_legend')
     const legendItems = await within(legend).findAllByRole('button')
-    const lineMarkers = legendItems.map(l => l.querySelector('line'))
+    const lineMarkers = legendItems.map((l) => l.querySelector('line'))
 
     expect(lineMarkers).toHaveLength(NUM_GROUPS)
 
@@ -90,8 +96,8 @@ describe("GeomLine's legend", () => {
   it('draws legend items horizontally when it should', async () => {
     render(
       <GGLineLegend>
-        <Legend orientation='horizontal' />
-      </GGLineLegend>
+        <Legend orientation="horizontal" />
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -106,7 +112,7 @@ describe("GeomLine's legend", () => {
     render(
       <GGLineLegend>
         <Legend title={<h1>{titleText}</h1>} />
-      </GGLineLegend>
+      </GGLineLegend>,
     )
 
     const legendTitle = await screen.findByText(titleText, { selector: 'h1' })
@@ -118,10 +124,8 @@ describe("GeomLine's legend", () => {
 
     render(
       <GGLineLegend>
-        <Legend
-          format={(v, i) => `${v}-${testLabel}-${i}`}
-        />
-      </GGLineLegend>
+        <Legend format={(v, i) => `${v}-${testLabel}-${i}`} />
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -129,9 +133,9 @@ describe("GeomLine's legend", () => {
 
     // has custom labels for each item
     expect(
-      legendItems.every((l, i) => (
-        l.textContent === `${GROUPS[i]}-${testLabel}-${i}`
-      ))
+      legendItems.every(
+        (l, i) => l.textContent === `${GROUPS[i]}-${testLabel}-${i}`,
+      ),
     ).toBeTruthy()
   })
 
@@ -140,11 +144,11 @@ describe("GeomLine's legend", () => {
       <GGLineLegend
         aes={{
           ...DEFAULT_AES,
-          strokeDasharray: d => d.symbol,
+          strokeDasharray: (d) => d.symbol,
         }}
       >
         <Legend ignoreDasharray />
-      </GGLineLegend>
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -163,7 +167,7 @@ describe("GeomLine's legend", () => {
     const { user } = setup(
       <GGLineLegend>
         <Legend onSelection={mockSelection} />
-      </GGLineLegend>
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -173,10 +177,12 @@ describe("GeomLine's legend", () => {
     // before selection
     expect(lines).toHaveLength(NUM_GROUPS)
 
-    expect(legendItems.every(l => {
-      const itemStyles = window.getComputedStyle(l)
-      return itemStyles.opacity === FOCUSED_OPACITY
-    })).toBeTruthy()
+    expect(
+      legendItems.every((l) => {
+        const itemStyles = window.getComputedStyle(l)
+        return itemStyles.opacity === FOCUSED_OPACITY
+      }),
+    ).toBeTruthy()
 
     // selecting each legend item sequentially
     // 1. filters the data (lines in the chart)
@@ -194,19 +200,23 @@ describe("GeomLine's legend", () => {
 
       if (i < NUM_GROUPS - 1) {
         expect(lines).toHaveLength(NUM_GROUPS - (i + 1))
-        
+
         const itemStyles = window.getComputedStyle(modifiedLegendItems[i])
         const notYetSelectedItems = modifiedLegendItems.filter((_, j) => j > i)
-          
+
         expect(itemStyles.opacity).toBe(UNFOCUSED_OPACITY)
         expect(
-          notYetSelectedItems.every(item => window.getComputedStyle(item).opacity === FOCUSED_OPACITY)
+          notYetSelectedItems.every(
+            (item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY,
+          ),
         ).toBeTruthy()
       } else {
         // reset selections and appearances when selecting the last legend item
         expect(lines).toHaveLength(NUM_GROUPS)
         expect(
-          modifiedLegendItems.every((item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY)
+          modifiedLegendItems.every(
+            (item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY,
+          ),
         ).toBeTruthy()
       }
     }
@@ -216,7 +226,7 @@ describe("GeomLine's legend", () => {
     const { user } = setup(
       <GGLineLegend>
         <Legend onSelection={mockSelection} />
-      </GGLineLegend>
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -226,10 +236,12 @@ describe("GeomLine's legend", () => {
     // before selection
     expect(lines).toHaveLength(NUM_GROUPS)
 
-    expect(legendItems.every(l => {
-      const itemStyles = window.getComputedStyle(l)
-      return itemStyles.opacity === FOCUSED_OPACITY
-    })).toBeTruthy()
+    expect(
+      legendItems.every((l) => {
+        const itemStyles = window.getComputedStyle(l)
+        return itemStyles.opacity === FOCUSED_OPACITY
+      }),
+    ).toBeTruthy()
 
     // selecting each legend item sequentially
     // 1. filters the data (lines in the chart)
@@ -250,19 +262,23 @@ describe("GeomLine's legend", () => {
 
       if (i < NUM_GROUPS - 1) {
         expect(lines).toHaveLength(NUM_GROUPS - (i + 1))
-        
+
         const itemStyles = window.getComputedStyle(modifiedLegendItems[i])
         const notYetSelectedItems = modifiedLegendItems.filter((_, j) => j > i)
-          
+
         expect(itemStyles.opacity).toBe(UNFOCUSED_OPACITY)
         expect(
-          notYetSelectedItems.every(item => window.getComputedStyle(item).opacity === FOCUSED_OPACITY)
+          notYetSelectedItems.every(
+            (item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY,
+          ),
         ).toBeTruthy()
       } else {
         // reset selections and appearances when selecting the last legend item
         expect(lines).toHaveLength(NUM_GROUPS)
         expect(
-          modifiedLegendItems.every((item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY)
+          modifiedLegendItems.every(
+            (item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY,
+          ),
         ).toBeTruthy()
       }
     }
@@ -274,12 +290,9 @@ describe("GeomLine's legend", () => {
 
     const { user } = setup(
       <GGLineLegend>
-        <Legend onSelection={mockSelection}/>
-        <ScaleStroke
-          domain={customDomain}
-          values={schemeDark2}
-        />
-      </GGLineLegend>
+        <Legend onSelection={mockSelection} />
+        <ScaleStroke domain={customDomain} values={schemeDark2} />
+      </GGLineLegend>,
     )
 
     const legend = await screen.findByTestId('__gg_geom_line_legend')
@@ -306,29 +319,31 @@ describe("GeomLine's legend", () => {
 
       if (label && groupsNotInData.includes(label)) {
         expect(lines).toHaveLength(NUM_GROUPS)
-      } else if (i < (customDomain.length - 1)) {
+      } else if (i < customDomain.length - 1) {
         expect(lines).toHaveLength(customDomain.length - (i + 1))
-        
+
         const itemStyles = window.getComputedStyle(modifiedLegendItems[i])
         const notYetSelectedItems = modifiedLegendItems.filter((_, j) => j > i)
-          
+
         expect(itemStyles.opacity).toBe(UNFOCUSED_OPACITY)
         expect(
-          notYetSelectedItems.every(item => window.getComputedStyle(item).opacity === FOCUSED_OPACITY)
+          notYetSelectedItems.every(
+            (item) => window.getComputedStyle(item).opacity === FOCUSED_OPACITY,
+          ),
         ).toBeTruthy()
       } else {
         // reset selections and appearances when selecting the last legend item
         expect(lines).toHaveLength(NUM_GROUPS)
         expect(
-          modifiedLegendItems.every(item => {
+          modifiedLegendItems.every((item) => {
             const thisLabel = item.textContent
             const thisOpacity = window.getComputedStyle(item).opacity
 
             if (thisLabel && groupsNotInData.includes(thisLabel))
               return thisOpacity === UNFOCUSED_OPACITY
-            
+
             return thisOpacity === FOCUSED_OPACITY
-          })
+          }),
         ).toBeTruthy()
       }
     }

@@ -1,0 +1,19 @@
+diff --git a/node_modules/@githubnext/vitale/dist/cli.js b/node_modules/@githubnext/vitale/dist/cli.js
+index 9a65144..1617a2b 100755
+--- a/node_modules/@githubnext/vitale/dist/cli.js
++++ b/node_modules/@githubnext/vitale/dist/cli.js
+@@ -92,9 +92,11 @@ if (__vitale_cell_output_element) {
+   ReactDOM.createRoot(
+     __vitale_cell_output_element
+   ).render(
+-    <React.StrictMode>
+-      {__vitale_jsx_expression__}
+-    </React.StrictMode>
++    <React.Fragment>
++      <div style={{ background: '#fff' }}>
++        {__vitale_jsx_expression__}
++      </div>
++    </React.Fragment>
+   );
+ }
+ `,

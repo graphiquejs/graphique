@@ -10,6 +10,7 @@ import { select } from 'd3-selection'
 import { extent, max } from 'd3-array'
 import { useGG, radiusScaleState, themeState } from '@graphique/graphique'
 import { scaleSqrt } from 'd3-scale'
+import { transition } from 'd3-transition'
 
 export interface SizeLegendProps {
   labelDirection?: 'left' | 'right'
@@ -58,7 +59,7 @@ export const SizeLegend = ({
       scaleSqrt()
         .domain(domain)
         .range(sizeRange as [number, number]),
-    [domain, sizeRange]
+    [domain, sizeRange],
   )
 
   const tickVals = useMemo(() => {
@@ -87,6 +88,7 @@ export const SizeLegend = ({
     }))
 
     const duration = animationDuration ?? 1000
+    const t = transition().duration(duration)
 
     // circles
     select(legendRef.current)
@@ -105,11 +107,12 @@ export const SizeLegend = ({
         (update) =>
           update.call((toUpdate) =>
             toUpdate
-              .transition()
-              .duration(duration)
+              .transition(t)
               .attr('r', (d) => d.r)
-              .attr('cy', (d) => (d.value === maxVal ? 0 : scale(maxVal) - d.r))
-          )
+              .attr('cy', (d) =>
+                d.value === maxVal ? 0 : scale(maxVal) - d.r,
+              ),
+          ),
       )
 
     // tick marks
@@ -119,11 +122,11 @@ export const SizeLegend = ({
       .attr('x1', (d: any, i) =>
         labelDirection === 'right'
           ? d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2
-          : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2)
+          : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2),
       )
       .attr(
         'x2',
-        labelDirection === 'right' ? scale(maxVal) + 15 : -scale(maxVal) - 12
+        labelDirection === 'right' ? scale(maxVal) + 15 : -scale(maxVal) - 12,
       )
       .data(legendData, (_, i) => i)
       .join(
@@ -136,17 +139,16 @@ export const SizeLegend = ({
         (update) =>
           update.call((toUpdate) =>
             toUpdate
-              .transition()
-              .duration(duration)
+              .transition(t)
               .attr('x1', (d, i) =>
                 labelDirection === 'right'
                   ? d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2
-                  : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2)
+                  : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2),
               )
               .attr('y1', (d) => scale(maxVal) - 2 * d.r + 3)
               .attr('y2', (d) => scale(maxVal) - 2 * d.r + 3)
-              .style('opacity', 0.25)
-          )
+              .style('opacity', 0.25),
+          ),
       )
 
     // labels
@@ -155,14 +157,14 @@ export const SizeLegend = ({
       .data(legendData, (_, i) => i)
       .attr(
         'x',
-        labelDirection === 'right' ? scale(maxVal) + 18 : -scale(maxVal) - 15
+        labelDirection === 'right' ? scale(maxVal) + 18 : -scale(maxVal) - 15,
       )
       .style('font-size', fontSize || 10)
       .attr('dominant-baseline', 'central')
       .attr('text-anchor', labelDirection === 'right' ? 'start' : 'end')
       .attr('fill', color || 'currentColor')
       .text((d: any, i) =>
-        format ? format(d.value, i) : d.value.toLocaleString()
+        format ? format(d.value, i) : d.value.toLocaleString(),
       )
       .join(
         (enter) =>
@@ -170,17 +172,16 @@ export const SizeLegend = ({
         (update) =>
           update.call((toUpdate) =>
             toUpdate
-              .transition()
-              .duration(duration)
+              .transition(t)
               .attr(
                 'x',
                 labelDirection === 'right'
                   ? scale(maxVal) + 18
-                  : -scale(maxVal) - 15
+                  : -scale(maxVal) - 15,
               )
               .attr('y', (d) => scale(maxVal) - 2 * d.r + 3)
-              .style('opacity', 0.85)
-          )
+              .style('opacity', 0.85),
+          ),
       )
   }, [
     firstRender,

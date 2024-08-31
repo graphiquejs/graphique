@@ -43,13 +43,11 @@ const GeomHistogram = <Datum,>({
     (x0: number, x1: number) => {
       const [x0String, x1String] = [x0?.toLocaleString(), x1?.toLocaleString()]
 
-      if (rangeFormat)
-        return rangeFormat(x0, x1)
-      if (reversedX)
-        return `${x1String} \u2013 ${x0String}`
+      if (rangeFormat) return rangeFormat(x0, x1)
+      if (reversedX) return `${x1String} \u2013 ${x0String}`
       return `${x0String} \u2013 ${x1String}`
     },
-    [reversedX, rangeFormat]
+    [reversedX, rangeFormat],
   )
 
   const createBins = useCallback(
@@ -57,7 +55,7 @@ const GeomHistogram = <Datum,>({
       bin<Datum, number>()
         .value((d) => (aes?.x ? aes?.x(d) : d) as number)
         .thresholds(bins),
-    [bins, aes]
+    [bins, aes],
   )
 
   const [firstRender, setFirstRender] = useState(true)
@@ -119,7 +117,10 @@ const GeomHistogram = <Datum,>({
 
   const total = originalBinData.reduce((a, b) => a + b.n, 0)
 
-  scales?.yScale.domain([0, max(reconciledBinData, (d) => isRelative ? d.n / total : d.n)])
+  scales?.yScale.domain([
+    0,
+    max(reconciledBinData, (d) => (isRelative ? d.n / total : d.n)),
+  ])
 
   const formatRange = useCallback(
     (x0: unknown) => {
@@ -127,12 +128,16 @@ const GeomHistogram = <Datum,>({
       const x1 = xBin?.x1 as number
       return rangeFormatter(x0 as number, x1)
     },
-    [binData, rangeFormatter]
+    [binData, rangeFormatter],
   )
 
-  const binWidth = useMemo(() => (
-    reconciledBinData?.[0]?.x0 && reconciledBinData?.[0]?.x1 ? reconciledBinData[0].x1 - reconciledBinData[0].x0 : undefined
-  ), [])
+  const binWidth = useMemo(
+    () =>
+      reconciledBinData?.[0]?.x0 && reconciledBinData?.[0]?.x1
+        ? reconciledBinData[0].x1 - reconciledBinData[0].x0
+        : undefined,
+    [],
+  )
 
   useEffect(() => {
     setTheme((prev) => ({
@@ -144,30 +149,28 @@ const GeomHistogram = <Datum,>({
         },
       },
     }))
-  }, [
-    binWidth
-  ])
+  }, [binWidth])
 
   useEffect(() => {
     setXScale((prev) => ({
       ...prev,
-      domain: [min(binData, (d) => d.x0), (max(binData, (d) => d.x1) ?? 0)] as [
+      domain: [min(binData, (d) => d.x0), max(binData, (d) => d.x1) ?? 0] as [
         number,
-        number
+        number,
       ],
     }))
     setYScale((prev) => ({
       ...prev,
       domain: [
         0,
-        max(binData, (d) => isRelative ? d.n / total : d.n) as number
+        max(binData, (d) => (isRelative ? d.n / total : d.n)) as number,
       ],
     }))
   }, [JSON.stringify(binData), setXScale, setYScale, bins, isRelative])
 
   useEffect(() => {
     if (showTooltip) {
-      setTooltip(prev => ({
+      setTooltip((prev) => ({
         ...prev,
         xFormat: formatRange,
       }))
@@ -177,27 +180,31 @@ const GeomHistogram = <Datum,>({
   return !firstRender ? (
     <>
       <PageVisibility>
-        {(isVisible) => isVisible && (
-          <>
-            <GeomCol<any>
-              data={binData}
-              aes={{
-                ...aes,
-                x: (d: HistogramBin) => d.x0 as number,
-                y: (d: HistogramBin) => isRelative ? d.n / total : d.n,
-                fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
-                stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
-                key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
-              }}
-              xPadding={xPadding}
-              align={reversedX ? 'right' : align}
-              position="identity"
-              showTooltip={showTooltip}
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...props}
-            />
-          </>
-        )}
+        {(isVisible) =>
+          isVisible && (
+            <>
+              <GeomCol<any>
+                data={binData}
+                aes={{
+                  ...aes,
+                  x: (d: HistogramBin) => d.x0 as number,
+                  y: (d: HistogramBin) => (isRelative ? d.n / total : d.n),
+                  fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
+                  stroke: aes?.stroke
+                    ? (d: HistogramBin) => d.group
+                    : undefined,
+                  key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
+                }}
+                xPadding={xPadding}
+                align={reversedX ? 'right' : align}
+                position="identity"
+                showTooltip={showTooltip}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            </>
+          )
+        }
       </PageVisibility>
     </>
   ) : null

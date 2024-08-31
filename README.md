@@ -18,6 +18,7 @@ Graphique allows you to concisely create flexible and reusable interactive visua
 - using reasonable defaults that can be configured for flexibility
 
 ## Examples/Docs
+
 Examples and docs: https://graphique.dev
 
 ## Usage
@@ -214,19 +215,11 @@ npm test Tooltip
 
 ### Demo local pacakages
 
-For a place to try out new package changes locally, there's an included React app located in `demo` that you can start with
+For a development sandbox / place to try out new package changes locally, there's an included [Vitale notebook](https://githubnext.com/projects/vitale) in `./notebooks/demo.vnb` that's designed to work in Visual Studio Code.
 
-```sh
-npm run demo
-```
+Use the existing notebook as a reference, and/or create your own with a new file in `./notebooks` ending in a `.vnb` extension.
 
-If you also watch for changes to the package you're developing with
-
-```sh
-npm run watch -w @graphique/<package_name>
-```
-
-the demo app should live reload when you save your package changes.
+To install Vitale in VS Code, you can follow [these instructions](https://github.com/githubnext/vitale?tab=readme-ov-file#installation).
 
 ### Publishing and releasing
 

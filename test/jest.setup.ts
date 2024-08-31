@@ -1,4 +1,5 @@
-window.requestAnimationFrame = (callback: any): number => window.setTimeout(() => callback(), 0)
+window.requestAnimationFrame = (callback: any): number =>
+  window.setTimeout(() => callback(), 0)
 window.cancelAnimationFrame = (id: any): void => {
   clearTimeout(id)
 }

@@ -1,5 +1,9 @@
 import React, {
-  useEffect, useMemo, SVGAttributes, useState, useCallback,
+  useEffect,
+  useMemo,
+  SVGAttributes,
+  useState,
+  useCallback,
 } from 'react'
 import {
   useGG,
@@ -29,8 +33,6 @@ import {
   stack,
   stackOffsetDiverging,
   stackOffsetExpand,
-  // stackOffsetWiggle,
-  // stackOrderInsideOut,
   stackOrderNone,
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
@@ -63,8 +65,6 @@ const GeomArea = <Datum,>({
   curve,
   onDatumFocus,
   onDatumSelection,
-  // focusedStyle,
-  // unfocusedStyle,
   onExit,
   fillOpacity = 1,
   strokeOpacity = 1,
@@ -96,15 +96,20 @@ const GeomArea = <Datum,>({
 
   const geomData = localData || data
 
-  const zoomedData = useMemo(() => (
-    geomData?.filter((d) => {
-      if (!xZoomDomain?.current)
-        return true
+  const zoomedData = useMemo(
+    () =>
+      geomData?.filter((d) => {
+        if (!xZoomDomain?.current) return true
 
-      const xVal = geomAes?.x?.(d)
-      return xVal && xVal >= xZoomDomain?.current?.[0] && xVal <= xZoomDomain?.current?.[1]
-    })
-  ), [geomData, xZoomDomain?.current, geomAes.x])
+        const xVal = geomAes?.x?.(d)
+        return (
+          xVal &&
+          xVal >= xZoomDomain?.current?.[0] &&
+          xVal <= xZoomDomain?.current?.[1]
+        )
+      }),
+    [geomData, xZoomDomain?.current, geomAes.x],
+  )
 
   const allXUndefined = useMemo(() => {
     const undefinedX = geomData
@@ -114,7 +119,7 @@ const GeomArea = <Datum,>({
             (geomAes?.x(d) === null ||
               typeof geomAes?.x(d) === 'undefined' ||
               Number.isNaN(geomAes.x(d)?.valueOf()) ||
-              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0))
+              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0)),
         )
       : []
     return geomData && undefinedX.length === geomData.length
@@ -137,7 +142,7 @@ const GeomArea = <Datum,>({
             (geomAes.y1 &&
               (geomAes.y1(d) === null ||
                 typeof geomAes.y1(d) === 'undefined' ||
-                Number.isNaN(geomAes.y1(d)?.valueOf())))
+                Number.isNaN(geomAes.y1(d)?.valueOf()))),
         )
       : []
     return geomData && undefinedY.length === geomData.length
@@ -166,8 +171,8 @@ const GeomArea = <Datum,>({
     () =>
       geomAes?.group ?? geomAes?.fill
         ? geomAes?.group ?? geomAes?.fill
-        : (scales?.groupAccessor ?? (() => '__group')),
-    [geomAes]
+        : scales?.groupAccessor ?? (() => '__group'),
+    [geomAes],
   )
 
   const groups = useMemo(
@@ -175,122 +180,110 @@ const GeomArea = <Datum,>({
       group
         ? (Array.from(new Set(geomData?.map(group))) as string[])
         : undefined,
-    [geomData, group]
+    [geomData, group],
   )
 
   const fillGroups = useMemo(
-    () =>
-      copiedScales?.fillScale?.domain(),
-    [copiedScales]
+    () => copiedScales?.fillScale?.domain(),
+    [copiedScales],
   )
 
   const strokeGroups = useMemo(
-    () =>
-      copiedScales?.strokeScale?.domain(),
-    [copiedScales]
+    () => copiedScales?.strokeScale?.domain(),
+    [copiedScales],
   )
 
   const x = useMemo(
     () => (d: Datum) =>
       geomAes?.x && scales?.xScale && scales.xScale(geomAes?.x(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
   const y = useMemo(
     () => (d: Datum) =>
       geomAes?.y && scales?.yScale && scales.yScale(geomAes?.y(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const shouldStack = useMemo(
     () => ['stack', 'fill', 'stream'].includes(position),
-    [position]
+    [position],
   )
 
-  const getYValExtent = useCallback((areaData: Datum[]) => {
-    // reset the yScale based on position
-    const existingYExtent = [0, 1]
+  const getYValExtent = useCallback(
+    (areaData: Datum[]) => {
+      // reset the yScale based on position
+      const existingYExtent = [0, 1]
 
-    let resolvedYExtent = [0, 1]
-    if (!group && !groups && !geomAes.y0 && !geomAes.y1)
-      resolvedYExtent = [0, existingYExtent[1]]
-    if (!group && !groups) resolvedYExtent = existingYExtent
-    if (
-      group &&
-      groups &&
-      areaData &&
-      geomAes?.x
-    ) {
-      const groupYMaximums = groups.map((g) =>
-        max(
-          areaData.filter((d) => group(d) === g),
-          (d) => {
-            const thisYAcc = !shouldStack
-              ? geomAes.y1 || geomAes.y || (() => undefined)
-              : geomAes.y || (() => undefined)
-            return thisYAcc(d) as number
-          }
-        )
-      )
-
-      const groupYMinimums = groups.map((g) =>
-        min(
-          areaData.filter((d) => group(d) === g),
-          (d) => {
-            const thisYAcc = geomAes.y0 || (() => undefined)
-            return thisYAcc(d) as number
-          }
-        )
-      )
-
-      if (['stack', 'stream'].includes(position)) {
-        const totalGroupYMaximums = max([
-          sum(groupYMaximums),
-          existingYExtent[1],
-        ])
-
-        return [0, totalGroupYMaximums]
-      }
-      if (position === 'fill') return [0, 1]
-
-      if (position === 'identity') {
-        const identityYVals: (number | undefined)[][] | undefined =
-          areaData?.map((d) => {
-            const yVal = geomAes?.y ? (geomAes.y(d) as number) : undefined
-            const y0Val = geomAes?.y0 ? (geomAes.y0(d) as number) : undefined
-            const y1Val = geomAes?.y1 ? (geomAes.y1(d) as number) : undefined
-            return [yVal, y0Val, y1Val]
-          })
-
-        const yExtent = identityYVals
-          ? (extent(identityYVals.flat() as number[]) as [number, number])
-          : [0, 1]
-
-        const yMin =
-          geomAes?.y0 && geomAes?.y1 && !geomAes.y
-            ? min(
-                [
-                  groupYMinimums as number[],
-                ].flat()
-              )
-            : min([0, yExtent[0] as number])
-
-        const yMax = max([
-          !geomAes.y0 && !geomAes.y1 && 0,
+      let resolvedYExtent = [0, 1]
+      if (!group && !groups && !geomAes.y0 && !geomAes.y1)
+        resolvedYExtent = [0, existingYExtent[1]]
+      if (!group && !groups) resolvedYExtent = existingYExtent
+      if (group && groups && areaData && geomAes?.x) {
+        const groupYMaximums = groups.map((g) =>
           max(
-            [
-              groupYMaximums as number[],
-              existingYExtent[1] as number,
-            ].flat()
+            areaData.filter((d) => group(d) === g),
+            (d) => {
+              const thisYAcc = !shouldStack
+                ? geomAes.y1 || geomAes.y || (() => undefined)
+                : geomAes.y || (() => undefined)
+              return thisYAcc(d) as number
+            },
           ),
-        ] as number[])
+        )
 
-        resolvedYExtent = [yMin, yMax] as [number, number]
+        const groupYMinimums = groups.map((g) =>
+          min(
+            areaData.filter((d) => group(d) === g),
+            (d) => {
+              const thisYAcc = geomAes.y0 || (() => undefined)
+              return thisYAcc(d) as number
+            },
+          ),
+        )
+
+        if (['stack', 'stream'].includes(position)) {
+          const totalGroupYMaximums = max([
+            sum(groupYMaximums),
+            existingYExtent[1],
+          ])
+
+          return [0, totalGroupYMaximums]
+        }
+        if (position === 'fill') return [0, 1]
+
+        if (position === 'identity') {
+          const identityYVals: (number | undefined)[][] | undefined =
+            areaData?.map((d) => {
+              const yVal = geomAes?.y ? (geomAes.y(d) as number) : undefined
+              const y0Val = geomAes?.y0 ? (geomAes.y0(d) as number) : undefined
+              const y1Val = geomAes?.y1 ? (geomAes.y1(d) as number) : undefined
+              return [yVal, y0Val, y1Val]
+            })
+
+          const yExtent = identityYVals
+            ? (extent(identityYVals.flat() as number[]) as [number, number])
+            : [0, 1]
+
+          const yMin =
+            geomAes?.y0 && geomAes?.y1 && !geomAes.y
+              ? min([groupYMinimums as number[]].flat())
+              : min([0, yExtent[0] as number])
+
+          const yMax = max([
+            !geomAes.y0 && !geomAes.y1 && 0,
+            max(
+              [groupYMaximums as number[], existingYExtent[1] as number].flat(),
+            ),
+          ] as number[])
+
+          resolvedYExtent = [yMin, yMax] as [number, number]
+        }
       }
-    }
 
-    return resolvedYExtent
-
-  }, [position, geomAes, shouldStack, groups])
+      return resolvedYExtent
+    },
+    [position, geomAes, shouldStack, groups],
+  )
 
   const yValExtent = useMemo(() => {
     if (yZoomDomain?.original && !yZoomDomain?.current)
@@ -302,20 +295,20 @@ const GeomArea = <Datum,>({
   useEffect(() => {
     setYScale((prev) => ({
       ...prev,
-      domain: yValExtent
+      domain: yValExtent,
     }))
   }, [yValExtent])
 
   const y0 = useMemo(
     () => (d: Datum) =>
       geomAes?.y0 && scales?.yScale && scales.yScale(geomAes.y0(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const y1 = useMemo(
     () => (d: Datum) =>
       geomAes?.y1 && scales?.yScale && scales.yScale(geomAes.y1(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const drawStackArea = useMemo(
@@ -341,7 +334,7 @@ const GeomArea = <Datum,>({
           return areDefined && areNumbers
         })
         .curve(curve || curveLinear),
-    [curve, scales, geomAes, localAes, yValExtent]
+    [curve, scales, geomAes, localAes, yValExtent],
   )
 
   const drawArea = useMemo(
@@ -373,7 +366,7 @@ const GeomArea = <Datum,>({
           return areDefined && areNumbers
         })
         .curve(curve || curveLinear),
-    [curve, geomAes, localAes, scales, yValExtent]
+    [curve, geomAes, localAes, scales, yValExtent],
   )
 
   // merge GG-level scales with Geom-level scales
@@ -383,7 +376,7 @@ const GeomArea = <Datum,>({
       return scaleOrdinal()
         .domain(fillDomain || fillGroups || groups)
         .range(
-          (fillScaleColors as string[]) || defaultScheme
+          (fillScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     }
     return undefined
@@ -394,15 +387,20 @@ const GeomArea = <Datum,>({
       return scaleOrdinal()
         .domain(strokeDomain || strokeGroups || groups)
         .range(
-          (strokeScaleColors as string[]) || defaultScheme
+          (strokeScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     }
     return undefined
   }, [geomAes])
 
-  const resolvedOpacity = useMemo(() => (
-    props.style?.fillOpacity || props.style?.opacity || opacity || fillOpacity
-  ), [props.style, opacity, fillOpacity])
+  const resolvedOpacity = useMemo(
+    () =>
+      props.style?.fillOpacity ||
+      props.style?.opacity ||
+      opacity ||
+      fillOpacity,
+    [props.style, opacity, fillOpacity],
+  )
 
   useEffect(() => {
     setTheme((prev) => ({
@@ -450,7 +448,7 @@ const GeomArea = <Datum,>({
     () =>
       // if (position === 'stream') return stackOrderInsideOut
       stackOrderNone,
-    [position]
+    [position],
   )
 
   // error checking for missing y-related aes
@@ -490,22 +488,27 @@ const GeomArea = <Datum,>({
     return null
   }, [geomData, geomAes, shouldStack, stackOffset, stackOrder])
 
-  const isAbleToDrawArea = useMemo(() => (
-    shouldStack ? !!stackedData : true
-  ), [stackedData, shouldStack])
+  const isAbleToDrawArea = useMemo(
+    () => (shouldStack ? !!stackedData : true),
+    [stackedData, shouldStack],
+  )
 
   const getStackedData = useMemo(
     () => (g: unknown) => {
-      const thisStack =
-        stackedData && stackedData.filter((sd) => sd.group === g)
+      const thisStack = stackedData
+        ? stackedData.filter((sd) => sd.group === g)
+        : []
 
       return thisStack
     },
-    [stackedData, scales, geomAes, position]
+    [stackedData, scales, geomAes, position],
   )
 
   // map through groups to draw an area for each group
-  return !firstRender && !allXUndefined && !allYUndefined && isAbleToDrawArea ? (
+  return !firstRender &&
+    !allXUndefined &&
+    !allYUndefined &&
+    isAbleToDrawArea ? (
     <>
       {geomData && groups && group ? (
         groups.map((g) => {
@@ -515,10 +518,10 @@ const GeomArea = <Datum,>({
           const thisFillGroups =
             geomFillScale && geomAes?.fill
               ? Array.from(
-                new Set(
-                  groupData.map((gd) => geomAes.fill && geomAes.fill(gd))
+                  new Set(
+                    groupData.map((gd) => geomAes.fill && geomAes.fill(gd)),
+                  ),
                 )
-              )
               : undefined
 
           let thisFill =
@@ -535,10 +538,10 @@ const GeomArea = <Datum,>({
           const thisStrokeGroups =
             geomStrokeScale && geomAes?.stroke
               ? Array.from(
-                new Set(
-                  groupData.map((gd) => geomAes.stroke && geomAes.stroke(gd))
+                  new Set(
+                    groupData.map((gd) => geomAes.stroke && geomAes.stroke(gd)),
+                  ),
                 )
-              )
               : undefined
 
           let thisStroke =
@@ -565,10 +568,8 @@ const GeomArea = <Datum,>({
               key={`${geomID}-${g}`}
               start={{
                 path: shouldStack
-                  ? // @ts-ignore
-                  drawStackArea(groupStack)
-                  : // @ts-ignore
-                  drawArea(groupData),
+                  ? drawStackArea(groupStack)
+                  : drawArea(groupData),
                 fill: 'transparent',
                 stroke: 'transparent',
                 strokeOpacity: 0,
@@ -576,10 +577,8 @@ const GeomArea = <Datum,>({
               }}
               enter={{
                 path: shouldStack
-                  ? // @ts-ignore
-                  [drawStackArea(groupStack)]
-                  : // @ts-ignore
-                  [drawArea(groupData)],
+                  ? [drawStackArea(groupStack)]
+                  : [drawArea(groupData)],
                 fill: thisFill,
                 stroke: thisStroke,
                 fillOpacity: [fillOpacity],
@@ -588,10 +587,8 @@ const GeomArea = <Datum,>({
               }}
               update={{
                 path: shouldStack
-                  ? // @ts-ignore
-                  [drawStackArea(groupStack)]
-                  : // @ts-ignore
-                  [drawArea(groupData)],
+                  ? [drawStackArea(groupStack)]
+                  : [drawArea(groupData)],
                 fill: thisFill,
                 stroke: thisStroke,
                 fillOpacity: [fillOpacity],
@@ -634,9 +631,9 @@ const GeomArea = <Datum,>({
             </Animate>
           )
         })
-      ) :
+      ) : (
         <></>
-      }
+      )}
       {(showTooltip || brushAction) && (
         <>
           <EventArea
