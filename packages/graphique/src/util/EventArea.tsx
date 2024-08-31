@@ -106,9 +106,11 @@ export const EventArea = <Datum,>({
     },
   }
 
-  const [{ datum: ttDatum }, setTooltip] = (
-    useAtom<TooltipProps<Datum>, SetStateAction<TooltipProps<Datum>>, void>(tooltipState)
-  )
+  const [{ datum: ttDatum }, setTooltip] = useAtom<
+    TooltipProps<Datum>,
+    SetStateAction<TooltipProps<Datum>>,
+    void
+  >(tooltipState)
   const [{ animationDuration, geoms }] = useAtom(themeState)
   const [{ domain: givenYDomain, reverse: reverseY }, setYScale] =
     useAtom(yScaleState)
@@ -123,7 +125,7 @@ export const EventArea = <Datum,>({
   const rectRef = useRef<SVGRectElement>(null)
   const readyToFocusRef = useRef(false)
   const isHeldDownRef = useRef(false)
-  const heldDownTimeout = useRef<NodeJS.Timeout | null>(null)
+  const heldDownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const brushCoords = useRef<BrushCoords>()
 
   const exclusionTopRef = useRef<SVGRectElement | null>(null)
@@ -147,7 +149,7 @@ export const EventArea = <Datum,>({
     const timeout = setTimeout(() => {
       readyToFocusRef.current = true
     }, duration + 50)
-    
+
     return () => clearTimeout(timeout)
   }, [
     // disable focusing in event area when data is changing
@@ -167,7 +169,7 @@ export const EventArea = <Datum,>({
     () =>
       typeof scales?.xScale.domain()[0] === 'string' ||
       typeof scales?.yScale.domain()[0] === 'string',
-    [scales?.xScale, scales?.yScale]
+    [scales?.xScale, scales?.yScale],
   )
 
   const delaunayData = useMemo(() => data ?? [], [data])
@@ -176,7 +178,7 @@ export const EventArea = <Datum,>({
 
   const delaunay = useMemo(
     () => Delaunay.from(delaunayData, delaunayX, delaunayY),
-    [data, delaunayX, delaunayY]
+    [data, delaunayX, delaunayY],
   )
 
   const xDelaunays = useMemo(() => {
@@ -184,14 +186,16 @@ export const EventArea = <Datum,>({
 
     const delaunays = xBandScale?.domain().map((xVal) => {
       const thisX = scales?.xScale(xVal)
-      
-      const xGroupData = stackYMidpoints.filter((s) => s.xVal === xVal.valueOf())
+
+      const xGroupData = stackYMidpoints.filter(
+        (s) => s.xVal === xVal.valueOf(),
+      )
 
       return {
         delaunay: Delaunay.from(
           xGroupData,
           (v) => scales?.xScale(v.xVal) ?? 0,
-          (v) => scales?.yScale(v.yVal) as number
+          (v) => scales?.yScale(v.yVal) as number,
         ),
         xVal: thisX,
         data: xGroupData,
@@ -237,7 +241,7 @@ export const EventArea = <Datum,>({
         delaunay: Delaunay.from(
           [...yGroupData],
           (v) => scales?.xScale(v.xVal) as number,
-          (v) => scales?.yScale(v.yVal) as number
+          (v) => scales?.yScale(v.yVal) as number,
         ),
         yVal: thisY,
         data: yGroupData,
@@ -256,7 +260,7 @@ export const EventArea = <Datum,>({
   ])
 
   const yVoronois = useMemo(() => {
-    const isValid = (width - (margin.left + margin.right) > 0)
+    const isValid = width - (margin.left + margin.right) > 0
     if (!yDelaunays || !isVoronoi || !isValid) return undefined
 
     const dy = (yBandScale?.step?.() ?? 0) / 2
@@ -273,8 +277,9 @@ export const EventArea = <Datum,>({
   }, [yDelaunays, scales?.yScale, yAdj, width, margin])
 
   const voronoi = useMemo(() => {
-    const isValid = (width - (margin.left + margin.right) > 0)
-      && (height - (margin.bottom + margin.top) > 0)
+    const isValid =
+      width - (margin.left + margin.right) > 0 &&
+      height - (margin.bottom + margin.top) > 0
     if (!isVoronoi || !isValid) return undefined
 
     return delaunay.voronoi([
@@ -329,12 +334,12 @@ export const EventArea = <Datum,>({
         if (exclusionLeftRef.current) {
           exclusionLeftRef.current.setAttribute(
             'x',
-            `${margin.left - BUFFER}px`
+            `${margin.left - BUFFER}px`,
           )
           exclusionLeftRef.current.setAttribute('y', `${yStart}px`)
           exclusionLeftRef.current.setAttribute(
             'width',
-            `${Math.max(xStart - margin.left + BUFFER, 0)}px`
+            `${Math.max(xStart - margin.left + BUFFER, 0)}px`,
           )
           exclusionLeftRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
@@ -343,7 +348,7 @@ export const EventArea = <Datum,>({
           exclusionRightRef.current.setAttribute('y', `${yStart}px`)
           exclusionRightRef.current.setAttribute(
             'width',
-            `${Math.max(width - margin.right - xEnd + BUFFER, 0)}px`
+            `${Math.max(width - margin.right - xEnd + BUFFER, 0)}px`,
           )
           exclusionRightRef.current.setAttribute('height', `${yEnd - yStart}px`)
         }
@@ -352,35 +357,41 @@ export const EventArea = <Datum,>({
           exclusionTopRef.current.setAttribute('y', `${margin.top - BUFFER}px`)
           exclusionTopRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left + BUFFER * 2}px`
+            `${width - margin.right - margin.left + BUFFER * 2}px`,
           )
           exclusionTopRef.current.setAttribute(
             'height',
-            `${Math.max(yStart - margin.top + BUFFER, 0)}px`
+            `${Math.max(yStart - margin.top + BUFFER, 0)}px`,
           )
         }
         if (exclusionBottomRef.current) {
           exclusionBottomRef.current.setAttribute(
             'x',
-            `${margin.left - BUFFER}px`
+            `${margin.left - BUFFER}px`,
           )
           exclusionBottomRef.current.setAttribute('y', `${yEnd}px`)
           exclusionBottomRef.current.setAttribute(
             'width',
-            `${width - margin.right - margin.left + BUFFER * 2}px`
+            `${width - margin.right - margin.left + BUFFER * 2}px`,
           )
           exclusionBottomRef.current.setAttribute(
             'height',
-            `${Math.max(height - yEnd - margin.bottom + BUFFER, 0)}px`
+            `${Math.max(height - yEnd - margin.bottom + BUFFER, 0)}px`,
           )
         }
       }
     },
-    [xGrouped, yGrouped, margin, scales, xDelaunays, yDelaunays]
+    [xGrouped, yGrouped, margin, scales, xDelaunays, yDelaunays],
   )
 
   const handleBrushStop = useCallback(
-    (event) => {
+    (
+      event:
+        | React.MouseEvent<SVGPathElement>
+        | React.MouseEvent<SVGGElement>
+        | React.PointerEvent<SVGRectElement>
+        | React.MouseEvent<HTMLButtonElement>,
+    ) => {
       event.preventDefault()
       if (isHeldDownRef.current && brushCoords.current) {
         const { x0, x1, y0, y1 } = brushCoords.current
@@ -397,8 +408,8 @@ export const EventArea = <Datum,>({
           return isBetween(xVal, x0, x1) && isBetween(yVal, y0, y1)
         })
 
-        const hasXVals = brushedData?.some(v => aes?.x?.(v))
-        const hasYVals = brushedData?.some(v => aes?.y?.(v) ?? aes?.y0?.(v))
+        const hasXVals = brushedData?.some((v) => aes?.x?.(v))
+        const hasYVals = brushedData?.some((v) => aes?.y?.(v) ?? aes?.y0?.(v))
 
         if (brushedData && brushedData.length && hasXVals && hasYVals) {
           let newXDomain = [
@@ -411,16 +422,16 @@ export const EventArea = <Datum,>({
           const brushedYExtent = getYValExtent
             ? getYValExtent(brushedData)
             : extent(
-            brushedData
-              .map((d) => {
-                const yVal = (aes?.y && aes.y(d)) as number
-                const y0Val = (aes?.y0 && aes.y0(d)) as number
-                const y1Val = (aes?.y1 && aes.y1(d)) as number
+                brushedData
+                  .map((d) => {
+                    const yVal = (aes?.y && aes.y(d)) as number
+                    const y0Val = (aes?.y0 && aes.y0(d)) as number
+                    const y1Val = (aes?.y1 && aes.y1(d)) as number
 
-                return extent([yVal, y0Val, y1Val])
-              })
-              .flat() as number[]
-            )
+                    return extent([yVal, y0Val, y1Val])
+                  })
+                  .flat() as number[],
+              )
 
           let reconciledYExtent = givenYDomain
             ? [
@@ -489,11 +500,15 @@ export const EventArea = <Datum,>({
       onZoom,
       geoms,
       getYValExtent,
-    ]
+    ],
   )
 
   const handleMouseOver = useCallback(
-    (event) => {
+    (
+      event:
+        | React.MouseEvent<SVGRectElement>
+        | React.PointerEvent<SVGRectElement>,
+    ) => {
       if (readyToFocusRef.current && data && data.length) {
         const [posX, posY] = pointer(event, rectRef.current)
 
@@ -511,17 +526,17 @@ export const EventArea = <Datum,>({
               xGroupWidth
             const xGroupIndex = Math.min(
               Math.floor(Math.max(0, adjPosX)),
-              xDelaunays.length - 1
+              xDelaunays.length - 1,
             )
             const xStackIndex = xDelaunays[xGroupIndex].delaunay.find(
               posX,
-              posY
+              posY,
             )
             const xStackDatum = xDelaunays[xGroupIndex].data[xStackIndex]
             ind = data.findIndex(
               (d) =>
                 aes?.x?.(d)?.valueOf() === xStackDatum.xVal &&
-                scales?.groupAccessor?.(d) === xStackDatum.groupVal
+                scales?.groupAccessor?.(d) === xStackDatum.groupVal,
             )
           }
 
@@ -534,17 +549,17 @@ export const EventArea = <Datum,>({
               ((yBandScale?.padding?.() ?? 0) * yGroupHeight) / 2
             const yGroupIndex = Math.min(
               Math.floor(Math.max(0, adjPosY) / yGroupHeight),
-              yDelaunays.length - 1
+              yDelaunays.length - 1,
             )
             const yStackIndex = yDelaunays[yGroupIndex].delaunay.find(
               posX,
-              posY
+              posY,
             )
             const yStackDatum = yDelaunays[yGroupIndex].data[yStackIndex]
             ind = data.findIndex(
               (d) =>
                 aes?.y?.(d) === yStackDatum.yVal &&
-                scales?.groupAccessor?.(d) === yStackDatum.groupVal
+                scales?.groupAccessor?.(d) === yStackDatum.groupVal,
             )
           }
 
@@ -558,7 +573,11 @@ export const EventArea = <Datum,>({
             (aes?.x &&
               xDomain &&
               (xDomain.includes(aes?.x(datum)?.valueOf()) ||
-                isBetween(aes?.x(datum)?.valueOf() as number, xDomain[0], xDomain[1])))
+                isBetween(
+                  aes?.x(datum)?.valueOf() as number,
+                  xDomain[0],
+                  xDomain[1],
+                )))
 
           const datumInYRange =
             ['x', 'y'].includes(fill ?? '') ||
@@ -584,7 +603,7 @@ export const EventArea = <Datum,>({
             })
 
             const tooltips = document.getElementsByClassName(
-              `__gg-tooltip-${id}`
+              `__gg-tooltip-${id}`,
             ) as HTMLCollectionOf<SVGGElement>
             Array.from(tooltips).forEach((m) => {
               const thisTooltip = m
@@ -647,11 +666,17 @@ export const EventArea = <Datum,>({
       fill,
       margin.top,
       margin.left,
-    ]
+    ],
   )
 
   const handleMouseOut = useCallback(
-    (event) => {
+    (
+      event:
+        | React.MouseEvent<SVGRectElement>
+        | React.MouseEvent<SVGGElement>
+        | React.PointerEvent<SVGRectElement>
+        | React.MouseEvent<HTMLButtonElement>,
+    ) => {
       if (readyToFocusRef.current) {
         if (onMouseLeave) onMouseLeave()
         if (showTooltip) resetTooltip()
@@ -659,11 +684,16 @@ export const EventArea = <Datum,>({
       }
       document.onselectstart = () => true
     },
-    [showTooltip, resetTooltip, onMouseLeave, isBrushing]
+    [showTooltip, resetTooltip, onMouseLeave, isBrushing],
   )
 
   const handleUnbrush = useCallback(
-    (event) => {
+    (
+      event:
+        | React.MouseEvent<SVGRectElement>
+        | React.MouseEvent<SVGPathElement>
+        | React.MouseEvent<HTMLButtonElement>,
+    ) => {
       handleMouseOut(event)
 
       if (brushAction === 'zoom') {
@@ -689,11 +719,11 @@ export const EventArea = <Datum,>({
       onUnzoom,
       unZoom,
       geoms,
-    ]
+    ],
   )
 
   const handleClick = useCallback(
-    (event) => {
+    (event: React.MouseEvent<SVGRectElement>) => {
       const [posX, posY] = pointer(event, rectRef.current)
 
       document.onselectstart = () => false
@@ -759,7 +789,7 @@ export const EventArea = <Datum,>({
       resetTooltip,
       brushAction,
       hasCategoricalAxis,
-    ]
+    ],
   )
 
   const handleVoronoiMouseOver = useCallback(
@@ -829,7 +859,7 @@ export const EventArea = <Datum,>({
       yDelaunays,
       aes?.y,
       scales?.groupAccessor,
-    ]
+    ],
   )
 
   return (
@@ -840,7 +870,7 @@ export const EventArea = <Datum,>({
             <clipPath id={`__gg_canvas_${id}`}>
               <rect
                 width={width - margin.right - margin.left + BUFFER * 2}
-                height={height - margin.bottom - margin.top + BUFFER * 2 }
+                height={height - margin.bottom - margin.top + BUFFER * 2}
                 x={margin.left - BUFFER}
                 y={margin.top - BUFFER}
                 fill="transparent"
@@ -866,7 +896,7 @@ export const EventArea = <Datum,>({
                 cursor:
                   onClick && readyToFocusRef.current ? 'pointer' : undefined,
               }}
-              data-testid='__gg_event_area'
+              data-testid="__gg_event_area"
             />
             {isBrushing && (
               <BrushExclusion id={id}>
@@ -880,7 +910,7 @@ export const EventArea = <Datum,>({
                 ))}
               </BrushExclusion>
             )}
-            {((xZoomDomain?.current || yZoomDomain?.current) && !isZoomedOut) && (
+            {(xZoomDomain?.current || yZoomDomain?.current) && !isZoomedOut && (
               <ZoomOutButton
                 id={id}
                 x={width - margin.right}
@@ -933,23 +963,23 @@ export const EventArea = <Datum,>({
       {yVoronois &&
         !brushAction &&
         yVoronois.map((v, i) => (
-            <g
-              key={`yGroup-voronoi-${i.toString()}`}
-              onMouseLeave={handleMouseOut}
-              onPointerLeave={handleMouseOut}
-            >
-              {v.data.map((_, j) => (
-                <path
-                  key={`cell-${i.toString()}-${j.toString()}`}
-                  style={{ pointerEvents: 'all' }}
-                  d={v.voronoi.renderCell(j)}
-                  fill="none"
-                  // stroke="tomato"
-                  onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
-                />
-              ))}
-            </g>
-          ))}
+          <g
+            key={`yGroup-voronoi-${i.toString()}`}
+            onMouseLeave={handleMouseOut}
+            onPointerLeave={handleMouseOut}
+          >
+            {v.data.map((_, j) => (
+              <path
+                key={`cell-${i.toString()}-${j.toString()}`}
+                style={{ pointerEvents: 'all' }}
+                d={v.voronoi.renderCell(j)}
+                fill="none"
+                // stroke="tomato"
+                onMouseOver={() => handleVoronoiMouseOver(v.data, j)}
+              />
+            ))}
+          </g>
+        ))}
     </>
   )
 }

@@ -15,7 +15,7 @@ import { GeomArea, Legend } from '..'
 
 // useful for controlling the randomly-generated ID given to graphique objects
 jest.mock('nanoid', () => ({
-  nanoid: jest.fn(() => 'test-id')
+  nanoid: jest.fn(() => 'test-id'),
 }))
 
 jest.useFakeTimers()
@@ -35,43 +35,36 @@ const TestComponent = ({
   y0,
   y1,
 }: TestComponentProps) => (
-  <GG
-    data={data}
-    aes={aes}
-    margin={{ left: 50 }}
-  >
-    <GeomArea
-      position={position}
-      opacity={0.5}
-      aes={{ y0, y1 }}
-    />
+  <GG data={data} aes={aes} margin={{ left: 50 }}>
+    <GeomArea position={position} opacity={0.5} aes={{ y0, y1 }} />
     <Theme animationDuration={0} />
-    <Legend title='Stocks' orientation='horizontal' />
+    <Legend title="Stocks" orientation="horizontal" />
   </GG>
 )
 
 const prepareTesting = async (user: UserEvent) => {
+  await screen.findAllByTestId('__gg_geom_area')
   act(() => jest.runAllTimers())
 
-  await screen.findAllByTestId('__gg_geom_area')
-
   const eventArea = await screen.findByTestId('__gg_event_area')
-  await user.pointer({ target: eventArea, coords: { clientX: 200, clientY: 200 } })
+  await user.pointer({
+    target: eventArea,
+    coords: { clientX: 200, clientY: 200 },
+  })
   await screen.findByTestId('__gg_x_tooltip')
-  
-  act(() => jest.runOnlyPendingTimers())
+  await jest.runAllTimersAsync()
 }
 
 describe('area charts match snapshots', () => {
   it('simple, single area', async () => {
     const { user, asFragment } = setup(
       <TestComponent
-        data={DEFAULT_DATA.filter(d => d.symbol === 'AAPL')}
+        data={DEFAULT_DATA.filter((d) => d.symbol === 'AAPL')}
         aes={{
           ...DEFAULT_AES,
-          fill: undefined
+          fill: undefined,
         }}
-      />
+      />,
     )
 
     await prepareTesting(user)
@@ -86,20 +79,16 @@ describe('area charts match snapshots', () => {
   })
 
   it('position="stack", filled', async () => {
-    const { user, asFragment } = setup(
-      <TestComponent position='stack' />
-    )
+    const { user, asFragment } = setup(<TestComponent position="stack" />)
     await prepareTesting(user)
 
     expect(asFragment()).toMatchSnapshot()
   })
 
   it('position="fill", filled', async () => {
-    const { user, asFragment } = setup(
-      <TestComponent position='fill' />
-    )
+    const { user, asFragment } = setup(<TestComponent position="fill" />)
     await prepareTesting(user)
-    
+
     expect(asFragment()).toMatchSnapshot()
   })
 
@@ -110,24 +99,21 @@ describe('area charts match snapshots', () => {
           ...DEFAULT_AES,
           y: undefined,
         }}
-        y0={d => d.marketCap - (d.marketCap * 0.1)}
-        y1={d => d.marketCap + (d.marketCap * 0.1)}
-      />
+        y0={(d) => d.marketCap - d.marketCap * 0.1}
+        y1={(d) => d.marketCap + d.marketCap * 0.1}
+      />,
     )
     await prepareTesting(user)
-    
+
     expect(asFragment()).toMatchSnapshot()
   })
 
   it('discontinuous data, filled', async () => {
     const { user, asFragment } = setup(
-      <TestComponent
-        position='stack'
-        data={undefinedYValData}
-      />
+      <TestComponent position="stack" data={undefinedYValData} />,
     )
     await prepareTesting(user)
-    
+
     expect(asFragment()).toMatchSnapshot()
   })
 })

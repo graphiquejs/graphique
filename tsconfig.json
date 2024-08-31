@@ -9,9 +9,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "jsx": "react",
+    "types": ["@testing-library/jest-dom"]
   },
-  "exclude": [
-    "packages/**/node_modules",
-    "packages/**/src/__tests__"
-  ],
+  "exclude": ["packages/**/node_modules"]
 }

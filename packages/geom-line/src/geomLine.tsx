@@ -101,7 +101,7 @@ const GeomLine = <Datum,>({
             (geomAes.x(d) === null ||
               typeof geomAes.x(d) === 'undefined' ||
               Number.isNaN(geomAes.x(d)?.valueOf()) ||
-              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0))
+              (isDate(geomAes.x(d)) && geomAes.x(d)?.valueOf() === 0)),
         )
       : []
     return geomData && undefinedX.length === geomData.length
@@ -114,7 +114,7 @@ const GeomLine = <Datum,>({
             geomAes?.y &&
             (geomAes.y(d) === null ||
               typeof geomAes.y(d) === 'undefined' ||
-              Number.isNaN(geomAes.y(d)?.valueOf()))
+              Number.isNaN(geomAes.y(d)?.valueOf())),
         )
       : []
     return geomData && undefinedY.length === geomData.length
@@ -131,22 +131,31 @@ const GeomLine = <Datum,>({
     return () => clearTimeout(timeout)
   }, [])
 
-  const strokeGroups = useMemo(() => (
-    geomAes?.stroke
+  const strokeGroups = useMemo(
+    () =>
+      geomAes?.stroke
         ? (Array.from(new Set(copiedData?.map(geomAes.stroke))) as string[])
-      : undefined
-    ), [copiedData, geomAes]
+        : undefined,
+    [copiedData, geomAes],
   )
 
-  const strokeDasharrayGroups = useMemo(() => (
-    geomAes?.strokeDasharray
-      ? (Array.from(new Set(copiedData?.map(geomAes?.strokeDasharray))) as string[])
-      : undefined
-  ), [copiedData, geomAes])
+  const strokeDasharrayGroups = useMemo(
+    () =>
+      geomAes?.strokeDasharray
+        ? (Array.from(
+            new Set(copiedData?.map(geomAes?.strokeDasharray)),
+          ) as string[])
+        : undefined,
+    [copiedData, geomAes],
+  )
 
   const group = useMemo(
-    () => geomAes?.group ?? geomAes?.stroke ?? geomAes?.strokeDasharray ?? scales?.groupAccessor,
-    [geomAes, scales]
+    () =>
+      geomAes?.group ??
+      geomAes?.stroke ??
+      geomAes?.strokeDasharray ??
+      scales?.groupAccessor,
+    [geomAes, scales],
   )
 
   const groups = useMemo(
@@ -154,7 +163,7 @@ const GeomLine = <Datum,>({
       group
         ? (Array.from(new Set(geomData?.map(group))) as string[])
         : undefined,
-    [geomData, group]
+    [geomData, group],
   )
 
   const geomStrokeScale = useMemo(() => {
@@ -162,7 +171,7 @@ const GeomLine = <Datum,>({
       return scaleOrdinal()
         .domain(strokeDomain || strokeGroups || groups)
         .range(
-          (strokeScaleColors as string[]) || defaultScheme
+          (strokeScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     }
     return undefined
@@ -179,7 +188,8 @@ const GeomLine = <Datum,>({
           strokeDasharray,
           stroke: strokeColor,
           strokeScale: geomStrokeScale,
-          groupAccessor: geomAes.stroke ?? geomAes.strokeDasharray ?? geomAes?.group,
+          groupAccessor:
+            geomAes.stroke ?? geomAes.strokeDasharray ?? geomAes?.group,
           usableGroups: strokeGroups ?? strokeDasharrayGroups,
         },
       },
@@ -199,12 +209,12 @@ const GeomLine = <Datum,>({
   const x = useMemo(
     () => (d: Datum) =>
       scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
   const y = useMemo(
     () => (d: Datum) =>
       geomAes?.y && scales?.yScale && scales.yScale(geomAes?.y(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const drawLine = useMemo(
@@ -217,7 +227,7 @@ const GeomLine = <Datum,>({
           return areDefined && areNumbers
         })
         .curve(curve || curveLinear),
-    [curve]
+    [curve],
   )
 
   const groupRef = useRef<SVGGElement>(null)
@@ -245,11 +255,14 @@ const GeomLine = <Datum,>({
   const focusGroups = useMemo(() => {
     const hasStrokeGrouping = geomAes?.stroke || geomAes?.strokeDasharray
     if (focusGroupAccessor && focusType === 'closest' && hasStrokeGrouping) {
-      const groupStroke = geomAes?.group ?? geomAes?.stroke ?? geomAes.strokeDasharray
-      
-      const expandedGroups = Array.from(new Set(geomData?.map((d) => (
-        `${focusGroupAccessor(d)}-${groupStroke?.(d)}`
-      ))))
+      const groupStroke =
+        geomAes?.group ?? geomAes?.stroke ?? geomAes.strokeDasharray
+
+      const expandedGroups = Array.from(
+        new Set(
+          geomData?.map((d) => `${focusGroupAccessor(d)}-${groupStroke?.(d)}`),
+        ),
+      )
 
       return expandedGroups
     }
@@ -269,12 +282,14 @@ const GeomLine = <Datum,>({
       lines?.length > 0 &&
       focusType === 'closest'
     ) {
-      const datumGroup = `${focusGroupAccessor ? focusGroupAccessor(thisDatum) : group(thisDatum)}`
+      const datumGroup = `${
+        focusGroupAccessor ? focusGroupAccessor(thisDatum) : group(thisDatum)
+      }`
 
       const focusedIndex = focusGroups
         ?.map((g, i) => (g.includes(datumGroup) ? i : -1))
         .filter((v) => v >= 0)
-      
+
       focusNodes({
         nodes: lines,
         focusedIndex,
@@ -285,7 +300,14 @@ const GeomLine = <Datum,>({
       unfocusNodes({ nodes: lines, baseStyles })
     }
   }, [
-    tooltipDatum, group, groups, focusGroups, focusGroupAccessor, lines, focusType, firstRender
+    tooltipDatum,
+    group,
+    groups,
+    focusGroups,
+    focusGroupAccessor,
+    lines,
+    focusType,
+    firstRender,
   ])
 
   // map through groups to draw a line for each group
@@ -308,16 +330,17 @@ const GeomLine = <Datum,>({
                       y(d),
                     ]) as []
 
-                    const thisKey = (geomAes?.key?.(groupData[0])) ?? `${geomID}-${g}`
+                    const thisKey =
+                      geomAes?.key?.(groupData[0]) ?? `${geomID}-${g}`
 
                     const thisStrokeGroups =
                       geomStrokeScale && geomAes?.stroke
                         ? Array.from(
                             new Set(
                               groupData.map(
-                                (gd) => geomAes.stroke && geomAes.stroke(gd)
-                              )
-                            )
+                                (gd) => geomAes.stroke && geomAes.stroke(gd),
+                              ),
+                            ),
                           )
                         : undefined
 
@@ -337,7 +360,9 @@ const GeomLine = <Datum,>({
                     const thisDasharray =
                       strokeDasharray ||
                       (copiedScales?.strokeDasharrayScale
-                        ? copiedScales.strokeDasharrayScale(geomAes?.strokeDasharray?.(groupData[0]))
+                        ? copiedScales.strokeDasharrayScale(
+                            geomAes?.strokeDasharray?.(groupData[0]),
+                          )
                         : strokeDasharray)
 
                     return (
@@ -353,7 +378,7 @@ const GeomLine = <Datum,>({
                               const hasMissingY =
                                 d[1] === null || typeof d[1] === 'undefined'
                               return [d[0], hasMissingY ? NaN : yEntrancePos]
-                            })
+                            }),
                           ),
                           opacity: 0,
                         }}

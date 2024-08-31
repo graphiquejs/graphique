@@ -96,13 +96,13 @@ const GeomHLine = <Datum,>({
             | string
             | undefined)
         : defaultStroke),
-    [geomAes, copiedScales, strokeColor, defaultStroke]
+    [geomAes, copiedScales, strokeColor, defaultStroke],
   )
 
   const y = useMemo(
     () => (d: Datum) =>
       scales?.yScale && geomAes?.y && scales.yScale(geomAes.y(d)),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const checkIsOutisdeDomain = useMemo(
@@ -115,7 +115,7 @@ const GeomHLine = <Datum,>({
           (y(d) as number) < scales.yScale(domain[1]))
       )
     },
-    [scales, y]
+    [scales, y],
   )
 
   const keyAccessor = useMemo(
@@ -125,7 +125,7 @@ const GeomHLine = <Datum,>({
         : (`${geomAes?.y && geomAes.y(d)}-${
             scales?.groupAccessor && scales.groupAccessor(d)
           }-${i}` as string),
-    [geomAes, scales]
+    [geomAes, scales],
   )
 
   const groupRef = useRef<SVGGElement>(null)

@@ -114,7 +114,12 @@ const GeomCol = <Datum,>({
     })
   }, [geomAes, xZoomDomain?.current, data])
 
-  const { fill: fillColor, stroke: strokeColor, strokeWidth, opacity } = { ...props }
+  const {
+    fill: fillColor,
+    stroke: strokeColor,
+    strokeWidth,
+    opacity,
+  } = { ...props }
   const { defaultFill, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
@@ -125,7 +130,7 @@ const GeomCol = <Datum,>({
 
   const bottomPos = useMemo(
     () => (height && margin ? height - margin.bottom : 0),
-    [height, margin]
+    [height, margin],
   )
 
   useEffect(() => {
@@ -135,7 +140,11 @@ const GeomCol = <Datum,>({
         ...prev.geoms,
         col: {
           position,
-          fillOpacity: props.style?.fillOpacity || props.style?.opacity || opacity || fillOpacity,
+          fillOpacity:
+            props.style?.fillOpacity ||
+            props.style?.opacity ||
+            opacity ||
+            fillOpacity,
           stroke: strokeColor,
           groupAccessor: geomAes?.fill || geomAes?.stroke,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
@@ -179,22 +188,18 @@ const GeomCol = <Datum,>({
     (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(
-            geomAes.fill(d)
-          ) as string | undefined)
+        ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill]
+    [geomAes, copiedScales, fillColor, defaultFill],
   )
 
   const stroke = useCallback(
     (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(geomAes.stroke(d)) as
-            | string
-            | undefined)
+        ? (copiedScales.strokeScale(geomAes.stroke(d)) as string | undefined)
         : 'none'),
-    [geomAes, copiedScales, strokeColor]
+    [geomAes, copiedScales, strokeColor],
   )
 
   // reset the yScale based on position
@@ -213,14 +218,14 @@ const GeomCol = <Datum,>({
           const groupData = geomData.filter((d) =>
             isDate(geomAes.x(d))
               ? geomAes.x(d)?.valueOf() === xVal?.valueOf()
-              : geomAes.x(d) === xVal
+              : geomAes.x(d) === xVal,
           )
           const groupTotal = sum(
             groupData,
-            (d) => geomAes.y && (geomAes.y(d) as number)
+            (d) => geomAes.y && (geomAes.y(d) as number),
           )
           return groupTotal
-        })
+        }),
       )
     } else {
       maxVal = 1
@@ -251,7 +256,7 @@ const GeomCol = <Datum,>({
       const xExtent = extent(geomData, (d) => geomAes.x(d) as number)
       const yExtent = extent(
         geomData,
-        (d) => geomAes?.y && (geomAes.y(d) as number)
+        (d) => geomAes?.y && (geomAes.y(d) as number),
       )
 
       const isHistogram = !!theme?.geoms?.histogram
@@ -272,8 +277,12 @@ const GeomCol = <Datum,>({
 
   useEffect(() => {
     const isHistogram = !!theme?.geoms?.histogram
-    const histStart = isHistogram ? min(geomData as HistogramBin[], d => d.x0) : null
-    const histEnd = isHistogram ? max(geomData as HistogramBin[], d => d.x1) : null
+    const histStart = isHistogram
+      ? min(geomData as HistogramBin[], (d) => d.x0)
+      : null
+    const histEnd = isHistogram
+      ? max(geomData as HistogramBin[], (d) => d.x1)
+      : null
 
     if (isHistogram) {
       setXScale((prev) => ({
@@ -304,7 +313,7 @@ const GeomCol = <Datum,>({
         if (align === 'right') {
           leftAdj = xBandScale.bandwidth()
         }
-        
+
         scales?.xScale.range([
           margin.left + (isHistogram ? 0 : leftAdj),
           width - margin.right - rightAdj,
@@ -313,18 +322,17 @@ const GeomCol = <Datum,>({
       }
       return scales?.xScale && scales.xScale(geomAes?.x(d))
     },
-    [scales, geomAes, geomData, xBandScale, margin, width, align, aes, theme]
+    [scales, geomAes, geomData, xBandScale, margin, width, align, aes, theme],
   )
 
   const y = useCallback(
-    (d: Datum) =>
-      scales?.yScale && geomAes?.y && scales.yScale(geomAes?.y(d)),
-    [scales, geomAes]
+    (d: Datum) => scales?.yScale && geomAes?.y && scales.yScale(geomAes?.y(d)),
+    [scales, geomAes],
   )
 
   const group = useMemo(
     () => defineGroupAccessor(geomAes),
-    [defineGroupAccessor, geomAes]
+    [defineGroupAccessor, geomAes],
   )
 
   const groups = useMemo(
@@ -332,7 +340,7 @@ const GeomCol = <Datum,>({
       group
         ? (Array.from(new Set(geomData?.map(group))) as string[])
         : undefined,
-    [geomData, group]
+    [geomData, group],
   )
 
   const keyAccessor = useCallback(
@@ -342,7 +350,7 @@ const GeomCol = <Datum,>({
         : geomAes?.y &&
           group &&
           `${geomAes?.x(d)}-${geomAes.y(d)}-${group(d)}`) as string,
-    [geomAes, group]
+    [geomAes, group],
   )
 
   const stackedData = useMemo(() => {
@@ -364,17 +372,6 @@ const GeomCol = <Datum,>({
     return null
   }, [geomData, geomAes, group, groups, position])
 
-  // const sortedData = useMemo(() => {
-  //   // if (geomData && geomAes?.y) {
-  //   //   return geomData.sort((a, b) => {
-  //   //     return (geomAes.y(b) as number) - (geomAes.y(a) as number)
-  //   //   })
-  //   // } else {
-  //   //   return geomData
-  //   // }
-  //   return geomData
-  // }, [geomData])
-
   const dodgeXScale = useMemo(() => {
     if (isDodged && scales?.groups && xBandScale) {
       return scaleBand()
@@ -386,13 +383,13 @@ const GeomCol = <Datum,>({
   }, [scales, position, xBandScale, dodgePadding])
 
   const resolvedXScale = useCallback(
-    (d) => {
+    (d: Datum) => {
       if (isDodged) {
         return (x(d) ?? 0) + (dodgeXScale?.(group?.(d) as string) ?? 0)
       }
       return x(d)
     },
-    [x, dodgeXScale, position, group]
+    [x, dodgeXScale, position, group],
   )
 
   const groupRef = useRef<SVGGElement>(null)
@@ -403,11 +400,11 @@ const GeomCol = <Datum,>({
       const thisStack =
         stackedData && stackedData.find((sd) => group && sd.key === group(d))
       const groupStack = thisStack?.find(
-        (s) => geomAes?.x && s.data.key === geomAes.x(d)?.valueOf()
+        (s) => geomAes?.x && s.data.key === geomAes.x(d)?.valueOf(),
       )
       return groupStack
     },
-    [stackedData, geomAes, group]
+    [stackedData, geomAes, group],
   )
 
   const stackMidpoints = useMemo(() => {
@@ -417,7 +414,7 @@ const GeomCol = <Datum,>({
     return stackedData.flatMap((sd) => {
       const groupVal = sd.key
       const dataStack = sd.filter((d) => !d.flat().some(Number.isNaN))
-      
+
       return dataStack.map((ds) => {
         const yVal = (ds[0] + ds[1]) / 2
         const xVal = ds.data.key
@@ -434,10 +431,10 @@ const GeomCol = <Datum,>({
   const dodgeXAdj = useMemo(() => {
     const bw = xBandScale?.bandwidth() ?? 0
     const isGroupFocused = focusType === 'group'
-    
+
     return isDodged && !isGroupFocused
-      ? (dodgeXScale?.bandwidth() ?? 0)/2
-      : bw / 2 
+      ? (dodgeXScale?.bandwidth() ?? 0) / 2
+      : bw / 2
   }, [groups, xBandScale, dodgePadding, focusType])
 
   return xBandScale ? (
@@ -446,9 +443,9 @@ const GeomCol = <Datum,>({
         <LineMarker
           x={isDodged && focusType === 'group' ? x : resolvedXScale}
           xAdj={
-            ((focusType === 'individual' && isDodged)
-              ? (dodgeXScale?.bandwidth() ?? 0)/2
-              : dodgeXAdj)
+            focusType === 'individual' && isDodged
+              ? (dodgeXScale?.bandwidth() ?? 0) / 2
+              : dodgeXAdj
           }
         />
       )}
@@ -458,7 +455,7 @@ const GeomCol = <Datum,>({
             !firstRender &&
             isVisible && (
               <NodeGroup
-                data={[...(geomData)]}
+                data={[...geomData] as Datum[]}
                 keyAccessor={keyAccessor}
                 start={(d) => ({
                   width: dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
@@ -520,8 +517,7 @@ const GeomCol = <Datum,>({
                   y: [bottomPos],
                   timing: { duration, ease: easeCubic },
                 })}
-                interpolation={(begVal, endVal) => interpolate(begVal, endVal)
-                }
+                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
               >
                 {(nodes) => (
                   <>
@@ -553,7 +549,7 @@ const GeomCol = <Datum,>({
           <EventArea
             data={geomData}
             aes={geomAes}
-            x={(isDodged && focusType === 'group') ? x : resolvedXScale}
+            x={isDodged && focusType === 'group' ? x : resolvedXScale}
             y={() => 0}
             fill={position === 'fill' ? 'y' : undefined}
             group={focusType === 'group' ? 'x' : undefined}
@@ -598,11 +594,7 @@ const GeomCol = <Datum,>({
               y={y}
               aes={geomAes}
               stackMidpoints={stackMidpoints}
-              xAdj={
-                isDodged
-                  ? dodgeXAdj
-                  : xBandScale.bandwidth() / 2
-              }
+              xAdj={isDodged ? dodgeXAdj : xBandScale.bandwidth() / 2}
               focusType={focusType}
             />
           )}

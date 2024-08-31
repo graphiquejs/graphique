@@ -94,22 +94,20 @@ const GeomPoint = <Datum,>({
 
   const group = useMemo(
     () => geomAes && defineGroupAccessor(geomAes as Aes<Datum>),
-    [geomAes, defineGroupAccessor]
+    [geomAes, defineGroupAccessor],
   )
 
   const positionKeyAccessor = useCallback(
-    (d: Datum) => 
+    (d: Datum) =>
       `${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
-        group && group(d)}` as string
-    , [geomAes, group])
-
+        group && group(d)
+      }` as string,
+    [geomAes, group],
+  )
 
   const keyAccessor = useCallback(
-    (d: Datum) =>
-      geomAes?.key
-        ? geomAes.key(d)
-        : positionKeyAccessor(d),
-    [geomAes, group, positionKeyAccessor]
+    (d: Datum) => (geomAes?.key ? geomAes.key(d) : positionKeyAccessor(d)),
+    [geomAes, group, positionKeyAccessor],
   )
 
   const undefinedX = useMemo(
@@ -120,10 +118,11 @@ const GeomPoint = <Datum,>({
               geomAes?.x &&
               (geomAes.x(d) === null ||
                 typeof geomAes.x(d) === 'undefined' ||
-                (isDate(geomAes.x(d)) && Number.isNaN(geomAes.x(d)?.valueOf())))
+                (isDate(geomAes.x(d)) &&
+                  Number.isNaN(geomAes.x(d)?.valueOf()))),
           )
         : [],
-    [initialGeomData, geomAes]
+    [initialGeomData, geomAes],
   )
   const undefinedY = useMemo(
     () =>
@@ -131,13 +130,16 @@ const GeomPoint = <Datum,>({
         ? initialGeomData.filter(
             (d) =>
               geomAes?.y &&
-              (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined')
+              (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined'),
           )
         : [],
-    [initialGeomData]
+    [initialGeomData],
   )
 
-  const validFocusedKeys = useMemo(() => focusedKeys.filter(v => v), [focusedKeys])
+  const validFocusedKeys = useMemo(
+    () => focusedKeys.filter((v) => v),
+    [focusedKeys],
+  )
 
   const geomData = useMemo(() => {
     const presentData = initialGeomData?.filter(
@@ -150,11 +152,11 @@ const GeomPoint = <Datum,>({
           : true) &&
         geomAes.y &&
         geomAes.y(d) !== null &&
-        !(typeof geomAes.y(d) === 'undefined')
+        !(typeof geomAes.y(d) === 'undefined'),
     )
 
     const uniqueKeyVals = Array.from(
-      new Set(presentData?.map((d) => keyAccessor(d)))
+      new Set(presentData?.map((d) => keyAccessor(d))),
     )
 
     return uniqueKeyVals.flatMap((k) => {
@@ -169,9 +171,10 @@ const GeomPoint = <Datum,>({
     })
   }, [initialGeomData, keyAccessor])
 
-  const positionKeys = useMemo(() => (
-    geomData.map(positionKeyAccessor).join('')
-  ), [geomData, positionKeyAccessor])
+  const positionKeys = useMemo(
+    () => geomData.map(positionKeyAccessor).join(''),
+    [geomData, positionKeyAccessor],
+  )
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -179,32 +182,23 @@ const GeomPoint = <Datum,>({
     return () => clearTimeout(timeout)
   }, [])
 
-  // useEffect(() => {
-  //   readyToFocusRef.current = false
-  //   const animationDuration = duration ?? 1000
-  //   const timeout = setTimeout(() => {
-  //     readyToFocusRef.current = true
-  //   }, animationDuration + 50)
-  //   return () => clearTimeout(timeout)
-  // }, [firstRender])
-
   useEffect(() => {
     if (firstRender && undefinedX.length > 0) {
       console.warn(
-        `Ignoring ${undefinedX.length} points with missing x values.`
+        `Ignoring ${undefinedX.length} points with missing x values.`,
       )
     }
 
     if (firstRender && undefinedY.length > 0) {
       console.warn(
-        `Ignoring ${undefinedY.length} points with missing y values.`
+        `Ignoring ${undefinedY.length} points with missing y values.`,
       )
     }
   }, [firstRender, undefinedX, undefinedY])
 
   const bottomPos = useMemo(
     () => (height && margin ? height - margin.bottom : undefined),
-    [height, margin]
+    [height, margin],
   )
 
   useEffect(() => {
@@ -217,7 +211,7 @@ const GeomPoint = <Datum,>({
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
           strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
-          size: geomAes?.size
+          size: geomAes?.size,
         },
       },
     }))
@@ -255,12 +249,9 @@ const GeomPoint = <Datum,>({
     () => (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(
-            geomAes.fill(d)
-            // aes.fill(d) === null ? "[null]" : (aes.fill(d) as any)
-          ) as string | undefined)
+        ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill]
+    [geomAes, copiedScales, fillColor, defaultFill],
   )
 
   const stroke = useMemo(
@@ -271,15 +262,9 @@ const GeomPoint = <Datum,>({
             | string
             | undefined)
         : 'none'),
-    [geomAes, copiedScales, strokeColor]
+    [geomAes, copiedScales, strokeColor],
   )
 
-  // if (scales?.yScale?.bandwidth) {
-  //   scales.yScale.padding(1)
-  // }
-  // if (scales?.xScale?.bandwidth) {
-  //   scales.xScale?.padding(1)
-  // }
   const radius = useMemo(() => {
     if (geomData && geomAes?.size && sizeRange && sizeDomain) {
       const domain =
@@ -317,10 +302,9 @@ const GeomPoint = <Datum,>({
 
   const groupRef = useRef<SVGGElement>(null)
   const points = groupRef.current?.getElementsByTagName('circle')
-  // const readyToFocusRef = useRef(false)
 
   const [shouldClip, setShouldClip] = useState(
-    isClipped || isFixedX || isFixedY
+    isClipped || isFixedX || isFixedY,
   )
   useEffect(() => {
     if (xZoomDomain?.current || yZoomDomain?.current) {
@@ -361,7 +345,11 @@ const GeomPoint = <Datum,>({
                 enter={(d) => ({
                   cx: [x(d)],
                   cy: [y(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : radius(d)],
+                  r: [
+                    geomAes?.size
+                      ? radius(geomAes.size(d) as number)
+                      : radius(d),
+                  ],
                   fill: [fill(d)],
                   stroke: [stroke(d)],
                   fillOpacity: [fillOpacity],
@@ -373,7 +361,11 @@ const GeomPoint = <Datum,>({
                   cy: [y(d)],
                   fill: firstRender ? fill(d) : [fill(d)],
                   stroke: firstRender ? stroke(d) : [stroke(d)],
-                  r: [geomAes?.size ? radius(geomAes.size(d) as number) : radius(d)],
+                  r: [
+                    geomAes?.size
+                      ? radius(geomAes.size(d) as number)
+                      : radius(d),
+                  ],
                   fillOpacity: [fillOpacity],
                   strokeOpacity: [strokeOpacity],
                   timing: { duration, ease: easeCubic },
@@ -390,9 +382,11 @@ const GeomPoint = <Datum,>({
                   <>
                     {nodes.map(({ state, key }) => {
                       let styles = {}
-                      if (validFocusedKeys.includes(key))
-                        styles = focusedStyles
-                      if (validFocusedKeys?.length > 0 && !validFocusedKeys.includes(key))
+                      if (validFocusedKeys.includes(key)) styles = focusedStyles
+                      if (
+                        validFocusedKeys?.length > 0 &&
+                        !validFocusedKeys.includes(key)
+                      )
                         styles = unfocusedStyles
                       return (
                         <circle
@@ -432,9 +426,9 @@ const GeomPoint = <Datum,>({
             y={y}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: unknown; i: number[] }) => {
-              const focusedIndexes = geomData.flatMap((gd, fi) => (
-                validFocusedKeys.includes(keyAccessor(gd)) ? fi : []
-              ))
+              const focusedIndexes = geomData.flatMap((gd, fi) =>
+                validFocusedKeys.includes(keyAccessor(gd)) ? fi : [],
+              )
 
               if (points) {
                 focusNodes({
@@ -458,9 +452,9 @@ const GeomPoint = <Datum,>({
                 if (validFocusedKeys && validFocusedKeys.length) {
                   focusNodes({
                     nodes: points,
-                    focusedIndex: geomData.flatMap((d, i) => (
-                      validFocusedKeys.includes(keyAccessor(d)) ? i : []
-                    )),
+                    focusedIndex: geomData.flatMap((d, i) =>
+                      validFocusedKeys.includes(keyAccessor(d)) ? i : [],
+                    ),
                     focusedStyles,
                     unfocusedStyles,
                   })

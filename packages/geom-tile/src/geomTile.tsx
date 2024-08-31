@@ -131,12 +131,9 @@ const GeomTile = <Datum,>({
     () => (d: Datum) =>
       fillColor ||
       (aes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(
-            aes.fill(d)
-            // aes.fill(d) === null ? "[null]" : (aes.fill(d) as any)
-          ) as string | undefined)
+        ? (copiedScales.fillScale(aes.fill(d)) as string | undefined)
         : defaultFill),
-    [aes, copiedScales, fillColor, defaultFill]
+    [aes, copiedScales, fillColor, defaultFill],
   )
 
   const stroke = useMemo(
@@ -145,7 +142,7 @@ const GeomTile = <Datum,>({
       (aes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(aes.stroke(d) as any) as string | undefined)
         : 'none'),
-    [aes, copiedScales, strokeColor]
+    [aes, copiedScales, strokeColor],
   )
 
   const xBandScale = useMemo(() => {
@@ -207,7 +204,7 @@ const GeomTile = <Datum,>({
       geomAes?.group || geomAes?.fill || geomAes?.stroke
         ? defineGroupAccessor(geomAes, true)
         : scales?.groupAccessor,
-    [geomAes, defineGroupAccessor]
+    [geomAes, defineGroupAccessor],
   )
 
   const keyAccessor = useMemo(
@@ -215,11 +212,10 @@ const GeomTile = <Datum,>({
       (geomAes?.key
         ? geomAes.key(d)
         : geomAes?.y && `${geomAes?.x(d)}-${geomAes?.y(d)}`) as string,
-    [geomAes, scales]
+    [geomAes, scales],
   )
 
   const groupRef = useRef<SVGGElement>(null)
-  // const rects = useMemo(() => groupRef.current?.getElementsByTagName("rect"), [])
   const rects = groupRef.current?.getElementsByTagName('rect')
 
   return xBandScale && yBandScale ? (

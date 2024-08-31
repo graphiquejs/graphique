@@ -110,7 +110,11 @@ const GeomBar = <Datum,>({
         ...prev.geoms,
         bar: {
           position,
-          fillOpacity: props.style?.fillOpacity || props.style?.opacity || opacity || fillOpacity,
+          fillOpacity:
+            props.style?.fillOpacity ||
+            props.style?.opacity ||
+            opacity ||
+            fillOpacity,
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
           strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
@@ -152,12 +156,9 @@ const GeomBar = <Datum,>({
     (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(
-            geomAes.fill(d)
-            // geomAes.fill(d) === null ? "[null]" : (geomAes.fill(d) as any)
-          ) as string | undefined)
+        ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill]
+    [geomAes, copiedScales, fillColor, defaultFill],
   )
 
   const stroke = useCallback(
@@ -168,7 +169,7 @@ const GeomBar = <Datum,>({
             | string
             | undefined)
         : 'none'),
-    [geomAes, copiedScales, strokeColor]
+    [geomAes, copiedScales, strokeColor],
   )
 
   // reset the xScale based on position
@@ -180,21 +181,20 @@ const GeomBar = <Datum,>({
     geomAes?.y
   ) {
     const uniqueYs = Array.from(
-      new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d)))
+      new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d))),
     )
     let maxVal
     if (position === 'stack') {
       maxVal = max(
         uniqueYs.map((yVal) => {
           const groupData = geomData.filter(
-            (d) => geomAes.y && geomAes.y(d) === yVal
+            (d) => geomAes.y && geomAes.y(d) === yVal,
           )
           const groupTotal = sum(groupData, (d) => geomAes.x(d) as number)
           return groupTotal
-        })
+        }),
       )
     } else {
-      // position === "fill"
       maxVal = 1
     }
 
@@ -205,7 +205,7 @@ const GeomBar = <Datum,>({
 
   const x = useCallback(
     (d: Datum) => scales?.xScale && (scales.xScale(geomAes?.x(d)) || 0),
-    [scales, geomAes]
+    [scales, geomAes],
   )
 
   const yBandScale = useMemo(() => {
@@ -216,7 +216,7 @@ const GeomBar = <Datum,>({
         return scales.yScale.paddingInner(usedYPadding)
       }
       const uniqueYs = Array.from(
-        new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d)))
+        new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d))),
       )
       return scaleBand()
         .range([margin.bottom, height - margin.bottom])
@@ -241,12 +241,12 @@ const GeomBar = <Datum,>({
       }
       return scales?.yScale && scales.yScale(geomAes?.y && geomAes.y(d))
     },
-    [scales, geomAes, margin, height, yBandScale]
+    [scales, geomAes, margin, height, yBandScale],
   )
 
   const group = useMemo(
     () => defineGroupAccessor(geomAes),
-    [defineGroupAccessor, geomAes]
+    [defineGroupAccessor, geomAes],
   )
 
   const groups = useMemo(
@@ -254,7 +254,7 @@ const GeomBar = <Datum,>({
       group
         ? (Array.from(new Set(geomData?.map(group))) as string[])
         : undefined,
-    [geomData, group]
+    [geomData, group],
   )
 
   const keyAccessor = useCallback(
@@ -265,12 +265,13 @@ const GeomBar = <Datum,>({
           `${geomAes?.x(d)}-${geomAes.y(d)}-${
             scales?.groupAccessor ? scales.groupAccessor(d) : '__group'
           }`) as string,
-    [geomAes, scales]
+    [geomAes, scales],
   )
 
-  const tooltipDatumKeys = useMemo(() => (
-    tooltipDatum?.map(keyAccessor) ?? []
-  ), [tooltipDatum, keyAccessor])
+  const tooltipDatumKeys = useMemo(
+    () => tooltipDatum?.map(keyAccessor) ?? [],
+    [tooltipDatum, keyAccessor],
+  )
 
   const stackedData = useMemo(() => {
     if (
@@ -289,23 +290,13 @@ const GeomBar = <Datum,>({
         geomData,
         geomAes.y,
         scales.groupAccessor,
-        geomAes.x
+        geomAes.x,
       )
 
       return stackWideData(wideData)
     }
     return null
   }, [geomData, geomAes, scales, position])
-
-  // const sortedData = useMemo(() => {
-  //   if (geomData && geomAes?.x) {
-  //     return geomData.sort((a, b) => {
-  //       return (geomAes.x(b) as number) - (geomAes.x(a) as number)
-  //     })
-  //   } else {
-  //     return geomData
-  //   }
-  // }, [geomData, geomAes])
 
   const dodgeYScale = useMemo(() => {
     if (position === 'dodge' && scales?.groups && yBandScale) {
@@ -318,13 +309,13 @@ const GeomBar = <Datum,>({
   }, [scales, position, yBandScale, dodgePadding])
 
   const resolvedYScale = useCallback(
-    (d) => {
+    (d: Datum) => {
       if (position === 'dodge') {
         return (y(d) ?? 0) + (dodgeYScale?.(group?.(d) as string) ?? 0)
       }
       return y(d)
     },
-    [y, dodgeYScale, position, group]
+    [y, dodgeYScale, position, group],
   )
 
   const groupRef = useRef<SVGGElement>(null)
@@ -338,14 +329,14 @@ const GeomBar = <Datum,>({
         stackedData &&
         stackedData.find(
           (sd: any) =>
-            scales?.groupAccessor && sd.key === scales.groupAccessor(d)
+            scales?.groupAccessor && sd.key === scales.groupAccessor(d),
         )
       const groupStack = thisStack?.find(
-        (s: any) => aes?.y && s.data.key === aes.y(d)
+        (s: any) => aes?.y && s.data.key === aes.y(d),
       )
       return groupStack
     },
-    [stackedData, scales, aes]
+    [stackedData, scales, aes],
   )
 
   const stackMidpoints = useMemo(() => {
@@ -354,7 +345,7 @@ const GeomBar = <Datum,>({
     return stackedData.flatMap((sd) => {
       const groupVal = sd.key
       const dataStack = sd.filter((d) => !d.flat().some(Number.isNaN))
-      
+
       return dataStack.map((ds) => {
         const xVal = (ds[0] + ds[1]) / 2
         const yVal = ds.data.key
@@ -370,14 +361,13 @@ const GeomBar = <Datum,>({
 
   const dodgeYAdj = useMemo(() => {
     const bw = yBandScale?.bandwidth() ?? 0
-    const paddingAdj = (position === 'dodge' ? dodgePadding : 0) / (groups ? groups.length : 1)
+    const paddingAdj =
+      (position === 'dodge' ? dodgePadding : 0) / (groups ? groups.length : 1)
     const isGroupFocused = focusType === 'group'
-    
+
     return position === 'dodge' && !isGroupFocused
-      ? (dodgeYScale?.bandwidth() ?? 0)/2
-    : bw/2 - (paddingAdj * bw)
-    // : (paddingAdj * bw)
-      // : 0
+      ? (dodgeYScale?.bandwidth() ?? 0) / 2
+      : bw / 2 - paddingAdj * bw
   }, [groups, yBandScale, dodgePadding, focusType])
 
   return yBandScale ? (
@@ -387,11 +377,13 @@ const GeomBar = <Datum,>({
           {(isVisible) =>
             isVisible && (
               <NodeGroup
-                data={[...(geomData as [])]}
+                data={[...geomData] as Datum[]}
                 keyAccessor={keyAccessor}
                 start={(d) => {
                   const groupData = getGroupStack(d)
-                  const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
+                  const thisX0 = groupData
+                    ? scales?.xScale(groupData[0])
+                    : leftEdge
                   const thisX1 = groupData && scales?.xScale(groupData[1])
                   const barWidth = stackedData
                     ? thisX1 - (thisX0 || 0)
@@ -411,7 +403,9 @@ const GeomBar = <Datum,>({
                 }}
                 enter={(d) => {
                   const groupData = getGroupStack(d)
-                  const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
+                  const thisX0 = groupData
+                    ? scales?.xScale(groupData[0])
+                    : leftEdge
                   const thisX1 = groupData && scales?.xScale(groupData[1])
                   const barWidth = stackedData
                     ? thisX1 - (thisX0 || 0)
@@ -421,7 +415,9 @@ const GeomBar = <Datum,>({
 
                   return {
                     width: animateOnEnter ? [actualWidth] : actualWidth,
-                    height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
+                    height: [
+                      dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
+                    ],
                     x: [thisX0],
                     y: [resolvedYScale(d)],
                     fill: [fill(d)],
@@ -433,7 +429,9 @@ const GeomBar = <Datum,>({
                 }}
                 update={(d) => {
                   const groupData = getGroupStack(d)
-                  const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
+                  const thisX0 = groupData
+                    ? scales?.xScale(groupData[0])
+                    : leftEdge
                   const thisX1 = groupData && scales?.xScale(groupData[1])
                   const barWidth = stackedData
                     ? thisX1 - (thisX0 || 0)
@@ -441,7 +439,9 @@ const GeomBar = <Datum,>({
 
                   return {
                     width: [typeof x(d) === 'undefined' ? leftEdge : barWidth],
-                    height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
+                    height: [
+                      dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
+                    ],
                     x: [thisX0],
                     y: [
                       typeof resolvedYScale(d) === 'undefined'
@@ -467,9 +467,11 @@ const GeomBar = <Datum,>({
                   <>
                     {nodes.map(({ state, key }) => {
                       let styles
-                      if (tooltipDatumKeys.includes(key))
-                        styles = focusedStyles
-                      if (tooltipDatumKeys?.length > 0 && !tooltipDatumKeys.includes(key))
+                      if (tooltipDatumKeys.includes(key)) styles = focusedStyles
+                      if (
+                        tooltipDatumKeys?.length > 0 &&
+                        !tooltipDatumKeys.includes(key)
+                      )
                         styles = unfocusedStyles
                       return (
                         <rect
@@ -505,7 +507,9 @@ const GeomBar = <Datum,>({
             data={geomData}
             aes={geomAes}
             x={() => 0}
-            y={(position === 'dodge' && focusType === 'group') ? y : resolvedYScale}
+            y={
+              position === 'dodge' && focusType === 'group' ? y : resolvedYScale
+            }
             yBandScale={yBandScale}
             fill={position === 'fill' ? 'x' : undefined}
             group={focusType === 'group' ? 'y' : undefined}
@@ -545,11 +549,7 @@ const GeomBar = <Datum,>({
             y={focusType === 'group' ? y : resolvedYScale}
             aes={geomAes}
             stackMidpoints={stackMidpoints}
-            yAdj={
-              position === 'dodge'
-                ? dodgeYAdj
-                : yBandScale.bandwidth() / 2
-            }
+            yAdj={position === 'dodge' ? dodgeYAdj : yBandScale.bandwidth() / 2}
             focusType={focusType}
             align={position === 'dodge' ? 'left' : 'center'}
           />

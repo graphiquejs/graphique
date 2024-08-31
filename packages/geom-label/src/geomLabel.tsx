@@ -31,7 +31,7 @@ import { Tooltip } from './tooltip'
 export interface LabelProps<Datum> extends SVGAttributes<SVGTextElement> {
   data?: Datum[]
   aes?: GeomAes<Datum>
-  label?: React.ReactNode | ((d: Datum) => React.ReactNode)
+  label?: (d?: Datum) => React.ReactNode
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   focusedKeys?: (string | number)[]
@@ -65,7 +65,8 @@ const GeomLabel = <Datum,>({
   ...props
 }: LabelProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
-  const { id, data, aes, scales, copiedScales, width, height, margin } = ggState || { width: 0 }
+  const { id, data, aes, scales, copiedScales, width, height, margin } =
+    ggState || { width: 0 }
 
   const [theme, setTheme] = useAtom(themeState)
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
@@ -89,7 +90,7 @@ const GeomLabel = <Datum,>({
 
   const group = useMemo(
     () => geomAes && defineGroupAccessor(geomAes),
-    [geomAes, defineGroupAccessor]
+    [geomAes, defineGroupAccessor],
   )
 
   const keyAccessor = useCallback(
@@ -99,14 +100,16 @@ const GeomLabel = <Datum,>({
         : (`${geomAes?.x && geomAes.x(d)}-${geomAes?.y && geomAes.y(d)}-${
             group && group(d)
           }` as string),
-    [geomAes, group]
+    [geomAes, group],
   )
 
   const getLabel = useMemo(() => {
     if (!geomAes?.label && !label)
-      throw new Error('You need to provide a `label` or map a `label` in `aes` in order to use GeomLabel')
-      
-    return geomAes?.label
+      throw new Error(
+        'You need to provide a `label` or map a `label` in `aes` in order to use GeomLabel',
+      )
+
+    return label ?? geomAes?.label ?? (() => '')
   }, [geomAes, label])
 
   const undefinedX = useMemo(
@@ -117,10 +120,11 @@ const GeomLabel = <Datum,>({
               geomAes?.x &&
               (geomAes.x(d) === null ||
                 typeof geomAes.x(d) === 'undefined' ||
-                (isDate(geomAes.x(d)) && Number.isNaN(geomAes.x(d)?.valueOf())))
+                (isDate(geomAes.x(d)) &&
+                  Number.isNaN(geomAes.x(d)?.valueOf()))),
           )
         : [],
-    [initialGeomData, geomAes]
+    [initialGeomData, geomAes],
   )
   const undefinedY = useMemo(
     () =>
@@ -128,10 +132,10 @@ const GeomLabel = <Datum,>({
         ? initialGeomData.filter(
             (d) =>
               geomAes?.y &&
-              (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined')
+              (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined'),
           )
         : [],
-    [initialGeomData]
+    [initialGeomData],
   )
 
   const geomData = useMemo(() => {
@@ -145,11 +149,11 @@ const GeomLabel = <Datum,>({
           : true) &&
         geomAes.y &&
         geomAes.y(d) !== null &&
-        !(typeof geomAes.y(d) === 'undefined')
+        !(typeof geomAes.y(d) === 'undefined'),
     )
 
     const uniqueKeyVals = Array.from(
-      new Set(presentData?.map((d) => keyAccessor(d)))
+      new Set(presentData?.map((d) => keyAccessor(d))),
     )
 
     return uniqueKeyVals.flatMap((k) => {
@@ -173,20 +177,20 @@ const GeomLabel = <Datum,>({
   useEffect(() => {
     if (firstRender && undefinedX.length > 0) {
       console.warn(
-        `Ignoring ${undefinedX.length} labels with missing x values.`
+        `Ignoring ${undefinedX.length} labels with missing x values.`,
       )
     }
 
     if (firstRender && undefinedY.length > 0) {
       console.warn(
-        `Ignoring ${undefinedY.length} labels with missing y values.`
+        `Ignoring ${undefinedY.length} labels with missing y values.`,
       )
     }
   }, [firstRender, undefinedX, undefinedY])
 
   const bottomPos = useMemo(
     () => (height && margin ? height - margin.bottom : undefined),
-    [height, margin]
+    [height, margin],
   )
 
   useEffect(() => {
@@ -236,31 +240,19 @@ const GeomLabel = <Datum,>({
     () => (d: Datum) =>
       fillColor ||
       (geomAes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(
-            geomAes.fill(d)
-            // aes.fill(d) === null ? "[null]" : (aes.fill(d) as any)
-          ) as string | undefined)
+        ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill]
+    [geomAes, copiedScales, fillColor, defaultFill],
   )
 
   const getStroke = useMemo(
     () => (d: Datum) =>
       strokeColor ||
       (geomAes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(geomAes.stroke(d)) as
-            | string
-            | undefined)
+        ? (copiedScales.strokeScale(geomAes.stroke(d)) as string | undefined)
         : '#fff'),
-    [geomAes, copiedScales, strokeColor]
+    [geomAes, copiedScales, strokeColor],
   )
-
-  // if (scales?.yScale?.bandwidth) {
-  //   scales.yScale.padding(1)
-  // }
-  // if (scales?.xScale?.bandwidth) {
-  //   scales.xScale?.padding(1)
-  // }
 
   const x = useMemo(() => {
     if (scales?.xScale.bandwidth) {
@@ -287,7 +279,7 @@ const GeomLabel = <Datum,>({
   const texts = groupRef.current?.getElementsByTagName('text')
 
   const [shouldClip, setShouldClip] = useState(
-    isClipped || isFixedX || isFixedY
+    isClipped || isFixedX || isFixedY,
   )
   useEffect(() => {
     if (xZoomDomain?.current || yZoomDomain?.current) {
@@ -321,16 +313,12 @@ const GeomLabel = <Datum,>({
                   y: entrance === 'data' ? y(d) : bottomPos,
                   fill: fill(d),
                   stroke: getStroke(d),
-                  // fillOpacity: 0,
-                  // strokeOpacity: 0,
                 })}
                 enter={(d) => ({
                   x: [x(d)],
                   y: [y(d)],
                   fill: fill(d),
                   stroke: getStroke(d),
-                  // fillOpacity: [fillOpacity],
-                  // strokeOpacity: [strokeOpacity],
                   timing: { duration, ease: easeCubic },
                 })}
                 update={(d) => ({
@@ -338,15 +326,11 @@ const GeomLabel = <Datum,>({
                   y: [y(d)],
                   fill: fill(d),
                   stroke: getStroke(d),
-                  // fillOpacity: firstRender ? fillOpacity : [fillOpacity],
-                  // strokeOpacity: firstRender ? strokeOpacity : [strokeOpacity],
                   timing: { duration, ease: easeCubic },
                 })}
                 leave={() => ({
                   fill: 'transparent',
                   stroke: 'transparent',
-                  // strokeOpacity: 0,
-                  // y: [bottomPos],
                   timing: { duration, ease: easeCubic },
                 })}
                 interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
@@ -355,13 +339,12 @@ const GeomLabel = <Datum,>({
                   <>
                     {nodes.map(({ state, key, data: nodeData }) => {
                       let styles = {}
-                      if (focusedKeys.includes(key))
-                        styles = focusedStyles
+                      if (focusedKeys.includes(key)) styles = focusedStyles
                       if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
                         styles = unfocusedStyles
-                      
+
                       const nodeX = x(nodeData) ?? 0
-                      
+
                       return (
                         <text
                           key={key}
@@ -374,29 +357,29 @@ const GeomLabel = <Datum,>({
                           strokeWidth={strokeWidth ?? 3}
                           paintOrder="stroke"
                           pointerEvents="none"
-                          textAnchor={props.textAnchor ?? (
-                            nodeX > (width / 2) ? 'end' : undefined
-                          )}
-                          dx={props.dx ?? (
-                            nodeX > width / 2 ? -7 : 7
-                          )}
+                          textAnchor={
+                            props.textAnchor ??
+                            (nodeX > width / 2 ? 'end' : undefined)
+                          }
+                          dx={props.dx ?? (nodeX > width / 2 ? -7 : 7)}
                           dy={props.dy ?? 3.8}
                           x={state.x}
                           y={state.y}
                           style={{
-                            fontFamily: (props.style?.fontFamily)
-                              ?? props.fontFamily
-                              ?? (font?.family)
-                              ?? "-apple-system, sans-serif",
+                            fontFamily:
+                              props.style?.fontFamily ??
+                              props.fontFamily ??
+                              font?.family ??
+                              '-apple-system, sans-serif',
                             fontSize: props?.fontSize ?? 11,
                             fontWeight: props?.fontWeight ?? 600,
-                            strokeLinecap: "round",
-                            strokeLinejoin: "round",
+                            strokeLinecap: 'round',
+                            strokeLinejoin: 'round',
                             ...styles,
                           }}
                           data-testid="__gg_geom_label"
                         >
-                          {label ?? (getLabel && getLabel(nodeData))}
+                          {getLabel(nodeData)}
                         </text>
                       )
                     })}
@@ -418,9 +401,9 @@ const GeomLabel = <Datum,>({
             y={y}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
-              const focusedIndexes = geomData.flatMap((gd, fi) => (
-                focusedKeys.includes(keyAccessor(gd)) ? fi : []
-              ))
+              const focusedIndexes = geomData.flatMap((gd, fi) =>
+                focusedKeys.includes(keyAccessor(gd)) ? fi : [],
+              )
 
               if (texts) {
                 focusNodes({
@@ -445,9 +428,9 @@ const GeomLabel = <Datum,>({
                   if (focusedKeys) {
                     focusNodes({
                       nodes: texts,
-                      focusedIndex: geomData.flatMap((d, i) => (
-                        focusedKeys.includes(keyAccessor(d)) ? i : []
-                      )),
+                      focusedIndex: geomData.flatMap((d, i) =>
+                        focusedKeys.includes(keyAccessor(d)) ? i : [],
+                      ),
                       focusedStyles,
                       unfocusedStyles,
                     })

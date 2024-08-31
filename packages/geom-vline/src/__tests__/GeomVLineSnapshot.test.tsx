@@ -9,7 +9,7 @@ import { aaplMarketcap } from './__data__/aaplMarketcap'
 
 // useful for controlling the randomly-generated ID given to graphique objects
 jest.mock('nanoid', () => ({
-  nanoid: jest.fn(() => 'test-id')
+  nanoid: jest.fn(() => 'test-id'),
 }))
 
 jest.useFakeTimers()
@@ -21,13 +21,14 @@ describe('a chart with vertical lines matches a snapshot', () => {
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: d => d.count!,
+            x: (d) => d.count!,
           }}
-          strokeDasharray='2,1'
+          strokeDasharray="2,1"
         />
-      </GGVLine>
+      </GGVLine>,
     )
 
+    await screen.findAllByTestId('__gg_geom_vline')
     act(() => jest.runAllTimers())
 
     expect(asFragment()).toMatchSnapshot()
@@ -36,28 +37,32 @@ describe('a chart with vertical lines matches a snapshot', () => {
   it('with another geom', async () => {
     const { user, asFragment } = setup(
       <GGVLine
-        data={penguins.filter(d => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}
+        data={penguins.filter((d) => DEFAULT_AES.x(d) && DEFAULT_AES?.y?.(d))}
         aes={{
           ...DEFAULT_AES,
-          fill: d => d.species
+          fill: (d) => d.species,
         }}
       >
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: d => d.count!,
+            x: (d) => d.count!,
           }}
-          strokeDasharray='2,1'
+          strokeDasharray="2,1"
           showTooltip={false}
         />
         <GeomPoint />
-      </GGVLine>
+      </GGVLine>,
     )
 
+    await screen.findAllByTestId('__gg_geom_vline')
     act(() => jest.runAllTimers())
 
     const eventArea = await screen.findByTestId('__gg_event_area')
-    await user.pointer({ target: eventArea, coords: { clientX: 250, clientY: 200 } })
+    await user.pointer({
+      target: eventArea,
+      coords: { clientX: 250, clientY: 200 },
+    })
 
     act(() => jest.runOnlyPendingTimers())
 
@@ -69,17 +74,15 @@ describe('a chart with vertical lines matches a snapshot', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: d => new Date(d.date),
-          y: d => d.marketCap
+          x: (d) => new Date(d.date),
+          y: (d) => d.marketCap,
         }}
       >
-        <GeomVLine
-          data={[aaplMarketcap[45]]}
-          strokeDasharray='2,1'
-        />
-      </GGVLine>
+        <GeomVLine data={[aaplMarketcap[45]]} strokeDasharray="2,1" />
+      </GGVLine>,
     )
 
+    await screen.findAllByTestId('__gg_geom_vline')
     act(() => jest.runAllTimers())
 
     expect(asFragment()).toMatchSnapshot()
