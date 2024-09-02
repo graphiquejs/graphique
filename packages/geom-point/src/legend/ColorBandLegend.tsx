@@ -10,6 +10,7 @@ import { interpolateRound } from 'd3-interpolate'
 import { select } from 'd3-selection'
 import { axisBottom } from 'd3-axis'
 import { range, quantile } from 'd3-array'
+import { transition } from 'd3-transition'
 
 export interface ColorBandLegendProps<Datum> {
   scales: IScale<Datum>
@@ -102,6 +103,8 @@ export const ColorBandLegend = <Datum,>({
         const ticks = select(ticksRef.current)
         const img = select(imageRef.current)
 
+        const t = transition().duration(duration)
+
         if (scale?.interpolate) {
           // scaleType = "continuous"
         } else if (scale?.interpolator) {
@@ -110,13 +113,13 @@ export const ColorBandLegend = <Datum,>({
             scale
               .copy()
               .interpolator(
-                interpolateRound(usedMargin.left, width - usedMargin.right)
+                interpolateRound(usedMargin.left, width - usedMargin.right),
               ),
             {
               range() {
                 return [usedMargin.left, width - usedMargin.right]
               },
-            }
+            },
           )
 
           img
@@ -130,20 +133,19 @@ export const ColorBandLegend = <Datum,>({
               ramp(
                 canvasRef.current as HTMLCanvasElement,
                 scale.interpolator(),
-                RAMP_N
-              ).toDataURL()
+                RAMP_N,
+              ).toDataURL(),
             )
 
           if (firstRender) {
             img
               .style('opacity', 0)
-              .transition()
-              .duration(duration)
+              .transition(t)
               .style(
                 'opacity',
                 ((scales?.fillScale && geoms?.point?.fillOpacity) ||
                   (scales?.strokeScale && geoms?.point?.strokeOpacity) ||
-                  undefined) as number | string
+                  undefined) as number | string,
               )
           }
 
@@ -151,7 +153,7 @@ export const ColorBandLegend = <Datum,>({
             if (tickValues === undefined) {
               const n = Math.round(numTicks + 1)
               tickValues = range(n).map((i: number) =>
-                quantile(scale.domain(), i / (n - 1))
+                quantile(scale.domain(), i / (n - 1)),
               )
             }
           }
@@ -165,21 +167,20 @@ export const ColorBandLegend = <Datum,>({
 
         axis
           .attr('transform', `translate(0,${height - usedMargin.bottom})`)
-          .transition()
-          .duration(duration)
+          .transition(t)
           .call(
             axisBottom(x)
               .ticks(
                 numTicks,
-                typeof tickFormat === 'string' ? tickFormat : undefined
+                typeof tickFormat === 'string' ? tickFormat : undefined,
               )
               .tickFormat(
                 typeof tickFormat === 'function'
                   ? (tickFormat as any)
-                  : undefined
+                  : undefined,
               )
               .tickSize(tickSize)
-              .tickValues(tickValues)
+              .tickValues(tickValues),
           )
 
         axis
@@ -199,16 +200,15 @@ export const ColorBandLegend = <Datum,>({
         // ticks whose color isn't depenedent on currentColor
         ticks
           .attr('transform', `translate(0,${height - usedMargin.bottom})`)
-          .transition()
-          .duration(duration)
+          .transition(t)
           .call(
             axisBottom(x)
               .ticks(
                 numTicks,
-                typeof tickFormat === 'string' ? tickFormat : undefined
+                typeof tickFormat === 'string' ? tickFormat : undefined,
               )
               .tickSize(1)
-              .tickFormat(() => '')
+              .tickFormat(() => ''),
           )
           .selectAll('line')
           .attr('stroke', '#111')
@@ -233,7 +233,7 @@ export const ColorBandLegend = <Datum,>({
       firstRender,
       isReversed,
       animationDuration,
-    ]
+    ],
   )
 
   useEffect(() => {

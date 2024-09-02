@@ -37,7 +37,8 @@
   "scripts": {
     "lint": "eslint ./ --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "typecheck": "attw --pack",
+    "typecheck:src": "tsc --noEmit",
+    "typecheck:build": "attw --pack",
     "build": "tsup --minify",
     "watch": "tsup --watch"
   },

@@ -44,13 +44,12 @@
     "lint": "npm run lint -w ./packages",
     "test": "jest --config test/jest.config.ts",
     "prepare": "husky",
-    "typecheck:all": "npm run typecheck -w ./packages",
-    "release": "npx lerna changed && npm run typecheck:all && npx lerna publish --no-private"
+    "build": "npm run build -ws",
+    "typecheck:src": "npm run typecheck:src -ws",
+    "typecheck:build": "npm run typecheck:build -w ./packages",
+    "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix --max-warnings=0"
-  },
-  "dependencies": {
-    "d3-shape": "^3.0.1"
   }
 }
