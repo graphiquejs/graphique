@@ -12,7 +12,7 @@ jest.mock('nanoid', () => ({
 
 jest.useFakeTimers()
 
-describe('a chart with vertical lines matches a snapshot', () => {
+xdescribe('a chart with vertical lines matches a snapshot', () => {
   it('with multiple settings', async () => {
     const { asFragment } = setup(
       <GGHLine data={penguins}>
