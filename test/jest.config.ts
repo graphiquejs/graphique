@@ -3,6 +3,7 @@ import type { Config } from 'jest'
 const config: Config = {
   preset: 'ts-jest',
   resetModules: true,
+  clearMocks: true,
   rootDir: '../',
   transform: {
     '^.+\\.(ts|tsx)?$': 'ts-jest',
