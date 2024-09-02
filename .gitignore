@@ -5,5 +5,5 @@ packages/*/dist
 .storybook
 .DS_Store
 testData*.json
-*.vnb
+notebooks/*
 !notebooks/demo.vnb
