@@ -31,7 +31,7 @@ jobs:
         run: npm run lint
 
       - name: 'test'
-        run: npm test -- --ci --runInBand
+        run: npm test -- --ci
 
       - name: 'typecheck build'
         run: npm run typecheck:build
