@@ -19,7 +19,7 @@ jobs:
           cache: npm
 
       - name: 'install dependencies'
-        run: npm ci
+        run: npm ci --cache .npm
 
       - name: 'build'
         run: npm run build
@@ -31,7 +31,7 @@ jobs:
         run: npm run lint
 
       - name: 'test'
-        run: npm test -- --ci
+        run: npm test -- --ci --runInBand
 
       - name: 'typecheck build'
         run: npm run typecheck:build
