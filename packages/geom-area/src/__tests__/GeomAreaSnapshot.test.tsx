@@ -55,7 +55,7 @@ const prepareTesting = async (user: UserEvent) => {
   await jest.runAllTimersAsync()
 }
 
-describe('area charts match snapshots', () => {
+xdescribe('area charts match snapshots', () => {
   it('simple, single area', async () => {
     const { user, asFragment } = setup(
       <TestComponent

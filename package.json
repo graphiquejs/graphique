@@ -44,7 +44,7 @@
     "lint": "npm run lint -w ./packages",
     "test": "jest --config test/jest.config.ts",
     "prepare": "husky",
-    "build": "npm run build -ws",
+    "build": "lerna run build",
     "typecheck:src": "npm run typecheck:src -ws",
     "typecheck:build": "npm run typecheck:build -w ./packages",
     "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"

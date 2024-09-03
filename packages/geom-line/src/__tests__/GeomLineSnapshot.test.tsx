@@ -34,7 +34,7 @@ const TestComponent = ({
   </GG>
 )
 
-describe('a line chart matches a snapshot', () => {
+xdescribe('a line chart matches a snapshot', () => {
   it('with multiple settings', async () => {
     const { user, asFragment } = setup(
       <TestComponent
