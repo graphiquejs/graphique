@@ -7,7 +7,12 @@ import {
 } from 'd3-scale'
 import { extent } from 'd3-array'
 import type { XYScaleProps, VisualEncodingProps } from '../atoms/scales/types'
-import type { DataValue, XYScaleTypes, VisualEncodingTypes, GGProps } from '../gg'
+import type {
+  DataValue,
+  XYScaleTypes,
+  VisualEncodingTypes,
+  GGProps,
+} from '../gg'
 import {
   defaultScheme,
   defaultInterpolator,
@@ -45,7 +50,7 @@ export interface AutoScale<Datum> extends GGProps<Datum> {
   copiedData: Datum[]
 }
 
-export const autoScale = <Datum,>({
+export const autoScale = <Datum>({
   scalesState,
   data,
   copiedData,
@@ -77,8 +82,16 @@ export const autoScale = <Datum,>({
     geomAesStrokes,
     geomAesFills,
   } = scalesState
-  const { domain: xScaleDomain, type: xScaleType, reverse: reverseX } = xScaleState || {}
-  const { domain: yScaleDomain, type: yScaleType, reverse: reverseY } = yScaleState || {}
+  const {
+    domain: xScaleDomain,
+    type: xScaleType,
+    reverse: reverseX,
+  } = xScaleState || {}
+  const {
+    domain: yScaleDomain,
+    type: yScaleType,
+    reverse: reverseY,
+  } = yScaleState || {}
   const {
     domain: fillScaleDomain,
     type: fillScaleType,
@@ -97,35 +110,30 @@ export const autoScale = <Datum,>({
   // used for maintaining the member order (domain) in categorical axes
   const sortDomain = (a: string, b: string, initialDomain: string[]) =>
     initialDomain.indexOf(a) - initialDomain.indexOf(b)
-  
-  const geomGroupAccessor = geomGroupAccessors.length ? geomGroupAccessors[0] : undefined
+
+  const geomGroupAccessor = geomGroupAccessors.length
+    ? geomGroupAccessors[0]
+    : undefined
 
   // identify groups
-  const group = (
-    aes?.fill ||
-    aes?.stroke ||
-    aes?.strokeDasharray ||
-    aes?.group
-  ) ? 
-  defineGroupAccessor(aes) :
-  geomGroupAccessor
+  const group =
+    aes?.fill || aes?.stroke || aes?.strokeDasharray || aes?.group
+      ? defineGroupAccessor(aes)
+      : geomGroupAccessor
 
   let hasCategoricalVar = aes.group || geomGroupAccessors.length || false
   const calculatedGroups = group
     ? (Array.from(new Set(data.map(group))) as string[])
-    : // .sort()
-      // .map(g => (g === null ? "[null]" : g))
-      // .sort()
-    ['__group']
+    : ['__group']
 
   const thisYAes = aes.y || (geomAesYs.length ? geomAesYs[0] : undefined)
   const resolvedYAes = thisYAes ?? y1Aes ?? y0Aes
-  const thisStrokeAes = aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
-  const thisFillAes = aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
+  const thisStrokeAes =
+    aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
+  const thisFillAes =
+    aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
 
-  
   /// SCALING ///
-
 
   let xScale
   const firstX = data.map(aes.x).find((d) => d !== null && d !== undefined)
@@ -134,9 +142,11 @@ export const autoScale = <Datum,>({
       (xScaleDomain as Date[]) || extent(data, aes.x as (d: unknown) => Date)
 
     const hasDomain =
-      typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined' &&
+      typeof domain[0] !== 'undefined' &&
+      typeof domain[1] !== 'undefined' &&
       // check for only null Dates
-      domain[0].valueOf() !== 0 && domain[1].valueOf() !== 0
+      domain[0].valueOf() !== 0 &&
+      domain[1].valueOf() !== 0
 
     xScale = scaleTime()
       .range([margin.left, width - margin.right])
@@ -156,7 +166,7 @@ export const autoScale = <Datum,>({
     xScale = xType()
       .range([margin.left, width - margin.right])
       .domain(hasDomain ? domain : [0, 1])
-  } else if (!firstX || typeof firstX === 'string') {
+  } else if (!Number.isFinite(firstX) || typeof firstX === 'string') {
     // hasCategoricalVar = true
     // maintain the existing order
     const initialDomain = Array.from(new Set(copiedData.map(aes.x))) as string[]
@@ -173,64 +183,16 @@ export const autoScale = <Datum,>({
   if (reverseX) xScale?.domain(xScale.domain().reverse())
 
   let yScale
-  // else if (y0Aes && y1Aes) {
 
-  //   const firstY = data.map(y1Aes).find((d) => d !== null && d !== undefined)
-
-  //   if (isDate(firstY)) {
-  //     const domain =
-  //       (yScaleDomain as Date[]) || extent(data.map(d => [(y0Aes(d) as Date), (y1Aes(d) as Date)]).flat())
-
-  //     const hasDomain =
-  //       typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
-
-  //     yScale = scaleTime()
-  //       .range([height - margin.bottom, margin.top])
-  //       .domain(hasDomain ? domain : [0, 1])
-  //   } else if (typeof firstY === 'number') {
-  //     const defaultDomain = extent(data.map(d => [(y0Aes(d) as number), (y1Aes(d) as number)]).flat())
-
-  //     const domain = (yScaleDomain as number[]) || [
-  //       hasZeroYBaseLine ? 0 : defaultDomain[0],
-  //       defaultDomain[1],
-  //     ]
-
-  //     const hasDomain =
-  //       typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
-
-  //     const yType: any = yScaleType || scaleLinear
-
-  //     yScale = yType()
-  //       .range([height - margin.bottom, margin.top])
-  //       .domain(hasDomain ? domain : [0, 1])
-  //   } else {
-  //     yScale = scaleLinear()
-  //       .range([height - margin.bottom, margin.top])
-  //       .domain([0, 0])
-  //   }
-    // else if (!firstY || typeof firstY === 'string') {
-    //   // hasCategoricalVar = true
-    //   // maintain the existing order
-    //   const initialDomain = Array.from(
-    //     new Set(copiedData.map(aes.y))
-    //   ) as string[]
-    //   const computedDomain = Array.from(new Set(data.map(aes.y))) as string[]
-
-    //   const domain =
-    //     (yScaleDomain as string[]) ||
-    //     computedDomain.sort((a, b) => sortDomain(a, b, initialDomain))
-
-    //   yScale = scaleBand()
-    //     .range([margin.top, height - margin.bottom])
-    //     .domain(domain)
-    //   // .padding(0.2)
-    // }
-   if (resolvedYAes) {
-    const firstY = data.map(resolvedYAes).find((d) => d !== null && d !== undefined)
+  if (resolvedYAes) {
+    const firstY = data
+      .map(resolvedYAes)
+      .find((d) => d !== null && d !== undefined)
 
     if (isDate(firstY)) {
       const domain =
-        (yScaleDomain as Date[]) || extent(data, thisYAes as (d: unknown) => Date)
+        (yScaleDomain as Date[]) ||
+        extent(data, thisYAes as (d: unknown) => Date)
 
       const hasDomain =
         typeof domain[0] !== 'undefined' && typeof domain[1] !== 'undefined'
@@ -254,13 +216,15 @@ export const autoScale = <Datum,>({
       yScale = yType()
         .range([height - margin.bottom, margin.top])
         .domain(hasDomain ? domain : [0, 1])
-    } else if (!firstY || typeof firstY === 'string') {
+    } else if (!Number.isFinite(firstY) || typeof firstY === 'string') {
       // hasCategoricalVar = true
       // maintain the existing order
       const initialDomain = Array.from(
-        new Set(copiedData.map(resolvedYAes))
+        new Set(copiedData.map(resolvedYAes)),
       ) as string[]
-      const computedDomain = Array.from(new Set(data.map(resolvedYAes))) as string[]
+      const computedDomain = Array.from(
+        new Set(data.map(resolvedYAes)),
+      ) as string[]
 
       const domain =
         (yScaleDomain as string[]) ||
@@ -269,7 +233,6 @@ export const autoScale = <Datum,>({
       yScale = scaleBand()
         .range([margin.top, height - margin.bottom])
         .domain(domain)
-      // .padding(0.2)
     }
   } else {
     yScale = scaleLinear()
@@ -297,7 +260,7 @@ export const autoScale = <Datum,>({
           fillScale = fillType()
             .domain(domain)
             .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator
+              (fillScaleColors as (t: number) => string) || defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'sequentialLog':
@@ -308,7 +271,7 @@ export const autoScale = <Datum,>({
           fillScale = fillType()
             .domain(domain)
             .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator
+              (fillScaleColors as (t: number) => string) || defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'sequentialSqrt':
@@ -319,7 +282,7 @@ export const autoScale = <Datum,>({
           fillScale = fillType()
             .domain(domain)
             .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator
+              (fillScaleColors as (t: number) => string) || defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'ordinal':
@@ -329,7 +292,7 @@ export const autoScale = <Datum,>({
           fillScale = fillType()
             .domain(domain)
             .range(
-              (fillScaleColors as string[]) || defaultScheme
+              (fillScaleColors as string[]) || defaultScheme,
             ) as VisualEncodingTypes
           break
         default:
@@ -339,17 +302,17 @@ export const autoScale = <Datum,>({
           fillScale = fillType()
             .domain(domain)
             .range(
-              (fillScaleColors as string[]) || defaultScheme
+              (fillScaleColors as string[]) || defaultScheme,
             ) as VisualEncodingTypes
       }
-    } else if (!firstFill || typeof firstFill === 'string') {
+    } else if (!Number.isFinite(firstFill) || typeof firstFill === 'string') {
       hasCategoricalVar = true
       const domain = (fillScaleDomain as string[]) || calculatedGroups
 
       fillScale = scaleOrdinal()
         .domain(domain)
         .range(
-          (fillScaleColors as string[]) || defaultScheme
+          (fillScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     } else if (isDate(firstFill) || typeof firstFill === 'number') {
       const domain =
@@ -359,7 +322,7 @@ export const autoScale = <Datum,>({
       fillScale = scaleSequential()
         .domain(domain)
         .interpolator(
-          (fillScaleColors as (t: number) => string) || defaultInterpolator
+          (fillScaleColors as (t: number) => string) || defaultInterpolator,
         ) as VisualEncodingTypes
     }
   }
@@ -385,7 +348,7 @@ export const autoScale = <Datum,>({
             .domain(domain)
             .interpolator(
               (strokeScaleColors as (t: number) => string) ||
-                defaultInterpolator
+                defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'sequentialLog':
@@ -397,7 +360,7 @@ export const autoScale = <Datum,>({
             .domain(domain)
             .interpolator(
               (strokeScaleColors as (t: number) => string) ||
-                defaultInterpolator
+                defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'sequentialSqrt':
@@ -409,7 +372,7 @@ export const autoScale = <Datum,>({
             .domain(domain)
             .interpolator(
               (strokeScaleColors as (t: number) => string) ||
-                defaultInterpolator
+                defaultInterpolator,
             ) as VisualEncodingTypes
           break
         case 'ordinal':
@@ -419,7 +382,7 @@ export const autoScale = <Datum,>({
           strokeScale = strokeType()
             .domain(domain)
             .range(
-              (strokeScaleColors as string[]) || defaultScheme
+              (strokeScaleColors as string[]) || defaultScheme,
             ) as VisualEncodingTypes
           break
         default:
@@ -429,17 +392,20 @@ export const autoScale = <Datum,>({
           strokeScale = strokeType()
             .domain(domain)
             .range(
-              (strokeScaleColors as string[]) || defaultScheme
+              (strokeScaleColors as string[]) || defaultScheme,
             ) as VisualEncodingTypes
       }
-    } else if (!firstStroke || typeof firstStroke === 'string') {
+    } else if (
+      !Number.isFinite(firstStroke) ||
+      typeof firstStroke === 'string'
+    ) {
       hasCategoricalVar = true
       const domain = (strokeScaleDomain as string[]) || calculatedGroups
 
       strokeScale = scaleOrdinal()
         .domain(domain)
         .range(
-          (strokeScaleColors as string[]) || defaultScheme
+          (strokeScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     } else if (isDate(firstStroke) || typeof firstStroke === 'number') {
       const domain =
@@ -449,7 +415,7 @@ export const autoScale = <Datum,>({
       strokeScale = scaleSequential()
         .domain(domain)
         .interpolator(
-          (strokeScaleColors as (t: number) => string) || defaultInterpolator
+          (strokeScaleColors as (t: number) => string) || defaultInterpolator,
         ) as VisualEncodingTypes
     }
   }
@@ -464,7 +430,7 @@ export const autoScale = <Datum,>({
     strokeDasharrayScale = scaleOrdinal()
       .domain(domain)
       .range(
-        (strokeDasharrays as string[]) || defaultDasharrays
+        (strokeDasharrays as string[]) || defaultDasharrays,
       ) as VisualEncodingTypes
   }
 
