@@ -27,7 +27,7 @@ import {
   defineGroupAccessor,
   Aes,
   BrushAction,
-  PageVisibility,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
@@ -75,6 +75,8 @@ const GeomPoint = <Datum,>({
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
   const [{ isFixed: isFixedX }] = useAtom(xScaleState)
   const [{ isFixed: isFixedY }] = useAtom(yScaleState)
+
+  const isVisible = usePageVisibility()
 
   const { domain: sizeDomain, range: sizeRange } = radiusScale || {}
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
@@ -322,98 +324,89 @@ const GeomPoint = <Datum,>({
         ref={groupRef}
         clipPath={shouldClip ? `url(#__gg_canvas_${id})` : undefined}
       >
-        <PageVisibility>
-          {(isVisible) =>
-            !firstRender &&
-            isVisible && (
-              <NodeGroup
-                data={[...(geomData as any[])]}
-                keyAccessor={(d) =>
-                  geomAes?.key
-                    ? keyAccessor(d)
-                    : `${keyAccessor(d)}-${d.gg_gen_index}`
-                }
-                start={(d) => ({
-                  cx: x(d),
-                  cy: entrance === 'data' ? y(d) : bottomPos,
-                  fill: fill(d),
-                  stroke: stroke(d),
-                  r: 0,
-                  fillOpacity: 0,
-                  strokeOpacity: 0,
+        {!firstRender && isVisible && (
+          <NodeGroup
+            data={[...(geomData as any[])]}
+            keyAccessor={(d) =>
+              geomAes?.key
+                ? keyAccessor(d)
+                : `${keyAccessor(d)}-${d.gg_gen_index}`
+            }
+            start={(d) => ({
+              cx: x(d),
+              cy: entrance === 'data' ? y(d) : bottomPos,
+              fill: fill(d),
+              stroke: stroke(d),
+              r: 0,
+              fillOpacity: 0,
+              strokeOpacity: 0,
+            })}
+            enter={(d) => ({
+              cx: [x(d)],
+              cy: [y(d)],
+              r: [
+                geomAes?.size ? radius(geomAes.size(d) as number) : radius(d),
+              ],
+              fill: [fill(d)],
+              stroke: [stroke(d)],
+              fillOpacity: [fillOpacity],
+              strokeOpacity: [strokeOpacity],
+              timing: { duration, ease: easeCubic },
+            })}
+            update={(d) => ({
+              cx: [x(d)],
+              cy: [y(d)],
+              fill: firstRender ? fill(d) : [fill(d)],
+              stroke: firstRender ? stroke(d) : [stroke(d)],
+              r: [
+                geomAes?.size ? radius(geomAes.size(d) as number) : radius(d),
+              ],
+              fillOpacity: [fillOpacity],
+              strokeOpacity: [strokeOpacity],
+              timing: { duration, ease: easeCubic },
+            })}
+            leave={() => ({
+              fill: ['transparent'],
+              stroke: ['transparent'],
+              cy: [bottomPos],
+              timing: { duration, ease: easeCubic },
+            })}
+            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+          >
+            {(nodes) => (
+              <>
+                {nodes.map(({ state, key }) => {
+                  let styles = {}
+                  if (validFocusedKeys.includes(key)) styles = focusedStyles
+                  if (
+                    validFocusedKeys?.length > 0 &&
+                    !validFocusedKeys.includes(key)
+                  )
+                    styles = unfocusedStyles
+                  return (
+                    <circle
+                      key={key}
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...props}
+                      r={state.r >= 0 ? state.r : r}
+                      fill={state.fill}
+                      stroke={state.stroke}
+                      cx={state.cx}
+                      cy={state.cy}
+                      fillOpacity={state.fillOpacity}
+                      strokeOpacity={state.strokeOpacity}
+                      style={{
+                        pointerEvents: 'none',
+                        ...styles,
+                      }}
+                      data-testid="__gg_geom_point"
+                    />
+                  )
                 })}
-                enter={(d) => ({
-                  cx: [x(d)],
-                  cy: [y(d)],
-                  r: [
-                    geomAes?.size
-                      ? radius(geomAes.size(d) as number)
-                      : radius(d),
-                  ],
-                  fill: [fill(d)],
-                  stroke: [stroke(d)],
-                  fillOpacity: [fillOpacity],
-                  strokeOpacity: [strokeOpacity],
-                  timing: { duration, ease: easeCubic },
-                })}
-                update={(d) => ({
-                  cx: [x(d)],
-                  cy: [y(d)],
-                  fill: firstRender ? fill(d) : [fill(d)],
-                  stroke: firstRender ? stroke(d) : [stroke(d)],
-                  r: [
-                    geomAes?.size
-                      ? radius(geomAes.size(d) as number)
-                      : radius(d),
-                  ],
-                  fillOpacity: [fillOpacity],
-                  strokeOpacity: [strokeOpacity],
-                  timing: { duration, ease: easeCubic },
-                })}
-                leave={() => ({
-                  fill: ['transparent'],
-                  stroke: ['transparent'],
-                  cy: [bottomPos],
-                  timing: { duration, ease: easeCubic },
-                })}
-                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-              >
-                {(nodes) => (
-                  <>
-                    {nodes.map(({ state, key }) => {
-                      let styles = {}
-                      if (validFocusedKeys.includes(key)) styles = focusedStyles
-                      if (
-                        validFocusedKeys?.length > 0 &&
-                        !validFocusedKeys.includes(key)
-                      )
-                        styles = unfocusedStyles
-                      return (
-                        <circle
-                          key={key}
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...props}
-                          r={state.r >= 0 ? state.r : r}
-                          fill={state.fill}
-                          stroke={state.stroke}
-                          cx={state.cx}
-                          cy={state.cy}
-                          fillOpacity={state.fillOpacity}
-                          strokeOpacity={state.strokeOpacity}
-                          style={{
-                            pointerEvents: 'none',
-                            ...styles,
-                          }}
-                          data-testid="__gg_geom_point"
-                        />
-                      )
-                    })}
-                  </>
-                )}
-              </NodeGroup>
-            )
-          }
-        </PageVisibility>
+              </>
+            )}
+          </NodeGroup>
+        )}
       </g>
       {(showTooltip || brushAction) && geomAes && (
         <>

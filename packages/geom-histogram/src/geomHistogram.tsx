@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   useGG,
-  PageVisibility,
+  usePageVisibility,
   tooltipState,
   themeState,
   xScaleState,
@@ -35,6 +35,8 @@ const GeomHistogram = <Datum,>({
   const [{ xDomain: xZoomDomain }] = useAtom(zoomState)
   const [, setTooltip] = useAtom(tooltipState)
   const [, setTheme] = useAtom(themeState)
+
+  const isVisible = usePageVisibility()
 
   const group = useMemo(() => scales?.groupAccessor, [scales])
   const groups = useMemo(() => scales?.groups || ['__group'], [scales])
@@ -179,33 +181,27 @@ const GeomHistogram = <Datum,>({
 
   return !firstRender ? (
     <>
-      <PageVisibility>
-        {(isVisible) =>
-          isVisible && (
-            <>
-              <GeomCol<any>
-                data={binData}
-                aes={{
-                  ...aes,
-                  x: (d: HistogramBin) => d.x0 as number,
-                  y: (d: HistogramBin) => (isRelative ? d.n / total : d.n),
-                  fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
-                  stroke: aes?.stroke
-                    ? (d: HistogramBin) => d.group
-                    : undefined,
-                  key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
-                }}
-                xPadding={xPadding}
-                align={reversedX ? 'right' : align}
-                position="identity"
-                showTooltip={showTooltip}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...props}
-              />
-            </>
-          )
-        }
-      </PageVisibility>
+      {isVisible && (
+        <>
+          <GeomCol<any>
+            data={binData}
+            aes={{
+              ...aes,
+              x: (d: HistogramBin) => d.x0 as number,
+              y: (d: HistogramBin) => (isRelative ? d.n / total : d.n),
+              fill: aes?.fill ? (d: HistogramBin) => d.group : undefined,
+              stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
+              key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
+            }}
+            xPadding={xPadding}
+            align={reversedX ? 'right' : align}
+            position="identity"
+            showTooltip={showTooltip}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        </>
+      )}
     </>
   ) : null
 }
