@@ -15,7 +15,7 @@ export const GG = <Datum,>({ children, ...props }: RootGGProps<Datum>) => {
   const ggRef = useRef<HTMLDivElement>(null)
 
   const [ggWidth, setGGWidth] = useState(
-    isContainerWidth ? ggRef.current?.clientWidth : width
+    isContainerWidth ? ggRef.current?.clientWidth : width,
   )
 
   useLayoutEffect(() => {
@@ -24,18 +24,15 @@ export const GG = <Datum,>({ children, ...props }: RootGGProps<Datum>) => {
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
-      const rect = entries[0].contentRect;
-      if (isContainerWidth)
-        setGGWidth(rect.width)
-    });
-    if (ggRef.current && isContainerWidth)
-      observer.observe(ggRef.current)
+      const rect = entries[0].contentRect
+      if (isContainerWidth) setGGWidth(rect.width)
+    })
+    if (ggRef.current && isContainerWidth) observer.observe(ggRef.current)
 
     return () => {
-      if (ggRef.current && isContainerWidth)
-        observer.unobserve(ggRef.current)
+      if (ggRef.current && isContainerWidth) observer.unobserve(ggRef.current)
     }
-  }, [isContainerWidth]);
+  }, [isContainerWidth])
 
   const id = useMemo(() => generateID(), [])
 
