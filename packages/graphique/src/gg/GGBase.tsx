@@ -7,10 +7,10 @@ import React, {
   useEffect,
 } from 'react'
 import { useAtom } from 'jotai'
-import flattenChildren from 'react-flatten-children'
-import PageVisibility from 'react-page-visibility'
+import { usePageVisibility } from 'react-page-visibility'
 import type { Aes, DataValue, GGProps } from './types'
 import { defineGroupAccessor } from '../util/defineGroupAccessor'
+import { flattenChildren } from '../util/flattenChildren'
 import { type IScale, autoScale } from '../util/autoScale'
 import { XAxis, YAxis } from './axes'
 import {
@@ -61,6 +61,8 @@ export const GGBase = <Datum,>({
   const [fillScale] = useAtom(fillScaleState)
   const [strokeScale] = useAtom(strokeScaleState)
   const [strokeDasharrayScale] = useAtom(strokeDasharrayState)
+
+  const isVisible = usePageVisibility()
 
   const [ggData, setGGData] = useState(data)
 
@@ -263,18 +265,14 @@ export const GGBase = <Datum,>({
           </div>
         )}
         <svg ref={ggRef} width={ggWidth} height={height}>
-          <PageVisibility>
-            {(isVisible) =>
-              isVisible && (
-                <>
-                  {axisX && <XAxis ggState={ggState} />}
-                  {axisY && <YAxis ggState={ggState} />}
-                  {geoms}
-                  <g id={`__gg-brush-exclusion-${id}`} />
-                </>
-              )
-            }
-          </PageVisibility>
+          {isVisible && (
+            <>
+              {axisX && <XAxis ggState={ggState} />}
+              {axisY && <YAxis ggState={ggState} />}
+              {geoms}
+              <g id={`__gg-brush-exclusion-${id}`} />
+            </>
+          )}
         </svg>
         {/* zoom out portal */}
         <div style={{ position: 'relative' }}>
