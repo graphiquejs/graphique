@@ -19,12 +19,12 @@ describe('line chart basics with GeomLine', () => {
   it('renders a single-lined line chart correctly', async () => {
     render(
       <GGLine
-        data={stocks.filter(s => s.symbol === 'AAPL')}
+        data={stocks.filter((s) => s.symbol === 'AAPL')}
         aes={{
           ...DEFAULT_AES,
           stroke: undefined,
         }}
-      />
+      />,
     )
 
     act(() => jest.runAllTimers())
@@ -56,16 +56,21 @@ describe('line chart basics with GeomLine', () => {
     expect(lines).toHaveLength(NUM_GROUPS)
 
     // with default stroke colors
-    const lineStrokes = lines.map(l => l.getAttribute('stroke'))
-    const hasSameNumStrokes = lineStrokes.length === DEFAULT_GROUP_STROKES.length
+    const lineStrokes = lines.map((l) => l.getAttribute('stroke'))
+    const hasSameNumStrokes =
+      lineStrokes.length === DEFAULT_GROUP_STROKES.length
     expect(
       hasSameNumStrokes &&
-        lineStrokes.every((stroke, i) => stroke === DEFAULT_GROUP_STROKES[i])
+        lineStrokes.every((stroke, i) => stroke === DEFAULT_GROUP_STROKES[i]),
     ).toBeTruthy()
 
     // with default stroke width
-    const lineStrokeWidths = lines.map(l => l.getAttribute('stroke-width'))
-    expect(lineStrokeWidths.every(strokeWidth => strokeWidth === DEFAULT_STROKE_WIDTH)).toBeTruthy()
+    const lineStrokeWidths = lines.map((l) => l.getAttribute('stroke-width'))
+    expect(
+      lineStrokeWidths.every(
+        (strokeWidth) => strokeWidth === DEFAULT_STROKE_WIDTH,
+      ),
+    ).toBeTruthy()
   })
 
   it('has no lines when empty data', () => {
@@ -80,16 +85,14 @@ describe('line chart basics with GeomLine', () => {
 
   it('renders correctly with local aesthetics and data', async () => {
     render(
-      <GGLine
-        aes={{ x: DEFAULT_AES.x }}
-      >
+      <GGLine aes={{ x: DEFAULT_AES.x }}>
         <GeomLine
           aes={{
             y: DEFAULT_AES.y,
-            stroke: DEFAULT_AES.stroke
+            stroke: DEFAULT_AES.stroke,
           }}
         />
-      </GGLine>
+      </GGLine>,
     )
 
     const chart = screen.queryByTestId('__gg_gg')
@@ -105,18 +108,21 @@ describe('line chart basics with GeomLine', () => {
         aes={{
           x: DEFAULT_AES.x,
           y: DEFAULT_AES.y,
-          strokeDasharray: DEFAULT_AES.stroke
+          strokeDasharray: DEFAULT_AES.stroke,
         }}
-      />
+      />,
     )
 
     const lines = await screen.findAllByTestId('__gg_geom_line')
-    const lineDasharrays = lines.map(l => l.getAttribute('stroke-dasharray'))
-    const hasSameNumDasharrays = lineDasharrays.length === DEFAULT_DASHARRAYS.length
+    const lineDasharrays = lines.map((l) => l.getAttribute('stroke-dasharray'))
+    const hasSameNumDasharrays =
+      lineDasharrays.length === DEFAULT_DASHARRAYS.length
 
     expect(
       hasSameNumDasharrays &&
-        lineDasharrays.every((dashArray, i) => dashArray === DEFAULT_DASHARRAYS[i])
+        lineDasharrays.every(
+          (dashArray, i) => dashArray === DEFAULT_DASHARRAYS[i],
+        ),
     ).toBeTruthy()
   })
 
@@ -126,9 +132,9 @@ describe('line chart basics with GeomLine', () => {
         aes={{
           x: DEFAULT_AES.x,
           y: DEFAULT_AES.y,
-          group: DEFAULT_AES.stroke
+          group: DEFAULT_AES.stroke,
         }}
-      />
+      />,
     )
 
     // a line for each group
@@ -136,8 +142,10 @@ describe('line chart basics with GeomLine', () => {
     expect(lines).toHaveLength(NUM_GROUPS)
 
     // lines have the default stroke
-    const lineStrokes = lines.map(l => l.getAttribute('stroke'))
-    expect(lineStrokes.every(stroke => stroke === DEFAULT_SINGLE_STROKE)).toBeTruthy()
+    const lineStrokes = lines.map((l) => l.getAttribute('stroke'))
+    expect(
+      lineStrokes.every((stroke) => stroke === DEFAULT_SINGLE_STROKE),
+    ).toBeTruthy()
   })
 
   it('accepts other svg path attributes given directly to lines', async () => {
@@ -152,7 +160,7 @@ describe('line chart basics with GeomLine', () => {
           stroke={STROKE}
           strokeDasharray={DASHARRAY}
         />
-      </GGLine>
+      </GGLine>,
     )
 
     const lines = await screen.findAllByTestId('__gg_geom_line')
@@ -162,18 +170,19 @@ describe('line chart basics with GeomLine', () => {
         const lineStroke = l.getAttribute('stroke')
         const lineDasharray = l.getAttribute('stroke-dasharray')
 
-        return lineOpacity === OPACITY && lineStroke === STROKE && lineDasharray === DASHARRAY
-      })
+        return (
+          lineOpacity === OPACITY &&
+          lineStroke === STROKE &&
+          lineDasharray === DASHARRAY
+        )
+      }),
     ).toBeTruthy()
   })
 
   it('renders discontinuous paths when given missing y values', async () => {
-    render(
-      <GGLine data={undefinedYValData} />
-    )
+    render(<GGLine data={undefinedYValData} />)
 
     const lines = await screen.findAllByTestId('__gg_geom_line')
     expect(lines).toHaveLength(NUM_GROUPS)
   })
 })
-
