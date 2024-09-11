@@ -13,7 +13,7 @@ const config: Config = {
   moduleNameMapper: {
     '^d3-((?!(interpolate-path)).*)': '<rootDir>/node_modules/d3-$1/dist/d3-$1',
     '^nanoid': '<rootDir>/node_modules/nanoid/index.cjs',
-    '^@graphique/(.*)$': '<rootDir>/packages/$1/src',
+    '^@graphique/(.*)$': '<rootDir>/packages/$1/dist/index.cjs',
   },
   setupFilesAfterEnv: [
     '<rootDir>/test/jest.setup.ts',

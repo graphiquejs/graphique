@@ -23,7 +23,7 @@ import {
   isDate,
   defineGroupAccessor,
   BrushAction,
-  PageVisibility,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { type GeomAes } from './types'
 import { Tooltip } from './tooltip'
@@ -72,6 +72,8 @@ const GeomLabel = <Datum,>({
   const [{ xDomain: xZoomDomain, yDomain: yZoomDomain }] = useAtom(zoomState)
   const [{ isFixed: isFixedX }] = useAtom(xScaleState)
   const [{ isFixed: isFixedY }] = useAtom(yScaleState)
+
+  const isVisible = usePageVisibility()
 
   const { fill: fillColor, stroke: strokeColor, strokeWidth } = { ...props }
   const { defaultFill, animationDuration: duration, font } = theme
@@ -297,98 +299,93 @@ const GeomLabel = <Datum,>({
         ref={groupRef}
         clipPath={shouldClip ? `url(#__gg_canvas_${id})` : undefined}
       >
-        <PageVisibility>
-          {(isVisible) =>
-            !firstRender &&
-            isVisible && (
-              <NodeGroup
-                data={[...geomData]}
-                keyAccessor={(d) =>
-                  geomAes?.key
-                    ? keyAccessor(d)
-                    : `${keyAccessor(d)}-${d.gg_gen_index}`
-                }
-                start={(d) => ({
-                  x: x(d),
-                  y: entrance === 'data' ? y(d) : bottomPos,
-                  fill: fill(d),
-                  stroke: getStroke(d),
-                })}
-                enter={(d) => ({
-                  x: [x(d)],
-                  y: [y(d)],
-                  fill: fill(d),
-                  stroke: getStroke(d),
-                  timing: { duration, ease: easeCubic },
-                })}
-                update={(d) => ({
-                  x: [x(d)],
-                  y: [y(d)],
-                  fill: fill(d),
-                  stroke: getStroke(d),
-                  timing: { duration, ease: easeCubic },
-                })}
-                leave={() => ({
-                  fill: 'transparent',
-                  stroke: 'transparent',
-                  timing: { duration, ease: easeCubic },
-                })}
-                interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
-              >
-                {(nodes) => (
-                  <>
-                    {nodes.map(({ state, key, data: nodeData }) => {
-                      let styles = {}
-                      if (focusedKeys.includes(key)) styles = focusedStyles
-                      if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
-                        styles = unfocusedStyles
+        {!firstRender && isVisible && (
+          <NodeGroup
+            data={[...geomData]}
+            keyAccessor={(d) =>
+              geomAes?.key
+                ? keyAccessor(d)
+                : `${keyAccessor(d)}-${d.gg_gen_index}`
+            }
+            start={(d) => ({
+              x: x(d),
+              y: entrance === 'data' ? y(d) : bottomPos,
+              fill: fill(d),
+              stroke: getStroke(d),
+            })}
+            enter={(d) => ({
+              x: [x(d)],
+              y: [y(d)],
+              fill: fill(d),
+              stroke: getStroke(d),
+              timing: { duration, ease: easeCubic },
+            })}
+            update={(d) => ({
+              x: [x(d)],
+              y: [y(d)],
+              fill: fill(d),
+              stroke: getStroke(d),
+              timing: { duration, ease: easeCubic },
+            })}
+            leave={() => ({
+              fill: 'transparent',
+              stroke: 'transparent',
+              timing: { duration, ease: easeCubic },
+            })}
+            interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
+          >
+            {(nodes) => (
+              <>
+                {nodes.map(({ state, key, data: nodeData }) => {
+                  let styles = {}
+                  if (focusedKeys.includes(key)) styles = focusedStyles
+                  if (focusedKeys?.length > 0 && !focusedKeys.includes(key))
+                    styles = unfocusedStyles
 
-                      const nodeX = x(nodeData) ?? 0
+                  const nodeX = x(nodeData) ?? 0
 
-                      return (
-                        <text
-                          key={key}
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...props}
-                          fillOpacity={state.fillOpacity}
-                          strokeOpacity={state.strokeOpacity}
-                          stroke={state.stroke}
-                          fill={state.fill}
-                          strokeWidth={strokeWidth ?? 3}
-                          paintOrder="stroke"
-                          pointerEvents="none"
-                          textAnchor={
-                            props.textAnchor ??
-                            (nodeX > width / 2 ? 'end' : undefined)
-                          }
-                          dx={props.dx ?? (nodeX > width / 2 ? -7 : 7)}
-                          dy={props.dy ?? 3.8}
-                          x={state.x}
-                          y={state.y}
-                          style={{
-                            fontFamily:
-                              props.style?.fontFamily ??
-                              props.fontFamily ??
-                              font?.family ??
-                              '-apple-system, sans-serif',
-                            fontSize: props?.fontSize ?? 11,
-                            fontWeight: props?.fontWeight ?? 600,
-                            strokeLinecap: 'round',
-                            strokeLinejoin: 'round',
-                            ...styles,
-                          }}
-                          data-testid="__gg_geom_label"
-                        >
-                          {getLabel(nodeData)}
-                        </text>
-                      )
-                    })}
-                  </>
-                )}
-              </NodeGroup>
-            )
-          }
-        </PageVisibility>
+                  return (
+                    <text
+                      key={key}
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...props}
+                      fillOpacity={state.fillOpacity}
+                      strokeOpacity={state.strokeOpacity}
+                      stroke={state.stroke}
+                      fill={state.fill}
+                      strokeWidth={strokeWidth ?? 3}
+                      paintOrder="stroke"
+                      pointerEvents="none"
+                      textAnchor={
+                        props.textAnchor ??
+                        (nodeX > width / 2 ? 'end' : undefined)
+                      }
+                      dx={props.dx ?? (nodeX > width / 2 ? -7 : 7)}
+                      dy={props.dy ?? 3.8}
+                      x={state.x}
+                      y={state.y}
+                      style={{
+                        fontFamily:
+                          props.style?.fontFamily ??
+                          props.fontFamily ??
+                          font?.family ??
+                          '-apple-system, sans-serif',
+                        fontSize: props?.fontSize ?? 11,
+                        fontWeight: props?.fontWeight ?? 600,
+                        strokeLinecap: 'round',
+                        strokeLinejoin: 'round',
+                        ...styles,
+                      }}
+                      data-testid="__gg_geom_label"
+                    >
+                      {getLabel(nodeData)}
+                    </text>
+                  )
+                })}
+              </>
+            )}
+          </NodeGroup>
+        )}
       </g>
       {(showTooltip || brushAction) && geomAes && (
         <>

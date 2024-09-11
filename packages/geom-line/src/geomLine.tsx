@@ -14,13 +14,13 @@ import {
   EventArea,
   BrushAction,
   isDate,
-  PageVisibility,
   focusNodes,
   unfocusNodes,
   strokeScaleState,
   VisualEncodingTypes,
   defaultScheme,
   DataValue,
+  usePageVisibility,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -81,6 +81,8 @@ const GeomLine = <Datum,>({
   const [{ datum: tooltipDatum }] = useAtom(tooltipState)
   const [{ values: strokeScaleColors, domain: strokeDomain }] =
     useAtom(strokeScaleState)
+
+  const isVisible = usePageVisibility()
 
   const geomData = localData || data
   const geomAes = useMemo(() => {
@@ -314,138 +316,75 @@ const GeomLine = <Datum,>({
   return (
     <>
       <g ref={groupRef}>
-        <PageVisibility>
-          {(isVisible) =>
-            !firstRender &&
-            !allXUndefined &&
-            !allYUndefined &&
-            isVisible && (
-              <>
-                {geomData && groups && group ? (
-                  groups.map((g) => {
-                    const groupData = geomData.filter((d) => group(d) === g)
+        {isVisible && !firstRender && !allXUndefined && !allYUndefined && (
+          <>
+            {geomData && groups && group ? (
+              groups.map((g) => {
+                const groupData = geomData.filter((d) => group(d) === g)
 
-                    const groupLineData = groupData.map((d) => [
-                      x(d),
-                      y(d),
-                    ]) as []
+                const groupLineData = groupData.map((d) => [x(d), y(d)]) as []
 
-                    const thisKey =
-                      geomAes?.key?.(groupData[0]) ?? `${geomID}-${g}`
+                const thisKey = geomAes?.key?.(groupData[0]) ?? `${geomID}-${g}`
 
-                    const thisStrokeGroups =
-                      geomStrokeScale && geomAes?.stroke
-                        ? Array.from(
-                            new Set(
-                              groupData.map(
-                                (gd) => geomAes.stroke && geomAes.stroke(gd),
-                              ),
-                            ),
-                          )
-                        : undefined
-
-                    let thisStroke =
-                      strokeColor ||
-                      (geomStrokeScale && geomStrokeScale(g)) ||
-                      (copiedScales?.strokeScale
-                        ? copiedScales.strokeScale(g)
-                        : defaultStroke)
-
-                    if (thisStrokeGroups && geomStrokeScale) {
-                      thisStrokeGroups.forEach((fg) => {
-                        thisStroke = geomStrokeScale(fg)
-                      })
-                    }
-
-                    const thisDasharray =
-                      strokeDasharray ||
-                      (copiedScales?.strokeDasharrayScale
-                        ? copiedScales.strokeDasharrayScale(
-                            geomAes?.strokeDasharray?.(groupData[0]),
-                          )
-                        : strokeDasharray)
-
-                    return (
-                      <Animate
-                        key={thisKey}
-                        start={{
-                          path: drawLine(
-                            groupLineData.map((d: [any, any]) => {
-                              const yEntrancePos =
-                                entrance === 'midpoint'
-                                  ? (height || 0) / 2
-                                  : d[1]
-                              const hasMissingY =
-                                d[1] === null || typeof d[1] === 'undefined'
-                              return [d[0], hasMissingY ? NaN : yEntrancePos]
-                            }),
+                const thisStrokeGroups =
+                  geomStrokeScale && geomAes?.stroke
+                    ? Array.from(
+                        new Set(
+                          groupData.map(
+                            (gd) => geomAes.stroke && geomAes.stroke(gd),
                           ),
-                          opacity: 0,
-                        }}
-                        enter={{
-                          path: [drawLine(groupLineData)],
-                          opacity: [1],
-                          timing: { duration, ease: easeCubic },
-                        }}
-                        update={{
-                          path: [drawLine(groupLineData)],
-                          opacity: [1],
-                          timing: {
-                            duration,
-                            ease: easeCubic,
-                          },
-                        }}
-                        leave={() => ({
-                          opacity: [0],
-                          timing: { duration, ease: easeCubic },
-                        })}
-                        interpolation={(begValue, endValue, attr) => {
-                          if (attr === 'path') {
-                            return interpolatePath(begValue, endValue)
-                          }
-                          return interpolate(begValue, endValue)
-                        }}
-                      >
-                        {(state) => (
-                          <path
-                            d={state.path}
-                            opacity={state.opacity}
-                            stroke={thisStroke}
-                            strokeWidth={strokeWidth}
-                            strokeOpacity={strokeOpacity}
-                            strokeDasharray={thisDasharray}
-                            fill="none"
-                            data-testid="__gg_geom_line"
-                            style={{
-                              pointerEvents: 'none',
-                            }}
-                            clipPath={`url(#__gg_canvas_${id})`}
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...props}
-                          />
-                        )}
-                      </Animate>
-                    )
+                        ),
+                      )
+                    : undefined
+
+                let thisStroke =
+                  strokeColor ||
+                  (geomStrokeScale && geomStrokeScale(g)) ||
+                  (copiedScales?.strokeScale
+                    ? copiedScales.strokeScale(g)
+                    : defaultStroke)
+
+                if (thisStrokeGroups && geomStrokeScale) {
+                  thisStrokeGroups.forEach((fg) => {
+                    thisStroke = geomStrokeScale(fg)
                   })
-                ) : (
+                }
+
+                const thisDasharray =
+                  strokeDasharray ||
+                  (copiedScales?.strokeDasharrayScale
+                    ? copiedScales.strokeDasharrayScale(
+                        geomAes?.strokeDasharray?.(groupData[0]),
+                      )
+                    : strokeDasharray)
+
+                return (
                   <Animate
+                    key={thisKey}
                     start={{
-                      path: drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
+                      path: drawLine(
+                        groupLineData.map((d: [any, any]) => {
+                          const yEntrancePos =
+                            entrance === 'midpoint' ? (height || 0) / 2 : d[1]
+                          const hasMissingY =
+                            d[1] === null || typeof d[1] === 'undefined'
+                          return [d[0], hasMissingY ? NaN : yEntrancePos]
+                        }),
+                      ),
                       opacity: 0,
                     }}
                     enter={{
-                      path: [
-                        drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
-                      ],
-                      opacity: [1],
-                      timing: { duration },
-                    }}
-                    update={{
-                      path: [
-                        drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
-                      ],
+                      path: [drawLine(groupLineData)],
                       opacity: [1],
                       timing: { duration, ease: easeCubic },
+                    }}
+                    update={{
+                      path: [drawLine(groupLineData)],
+                      opacity: [1],
+                      timing: {
+                        duration,
+                        ease: easeCubic,
+                      },
                     }}
                     leave={() => ({
                       opacity: [0],
@@ -462,22 +401,68 @@ const GeomLine = <Datum,>({
                       <path
                         d={state.path}
                         opacity={state.opacity}
-                        stroke={strokeColor || defaultStroke}
+                        stroke={thisStroke}
                         strokeWidth={strokeWidth}
                         strokeOpacity={strokeOpacity}
+                        strokeDasharray={thisDasharray}
                         fill="none"
                         data-testid="__gg_geom_line"
+                        style={{
+                          pointerEvents: 'none',
+                        }}
                         clipPath={`url(#__gg_canvas_${id})`}
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...props}
                       />
                     )}
                   </Animate>
+                )
+              })
+            ) : (
+              <Animate
+                start={{
+                  path: drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
+                  opacity: 0,
+                }}
+                enter={{
+                  path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
+                  opacity: [1],
+                  timing: { duration },
+                }}
+                update={{
+                  path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
+                  opacity: [1],
+                  timing: { duration, ease: easeCubic },
+                }}
+                leave={() => ({
+                  opacity: [0],
+                  timing: { duration, ease: easeCubic },
+                })}
+                interpolation={(begValue, endValue, attr) => {
+                  if (attr === 'path') {
+                    return interpolatePath(begValue, endValue)
+                  }
+                  return interpolate(begValue, endValue)
+                }}
+              >
+                {(state) => (
+                  <path
+                    d={state.path}
+                    opacity={state.opacity}
+                    stroke={strokeColor || defaultStroke}
+                    strokeWidth={strokeWidth}
+                    strokeOpacity={strokeOpacity}
+                    fill="none"
+                    data-testid="__gg_geom_line"
+                    clipPath={`url(#__gg_canvas_${id})`}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...props}
+                  />
                 )}
-              </>
-            )
-          }
-        </PageVisibility>
+              </Animate>
+            )}
+          </>
+        )}
       </g>
       {(showTooltip || brushAction) && (
         <>
