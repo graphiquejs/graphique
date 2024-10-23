@@ -44,7 +44,7 @@
     "prepare": "husky",
     "build": "lerna run build",
     "demo": "npm run dev -w @graphique/demo",
-    "typecheck:src": "npm run typecheck:src -ws",
+    "typecheck:src": "npm run typecheck:src -w ./packages",
     "typecheck:build": "npm run typecheck:build -w ./packages",
     "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"
   }
