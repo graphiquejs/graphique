@@ -20,12 +20,10 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         aes={{
           ...DEFAULT_AES,
-          x: d => d.count!
+          x: (d) => d.count!,
         }}
-      />
+      />,
     )
-
-    act(() => jest.runAllTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -50,13 +48,13 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: d => new Date(d.date),
-          y: d => d.marketCap,
+          x: (d) => new Date(d.date),
+          y: (d) => d.marketCap,
         }}
-      />
+      />,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -72,15 +70,15 @@ describe('vertical line basics with GeomVLine', () => {
       <GGVLine
         data={aaplMarketcap}
         aes={{
-          x: d => new Date(d.date),
-          y: d => d.marketCap,
+          x: (d) => new Date(d.date),
+          y: (d) => d.marketCap,
         }}
       >
         <GeomVLine data={[aaplMarketcap[45]]} />
-      </GGVLine>
+      </GGVLine>,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -97,15 +95,13 @@ describe('vertical line basics with GeomVLine', () => {
         <GeomVLine
           data={beakLengthsBySpecies}
           aes={{
-            x: d => d.count!
+            x: (d) => d.count!,
           }}
         />
-      </GGVLine>
+      </GGVLine>,
     )
 
-    act(() => jest.runAllTimers())
-
-     // exists
+    // exists
     const chart = screen.queryByTestId('__gg_gg')
     expect(chart).toBeInTheDocument()
 
@@ -117,6 +113,8 @@ describe('vertical line basics with GeomVLine', () => {
       expect(v).toHaveAttribute('stroke', DEFAULT_GROUP_STROKES[i])
       expect(v).toHaveAttribute('stroke-width', DEFAULT_STROKE_WIDTH)
     })
+
+    act(() => jest.runOnlyPendingTimers())
 
     // has numeric y axis/ticks from y aes mapping to data
     const yTicks = await screen.findAllByTestId('__gg_y_tick_label')

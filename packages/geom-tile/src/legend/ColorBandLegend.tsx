@@ -134,6 +134,7 @@ export const ColorBandLegend = <Datum,>({
                 RAMP_N,
               ).toDataURL(),
             )
+            .attr('description', 'GeomTile continuous legend')
 
           if (firstRender) {
             img
@@ -193,6 +194,7 @@ export const ColorBandLegend = <Datum,>({
           .style('font-family', font || 'sans-serif')
           .style('font-size', fontSize)
           .attr('fill', legend?.labelColor || 'currentColor')
+          .attr('data-testid', '__gg_legend_tick_label')
           .style('opacity', legend?.labelColor ? 1 : 0.85)
 
         // ticks whose color isn't depenedent on currentColor

@@ -16,8 +16,6 @@ import { GeomArea } from '../geomArea'
 jest.useFakeTimers()
 
 const runBasicAreaChecks = async () => {
-  act(() => jest.runAllTimers())
-
   // exists
   const chart = screen.queryByTestId('__gg_gg')
   expect(chart).toBeInTheDocument()
@@ -25,6 +23,8 @@ const runBasicAreaChecks = async () => {
   // area ranges are there
   const areas = await screen.findAllByTestId('__gg_geom_area')
   expect(areas).toHaveLength(NUM_GROUPS)
+
+  act(() => jest.runOnlyPendingTimers())
 
   // with default fill colors
   const areaFills = areas.map((a) => a.getAttribute('fill'))
@@ -48,7 +48,7 @@ describe('area chart basics with GeomArea', () => {
       />,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -63,7 +63,7 @@ describe('area chart basics with GeomArea', () => {
   it('renders multiple area ranges for x,y,fill aesthetic mappings', async () => {
     render(<GGArea {...DEFAULT_AREA_PROPS} />)
 
-    runBasicAreaChecks()
+    await runBasicAreaChecks()
   })
 
   it('renders multiple area ranges with y0,y1', async () => {
@@ -84,7 +84,7 @@ describe('area chart basics with GeomArea', () => {
       </GGArea>,
     )
 
-    runBasicAreaChecks()
+    await runBasicAreaChecks()
   })
 
   it('renders stacked areas as expected', async () => {
@@ -94,7 +94,7 @@ describe('area chart basics with GeomArea', () => {
       </GGArea>,
     )
 
-    runBasicAreaChecks()
+    await runBasicAreaChecks()
   })
 
   it('renders filled areas as expected', async () => {
@@ -104,13 +104,13 @@ describe('area chart basics with GeomArea', () => {
       </GGArea>,
     )
 
-    runBasicAreaChecks()
+    await runBasicAreaChecks()
   })
 
   it('renders discontinuous area paths when given missing y values', async () => {
     render(<GGArea {...DEFAULT_AREA_PROPS} data={undefinedYValData} />)
 
-    runBasicAreaChecks()
+    await runBasicAreaChecks()
   })
 
   it('has no areas when empty data', () => {

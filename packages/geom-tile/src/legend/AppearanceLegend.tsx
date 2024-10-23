@@ -24,8 +24,10 @@ export const Legend = <Datum,>({
   onSelection,
 }: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
-  const { copiedScales, copiedData, aes } = ggState || {}
-  const [{ font }] = useAtom(themeState)
+  const { copiedScales, copiedData } = ggState || {}
+  const [{ font, geoms }] = useAtom(themeState)
+
+  const geomAes = geoms?.tile?.aes
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -36,7 +38,7 @@ export const Legend = <Datum,>({
   const { groups } = copiedScales || {}
 
   // include aes?.strokeDasharray
-  const hasAppearanceAes = aes?.fill || aes?.stroke
+  const hasAppearanceAes = geomAes?.fill || geomAes?.stroke
 
   const { fontSize } = { ...style }
 
@@ -47,6 +49,7 @@ export const Legend = <Datum,>({
         fontFamily: font?.family,
         ...style,
       }}
+      data-testid="__gg_geom_tile_legend"
     >
       {title}
       {copiedData && copiedScales && groups ? (

@@ -48,6 +48,7 @@ export interface AutoScale<Datum> extends GGProps<Datum> {
     strokeDasharray?: VisualEncodingProps
   }
   copiedData: Datum[]
+  shouldExcludeMissingXYFromDomains?: boolean
 }
 
 export const autoScale = <Datum>({
@@ -58,6 +59,7 @@ export const autoScale = <Datum>({
   width = 500,
   height = 450,
   margin: suppliedMargin,
+  shouldExcludeMissingXYFromDomains,
 }: AutoScale<Datum>): IScale<Datum> => {
   const margin = {
     top: 10,
@@ -174,7 +176,13 @@ export const autoScale = <Datum>({
 
     const domain =
       (xScaleDomain as string[]) ||
-      computedDomain.sort((a, b) => sortDomain(a, b, initialDomain))
+      computedDomain
+        .filter((d) =>
+          shouldExcludeMissingXYFromDomains
+            ? d !== null && typeof d !== 'undefined'
+            : true,
+        )
+        .sort((a, b) => sortDomain(a, b, initialDomain))
 
     xScale = scaleBand()
       .range([margin.left, width - margin.right])
@@ -228,7 +236,13 @@ export const autoScale = <Datum>({
 
       const domain =
         (yScaleDomain as string[]) ||
-        computedDomain.sort((a, b) => sortDomain(a, b, initialDomain))
+        computedDomain
+          .filter((d) =>
+            shouldExcludeMissingXYFromDomains
+              ? d !== null && typeof d !== 'undefined'
+              : true,
+          )
+          .sort((a, b) => sortDomain(a, b, initialDomain))
 
       yScale = scaleBand()
         .range([margin.top, height - margin.bottom])
@@ -315,6 +329,8 @@ export const autoScale = <Datum>({
           (fillScaleColors as string[]) || defaultScheme,
         ) as VisualEncodingTypes
     } else if (isDate(firstFill) || typeof firstFill === 'number') {
+      hasCategoricalVar = false
+
       const domain =
         (fillScaleDomain as number[]) ||
         (extent(data, thisFillAes as (d: unknown) => number) as number[])

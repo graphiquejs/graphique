@@ -12,7 +12,6 @@ import {
   focusNodes,
   unfocusNodes,
   EventArea,
-  Aes,
   defineGroupAccessor,
   usePageVisibility,
 } from '@graphique/graphique'
@@ -22,12 +21,11 @@ import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { scaleBand } from 'd3-scale'
 import { Tooltip } from './tooltip'
-
-export { Legend } from './legend'
+import { type GeomAes } from './types'
 
 export interface GeomTileProps<Datum> extends SVGAttributes<SVGRectElement> {
   data?: Datum[]
-  aes?: Aes<Datum>
+  aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
   xPadding?: number
@@ -96,6 +94,7 @@ const GeomTile = <Datum,>({
           stroke: strokeColor,
           strokeWidth: props.style?.strokeWidth || strokeWidth,
           strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
+          aes: geomAes,
         },
       },
     }))
@@ -106,6 +105,7 @@ const GeomTile = <Datum,>({
     strokeOpacity,
     strokeWidth,
     props.style,
+    geomAes,
   ])
 
   const baseStyles = {
@@ -130,50 +130,70 @@ const GeomTile = <Datum,>({
   }
 
   const fill = useMemo(
-    () => (d: Datum) =>
-      fillColor ||
-      (aes?.fill && copiedScales?.fillScale
-        ? (copiedScales.fillScale(aes.fill(d)) as string | undefined)
-        : defaultFill),
-    [aes, copiedScales, fillColor, defaultFill],
+    () => (d: Datum) => {
+      if (fillColor) return fillColor
+
+      return geomAes?.fill && copiedScales?.fillScale
+        ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
+        : defaultFill
+    },
+    [geomAes, copiedScales, fillColor, defaultFill],
   )
 
   const stroke = useMemo(
     () => (d: Datum) =>
       strokeColor ||
-      (aes?.stroke && copiedScales?.strokeScale
-        ? (copiedScales.strokeScale(aes.stroke(d) as any) as string | undefined)
+      (geomAes?.stroke && copiedScales?.strokeScale
+        ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
+            | string
+            | undefined)
         : 'none'),
-    [aes, copiedScales, strokeColor],
+    [geomAes, copiedScales, strokeColor],
   )
+
+  const geomData = (localData || data).filter((d) => {
+    const hasMissingFillValue =
+      geomAes.fill &&
+      (geomAes.fill(d) === null || typeof geomAes.fill(d) === 'undefined')
+    const hasMissingXValue =
+      geomAes.x &&
+      (geomAes.x(d) === null || typeof geomAes.x(d) === 'undefined')
+    const hasMissingYValue =
+      geomAes.y &&
+      (geomAes.y(d) === null || typeof geomAes.y(d) === 'undefined')
+
+    return !hasMissingFillValue && !hasMissingXValue && !hasMissingYValue
+  })
 
   const xBandScale = useMemo(() => {
     if (margin && width) {
       if (typeof scales?.xScale.bandwidth !== 'undefined') {
         return scales.xScale.paddingInner(xPadding)
       }
-      const uniqueXs = Array.from(new Set(data?.map((d) => aes?.x(d))))
+      const uniqueXs = Array.from(new Set(geomData?.map((d) => geomAes?.x(d))))
       return scaleBand()
         .range([margin.left, width - margin.right])
         .domain((xDomain || uniqueXs) as string[])
         .paddingInner(xPadding)
     }
     return null
-  }, [data, aes, width, scales, margin, xPadding, xDomain])
+  }, [geomData, geomAes, width, scales, margin, xPadding, xDomain])
 
   const yBandScale = useMemo(() => {
     if (margin && height) {
       if (typeof scales?.yScale.bandwidth !== 'undefined') {
         return scales.yScale.paddingInner(yPadding)
       }
-      const uniqueYs = Array.from(new Set(data?.map((d) => aes?.y && aes.y(d))))
+      const uniqueYs = Array.from(
+        new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d))),
+      )
       return scaleBand()
-        .range([margin.bottom, height - margin.bottom])
+        .range([margin.bottom, height - margin.top])
         .domain((yDomain || uniqueYs) as string[])
         .paddingInner(yPadding)
     }
     return null
-  }, [data, aes, height, scales, margin, yPadding, yDomain])
+  }, [geomData, geomAes, height, scales, margin, yPadding, yDomain])
 
   const x = useMemo(() => {
     if (!scales?.xScale.bandwidth && margin && width && xBandScale) {
@@ -182,10 +202,10 @@ const GeomTile = <Datum,>({
         width - margin.right - xBandScale.bandwidth() / 2 - 0.5,
       ])
       return (d: Datum) =>
-        (scales?.xScale(aes?.x(d)) || 0) - xBandScale.bandwidth() / 2 + 0.5
+        (scales?.xScale(geomAes?.x(d)) || 0) - xBandScale.bandwidth() / 2 + 0.5
     }
-    return (d: Datum) => scales?.xScale && scales.xScale(aes?.x(d))
-  }, [scales, aes, xBandScale, margin, width])
+    return (d: Datum) => scales?.xScale && scales.xScale(geomAes?.x(d))
+  }, [scales, geomAes, xBandScale, margin, width])
 
   const y = useMemo(() => {
     if (!scales?.yScale.bandwidth && margin && height && yBandScale) {
@@ -194,12 +214,13 @@ const GeomTile = <Datum,>({
         margin.top + yBandScale.bandwidth() / 2,
       ])
       return (d: Datum) =>
-        (scales?.yScale(aes?.y && aes.y(d)) || 0) -
+        (scales?.yScale(geomAes?.y && geomAes.y(d)) || 0) -
         yBandScale.bandwidth() / 2 +
         0.5
     }
-    return (d: Datum) => scales?.yScale && aes?.y && scales.yScale(aes.y(d))
-  }, [scales, aes, margin, height, yBandScale])
+    return (d: Datum) =>
+      scales?.yScale && geomAes?.y && scales.yScale(geomAes.y(d))
+  }, [scales, geomAes, margin, height, yBandScale])
 
   const group = useMemo(
     () =>
@@ -225,7 +246,7 @@ const GeomTile = <Datum,>({
       <g ref={groupRef}>
         {!firstRender && isVisible && (
           <NodeGroup
-            data={[...data]}
+            data={[...geomData]}
             keyAccessor={keyAccessor}
             start={(d) => ({
               x: margin?.left,
@@ -276,6 +297,7 @@ const GeomTile = <Datum,>({
                     height={yBandScale.bandwidth()}
                     fillOpacity={state.fillOpacity}
                     strokeOpacity={state.strokeOpacity}
+                    data-testid="__gg_geom_tile"
                   />
                 ))}
               </>
@@ -288,7 +310,7 @@ const GeomTile = <Datum,>({
           <EventArea
             x={x}
             y={y}
-            data={data}
+            data={geomData}
             aes={geomAes}
             xAdj={xBandScale.bandwidth() / 2}
             yAdj={yBandScale.bandwidth() / 2}

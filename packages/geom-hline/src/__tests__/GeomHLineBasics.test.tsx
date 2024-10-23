@@ -19,12 +19,12 @@ describe('horizontal line basics with GeomHLine', () => {
       <GGHLine
         aes={{
           ...DEFAULT_AES,
-          y: d => d.count!
+          y: (d) => d.count!,
         }}
-      />
+      />,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -50,15 +50,13 @@ describe('horizontal line basics with GeomHLine', () => {
         <GeomHLine
           data={flipperLengthsBySpecies}
           aes={{
-            y: d => d.count!
+            y: (d) => d.count!,
           }}
         />
-      </GGHLine>
+      </GGHLine>,
     )
 
-    act(() => jest.runAllTimers())
-
-     // exists
+    // exists
     const chart = screen.queryByTestId('__gg_gg')
     expect(chart).toBeInTheDocument()
 
@@ -70,6 +68,8 @@ describe('horizontal line basics with GeomHLine', () => {
       expect(v).toHaveAttribute('stroke', DEFAULT_GROUP_STROKES[i])
       expect(v).toHaveAttribute('stroke-width', DEFAULT_STROKE_WIDTH)
     })
+
+    act(() => jest.runOnlyPendingTimers())
 
     // has numeric x axis/ticks from x aes mapping to data
     const xTicks = await screen.findAllByTestId('__gg_x_tick_label')

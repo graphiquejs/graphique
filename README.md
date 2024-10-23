@@ -213,13 +213,15 @@ npm test GeomLine
 npm test Tooltip
 ```
 
-### Demo local pacakages
+### Demo local packages
 
-For a development sandbox / place to try out new package changes locally, there's an included [Vitale notebook](https://githubnext.com/projects/vitale) in `./notebooks/demo.vnb` that's designed to work in Visual Studio Code.
+For a development sandbox / place to try out new package changes locally, there's a Vite app in `./demo`.
 
-Use the existing notebook as a reference, and/or create your own with a new file in `./notebooks` ending in a `.vnb` extension.
+You can start the demo app with:
 
-To install Vitale in VS Code, you can follow [these instructions](https://github.com/githubnext/vitale?tab=readme-ov-file#installation).
+```sh
+npm run demo
+```
 
 ### Publishing and releasing
 

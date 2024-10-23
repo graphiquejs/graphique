@@ -1,7 +1,7 @@
-import { useEffect } from "react"
-import { useAtom } from "jotai"
-import { fillScaleState } from "../../atoms"
-import { VisualEncodingProps } from "../../atoms/scales/types"
+import { useEffect } from 'react'
+import { useAtom } from 'jotai'
+import { fillScaleState } from '../../atoms'
+import { VisualEncodingProps } from '../../atoms/scales/types'
 
 export const ScaleFill = ({
   type,

@@ -1,9 +1,14 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { axisLeft, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
-import 'd3-transition'
+import { transition } from 'd3-transition'
 import { useAtom } from 'jotai'
-import { themeState, yScaleState, tooltipState, TooltipProps } from '../../atoms'
+import {
+  themeState,
+  yScaleState,
+  tooltipState,
+  TooltipProps,
+} from '../../atoms'
 import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
@@ -28,7 +33,7 @@ export interface YAxisProps<Datum> {
   animate?: boolean
 }
 
-export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) => {
+export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
   const [{ axis: axisTheme, axisY, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, height, width, margin, scales } = ggState || {
@@ -55,7 +60,7 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
 
   const duration = useMemo(
     () => animationDuration ?? defaultAnimationDuration,
-    [animationDuration]
+    [animationDuration],
   )
 
   const axisRef = useRef<SVGGElement>(null)
@@ -64,14 +69,14 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
   const thisAxis =
     width && format
       ? axisLeft(scale).tickFormat((v, i) =>
-          format({ value: v, index: i, width })
+          format({ value: v, index: i, width }),
         )
       : axisLeft(scale)
 
   const drawAxis: (selection: any) => void = thisAxis
     .tickSizeOuter(0)
     .ticks(
-      height && typeof numTicks === 'function' ? numTicks(height) : numTicks
+      height && typeof numTicks === 'function' ? numTicks(height) : numTicks,
     )
 
   const drawGrid: (selection: any) => void = axisLeft(scale)
@@ -79,14 +84,15 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
     .tickSizeOuter(0)
     .tickFormat(() => '')
     .ticks(
-      height && typeof numTicks === 'function' ? numTicks(height) : numTicks
+      height && typeof numTicks === 'function' ? numTicks(height) : numTicks,
     )
 
   useEffect(() => {
     const axis = select(axisRef.current)
+    const t = transition().duration(duration)
 
     if (animate) {
-      axis.transition().duration(duration).call(drawAxis)
+      axis.transition(t).call(drawAxis)
     } else {
       axis.call(drawAxis)
     }
@@ -94,7 +100,7 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
     const grid = select(gridRef.current)
 
     if (animate) {
-      grid.transition().duration(duration).call(drawGrid)
+      grid.transition(t).call(drawGrid)
     } else {
       grid.call(drawGrid)
     }
@@ -106,7 +112,7 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
         'stroke',
         axisTheme?.showAxisLines || axisY?.showAxisLine
           ? axisTheme?.stroke || axisY?.stroke || 'none'
-          : 'none'
+          : 'none',
       )
       .attr('fill', 'none')
 
@@ -118,13 +124,13 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
         axisY?.tickStroke ||
           axisTheme?.tickStroke ||
           gridTheme?.stroke ||
-          'currentColor'
+          'currentColor',
       )
       .style(
         'opacity',
         axisY?.tickStroke || axisTheme?.tickStroke || gridTheme?.stroke
           ? 1
-          : defaultGridOpacity
+          : defaultGridOpacity,
       )
 
     // tick labels
@@ -133,7 +139,9 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
       .data(scale.bandwidth ? scale.domain() : [])
       .attr(
         'fill',
-        axisY?.tickLabel?.color || axisTheme?.tickLabel?.color || 'currentColor'
+        axisY?.tickLabel?.color ||
+          axisTheme?.tickLabel?.color ||
+          'currentColor',
       )
       .style('opacity', (d) => {
         if (scale.bandwidth && datum && highlightOnFocus && aes?.y) {
@@ -150,14 +158,14 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
       .attr('data-testid', '__gg_y_tick_label')
       .style(
         'font-size',
-        axisY?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
+        axisY?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px',
       )
       .style(
         'font-family',
         axisY?.tickLabel?.fontFamily ||
           axisTheme?.tickLabel?.fontFamily ||
           font?.family ||
-          'sans-serif'
+          'sans-serif',
       )
 
     if (className) {
@@ -171,7 +179,7 @@ export const YAxis = <Datum,>({ ggState, animate = true }: YAxisProps<Datum>) =>
         'stroke',
         gridTheme?.stroke === null
           ? 'transparent'
-          : gridTheme?.stroke || 'currentColor'
+          : gridTheme?.stroke || 'currentColor',
       )
       .style('opacity', gridTheme?.stroke ? 1 : defaultGridOpacity)
     grid.select('path').attr('stroke', 'none')

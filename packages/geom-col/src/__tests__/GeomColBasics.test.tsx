@@ -23,10 +23,8 @@ describe('column chart basics with GeomCol', () => {
           ...DEFAULT_AES,
           fill: undefined,
         }}
-      />
+      />,
     )
-
-    act(() => jest.runAllTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -39,6 +37,8 @@ describe('column chart basics with GeomCol', () => {
       expect(col).toHaveAttribute('fill', DEFAULT_FILL)
     })
 
+    act(() => jest.runOnlyPendingTimers())
+
     // columns are labeled with group strings
     const xTickLabels = await screen.findAllByTestId('__gg_x_tick_label')
     expect(xTickLabels).toHaveLength(NUM_COLS)
@@ -47,10 +47,9 @@ describe('column chart basics with GeomCol', () => {
       expect(label).toHaveTextContent(COLS[i])
     })
   })
-  
+
   it('renders stacked (default) columns as expected', async () => {
     render(<GGCol />)
-    act(() => jest.runAllTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -63,6 +62,8 @@ describe('column chart basics with GeomCol', () => {
     // columns are labeled by the x axis with group strings
     const xTickLabels = await screen.findAllByTestId('__gg_x_tick_label')
     expect(xTickLabels).toHaveLength(NUM_COLS)
+
+    act(() => jest.runOnlyPendingTimers())
 
     xTickLabels.forEach((label, i) => {
       expect(label).toHaveTextContent(COLS[i])
@@ -78,11 +79,11 @@ describe('column chart basics with GeomCol', () => {
   it('renders dodged (side-by-side) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position='dodge' />
-      </GGCol>
+        <GeomCol position="dodge" />
+      </GGCol>,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     const chart = screen.queryByTestId('__gg_gg')
     expect(chart).toBeInTheDocument()
@@ -100,8 +101,8 @@ describe('column chart basics with GeomCol', () => {
   it('renders filled (relative y-scaled) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position='fill' />
-      </GGCol>
+        <GeomCol position="fill" />
+      </GGCol>,
     )
 
     act(() => jest.runAllTimers())
@@ -122,8 +123,8 @@ describe('column chart basics with GeomCol', () => {
   it('renders identity positioned (overlaid) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position='identity' />
-      </GGCol>
+        <GeomCol position="identity" />
+      </GGCol>,
     )
 
     act(() => jest.runAllTimers())
@@ -153,16 +154,14 @@ describe('column chart basics with GeomCol', () => {
 
   it('renders correctly with local aesthetics and data', async () => {
     render(
-      <GGCol
-        aes={{ x: DEFAULT_AES.x }}
-      >
+      <GGCol aes={{ x: DEFAULT_AES.x }}>
         <GeomCol
           aes={{
             y: DEFAULT_AES.y,
-            fill: DEFAULT_AES.fill
+            fill: DEFAULT_AES.fill,
           }}
         />
-      </GGCol>
+      </GGCol>,
     )
 
     const chart = screen.queryByTestId('__gg_gg')

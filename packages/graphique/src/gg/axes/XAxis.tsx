@@ -1,8 +1,15 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { axisBottom, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
+import { transition } from 'd3-transition'
 import { useAtom } from 'jotai'
-import { labelsState, themeState, xScaleState, tooltipState, TooltipProps } from '../../atoms'
+import {
+  labelsState,
+  themeState,
+  xScaleState,
+  tooltipState,
+  TooltipProps,
+} from '../../atoms'
 import { defaultGridOpacity, defaultAnimationDuration } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
@@ -27,7 +34,7 @@ export interface XAxisProps<Datum> {
   animate?: boolean
 }
 
-export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) => {
+export const XAxis = <Datum,>({ ggState, animate }: XAxisProps<Datum>) => {
   const [{ axis: axisTheme, axisX, grid: gridTheme, font, animationDuration }] =
     useAtom(themeState)
   const { aes, width, margin, height, scales } = ggState || {
@@ -54,7 +61,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
 
   const duration = useMemo(
     () => animationDuration ?? defaultAnimationDuration,
-    [animationDuration]
+    [animationDuration],
   )
 
   const axisRef = useRef<SVGGElement>(null)
@@ -63,7 +70,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
   const thisAxis =
     width && format
       ? axisBottom(scale).tickFormat((v, i) =>
-          format({ value: v, index: i, width })
+          format({ value: v, index: i, width }),
         )
       : axisBottom(scale)
 
@@ -79,9 +86,10 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
 
   useEffect(() => {
     const axis = select(axisRef.current)
+    const t = transition().duration(duration)
 
     if (animate) {
-      axis.transition().duration(duration).call(drawAxis)
+      axis.transition(t).call(drawAxis)
     } else {
       axis.call(drawAxis)
     }
@@ -89,7 +97,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
     const grid = select(gridRef.current)
 
     if (animate) {
-      grid.transition().duration(duration).call(drawGrid)
+      grid.transition(t).call(drawGrid)
     } else {
       grid.call(drawGrid)
     }
@@ -101,7 +109,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
         'stroke',
         axisTheme?.showAxisLines || axisX?.showAxisLine
           ? axisTheme?.stroke || axisX?.stroke || 'none'
-          : 'none'
+          : 'none',
       )
       .attr('fill', 'none')
 
@@ -113,13 +121,13 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
         axisX?.tickStroke ||
           axisTheme?.tickStroke ||
           gridTheme?.stroke ||
-          'currentColor'
+          'currentColor',
       )
       .style(
         'opacity',
         axisX?.tickStroke || axisTheme?.tickStroke || gridTheme?.stroke
           ? 1
-          : defaultGridOpacity
+          : defaultGridOpacity,
       )
 
     // tick labels
@@ -140,19 +148,21 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
       .selectAll('text')
       .attr(
         'fill',
-        axisX?.tickLabel?.color || axisTheme?.tickLabel?.color || 'currentColor'
+        axisX?.tickLabel?.color ||
+          axisTheme?.tickLabel?.color ||
+          'currentColor',
       )
       .attr('data-testid', '__gg_x_tick_label')
       .style(
         'font-size',
-        axisX?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px'
+        axisX?.tickLabel?.fontSize || axisTheme?.tickLabel?.fontSize || '12px',
       )
       .style(
         'font-family',
         axisX?.tickLabel?.fontFamily ||
           axisTheme?.tickLabel?.fontFamily ||
           font?.family ||
-          'sans-serif'
+          'sans-serif',
       )
 
     if (className) {
@@ -166,7 +176,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
         'stroke',
         gridTheme?.stroke === null
           ? 'transparent'
-          : gridTheme?.stroke || 'currentColor'
+          : gridTheme?.stroke || 'currentColor',
       )
       .style('opacity', gridTheme?.stroke ? 1 : defaultGridOpacity)
     grid.select('path').attr('stroke', 'none')
@@ -183,6 +193,7 @@ export const XAxis = <Datum,>({ ggState, animate = true }: XAxisProps<Datum>) =>
     highlightOnFocus,
     scale,
     className,
+    // duration,
   ])
 
   return !firstRender ? (

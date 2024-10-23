@@ -892,7 +892,7 @@ export const EventArea = <Datum,>({
               onMouseUp={handleBrushStop}
               onDoubleClick={handleUnbrush}
               style={{
-                pointerEvents: isVoronoi ? 'none' : undefined,
+                pointerEvents: isVoronoi && !onClick ? 'none' : undefined,
                 cursor:
                   onClick && readyToFocusRef.current ? 'pointer' : undefined,
               }}
@@ -927,7 +927,10 @@ export const EventArea = <Datum,>({
           {delaunayData.map((_, i) => (
             <path
               key={`cell-${i.toString()}`}
-              style={{ pointerEvents: 'all' }}
+              style={{
+                pointerEvents: 'all',
+                cursor: onClick ? 'pointer' : undefined,
+              }}
               d={voronoi.renderCell(i)}
               fill="none"
               // stroke="tomato"

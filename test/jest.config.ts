@@ -15,6 +15,7 @@ const config: Config = {
     '^nanoid': '<rootDir>/node_modules/nanoid/index.cjs',
     '^@graphique/(.*)$': '<rootDir>/packages/$1/dist/index.cjs',
   },
+  setupFiles: ['jest-canvas-mock'],
   setupFilesAfterEnv: [
     '<rootDir>/test/jest.setup.ts',
     '@testing-library/jest-dom',
