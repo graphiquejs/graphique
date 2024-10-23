@@ -55,7 +55,8 @@ export const GGBase = <Datum,>({
   children,
 }: GGProps<Datum>) => {
   const [labels] = useAtom(labelsState)
-  const [{ font, titleColor, axis, axisX, axisY }] = useAtom(themeState)
+  const [{ font, titleColor, axis, axisX, axisY, animationDuration }] =
+    useAtom(themeState)
   const [xScale] = useAtom(xScaleState)
   const [yScale] = useAtom(yScaleState)
   const [fillScale] = useAtom(fillScaleState)
@@ -79,6 +80,8 @@ export const GGBase = <Datum,>({
 
   const geoms: React.ReactNode[] = []
   const otherChildren: React.ReactNode[] = []
+
+  let shouldExcludeMissingXYFromDomains = false
 
   flattenChildren(children).forEach((child) => {
     if (React.isValidElement(child)) {
@@ -126,6 +129,9 @@ export const GGBase = <Datum,>({
     if (g.type.displayName.includes('Col')) {
       geomZeroYBaseLines.push(!geomProps.freeBaseLine)
     }
+    if (g.type.displayName.includes('Tile')) {
+      shouldExcludeMissingXYFromDomains = true
+    }
   })
 
   const areaGeom: any = geoms.find((g: any) =>
@@ -169,6 +175,7 @@ export const GGBase = <Datum,>({
         width: ggWidth,
         height,
         margin,
+        shouldExcludeMissingXYFromDomains,
       }),
       scales: autoScale({
         scalesState: {
@@ -192,6 +199,7 @@ export const GGBase = <Datum,>({
         width: ggWidth,
         height,
         margin,
+        shouldExcludeMissingXYFromDomains,
       }),
     }),
     [
@@ -267,8 +275,24 @@ export const GGBase = <Datum,>({
         <svg ref={ggRef} width={ggWidth} height={height}>
           {isVisible && (
             <>
-              {axisX && <XAxis ggState={ggState} />}
-              {axisY && <YAxis ggState={ggState} />}
+              {axisX && (
+                <XAxis
+                  ggState={ggState}
+                  animate={
+                    typeof animationDuration !== 'undefined' &&
+                    animationDuration > 0
+                  }
+                />
+              )}
+              {axisY && (
+                <YAxis
+                  ggState={ggState}
+                  animate={
+                    typeof animationDuration !== 'undefined' &&
+                    animationDuration > 0
+                  }
+                />
+              )}
               {geoms}
               <g id={`__gg-brush-exclusion-${id}`} />
             </>

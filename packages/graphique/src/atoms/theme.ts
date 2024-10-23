@@ -1,5 +1,5 @@
-import { atom } from "jotai"
-import type { DataValue, VisualEncodingTypes } from "../gg"
+import { atom } from 'jotai'
+import type { Aes, DataValue, VisualEncodingTypes } from '../gg'
 
 interface PointThemeProps<Datum> {
   fillOpacity?: number | string
@@ -13,13 +13,14 @@ interface PointThemeProps<Datum> {
   strokeScale?: VisualEncodingTypes
   usableGroups?: string[]
   groupAccessor?: DataValue<Datum>
+  aes?: Aes<Datum>
   size?: (d: any) => number | null | undefined
 }
 
 type SharedPositions = 'identity' | 'stack' | 'fill'
 export type BarColPositions = SharedPositions | 'dodge'
 export type AreaPositions = SharedPositions
-  //  | 'stream'
+//  | 'stream'
 
 interface BarColProps<Datum> extends PointThemeProps<Datum> {
   position?: BarColPositions
@@ -139,9 +140,9 @@ export const pointThemeState = atom<PointThemeProps<any>>({})
 
 export const themeState = atom<ThemeProps<any>>({
   // titleColor: "#222",
-  markerStroke: "#fff",
-  defaultStroke: "#777777ee",
-  defaultFill: "#777777ee",
+  markerStroke: '#fff',
+  defaultStroke: '#777777ee',
+  defaultFill: '#777777ee',
   font: {
     family: `system-ui, BlinkMacSystemFont, Segoe UI,
                 Roboto, Oxygen-Sans, Ubuntu, Cantarell,
@@ -158,13 +159,13 @@ export const themeState = atom<ThemeProps<any>>({
   },
   axisX: {
     // labelColor: "#666",
-    stroke: "#33333333",
+    stroke: '#33333333',
     // tickLabelColor: "#888",
     showAxisLine: false,
   },
   axisY: {
     // labelColor: "#666",
-    stroke: "#33333333",
+    stroke: '#33333333',
     // tickLabelColor: "#888",
     showAxisLine: false,
   },

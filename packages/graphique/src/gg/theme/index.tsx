@@ -19,7 +19,7 @@ export const Theme = <Datum,>({
   const [, setTheme] = useAtom(themeState)
   const reconcileAxis = (
     thisAxis: typeof axisX | typeof axisY,
-    original: typeof axisX | typeof axisY
+    original: typeof axisX | typeof axisY,
   ) => {
     let reconciledAxis
     if (typeof thisAxis !== 'undefined') {
