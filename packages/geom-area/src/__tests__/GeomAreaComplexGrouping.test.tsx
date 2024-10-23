@@ -23,20 +23,20 @@ describe('area chart complexities with GeomArea', () => {
         aes={{
           x: DEFAULT_AES.x,
           y: undefined,
-          group: d => d.symbol,
-          fill: d => String(d.symbol.startsWith('M'))
+          group: (d) => d.symbol,
+          fill: (d) => String(d.symbol.startsWith('M')),
         }}
       >
         <GeomArea<Stock>
           aes={{
-            y0: d => d.marketCap - (d.marketCap * 0.1),
-            y1: d => d.marketCap + (d.marketCap * 0.1) 
+            y0: (d) => d.marketCap - d.marketCap * 0.1,
+            y1: (d) => d.marketCap + d.marketCap * 0.1,
           }}
         />
-      </GGArea>
+      </GGArea>,
     )
 
-    act(() => jest.runAllTimers())
+    act(() => jest.runOnlyPendingTimers())
 
     // exists
     const chart = screen.queryByTestId('__gg_gg')
@@ -45,13 +45,15 @@ describe('area chart complexities with GeomArea', () => {
     // area ranges are there
     const areas = await screen.findAllByTestId('__gg_geom_area')
     expect(areas).toHaveLength(NUM_GROUPS)
-    
+
     // with default fill colors
-    const areaFills = Array.from(new Set(areas.map(a => a.getAttribute('fill'))))
+    const areaFills = Array.from(
+      new Set(areas.map((a) => a.getAttribute('fill'))),
+    )
     const hasSameNumFills = areaFills.length === NUM_DERIVED_FILLS
     expect(
       hasSameNumFills &&
-        areaFills.every((fill, i) => fill === DEFAULT_GROUP_FILLS[i])
+        areaFills.every((fill, i) => fill === DEFAULT_GROUP_FILLS[i]),
     ).toBeTruthy()
   })
 })
