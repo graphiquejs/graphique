@@ -5,16 +5,15 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "./packages/*"
+    "./packages/*",
+    "./demo"
   ],
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
-    "@githubnext/vitale": "^0.0.17",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.4.2",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^7.30.0",
@@ -26,10 +25,10 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": ">=9",
     "jest": "^29.7.0",
+    "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "lerna": "^8.1.8",
     "lint-staged": ">=10",
-    "patch-package": "^8.0.0",
     "prettier": "^2.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -45,11 +44,9 @@
     "test": "jest --config test/jest.config.ts",
     "prepare": "husky",
     "build": "lerna run build",
+    "demo": "npm run dev -w @graphique/demo",
     "typecheck:src": "npm run typecheck:src -ws",
     "typecheck:build": "npm run typecheck:build -w ./packages",
     "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix --max-warnings=0"
   }
 }
