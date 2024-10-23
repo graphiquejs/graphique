@@ -39,7 +39,6 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "postinstall": "patch-package",
     "lint": "npm run lint -w ./packages",
     "test": "jest --config test/jest.config.ts",
     "prepare": "husky",
