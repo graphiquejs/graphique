@@ -44,6 +44,7 @@ export interface LabelProps<Datum> extends SVGAttributes<SVGTextElement> {
   fillOpacity?: number
   strokeOpacity?: number
   isClipped?: boolean
+  parameterizedFill?: (d?: Datum) => string
 }
 
 const GeomLabel = <Datum,>({
@@ -62,6 +63,7 @@ const GeomLabel = <Datum,>({
   fillOpacity = 1,
   strokeOpacity = 1,
   isClipped = true,
+  parameterizedFill,
   ...props
 }: LabelProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
@@ -241,10 +243,11 @@ const GeomLabel = <Datum,>({
   const fill = useMemo(
     () => (d: Datum) =>
       fillColor ||
+      (parameterizedFill && parameterizedFill(d)) ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill],
+    [geomAes, copiedScales, fillColor, defaultFill, parameterizedFill],
   )
 
   const getStroke = useMemo(
