@@ -122,13 +122,21 @@ const GeomVLine = <Datum,>({
     () => (d: Datum) => {
       const domain = scales?.xScale && scales.xScale.domain()
 
+      if (
+        scales.xScale?.bandwidth?.() &&
+        geomAes.x &&
+        (domain as unknown as string[]).includes(String(geomAes.x(d)))
+      ) {
+        return false
+      }
+
       return (
         domain &&
         ((x(d) as number) < scales.xScale(domain[0]) ||
           (x(d) as number) > scales.xScale(domain[1]))
       )
     },
-    [scales, x],
+    [scales, x, geomAes],
   )
 
   const keyAccessor = useMemo(

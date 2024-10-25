@@ -1,4 +1,4 @@
-import { XYScale } from "../../../gg/types/Scales"
+import { XYScale } from '../../../gg/types/Scales'
 
 export interface XYScaleProps {
   type?: XYScale
@@ -18,4 +18,5 @@ export interface XYScaleProps {
   numTicks?: ((widthOrHeight: number) => number | undefined) | number
   domain?: any[]
   highlightOnFocus?: boolean
+  focusedTicks?: string[]
 }

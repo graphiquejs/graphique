@@ -111,13 +111,21 @@ const GeomHLine = <Datum,>({
     () => (d: Datum) => {
       const domain = scales?.yScale && scales.yScale.domain()
 
+      if (
+        scales.yScale?.bandwidth?.() &&
+        geomAes.y &&
+        (domain as unknown as string[]).includes(String(geomAes.y(d)))
+      ) {
+        return false
+      }
+
       return (
         domain &&
         ((y(d) as number) > scales.yScale(domain[0]) ||
           (y(d) as number) < scales.yScale(domain[1]))
       )
     },
-    [scales, y],
+    [scales, y, geomAes],
   )
 
   const keyAccessor = useMemo(

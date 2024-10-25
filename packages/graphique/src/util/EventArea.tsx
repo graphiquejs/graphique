@@ -847,6 +847,11 @@ export const EventArea = <Datum,>({
           focusedIndexes.push(i)
         }
 
+        setTooltip((prev) => ({
+          ...prev,
+          datum: focusedData,
+        }))
+
         if (onMouseOver) onMouseOver({ d: focusedData, i: focusedIndexes })
         if (onDatumFocus) onDatumFocus(focusedData, focusedIndexes)
       }
@@ -859,6 +864,7 @@ export const EventArea = <Datum,>({
       yDelaunays,
       aes?.y,
       scales?.groupAccessor,
+      setTooltip,
     ],
   )
 

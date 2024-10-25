@@ -49,7 +49,7 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
   const scale = scales?.yScale as AxisScale<number | string | Date>
   const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
 
-  const [{ format, numTicks, highlightOnFocus, className }] =
+  const [{ format, numTicks, highlightOnFocus, focusedTicks, className }] =
     useAtom(yScaleState)
 
   const [firstRender, setFirstRender] = useState(true)
@@ -145,7 +145,12 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
       )
       .style('opacity', (d) => {
         if (scale.bandwidth && datum && highlightOnFocus && aes?.y) {
-          return aes?.y(datum[0]) === d ? 1 : 0.4
+          return aes?.y(datum[0]) === d || focusedTicks?.includes(String(d))
+            ? 1
+            : 0.4
+        }
+        if (scale.bandwidth && focusedTicks) {
+          return focusedTicks?.includes(String(d)) ? 1 : 0.4
         }
         if (axisY?.tickLabel?.color || axisTheme?.tickLabel?.color) {
           return 1
@@ -194,6 +199,7 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
     aes,
     datum,
     highlightOnFocus,
+    focusedTicks,
     scale,
     className,
   ])
