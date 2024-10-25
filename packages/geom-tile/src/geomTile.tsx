@@ -28,6 +28,7 @@ export interface GeomTileProps<Datum> extends SVGAttributes<SVGRectElement> {
   aes?: GeomAes<Datum>
   focusedStyle?: CSSProperties
   unfocusedStyle?: CSSProperties
+  focusedKeys?: (string | number)[]
   xPadding?: number
   yPadding?: number
   xDomain?: unknown[]
@@ -45,6 +46,7 @@ const GeomTile = <Datum,>({
   aes: localAes,
   focusedStyle,
   unfocusedStyle,
+  focusedKeys = [],
   onDatumFocus,
   onDatumSelection,
   onExit,
@@ -149,6 +151,11 @@ const GeomTile = <Datum,>({
             | undefined)
         : 'none'),
     [geomAes, copiedScales, strokeColor],
+  )
+
+  const validFocusedKeys = useMemo(
+    () => focusedKeys.filter((v) => v),
+    [focusedKeys],
   )
 
   const geomData = (localData || data).filter((d) => {
@@ -284,22 +291,35 @@ const GeomTile = <Datum,>({
           >
             {(nodes) => (
               <>
-                {nodes.map(({ state, key }) => (
-                  <rect
-                    key={key}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
-                    fill={state.fill}
-                    stroke={state.stroke}
-                    x={state.x}
-                    y={state.y}
-                    width={xBandScale.bandwidth()}
-                    height={yBandScale.bandwidth()}
-                    fillOpacity={state.fillOpacity}
-                    strokeOpacity={state.strokeOpacity}
-                    data-testid="__gg_geom_tile"
-                  />
-                ))}
+                {nodes.map(({ state, key }) => {
+                  let styles = {}
+                  if (validFocusedKeys.includes(key)) styles = focusedStyles
+                  if (
+                    validFocusedKeys?.length > 0 &&
+                    !validFocusedKeys.includes(key)
+                  )
+                    styles = unfocusedStyles
+                  return (
+                    <rect
+                      key={key}
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...props}
+                      fill={state.fill}
+                      stroke={state.stroke}
+                      x={state.x}
+                      y={state.y}
+                      width={xBandScale.bandwidth()}
+                      height={yBandScale.bandwidth()}
+                      fillOpacity={state.fillOpacity}
+                      strokeOpacity={state.strokeOpacity}
+                      style={{
+                        pointerEvents: 'none',
+                        ...styles,
+                      }}
+                      data-testid="__gg_geom_tile"
+                    />
+                  )
+                })}
               </>
             )}
           </NodeGroup>
@@ -316,10 +336,14 @@ const GeomTile = <Datum,>({
             yAdj={yBandScale.bandwidth() / 2}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
+              const focusedIndexes = geomData.flatMap((gd, fi) =>
+                validFocusedKeys.includes(keyAccessor(gd)) ? fi : [],
+              )
+
               if (rects) {
                 focusNodes({
                   nodes: rects,
-                  focusedIndex: i,
+                  focusedIndex: [...focusedIndexes, ...[i].flat()],
                   focusedStyles,
                   unfocusedStyles,
                 })
@@ -335,6 +359,16 @@ const GeomTile = <Datum,>({
             onMouseLeave={() => {
               if (rects) {
                 unfocusNodes({ nodes: rects, baseStyles })
+                if (validFocusedKeys && validFocusedKeys.length) {
+                  focusNodes({
+                    nodes: rects,
+                    focusedIndex: geomData.flatMap((d, i) =>
+                      validFocusedKeys.includes(keyAccessor(d)) ? i : [],
+                    ),
+                    focusedStyles,
+                    unfocusedStyles,
+                  })
+                }
               }
 
               if (onExit) onExit()
