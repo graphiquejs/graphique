@@ -10,6 +10,7 @@ export const ScaleY = ({
   domain,
   reverse,
   highlightOnFocus,
+  focusedTicks,
   className,
 }: XYScaleProps) => {
   const [, setScale] = useAtom(yScaleState)
@@ -24,6 +25,7 @@ export const ScaleY = ({
       domain,
       reverse,
       highlightOnFocus,
+      focusedTicks,
       className,
       isFixed: !!domain,
     }))
@@ -35,6 +37,7 @@ export const ScaleY = ({
     domain,
     reverse,
     highlightOnFocus,
+    focusedTicks,
     className,
   ])
 

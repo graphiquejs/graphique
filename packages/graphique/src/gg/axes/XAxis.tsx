@@ -50,7 +50,7 @@ export const XAxis = <Datum,>({ ggState, animate }: XAxisProps<Datum>) => {
   const scale = scales?.xScale as AxisScale<number | string | Date>
   const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
   const [labels] = useAtom(labelsState)
-  const [{ format, numTicks, highlightOnFocus, className }] =
+  const [{ format, numTicks, highlightOnFocus, focusedTicks, className }] =
     useAtom(xScaleState)
 
   const [firstRender, setFirstRender] = useState(true)
@@ -135,8 +135,13 @@ export const XAxis = <Datum,>({ ggState, animate }: XAxisProps<Datum>) => {
       .selectAll('text')
       .data(scale.bandwidth ? scale.domain() : [])
       .style('opacity', (d) => {
-        if (scale.bandwidth && datum && highlightOnFocus) {
-          return aes?.x(datum[0]) === d ? 1 : 0.4
+        if (scale.bandwidth && datum && highlightOnFocus && aes?.x) {
+          return aes?.x(datum[0]) === d || focusedTicks?.includes(String(d))
+            ? 1
+            : 0.4
+        }
+        if (scale.bandwidth && focusedTicks) {
+          return focusedTicks?.includes(String(d)) ? 1 : 0.4
         }
         if (axisX?.tickLabel?.color || axisTheme?.tickLabel?.color) {
           return 1
@@ -191,6 +196,7 @@ export const XAxis = <Datum,>({ ggState, animate }: XAxisProps<Datum>) => {
     aes,
     datum,
     highlightOnFocus,
+    focusedTicks,
     scale,
     className,
     // duration,
