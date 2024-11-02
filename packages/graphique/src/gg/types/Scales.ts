@@ -12,7 +12,6 @@ import {
   ScaleTime,
   scaleOrdinal,
   scaleDiverging,
-  scaleSequential,
   scaleQuantile,
   scaleQuantize,
   scaleThreshold,
@@ -25,7 +24,9 @@ import {
   ScaleThreshold,
   scaleSymlog,
   ScaleSymLog,
-} from "d3-scale"
+  scaleSequentialLog,
+  scaleSequentialSymlog,
+} from 'd3-scale'
 
 export type XYScale =
   | typeof scaleLinear
@@ -47,14 +48,15 @@ export type XYScaleTypes = ScaleLinear<any, any> &
 export type VisualEncoding =
   // categorical
   | typeof scaleOrdinal
-  | typeof scaleDiverging
-  | typeof scaleSequential
   | typeof scaleQuantile
   | typeof scaleQuantize
   | typeof scaleThreshold
   // continuous
   | typeof scaleLinear
   | typeof scaleSqrt
+  | typeof scaleDiverging
+  | typeof scaleSequentialLog
+  | typeof scaleSequentialSymlog
 
 export type VisualEncodingTypes =
   // categorical

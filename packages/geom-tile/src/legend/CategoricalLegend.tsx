@@ -15,7 +15,10 @@ export interface Props<Datum> {
   orientation?: 'vertical' | 'horizontal'
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
-  onSelection?: (v: string) => void
+  onSelection?: (
+    v: string,
+    event: PointerEvent | React.MouseEvent | React.KeyboardEvent,
+  ) => void
 }
 
 export const CategoricalLegend = <Datum,>({
@@ -27,7 +30,7 @@ export const CategoricalLegend = <Datum,>({
   onSelection,
 }: Props<Datum>) => {
   const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
+    legendScales.groups || [],
   )
 
   const [{ geoms }] = useAtom(themeState)
@@ -50,7 +53,10 @@ export const CategoricalLegend = <Datum,>({
 
   const isHorizontal = orientation === 'horizontal'
 
-  const toggleLegendGroup = (g: string) => {
+  const toggleLegendGroup = (
+    g: string,
+    event: PointerEvent | React.MouseEvent | React.KeyboardEvent,
+  ) => {
     const prevFocused = isFocused
     let focusedGroups
     if (prevFocused.includes(g)) {
@@ -67,7 +73,7 @@ export const CategoricalLegend = <Datum,>({
     const includedGroups = Array.from(new Set(data?.map((d) => getGroup(d))))
 
     if (onSelection) {
-      onSelection(g)
+      onSelection(g, event)
     }
     if (data && updateData) {
       let updatedData
@@ -79,7 +85,7 @@ export const CategoricalLegend = <Datum,>({
         }
       } else {
         updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g,
         )
       }
       updateData(updatedData)
@@ -111,10 +117,6 @@ export const CategoricalLegend = <Datum,>({
               role="button"
               style={{
                 cursor: 'pointer',
-                // scales?.fillScale?.domain().includes(g) ||
-                // legendScales.groups?.includes(g)
-                //   ? "pointer"
-                //   : "not-allowed",
                 marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                 fontSize,
                 opacity: isFocused.includes(g) ? 1 : 0.5,
@@ -122,12 +124,13 @@ export const CategoricalLegend = <Datum,>({
                 display: 'flex',
                 alignItems: 'center',
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (['Enter', ' '].includes(e.key)) {
-                  toggleLegendGroup(g)
+                  e.preventDefault()
+                  toggleLegendGroup(g, e)
                 }
               }}
-              onClick={() => toggleLegendGroup(g)}
+              onClick={(e) => toggleLegendGroup(g, e)}
             >
               <div
                 style={{

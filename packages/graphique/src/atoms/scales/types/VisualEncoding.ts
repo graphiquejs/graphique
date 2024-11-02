@@ -1,4 +1,4 @@
-import { VisualEncoding } from "../../../gg/types/Scales"
+import { VisualEncoding } from '../../../gg/types/Scales'
 
 export interface VisualEncodingProps {
   type?: VisualEncoding

@@ -5,11 +5,7 @@ export { focusNodes, unfocusNodes } from './directlyStyleNodes'
 export { getYAlongPath } from './getYAlongPath'
 export { elongate } from './elongate'
 export { widen } from './widen'
-export {
-  defaultScheme,
-  defaultInterpolator,
-  defaultDasharrays,
-} from './scaleDefaults'
+export * from './scaleDefaults'
 export { EventArea } from './EventArea'
 export { generateID } from './generateID'
 export { formatMissing } from './formatMissing'
