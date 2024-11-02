@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { atom } from 'jotai'
 import type { Aes, DataValue, VisualEncodingTypes } from '../gg'
 
@@ -7,6 +8,7 @@ interface PointThemeProps<Datum> {
   strokeWidth?: number | string
   strokeOpacity?: number | string
   strokeDasharray?: number | string
+  unfocusedStyles?: CSSProperties
   fill?: string
   hasFill?: boolean
   fillScale?: VisualEncodingTypes

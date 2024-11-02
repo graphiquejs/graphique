@@ -17,6 +17,7 @@ import {
   defaultScheme,
   defaultInterpolator,
   defaultDasharrays,
+  createSequentialScheme,
 } from './scaleDefaults'
 import { defineGroupAccessor } from './defineGroupAccessor'
 import { isDate } from './dates'
@@ -262,87 +263,57 @@ export const autoScale = <Datum>({
       .map(thisFillAes)
       .find((d) => d !== null && d !== undefined)
 
+    const continuousDomain =
+      (fillScaleDomain as number[]) ||
+      (extent(data, thisFillAes as (d: unknown) => number) as number[])
+
+    const continuousInterpolator =
+      (fillScaleColors as (t: number) => string) || defaultInterpolator
+
+    const categoricalDomain = fillScaleDomain || calculatedGroups
+
+    const discreteDomain =
+      fillScaleDomain || data.map((d) => (group ? group(d) : '__group'))
+    const discreteColors = fillScaleColors || defaultScheme
+    const discreteSequential =
+      fillScaleColors || createSequentialScheme(continuousInterpolator)
+
     if (fillScaleType) {
-      let domain
       const fillType = fillScaleType as any
-      switch (fillScaleType.name) {
-        case 'sequential':
-          domain =
-            (fillScaleDomain as number[]) ||
-            (extent(data, thisFillAes as (d: unknown) => number) as number[])
 
-          fillScale = fillType()
-            .domain(domain)
-            .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator,
-            ) as VisualEncodingTypes
-          break
-        case 'sequentialLog':
-          domain =
-            (fillScaleDomain as number[]) ||
-            (extent(data, thisFillAes as (d: unknown) => number) as number[])
+      if (fillType()?.invertExtent) {
+        fillScale = fillType()
+          .domain(
+            fillType.name === 'quantize' ? continuousDomain : discreteDomain,
+          )
+          .range(discreteSequential) as VisualEncodingTypes
+      } else if (fillType()?.interpolator) {
+        fillScale = fillType()
+          .domain(continuousDomain)
+          .interpolator(continuousInterpolator) as VisualEncodingTypes
+      } else {
+        hasCategoricalVar = true
 
-          fillScale = fillType()
-            .domain(domain)
-            .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator,
-            ) as VisualEncodingTypes
-          break
-        case 'sequentialSqrt':
-          domain =
-            (fillScaleDomain as number[]) ||
-            (extent(data, thisFillAes as (d: unknown) => number) as number[])
-
-          fillScale = fillType()
-            .domain(domain)
-            .interpolator(
-              (fillScaleColors as (t: number) => string) || defaultInterpolator,
-            ) as VisualEncodingTypes
-          break
-        case 'ordinal':
-          hasCategoricalVar = true
-          domain = (fillScaleDomain as string[]) || calculatedGroups
-
-          fillScale = fillType()
-            .domain(domain)
-            .range(
-              (fillScaleColors as string[]) || defaultScheme,
-            ) as VisualEncodingTypes
-          break
-        default:
-          hasCategoricalVar = true
-          domain = (fillScaleDomain as string[]) || calculatedGroups
-
-          fillScale = fillType()
-            .domain(domain)
-            .range(
-              (fillScaleColors as string[]) || defaultScheme,
-            ) as VisualEncodingTypes
+        fillScale = fillType()
+          .domain(categoricalDomain)
+          .range(discreteColors) as VisualEncodingTypes
       }
     } else if (!Number.isFinite(firstFill) || typeof firstFill === 'string') {
       hasCategoricalVar = true
-      const domain = (fillScaleDomain as string[]) || calculatedGroups
 
       fillScale = scaleOrdinal()
-        .domain(domain)
-        .range(
-          (fillScaleColors as string[]) || defaultScheme,
-        ) as VisualEncodingTypes
+        .domain(categoricalDomain)
+        .range(discreteColors as string[]) as VisualEncodingTypes
     } else if (isDate(firstFill) || typeof firstFill === 'number') {
       hasCategoricalVar = false
 
-      const domain =
-        (fillScaleDomain as number[]) ||
-        (extent(data, thisFillAes as (d: unknown) => number) as number[])
-
       fillScale = scaleSequential()
-        .domain(domain)
-        .interpolator(
-          (fillScaleColors as (t: number) => string) || defaultInterpolator,
-        ) as VisualEncodingTypes
+        .domain(continuousDomain)
+        .interpolator(continuousInterpolator) as VisualEncodingTypes
     }
   }
-  if (fillScaleReverse) fillScale?.domain(fillScale.domain().reverse())
+  if (fillScaleReverse && fillScale?.interpolator)
+    fillScale?.domain(fillScale.domain().reverse())
 
   // stroke
   let strokeScale
