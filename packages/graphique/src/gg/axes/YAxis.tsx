@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { axisLeft, AxisScale } from 'd3-axis'
 import { select } from 'd3-selection'
 import { transition } from 'd3-transition'
@@ -9,7 +9,7 @@ import {
   tooltipState,
   TooltipProps,
 } from '../../atoms'
-import { defaultGridOpacity, defaultAnimationDuration } from './constants'
+import { defaultGridOpacity } from './constants'
 import { Aes } from '../types'
 import { IScale } from '../../util/autoScale'
 
@@ -58,11 +58,6 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
     return () => clearTimeout(timeout)
   }, [])
 
-  const duration = useMemo(
-    () => animationDuration ?? defaultAnimationDuration,
-    [animationDuration],
-  )
-
   const axisRef = useRef<SVGGElement>(null)
   const gridRef = useRef<SVGGElement>(null)
 
@@ -89,7 +84,7 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
 
   useEffect(() => {
     const axis = select(axisRef.current)
-    const t = transition().duration(duration)
+    const t = transition().duration(animationDuration!)
 
     if (animate) {
       axis.transition(t).call(drawAxis)
