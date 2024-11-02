@@ -36,6 +36,7 @@ export interface GeomTileProps<Datum> extends SVGAttributes<SVGRectElement> {
   showTooltip?: boolean
   onDatumFocus?: (data: Datum[], index: number[]) => void
   onDatumSelection?: (data: Datum[], index: number[]) => void
+  entrance?: 'left' | 'data'
   onExit?: () => void
   fillOpacity?: number
   strokeOpacity?: number
@@ -46,9 +47,10 @@ const GeomTile = <Datum,>({
   aes: localAes,
   focusedStyle,
   unfocusedStyle,
-  focusedKeys = [],
+  focusedKeys,
   onDatumFocus,
   onDatumSelection,
+  entrance = 'data',
   onExit,
   xDomain,
   yDomain,
@@ -86,32 +88,9 @@ const GeomTile = <Datum,>({
     return () => clearTimeout(timeout)
   }, [])
 
-  useEffect(() => {
-    setTheme((prev) => ({
-      ...prev,
-      geoms: {
-        ...prev.geoms,
-        tile: {
-          fillOpacity: props.style?.fillOpacity || fillOpacity,
-          stroke: strokeColor,
-          strokeWidth: props.style?.strokeWidth || strokeWidth,
-          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
-          aes: geomAes,
-        },
-      },
-    }))
-  }, [
-    fillOpacity,
-    setTheme,
-    strokeColor,
-    strokeOpacity,
-    strokeWidth,
-    props.style,
-    geomAes,
-  ])
-
   const baseStyles = {
     transition: 'fill-opacity 200ms',
+    stroke: strokeColor,
     fillOpacity,
     strokeOpacity,
     ...props.style,
@@ -130,6 +109,31 @@ const GeomTile = <Datum,>({
     strokeOpacity: 0.5,
     ...unfocusedStyle,
   }
+
+  useEffect(() => {
+    setTheme((prev) => ({
+      ...prev,
+      geoms: {
+        ...prev.geoms,
+        tile: {
+          fillOpacity: props.style?.fillOpacity || fillOpacity,
+          unfocusedStyles,
+          stroke: strokeColor,
+          strokeWidth: props.style?.strokeWidth || strokeWidth,
+          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
+          aes: geomAes,
+        },
+      },
+    }))
+  }, [
+    fillOpacity,
+    setTheme,
+    strokeColor,
+    strokeOpacity,
+    strokeWidth,
+    props.style,
+    geomAes,
+  ])
 
   const fill = useMemo(
     () => (d: Datum) => {
@@ -154,7 +158,7 @@ const GeomTile = <Datum,>({
   )
 
   const validFocusedKeys = useMemo(
-    () => focusedKeys.filter((v) => v),
+    () => focusedKeys?.filter((v) => v),
     [focusedKeys],
   )
 
@@ -256,7 +260,7 @@ const GeomTile = <Datum,>({
             data={[...geomData]}
             keyAccessor={keyAccessor}
             start={(d) => ({
-              x: margin?.left,
+              x: entrance === 'left' ? margin?.left : x(d),
               y: y(d) || 0,
               fill: 'transparent',
               stroke: 'transparent',
@@ -274,7 +278,7 @@ const GeomTile = <Datum,>({
             })}
             update={(d) => ({
               x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
-              y: [typeof y(d) === 'undefined' ? height : y(d)],
+              y: [typeof y(d) === 'undefined' ? height - margin?.bottom : y(d)],
               fill: firstRender ? fill(d) : [fill(d)],
               stroke: firstRender ? stroke(d) : [stroke(d)],
               fillOpacity: [fillOpacity],
@@ -284,7 +288,7 @@ const GeomTile = <Datum,>({
             leave={() => ({
               fill: ['transparent'],
               stroke: ['transparent'],
-              y: [height],
+              y: [height - margin?.bottom],
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
@@ -293,11 +297,8 @@ const GeomTile = <Datum,>({
               <>
                 {nodes.map(({ state, key }) => {
                   let styles = {}
-                  if (validFocusedKeys.includes(key)) styles = focusedStyles
-                  if (
-                    validFocusedKeys?.length > 0 &&
-                    !validFocusedKeys.includes(key)
-                  )
+                  if (validFocusedKeys?.includes(key)) styles = focusedStyles
+                  if (validFocusedKeys && !validFocusedKeys?.includes(key))
                     styles = unfocusedStyles
                   return (
                     <rect
@@ -337,7 +338,7 @@ const GeomTile = <Datum,>({
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
               const focusedIndexes = geomData.flatMap((gd, fi) =>
-                validFocusedKeys.includes(keyAccessor(gd)) ? fi : [],
+                validFocusedKeys?.includes(keyAccessor(gd)) ? fi : [],
               )
 
               if (rects) {
@@ -359,11 +360,11 @@ const GeomTile = <Datum,>({
             onMouseLeave={() => {
               if (rects) {
                 unfocusNodes({ nodes: rects, baseStyles })
-                if (validFocusedKeys && validFocusedKeys.length) {
+                if (validFocusedKeys) {
                   focusNodes({
                     nodes: rects,
                     focusedIndex: geomData.flatMap((d, i) =>
-                      validFocusedKeys.includes(keyAccessor(d)) ? i : [],
+                      validFocusedKeys?.includes(keyAccessor(d)) ? i : [],
                     ),
                     focusedStyles,
                     unfocusedStyles,
