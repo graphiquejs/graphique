@@ -417,35 +417,22 @@ export const ColorBandLegend = <Datum,>({
         const labelOpacity = legend?.labelColor
           ? OPACITY.opaque
           : OPACITY.tickLabel.focused
-        if (firstRender) {
-          axis
-            .selectAll('.tick')
-            .select('text')
-            .style('font-family', font || 'sans-serif')
-            .style('font-size', fontSize)
-            .attr('fill', legend?.labelColor || 'currentColor')
-            .attr('data-testid', '__gg_legend_tick_label')
-            .datum((i) =>
-              scale?.invertExtent && focusedThresholds
-                ? focusedThresholds?.flat()?.includes(thresholds?.[i as number])
-                : !focusedThresholds,
-            )
-            .style('opacity', (d) =>
-              d ? labelOpacity : geoms?.tile?.unfocusedStyles?.fillOpacity!,
-            )
-        } else {
-          axis
-            .selectAll('.tick')
-            .select('text')
-            .datum((i) =>
-              scale?.invertExtent && focusedThresholds
-                ? focusedThresholds?.flat()?.includes(thresholds?.[i as number])
-                : !focusedThresholds,
-            )
-            .style('opacity', (d) =>
-              d ? labelOpacity : geoms?.tile?.unfocusedStyles?.fillOpacity!,
-            )
-        }
+
+        axis
+          .selectAll('.tick')
+          .select('text')
+          .style('font-family', font || 'sans-serif')
+          .style('font-size', fontSize)
+          .attr('fill', legend?.labelColor || 'currentColor')
+          .attr('data-testid', '__gg_legend_tick_label')
+          .datum((i) =>
+            scale?.invertExtent && focusedThresholds
+              ? focusedThresholds?.flat()?.includes(thresholds?.[i as number])
+              : !focusedThresholds,
+          )
+          .style('opacity', (d) =>
+            d ? labelOpacity : geoms?.tile?.unfocusedStyles?.fillOpacity!,
+          )
 
         // ticks whose color isn't depenedent on currentColor
         ticks
