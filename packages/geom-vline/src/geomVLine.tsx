@@ -114,8 +114,16 @@ const GeomVLine = <Datum,>({
 
   const x = useMemo(
     () => (d: Datum) =>
-      scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d)),
+      (scales?.xScale && geomAes?.x && scales.xScale(geomAes.x(d))) ?? 0,
     [scales, geomAes],
+  )
+
+  const xAdj = useMemo(
+    () =>
+      scales?.xScale?.bandwidth
+        ? (scales.xScale.bandwidth() * scales.xScale.paddingInner()) / 2
+        : 0,
+    [scales],
   )
 
   const checkIsOutisdeDomain = useMemo(
@@ -159,8 +167,8 @@ const GeomVLine = <Datum,>({
             data={[...geomData]}
             keyAccessor={keyAccessor}
             start={(d) => ({
-              x1: x(d),
-              x2: x(d),
+              x1: x(d) - xAdj,
+              x2: x(d) - xAdj,
               y1: bottomPos,
               y2: bottomPos,
               stroke: stroke(d),
@@ -169,8 +177,8 @@ const GeomVLine = <Datum,>({
             enter={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
               return {
-                x1: [x(d)],
-                x2: [x(d)],
+                x1: [x(d) - xAdj],
+                x2: [x(d) - xAdj],
                 y1: [bottomPos],
                 y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
                 stroke: [stroke(d)],
@@ -181,8 +189,8 @@ const GeomVLine = <Datum,>({
             update={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
               return {
-                x1: [x(d)],
-                x2: [x(d)],
+                x1: [x(d) - xAdj],
+                x2: [x(d) - xAdj],
                 y1: [bottomPos],
                 y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
                 stroke: [stroke(d)],
