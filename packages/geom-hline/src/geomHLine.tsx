@@ -103,8 +103,16 @@ const GeomHLine = <Datum,>({
 
   const y = useMemo(
     () => (d: Datum) =>
-      scales?.yScale && geomAes?.y && scales.yScale(geomAes.y(d)),
+      (scales?.yScale && geomAes?.y && scales.yScale(geomAes.y(d))) ?? 0,
     [scales, geomAes],
+  )
+
+  const yAdj = useMemo(
+    () =>
+      scales?.yScale?.bandwidth
+        ? (scales.yScale.bandwidth() / 2) * scales.yScale.paddingInner()
+        : 0,
+    [scales],
   )
 
   const checkIsOutisdeDomain = useMemo(
@@ -150,8 +158,8 @@ const GeomHLine = <Datum,>({
             start={(d) => ({
               x1: margin?.left || 0,
               x2: margin?.left || 0,
-              y1: y(d),
-              y2: y(d),
+              y1: y(d) - yAdj,
+              y2: y(d) - yAdj,
               stroke: stroke(d),
               strokeOpacity: 0,
             })}
@@ -160,8 +168,8 @@ const GeomHLine = <Datum,>({
               return {
                 x1: [(margin?.left || 0) - DEFAULT_TICK_SIZE],
                 x2: [width - (margin?.right || 0)],
-                y1: [y(d)],
-                y2: [y(d)],
+                y1: [y(d) - yAdj],
+                y2: [y(d) - yAdj],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
                 timing: { duration, ease: easeCubic },
@@ -172,8 +180,8 @@ const GeomHLine = <Datum,>({
               return {
                 x1: [(margin?.left || 0) - DEFAULT_TICK_SIZE],
                 x2: [width - (margin?.right || 0)],
-                y1: [y(d)],
-                y2: [y(d)],
+                y1: [y(d) - yAdj],
+                y2: [y(d) - yAdj],
                 stroke: [stroke(d)],
                 strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
                 timing: { duration, ease: easeCubic },

@@ -35,7 +35,10 @@ export const Tooltip = <Datum,>({
     { datum: tooltipDatum, position, xFormat, yFormat, measureFormat, content },
   ] = useAtom<TooltipProps<Datum>>(tooltipState)
 
-  const thisDatum = useMemo(() => tooltipDatum && tooltipDatum[0], [tooltipDatum])
+  const thisDatum = useMemo(
+    () => tooltipDatum && tooltipDatum[0],
+    [tooltipDatum],
+  )
 
   const label = useMemo(() => {
     const labelResolution = {
@@ -43,18 +46,15 @@ export const Tooltip = <Datum,>({
       keyed: thisDatum && aes?.key && aes.key(thisDatum),
     }
 
-    return labelResolution.given || labelResolution.keyed
+    return labelResolution.given ?? labelResolution.keyed
   }, [aes, thisDatum])
 
   const thisGroup = useMemo(
     () => thisDatum && group && group(thisDatum),
-    [thisDatum, group]
+    [thisDatum, group],
   )
 
-  const thisLabel = useMemo(
-    () => (label ? label.toString() : undefined),
-    [label]
-  )
+  const thisLabel = useMemo(() => (label ? String(label) : undefined), [label])
 
   const tooltipContents: TooltipContent<Datum>[] = [
     {
@@ -71,9 +71,7 @@ export const Tooltip = <Datum,>({
       group: thisGroup,
       label: thisLabel,
       formattedMeasure:
-        measureFormat &&
-        (thisLabel || String(thisGroup)) &&
-        measureFormat(thisLabel || thisGroup),
+        measureFormat && String(thisGroup) && measureFormat(thisGroup),
       datum: tooltipDatum,
       containerWidth: width,
     },
