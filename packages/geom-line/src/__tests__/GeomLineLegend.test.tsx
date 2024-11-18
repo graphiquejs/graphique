@@ -285,7 +285,7 @@ describe("GeomLine's legend", () => {
   })
 
   it('can incorporate a custom scale', async () => {
-    const groupsNotInData = ['NVDA', 'TSLA'] // not in data
+    const groupsNotInData = ['META', 'TSLA'] // not in data
     const customDomain = [...groupsNotInData, ...GROUPS]
 
     const { user } = setup(
