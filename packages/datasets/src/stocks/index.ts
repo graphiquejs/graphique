@@ -9,7 +9,7 @@ export type Stock = {
 
 /** **Market capitalizations of major US technology companies**
  *
- * Weekly measurements taken from 2020-09-16 to 2024-11-15.
+ * Weekly measurements taken from 2021-09-16 to 2024-11-15.
  */
 export const stocks: Stock[] = [
   {
