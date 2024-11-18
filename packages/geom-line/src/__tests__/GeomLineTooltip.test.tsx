@@ -16,7 +16,7 @@ import {
 const EXPECTED_TOOLTIP_DATUM: Stock[] = []
 const EXPECTED_DATUM_INDICES: number[] = []
 stocks.forEach((d, i) => {
-  const isIncluded = d.date === '4/28/2019'
+  const isIncluded = d.date === '11/25/2022'
 
   if (isIncluded) {
     EXPECTED_DATUM_INDICES.push(i)
@@ -24,7 +24,7 @@ stocks.forEach((d, i) => {
   }
 })
 
-const FORMATTED_DATE = 'Apr 28, 2019'
+const FORMATTED_DATE = 'Nov 25, 2022'
 
 interface Props {
   aes?: typeof DEFAULT_AES
@@ -140,6 +140,7 @@ describe("GeomLine's Tooltip", () => {
     const voronoiCells = await screen.findAllByTestId(/__gg_event_voronoi/)
 
     await user.hover(voronoiCells[EXPECTED_DATUM_INDICES[0]])
+
     expect(mockOnDatumFocus).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining(EXPECTED_TOOLTIP_DATUM[0]),
