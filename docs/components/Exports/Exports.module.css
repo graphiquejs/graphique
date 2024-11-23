@@ -1,0 +1,80 @@
+.exports-container {
+  margin-top: 0.5rem;
+
+  .h2 {
+    padding-top: 1rem;
+  }
+
+  .code-header {
+    font-size: 1.1rem !important;
+  }
+
+  .kind-label {
+    margin-left: 0.25rem;
+    font-weight: 400;
+  }
+}
+
+.hr {
+  opacity: 0.6;
+}
+
+.table {
+  margin-top: 0.75rem;
+  font-size: 0.855rem;
+  .table-header {
+    font-size: 0.855rem;
+    text-transform: capitalize;
+  }
+
+  .th {
+    font-weight: 800;
+  }
+
+  .th:is(html[class~='dark'] *) {
+    background-color: #090909;
+    border-color: #1b1b1b;
+  }
+
+  .th {
+    background-color: #fff;
+    padding: 0.75rem 1rem;
+  }
+
+  .tr {
+    .td {
+      padding: 0.75rem 1rem;
+    }
+    .td:first-child {
+      padding: 0.875rem 1rem;
+      vertical-align: top;
+    }
+
+    .td:is(html[class~='dark'] *) {
+      border-color: #1b1b1b;
+    }
+
+    .td span {
+      color: var(--shiki-light);
+    }
+
+    .td span:is(html[class~='dark'] *) {
+      color: var(--shiki-dark);
+    }
+
+    .td:first-child code span:first-child {
+      color: #032f62;
+      font-weight: 600;
+    }
+    .td:first-child code span:first-child:is(html[class~='dark'] *) {
+      color: #cce0f7;
+    }
+  }
+
+  .tr:is(html[class~='dark'] *):nth-child(2n) {
+    background-color: #0c0c0c;
+  }
+  .tr:is(html[class~='dark'] *) {
+    background-color: #101010;
+  }
+}

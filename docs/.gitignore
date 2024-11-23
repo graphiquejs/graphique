@@ -1,0 +1,6 @@
+.next
+node_modules
+tsconfig.tsbuildinfo
+.DS_Store
+
+input

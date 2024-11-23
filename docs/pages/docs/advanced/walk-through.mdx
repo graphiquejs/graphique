@@ -1,0 +1,289 @@
+import { A } from '#/components/typography';
+import {
+  Blank,
+  Basic,
+  SomePolish,
+  LogX,
+} from '#/components/walkThrough';
+import { Tabs } from 'nextra/components';
+
+# Walk-through
+
+This is an in-depth tutorial that demonstrates some of Graphique's core functionality.
+We'll walk through the process of creating a useful, interactive graphic that gradually builds in complexity.
+By going through it, you should get a sense for how Graphique:
+
+- maps **data properties to visual properties** using *Aesthetics* and scales
+- includes helpful pieces for **interpreting visualized data** (labels, legends, tooltips, and more)
+- is **configurable** — easily adjust/replace defaults (scales, tooltips, themes, etc.)
+
+First we'll install the necessary dependencies for our example.
+
+```sh npm2yarn copy
+npm i @graphique/graphique @graphique/geom-point @graphique/datasets d3-scale
+```
+
+## Show me the data
+
+We'll be using Graphique's <A href="/docs/datasets/gapminder">`gapminder`</A> dataset that contains
+various information on countries over time. It's an array of objects that looks like this:
+
+```json filename="gapminder.json"
+[
+  {
+    "country": "Afghanistan",
+    "continent": "Asia",
+    "year": 1952,
+    "lifeExp": 28.801,
+    "pop": 8425333,
+    "gdpPercap": 779.4453,
+  },
+  ...
+  {
+    "country": "Zimbabwe",
+    "continent": "Africa",
+    "year": 2007,
+    "lifeExp": 43.487,
+    "pop": 12311143,
+    "gdpPercap": 469.7093,
+  },
+]
+```
+
+## A layered approach
+
+For this example, we're interested in the relationship
+between GDP and life expectancy — the wealth (and health) of nations.
+We also would like to incorporate each country's population and continent, as well as the measurement year.
+**We'll start with the basics and build our way up to a useful, interactive graphic**.
+
+---
+
+### The base
+
+To begin, we'll look at only the most recent year's data (2007). This is what you get for free when plugging in your data and mapping a coordinate system (`x`, `y` Aesthetics):
+
+<Blank />
+
+```tsx filename="GapMinder.tsx"
+import { GG } from '@graphique/graphique';
+import { gapminder } from '@graphique/datasets';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp
+      }}
+      isContainerWidth
+    />
+  );
+};
+```
+
+Using the defaults, our (empty) graphic gets:
+
+- a coordinate system with a grid
+- scaled axes with ticks and tick labels
+- and dimensions (`its parent container's width` × `450 px`)
+
+This is a good start but isn't very useful without including any Geometries (`Geoms`).
+
+---
+
+### Draw the countries
+
+Let's draw these countries in the form of a scatterplot. We can turn what we have into a scatterplot simply by including `<GeomPoint />{:tsx}` as a child.
+
+<Basic />
+
+```tsx filename="GapMinder.tsx"{2,17-18}
+import { GG } from '@graphique/graphique';
+import { GeomPoint } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp
+      }}
+      isContainerWidth
+    >
+      <GeomPoint />
+    </GG>
+  );
+};
+```
+
+Data visualized! Each object in our `data` array gets a point positioned according to what's returned from the `x` and `y` accessor methods in `aes`. You might also notice we now have a (very basic) tooltip shown when hovering near each point.
+
+This is good for only a few lines of code, but still pretty crude. We'll add some polish to our graphic next.
+
+---
+
+### Starting to customize
+
+We'll add some readable labels and change the look of the points to tighten this up a little.
+
+<SomePolish />
+
+```tsx filename="GapMinder.tsx"{1,4,15,19-30}
+import { GG, Labels } from '@graphique/graphique';
+import { GeomPoint } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+      }}
+      isContainerWidth
+    >
+      <GeomPoint
+        opacity={0.7}
+        fill='#298670'
+        r={3}
+      />
+      <Labels
+        x='GDP per capita'
+        y='Life expectancy (years)'
+        header={
+          <span className={styles.gapMinderHeader}>The health and wealth of nations</span>
+        }
+      />
+    </GG>
+  );
+};
+```
+
+We're on our way to something useful now — our axes are labeled and and we put a title in our header.
+
+Notice our tooltip has the x and y values labeled now (based on our axis labels), and by mapping the `label` *Aesthetic* to each `country`, we can also see which country is which.
+
+---
+
+### Use and format log x scale [#log-x-scale]
+
+Since it is so skewed in this dataset, it makes sense to visualize GDP along a log scale instead of the linear one Graphique created for us by default. Rather than transforming these values ourselves, we can pass `scaleLog` from `d3-scale` into Graphique's `ScaleX` to modify its behavior.
+
+We'll also format GDP shown in the tooltip and the x tick labels in terms of inflation-adjusted dollars. In addition, we can determine the number of x ticks to show based on the container width — this way, the x axis won't be cluttered in narrow charting conditions (e.g. on phones).
+
+We'll define some utility formatting functions in a separate file to import and use in our visualization.
+
+<LogX />
+ 
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{1,4,5,26-31}
+import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique';
+import { GeomPoint } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { formatGDP, formatXTicks, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+      }}
+      isContainerWidth
+    >
+      <GeomPoint
+        opacity={0.7}
+        fill='#298670'
+        r={3}
+      />
+      <ScaleX
+        type={scaleLog}
+        format={formatXTicks}
+        numTicks={getNumXTicks}
+      />
+      <Tooltip xFormat={formatGDP} />
+      <Labels
+        x='GDP per capita'
+        y='Life expectancy (years)'
+        header={
+          <span className={styles.gapMinderHeader}>The health and wealth of nations</span>
+        }
+      />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTicks = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTicks, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Nice! This is definitely less compressed, and we now have dynamically formatted labels for both the x ticks and tooltip GDP values.
+
+## Finished product

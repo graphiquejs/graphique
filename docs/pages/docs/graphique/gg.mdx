@@ -1,0 +1,44 @@
+---
+title: GG
+---
+
+import { fetchDocs } from '#/utils/graphique'
+import { useGetData } from '#/utils/graphique/useGetData'
+import { Exports } from '#/components/Exports'
+import { Basic, Advanced } from '#/components/demo/gg'
+
+export const PKG_NAME = 'graphique'
+export const getStaticProps = async () => {
+  const docs = await fetchDocs(PKG_NAME)
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
+export const Summary = () => {
+  const { summary } = useGetData();
+
+  return summary;
+}
+
+<Summary />
+
+<Basic />
+
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />
