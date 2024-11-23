@@ -1,10 +1,17 @@
 import { ReactNode } from 'react'
 import { Aes } from './Aes'
 
+interface Margin {
+  top?: number
+  right?: number
+  bottom?: number
+  left?: number
+}
+
 export interface RootGGProps<Datum> {
   /** the data used to create the base, an array of objects */
   data: Datum[]
-  /** the mapping of data characteristics to visual characteristics */
+  /** the functional mapping of data characteristics to visual characteristics */
   aes: Aes<Datum>
   /** the width of the visualization area in pixels (defaults to `550`)
    *
@@ -13,17 +20,15 @@ export interface RootGGProps<Datum> {
   width?: number
   /** the height of the visualization area in pixels (defaults to `450`) */
   height?: number
-  /** specifies the margins surrounding the visualization area */
-  margin?: {
-    top?: number
-    right?: number
-    bottom?: number
-    left?: number
-  }
-  /** should the visualization fill its parent container's width
+  /** an object specifying the margins surrounding the visualization area */
+  margin?: Margin
+  /** when true, the visualization will fill its parent container's width
    * (and respond to changes in its width)
    */
   isContainerWidth?: boolean
+  /** elements used to specify and configure the visualization
+   * (e.g. Geoms, Scales, Labels, Theme, etc.)
+   */
   children?: ReactNode
 }
 

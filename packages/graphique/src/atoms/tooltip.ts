@@ -27,19 +27,19 @@ export interface TooltipProps<Datum> {
     | (({ width, x }: { width?: number; x?: number }) => boolean)
     | boolean
   position?: 'top' | 'data'
-  xFormat?: (d: unknown) => string
-  yFormat?: (d: unknown) => string
-  measureFormat?: (d: unknown) => string
+  xFormat?: (d: any) => string
+  yFormat?: (d: any) => string
+  measureFormat?: (d: any) => string
   content?: (value?: TooltipContent<Datum>[]) => React.ReactNode | undefined
   xAxis?: ((x?: string | number | Date | null) => React.ReactNode) | boolean
   datum?: Datum[]
 }
 
-const defaultDataFormatter = (v: unknown) => {
+const defaultDataFormatter = (v: any) => {
   if (isDate(v)) return formatDate(v as Date)
   if (typeof v === 'number')
     return v.toLocaleString(undefined, { maximumFractionDigits: 2 })
-  return v as any
+  return v
 }
 
 export const tooltipState = atom<TooltipProps<any>>({

@@ -110,6 +110,7 @@ const GeomCol = <Datum,>({
       const xVal = geomAes.x(d)
       return xZoomDomain?.current
         ? xVal !== null &&
+            typeof xVal !== 'undefined' &&
             xVal <= xZoomDomain.current[1] &&
             xVal >= xZoomDomain.current[0]
         : true

@@ -3,7 +3,7 @@ import { useGG, themeState, IScale } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 
-export interface AppearanceLegendProps {
+export interface LegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: 'horizontal' | 'vertical'
@@ -19,7 +19,7 @@ export const Legend = <Datum,>({
   format,
   onSelection,
   ignoreDasharray = false,
-}: AppearanceLegendProps) => {
+}: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font, geoms }] = useAtom(themeState)
@@ -41,29 +41,25 @@ export const Legend = <Datum,>({
       }}
     >
       {title}
-      {
-        copiedData &&
-          (copiedScales || line?.strokeScale) &&
-          (groups || line?.usableGroups) ? (
-            <CategoricalLegend
-              legendData={copiedData}
-              orientation={orientation}
-              legendScales={
-                {
-                  ...copiedScales,
-                  strokeScale: line
-                    ? line.strokeScale
-                    : copiedScales?.strokeScale,
-                  groups: line?.usableGroups,
-                } as IScale<Datum>
-              }
-              labelFormat={format}
-              fontSize={fontSize}
-              onSelection={onSelection}
-              ignoreDasharray={ignoreDasharray}  
-            />
-        ) : null
-      }
+      {copiedData &&
+      (copiedScales || line?.strokeScale) &&
+      (groups || line?.usableGroups) ? (
+        <CategoricalLegend
+          legendData={copiedData}
+          orientation={orientation}
+          legendScales={
+            {
+              ...copiedScales,
+              strokeScale: line ? line.strokeScale : copiedScales?.strokeScale,
+              groups: line?.usableGroups,
+            } as IScale<Datum>
+          }
+          labelFormat={format}
+          fontSize={fontSize}
+          onSelection={onSelection}
+          ignoreDasharray={ignoreDasharray}
+        />
+      ) : null}
     </div>
   ) : null
 }

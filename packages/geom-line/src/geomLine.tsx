@@ -32,8 +32,16 @@ import { useAtom } from 'jotai'
 import { LineMarker, Tooltip } from './tooltip'
 import { type GeomAes } from './types'
 
-export interface LineProps<Datum> extends SVGAttributes<SVGPathElement> {
+export interface GeomProps<Datum> extends SVGAttributes<SVGPathElement> {
+  /** data used by this Geom
+   *
+   * This will overwrite top-level `data` passed to `GG` as it relates to mappings defined in `aes`.
+   */
   data?: Datum[]
+  /** functional mapping applied to `data` for this Geom
+   *
+   * This extends the top-level `aes` passed to `GG`. Any repeated mappings in the Geom will take precedence.
+   */
   aes?: GeomAes<Datum>
   showTooltip?: boolean
   showLineMarker?: boolean
@@ -73,7 +81,7 @@ const GeomLine = <Datum,>({
   focusType = 'x',
   focusGroupAccessor,
   ...props
-}: LineProps<Datum>) => {
+}: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, copiedData, height, id } =
     ggState || {}

@@ -6,7 +6,8 @@
   "private": true,
   "workspaces": [
     "./packages/*",
-    "./demo"
+    "./demo",
+    "./docs"
   ],
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
@@ -44,6 +45,10 @@
     "prepare": "husky",
     "build": "lerna run build",
     "demo": "npm run dev -w @graphique/demo",
+    "docs:prepare": "npm run docs:prepare -w ./packages --if-present",
+    "docs:start": "npm run dev -w @graphique/docs",
+    "docs:build": "npm run build -w @graphique/docs",
+    "docs:typecheck": "npm run typecheck:src -w @graphique/docs",
     "typecheck:src": "npm run typecheck:src -w ./packages",
     "typecheck:build": "npm run typecheck:build -w ./packages",
     "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"

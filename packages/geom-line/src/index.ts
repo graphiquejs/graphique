@@ -1,2 +1,3 @@
-export { GeomLine } from "./geomLine"
-export { Legend } from "./legend"
+export { GeomLine, type GeomProps } from './geomLine'
+export { Legend, type LegendProps } from './legend'
+export type { GeomAes } from './types'

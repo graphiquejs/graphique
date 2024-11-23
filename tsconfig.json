@@ -2,14 +2,22 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "strict": true,
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "jsx": "react",
-    "types": ["@testing-library/jest-dom"]
+    "types": [
+      "@testing-library/jest-dom"
+    ]
   },
-  "exclude": ["packages/**/node_modules"]
+  "exclude": [
+    "packages/**/node_modules",
+    "docs/**/node_modules"
+  ]
 }
