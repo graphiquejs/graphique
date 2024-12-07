@@ -6,10 +6,8 @@ import { fetchDocs } from '#/utils/datasets'
 import { useGetData } from '#/utils/datasets/useGetData'
 import { Exports } from '#/components/Exports'
 
-export const PKG_NAME = 'datasets'
-
 export const getStaticProps = async () => {
-  const docs = await fetchDocs(PKG_NAME)
+  const docs = await fetchDocs()
 
   return {
     props: {

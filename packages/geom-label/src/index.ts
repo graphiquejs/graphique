@@ -1,2 +1,3 @@
-export { GeomLabel } from "./geomLabel"
-export { Legend } from "./legend"
+export { GeomLabel, GeomProps } from './geomLabel'
+export { Legend, LegendProps } from './legend'
+export { GeomAes, Entrance } from './types'

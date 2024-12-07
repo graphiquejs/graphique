@@ -14,7 +14,7 @@ import { transition } from 'd3-transition'
 
 export interface ColorBandLegendProps<Datum> {
   scales: IScale<Datum>
-  tickFormat?: (v: unknown, i: number) => string
+  tickFormat?: (v: string, i: number) => string
   width?: number
   tickSize?: number
   height?: number
@@ -94,7 +94,6 @@ export const ColorBandLegend = <Datum,>({
           g
             .selectAll('.tick line')
             .attr('y1', usedMargin.top + usedMargin.bottom - height)
-        // let scaleType = "unknown"
 
         const canvas = select(canvasRef.current)
         const axis = select(axisRef.current)

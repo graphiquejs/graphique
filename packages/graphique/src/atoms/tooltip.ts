@@ -17,6 +17,11 @@ export interface TooltipContent<Datum> {
   yLab?: string
 }
 
+export enum TooltipPosition {
+  TOP = 'top',
+  DATA = 'data',
+}
+
 export interface TooltipProps<Datum> {
   x0?: any
   y0?: any
@@ -26,7 +31,7 @@ export interface TooltipProps<Datum> {
   keepInParent?:
     | (({ width, x }: { width?: number; x?: number }) => boolean)
     | boolean
-  position?: 'top' | 'data'
+  position?: TooltipPosition
   xFormat?: (d: any) => string
   yFormat?: (d: any) => string
   measureFormat?: (d: any) => string
@@ -43,7 +48,7 @@ const defaultDataFormatter = (v: any) => {
 }
 
 export const tooltipState = atom<TooltipProps<any>>({
-  position: 'data',
+  position: TooltipPosition.DATA,
   keepInParent: true,
   xFormat: defaultDataFormatter,
   yFormat: defaultDataFormatter,

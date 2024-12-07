@@ -1,13 +1,13 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState } from '@graphique/graphique'
+import { useGG, themeState, LegendOrientation } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 import { ColorBandLegend } from './ColorBandLegend'
 
-export interface AppearanceLegendProps {
+export interface LegendProps {
   title?: React.ReactNode
   style?: CSSProperties
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: LegendOrientation
   format?: (v: any, i: number) => string
   numTicks?: number
   width?: number
@@ -17,12 +17,12 @@ export interface AppearanceLegendProps {
 export const Legend = <Datum,>({
   title,
   style,
-  orientation = 'vertical',
+  orientation = LegendOrientation.V,
   format,
   numTicks,
   width,
   onSelection,
-}: AppearanceLegendProps) => {
+}: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font }] = useAtom(themeState)

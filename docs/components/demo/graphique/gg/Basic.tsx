@@ -1,4 +1,4 @@
-import { SideBySideEditor } from '../SideBySideEditor';
+import { CodeEditor } from '#/components/demo/CodeEditor'
 
 const src = `import { GG } from '@graphique/graphique';
 import { penguins } from '@graphique/datasets';
@@ -10,9 +10,9 @@ const App = () => (
       x: (d) => d.bodyMass,
       y: (d) => d.flipperLength,
     }}
-    margin={{ left: 35 }}
+    margin={{ left: 45 }}
     isContainerWidth
   />
-);`;
+);`
 
-export const Basic = () => <SideBySideEditor src={src} />;
+export const Basic = () => <CodeEditor src={src} />

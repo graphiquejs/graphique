@@ -136,7 +136,7 @@ We'll add some readable labels and change the look of the points to tighten this
 
 <SomePolish />
 
-```tsx filename="GapMinder.tsx"{1,4,15,19-30}
+```tsx filename="GapMinder.tsx"{1,4,15,19-32}
 import { GG, Labels } from '@graphique/graphique';
 import { GeomPoint } from '@graphique/geom-point';
 import { gapminder } from '@graphique/datasets';
@@ -156,9 +156,11 @@ export const GapMinderChart = () => {
       isContainerWidth
     >
       <GeomPoint
-        opacity={0.7}
-        fill='#298670'
-        r={3}
+        attr={{
+          opacity: 0.7,
+          fill: '#298670',
+          r: 3,
+        }}
       />
       <Labels
         x='GDP per capita'
@@ -190,7 +192,7 @@ We'll define some utility formatting functions in a separate file to import and 
  
 <Tabs items={['GapMinder.tsx', 'formattingUtils.ts']}>
   <Tabs.Tab>
-```tsx filename="GapMinder.tsx"{1,4,5,26-31}
+```tsx filename="GapMinder.tsx"{1,4,5,28-33}
 import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique';
 import { GeomPoint } from '@graphique/geom-point';
 import { gapminder } from '@graphique/datasets';
@@ -212,9 +214,11 @@ export const GapMinderChart = () => {
       isContainerWidth
     >
       <GeomPoint
-        opacity={0.7}
-        fill='#298670'
-        r={3}
+        attr={{
+          opacity: 0.7,
+          fill: '#298670',
+          r: 3,
+        }}
       />
       <ScaleX
         type={scaleLog}

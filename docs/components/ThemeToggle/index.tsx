@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { MoonIcon, SunIcon } from 'nextra/icons';
-import { useTheme } from 'nextra-theme-docs';
+import { useState, useEffect } from 'react'
+import { MoonIcon, SunIcon } from 'nextra/icons'
+import { useTheme } from 'nextra-theme-docs'
 
 const ThemeToggle = () => {
-  const [mounted, setMounted] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   if (!mounted) {
-    return <div style={{ width: 38 }} />;
+    return <div style={{ width: 38 }} />
   }
 
   return (
     <button
       type="button"
       onClick={() => {
-        setTheme(isDark ? 'light' : 'dark');
+        setTheme(isDark ? 'light' : 'dark')
       }}
       style={{
         padding: 12,
@@ -32,7 +32,7 @@ const ThemeToggle = () => {
         <MoonIcon width={14} height={14} />
       )}
     </button>
-  );
-};
+  )
+}
 
-export default ThemeToggle;
+export default ThemeToggle

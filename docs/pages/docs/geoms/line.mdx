@@ -1,5 +1,20 @@
-import { Basic } from '#/components/demo/geom-line'
 import Readme from '#/input/geom-line/README.mdx'
+import { Basic, Legend, Missing } from '#/components/demo/geoms/geom-line'
+import { fetchDocs } from '#/utils/geoms/geom-line'
+import { useGetData } from '#/utils/geoms/geom-line/useGetData'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
 export const Intro = () => (
   <Readme />
@@ -9,18 +24,32 @@ export const Intro = () => (
 
 ## Examples
 
+### Basics
+
 <Basic />
+
+---
+
+### Using `aes` to group
+
+<Legend />
+
+---
+
+### Missing data
+
+<Missing />
 
 ---
 
 ## API
 
-`GeomLine{:ts}`
+export const E = () => {
+  const { apiItems } = useGetData()
 
-Props
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
 
-<br />
-
-`Legend{:ts}`
-
-Props
+<E />

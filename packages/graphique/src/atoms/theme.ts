@@ -13,24 +13,14 @@ interface PointThemeProps<Datum> {
   hasFill?: boolean
   fillScale?: VisualEncodingTypes
   strokeScale?: VisualEncodingTypes
+  strokeDasharrayScale?: VisualEncodingTypes
   usableGroups?: string[]
   groupAccessor?: DataValue<Datum>
   aes?: Aes<Datum>
   size?: (d: any) => number | null | undefined
 }
 
-type SharedPositions = 'identity' | 'stack' | 'fill'
-export type BarColPositions = SharedPositions | 'dodge'
-export type AreaPositions = SharedPositions
-//  | 'stream'
-
-interface BarColProps<Datum> extends PointThemeProps<Datum> {
-  position?: BarColPositions
-}
-
 interface AreaProps<Datum> extends PointThemeProps<Datum> {
-  /** controls how to draw the area */
-  position?: AreaPositions
   /** a functional mapping to `data` representing an initial **y** value */
   y0?: (d: Datum) => number | undefined
   /** a functional mapping to `data` representing a secondary **y** value */
@@ -53,8 +43,8 @@ export interface ThemeProps<Datum> {
     hline?: PointThemeProps<Datum>
     smooth?: PointThemeProps<Datum>
     tile?: PointThemeProps<Datum>
-    bar?: BarColProps<Datum>
-    col?: BarColProps<Datum>
+    bar?: PointThemeProps<Datum>
+    col?: PointThemeProps<Datum>
     histogram?: HistProps
     area?: AreaProps<Datum>
     label?: PointThemeProps<Datum>

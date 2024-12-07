@@ -6,13 +6,14 @@ import {
   strokeDasharrayState,
   formatMissing,
   IScale,
+  LegendOrientation,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface CategoricalLegendProps<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
-  orientation?: 'vertical' | 'horizontal'
+  orientation?: LegendOrientation
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
@@ -22,7 +23,7 @@ export interface CategoricalLegendProps<Datum> {
 export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
-  orientation = 'vertical',
+  orientation,
   labelFormat,
   fontSize = 12,
   onSelection,
@@ -39,11 +40,11 @@ export const CategoricalLegend = <Datum,>({
       legendScales.groups ||
       legendScales.strokeScale?.domain() ||
       legendScales.strokeDasharrayScale?.domain(),
-    [legendScales, strokeDomain, dashArrayDomain]
+    [legendScales, strokeDomain, dashArrayDomain],
   )
 
   const [isFocused, setIsFocused] = useState<string[]>(
-    geoms?.line?.usableGroups ?? []
+    geoms?.line?.usableGroups ?? [],
   )
 
   const { ggState, updateData } = useGG<Datum>() || {}
@@ -61,16 +62,16 @@ export const CategoricalLegend = <Datum,>({
 
   const getGroup = useMemo(
     () => geoms?.line?.groupAccessor || (() => undefined),
-    [geoms]
+    [geoms],
   )
 
   useEffect(() => {
     const dataGroups = Array.from(new Set(data!.map(getGroup))) as []
-    
+
     setIsFocused(dataGroups ?? [])
   }, [data, getGroup])
 
-  const isHorizontal = orientation === 'horizontal'
+  const isHorizontal = orientation === LegendOrientation.H
 
   const toggleLegendGroup = (g: string) => {
     const prevFocused = isFocused
@@ -101,7 +102,7 @@ export const CategoricalLegend = <Datum,>({
         }
       } else {
         updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g,
         )
       }
       updateData(updatedData)
@@ -121,11 +122,9 @@ export const CategoricalLegend = <Datum,>({
     >
       {geoms?.line &&
         legendGroups?.map((g: string, i, groups) => {
-          const strokeOpacity = (
-            isFocused.includes(g)
-              ? geoms?.line?.strokeOpacity
-              : geoms?.line?.strokeOpacity || 1 * 0.5
-          )
+          const strokeOpacity = isFocused.includes(g)
+            ? geoms?.line?.strokeOpacity
+            : geoms?.line?.strokeOpacity || 1 * 0.5
 
           return (
             <div
@@ -177,9 +176,9 @@ export const CategoricalLegend = <Datum,>({
                       strokeWidth={geoms?.line?.strokeWidth}
                       strokeOpacity={firstRender ? 0 : strokeOpacity}
                       strokeDasharray={
-                        (legendScales.strokeDasharrayScale && !ignoreDasharray
+                        legendScales.strokeDasharrayScale && !ignoreDasharray
                           ? legendScales.strokeDasharrayScale(g)
-                          : undefined)
+                          : undefined
                       }
                       style={{
                         transition: 'stroke-opacity 500ms',
@@ -193,8 +192,7 @@ export const CategoricalLegend = <Datum,>({
               </div>
             </div>
           )
-        }
-        )}
+        })}
     </div>
   )
 }

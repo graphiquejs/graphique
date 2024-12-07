@@ -6,14 +6,15 @@ import {
   strokeScaleState,
   formatMissing,
   IScale,
+  LegendOrientation,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface CategoricalLegendProps<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
-  orientation?: 'vertical' | 'horizontal'
-  labelFormat?: (v: any, i: number) => string
+  orientation?: LegendOrientation
+  labelFormat?: (v: string, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
 }
@@ -21,13 +22,13 @@ export interface CategoricalLegendProps<Datum> {
 export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
-  orientation = 'vertical',
+  orientation,
   labelFormat,
   fontSize = 12,
   onSelection,
 }: CategoricalLegendProps<Datum>) => {
   const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
+    legendScales.groups || [],
   )
 
   const [{ geoms }] = useAtom(themeState)
@@ -79,7 +80,7 @@ export const CategoricalLegend = <Datum,>({
         }
       } else {
         updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g,
         )
       }
       updateData(updatedData)

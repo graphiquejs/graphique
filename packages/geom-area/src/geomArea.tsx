@@ -19,7 +19,6 @@ import {
   strokeScaleState,
   VisualEncodingTypes,
   BrushAction,
-  AreaPositions,
 } from '@graphique/graphique'
 import { Animate } from 'react-move'
 import { easeCubic } from 'd3-ease'
@@ -32,48 +31,68 @@ import {
   curveLinear,
   stack,
   stackOffsetDiverging,
+  stackOffsetWiggle,
   stackOffsetExpand,
   stackOrderNone,
 } from 'd3-shape'
 import { min, max, sum, extent } from 'd3-array'
 import { useAtom } from 'jotai'
-import type { GeomAes, StackedArea } from './types'
+import { GeomAes, Position, StackedArea } from './types'
 import { LineMarker, Tooltip } from './tooltip'
 import { useHandleSpecificationErrors } from './hooks/useHandleSpecificationErrors'
 
-export interface GeomAreaProps<Datum> extends SVGAttributes<SVGPathElement> {
+export interface GeomProps<Datum> {
+  /**
+   * **data used by this Geom**
+   *
+   * This will overwrite top-level `data` passed to `GG` as it relates to mappings defined in `aes`.
+   */
   data?: Datum[]
+  /**
+   * **functional mapping applied to `data` for this Geom**
+   *
+   * This extends the top-level `aes` passed to `GG`. Any repeated mappings defined here will take precedence within the Geom.
+   */
   aes?: GeomAes<Datum>
+  /** attributes passed to the underlying SVG elements */
+  attr?: SVGAttributes<SVGPathElement>
+  /** determines how grouped elements are positioned relative to each other (defaults to `Position.IDENTITY`) */
+  position?: Position
+  /** should this Geom have a tooltip associated with it (defaults to `true`) */
   showTooltip?: boolean
+  /** determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction
+  /** [d3 curve](https://d3js.org/d3-shape/curve) factory imported from `d3-shape` (defaults to `curveLinear`) */
   curve?: CurveFactory
+  /** should this Geom have a line marker for its focused data (defaults to `true`) */
+  showLineMarker?: boolean
+  /** radius in px of the line marker's points (defaults to `3.5`) */
   markerRadius?: number
+  /** stroke color of the line marker's points (defaults to `"#ffffff"`) */
   markerStroke?: string
+  /** callback called for mousemove events on the drawing area when focusing data */
   onDatumFocus?: (data: Datum[], index: number[]) => void
+  /** callback called for click events on the drawing area when selecting focused data */
   onDatumSelection?: (data: Datum[], index: number[]) => void
+  /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
-  fillOpacity?: number
-  strokeOpacity?: number
-  position?: AreaPositions
 }
 
 const GeomArea = <Datum,>({
   data: localData,
   aes: localAes,
-  showTooltip = true,
   brushAction,
-  curve,
+  curve = curveLinear,
   onDatumFocus,
   onDatumSelection,
   onExit,
-  fillOpacity = 1,
-  strokeOpacity = 1,
-  strokeWidth = 0,
+  attr,
+  showTooltip = true,
+  showLineMarker = true,
   markerRadius = 3.5,
   markerStroke = '#fff',
-  position = 'identity',
-  ...props
-}: GeomAreaProps<Datum>) => {
+  position = Position.IDENTITY,
+}: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales } = ggState || {}
   const [theme, setTheme] = useAtom(themeState)
@@ -148,13 +167,6 @@ const GeomArea = <Datum,>({
     return geomData && undefinedY.length === geomData.length
   }, [geomData])
 
-  const {
-    fill: fillColor,
-    stroke: strokeColor,
-    strokeDasharray,
-    opacity,
-    // strokeWidth,
-  } = { ...props }
   const { defaultFill, defaultStroke, animationDuration: duration } = theme
 
   const geomID = useMemo(() => generateID(), [])
@@ -166,6 +178,11 @@ const GeomArea = <Datum,>({
     return () => clearTimeout(timeout)
   }, [])
 
+  const shouldStack = useMemo(
+    () => [Position.STACK, Position.FILL, Position.STREAM].includes(position),
+    [position],
+  )
+
   // draw an area for each registered group
   const group = useMemo(
     () =>
@@ -175,13 +192,15 @@ const GeomArea = <Datum,>({
     [geomAes],
   )
 
-  const groups = useMemo(
-    () =>
-      group
-        ? (Array.from(new Set(geomData?.map(group))) as string[])
-        : undefined,
-    [geomData, group],
-  )
+  const groups = useMemo(() => {
+    if (group) {
+      const g = Array.from(new Set(geomData?.map(group))) as string[]
+
+      return g
+    }
+
+    return undefined
+  }, [geomData, group])
 
   const fillGroups = useMemo(
     () => copiedScales?.fillScale?.domain(),
@@ -204,9 +223,77 @@ const GeomArea = <Datum,>({
     [scales, geomAes],
   )
 
-  const shouldStack = useMemo(
-    () => ['stack', 'fill', 'stream'].includes(position),
-    [position],
+  const stackOffset = useMemo(() => {
+    if (position === Position.FILL) return stackOffsetExpand
+    if (position === Position.STREAM) return stackOffsetWiggle
+
+    return stackOffsetDiverging
+  }, [position])
+
+  const stackOrder = useMemo(() => stackOrderNone, [position])
+
+  // error checking for missing y-related aes
+  useHandleSpecificationErrors({ geomAes, position, shouldStack })
+
+  const geomFillScale = useMemo(() => {
+    if (groups && geomAes.fill) {
+      return scaleOrdinal()
+        .domain(fillDomain || fillGroups || groups)
+        .range(
+          (fillScaleColors as string[]) || defaultScheme,
+        ) as VisualEncodingTypes
+    }
+    return undefined
+  }, [geomAes, fillScaleColors, fillDomain])
+
+  const geomStrokeScale = useMemo(() => {
+    if (groups && geomAes.stroke) {
+      return scaleOrdinal()
+        .domain(strokeDomain || strokeGroups || groups)
+        .range(
+          (strokeScaleColors as string[]) || defaultScheme,
+        ) as VisualEncodingTypes
+    }
+    return undefined
+  }, [geomAes, strokeDomain])
+
+  const stackedData = useMemo(() => {
+    if (
+      geomData &&
+      geomAes?.x &&
+      geomAes?.y &&
+      // geomFillScale &&
+      group &&
+      groups
+    ) {
+      const stacked = stack()
+        .keys([...(fillDomain || groups)]?.reverse())
+        .order(stackOrder)
+        .offset(stackOffset)(widen(geomData, geomAes.x, group, geomAes.y))
+
+      const formattedStacked = stacked
+        .map((s) => {
+          const thisGroup = s.key
+          return s
+            .map((thisStack) => ({
+              group: thisGroup,
+              x: thisStack.data.key,
+              y0: thisStack[0],
+              y1: thisStack[1],
+            }))
+            .flat()
+        })
+        .flat()
+        .sort((a, b) => a.x - b.x)
+
+      return formattedStacked
+    }
+    return null
+  }, [geomData, geomAes, stackOffset, stackOrder])
+
+  const isStream = useMemo(
+    () => position === Position.STREAM && !!stackedData,
+    [stackedData, position],
   )
 
   const getYValExtent = useCallback(
@@ -241,7 +328,7 @@ const GeomArea = <Datum,>({
           ),
         )
 
-        if (['stack', 'stream'].includes(position)) {
+        if ([Position.STACK].includes(position)) {
           const totalGroupYMaximums = max([
             sum(groupYMaximums),
             existingYExtent[1],
@@ -249,9 +336,24 @@ const GeomArea = <Datum,>({
 
           return [0, totalGroupYMaximums]
         }
-        if (position === 'fill') return [0, 1]
+        if (position === Position.FILL) return [0, 1]
 
-        if (position === 'identity') {
+        if (isStream) {
+          const zoomedStackData = xZoomDomain?.current
+            ? stackedData!.filter(
+                (d) =>
+                  d.x >= xZoomDomain?.current?.[0] &&
+                  d.x <= xZoomDomain?.current?.[1],
+              )
+            : stackedData!
+
+          const groupYMinimum = min(zoomedStackData, (d) => d.y0)
+          const groupYMaximum = max(zoomedStackData, (d) => d.y1)
+
+          return [groupYMinimum, groupYMaximum]
+        }
+
+        if (position === Position.IDENTITY) {
           const identityYVals: (number | undefined)[][] | undefined =
             areaData?.map((d) => {
               const yVal = geomAes?.y ? (geomAes.y(d) as number) : undefined
@@ -282,7 +384,15 @@ const GeomArea = <Datum,>({
 
       return resolvedYExtent
     },
-    [position, geomAes, shouldStack, groups],
+    [
+      position,
+      geomAes,
+      shouldStack,
+      groups,
+      isStream,
+      stackedData,
+      xZoomDomain?.current,
+    ],
   )
 
   const yValExtent = useMemo(() => {
@@ -333,7 +443,7 @@ const GeomArea = <Datum,>({
 
           return areDefined && areNumbers
         })
-        .curve(curve || curveLinear),
+        .curve(curve),
     [curve, scales, geomAes, localAes, yValExtent],
   )
 
@@ -370,36 +480,24 @@ const GeomArea = <Datum,>({
   )
 
   // merge GG-level scales with Geom-level scales
+  const baseAttr: SVGAttributes<SVGPathElement> = {
+    fillOpacity: 1,
+    strokeOpacity: 1,
+    strokeWidth: 0,
+  }
 
-  const geomFillScale = useMemo(() => {
-    if (groups && geomAes.fill) {
-      return scaleOrdinal()
-        .domain(fillDomain || fillGroups || groups)
-        .range(
-          (fillScaleColors as string[]) || defaultScheme,
-        ) as VisualEncodingTypes
-    }
-    return undefined
-  }, [geomAes, fillScaleColors, fillDomain])
-
-  const geomStrokeScale = useMemo(() => {
-    if (groups && geomAes.stroke) {
-      return scaleOrdinal()
-        .domain(strokeDomain || strokeGroups || groups)
-        .range(
-          (strokeScaleColors as string[]) || defaultScheme,
-        ) as VisualEncodingTypes
-    }
-    return undefined
-  }, [geomAes])
+  const geomAttr: SVGAttributes<SVGPathElement> = {
+    ...baseAttr,
+    ...attr,
+  }
 
   const resolvedOpacity = useMemo(
     () =>
-      props.style?.fillOpacity ||
-      props.style?.opacity ||
-      opacity ||
-      fillOpacity,
-    [props.style, opacity, fillOpacity],
+      attr?.style?.fillOpacity ||
+      attr?.style?.opacity ||
+      attr?.opacity ||
+      attr?.fillOpacity,
+    [attr],
   )
 
   useEffect(() => {
@@ -410,83 +508,32 @@ const GeomArea = <Datum,>({
         area: {
           position,
           fillOpacity: resolvedOpacity,
-          stroke: strokeColor,
-          fill: fillColor,
+          stroke: geomAttr.stroke,
+          fill: geomAttr.fill,
           fillScale: geomFillScale,
           strokeScale: geomStrokeScale,
-          groupAccessor: geomAes?.fill ?? geomAes?.group,
+          groupAccessor: group ?? geomAes?.fill ?? geomAes?.group,
           usableGroups: groups,
           y0,
           y1,
-          strokeWidth: props.style?.strokeWidth || strokeWidth,
-          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
-          strokeDasharray: props.style?.strokeDasharray || strokeDasharray,
+          strokeWidth: geomAttr?.style?.strokeWidth || geomAttr?.strokeWidth,
+          strokeOpacity:
+            geomAttr?.style?.strokeOpacity || geomAttr?.strokeOpacity,
+          strokeDasharray:
+            geomAttr?.style?.strokeDasharray || geomAttr?.strokeDasharray,
         },
       },
     }))
   }, [
     resolvedOpacity,
     setTheme,
-    strokeWidth,
-    strokeOpacity,
-    strokeDasharray,
-    strokeColor,
-    fillColor,
-    props.style,
+    attr,
     position,
     shouldStack,
     group,
+    geomFillScale,
+    geomStrokeScale,
   ])
-
-  const stackOffset = useMemo(() => {
-    if (position === 'fill') return stackOffsetExpand
-    // if (position === 'stream') return stackOffsetWiggle
-    return stackOffsetDiverging
-  }, [position])
-
-  const stackOrder = useMemo(
-    () =>
-      // if (position === 'stream') return stackOrderInsideOut
-      stackOrderNone,
-    [position],
-  )
-
-  // error checking for missing y-related aes
-  useHandleSpecificationErrors({ geomAes, position, shouldStack })
-
-  const stackedData = useMemo(() => {
-    if (
-      geomData &&
-      geomAes?.x &&
-      geomAes?.y &&
-      shouldStack &&
-      group &&
-      groups
-    ) {
-      const stacked = stack()
-        .keys(groups)
-        .order(stackOrder)
-        .offset(stackOffset)(widen(geomData, geomAes.x, group, geomAes.y))
-
-      const formattedStacked = stacked
-        .map((s) => {
-          const thisGroup = s.key
-          return s
-            .map((thisStack) => ({
-              group: thisGroup,
-              x: thisStack.data.key,
-              y0: thisStack[0],
-              y1: thisStack[1],
-            }))
-            .flat()
-        })
-        .flat()
-        .sort((a, b) => a.x - b.x)
-
-      return formattedStacked
-    }
-    return null
-  }, [geomData, geomAes, shouldStack, stackOffset, stackOrder])
 
   const isAbleToDrawArea = useMemo(
     () => (shouldStack ? !!stackedData : true),
@@ -525,7 +572,7 @@ const GeomArea = <Datum,>({
               : undefined
 
           let thisFill =
-            fillColor ||
+            geomAttr.fill ||
             (geomFillScale && geomFillScale(g)) ||
             (copiedScales?.fillScale ? copiedScales.fillScale(g) : defaultFill)
 
@@ -545,7 +592,7 @@ const GeomArea = <Datum,>({
               : undefined
 
           let thisStroke =
-            strokeColor ||
+            geomAttr.stroke ||
             (geomStrokeScale && geomStrokeScale(g)) ||
             (copiedScales?.strokeScale
               ? copiedScales.strokeScale(g)
@@ -558,10 +605,10 @@ const GeomArea = <Datum,>({
           }
 
           const thisDasharray =
-            strokeDasharray ||
+            geomAttr.strokeDasharray ||
             (copiedScales?.strokeDasharrayScale
               ? copiedScales.strokeDasharrayScale(g)
-              : strokeDasharray)
+              : undefined)
 
           return (
             <Animate
@@ -581,8 +628,8 @@ const GeomArea = <Datum,>({
                   : [drawArea(groupData)],
                 fill: thisFill,
                 stroke: thisStroke,
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
+                fillOpacity: [geomAttr.fillOpacity],
+                strokeOpacity: [geomAttr.strokeOpacity],
                 timing: { duration, ease: easeCubic },
               }}
               update={{
@@ -591,8 +638,8 @@ const GeomArea = <Datum,>({
                   : [drawArea(groupData)],
                 fill: thisFill,
                 stroke: thisStroke,
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
+                fillOpacity: [geomAttr.fillOpacity],
+                strokeOpacity: [geomAttr.strokeOpacity],
                 timing: {
                   duration,
                   ease: easeCubic,
@@ -603,8 +650,8 @@ const GeomArea = <Datum,>({
                 stroke: ['transparent'],
                 timing: { duration, ease: easeCubic },
               })}
-              interpolation={(begValue, endValue, attr) => {
-                if (attr === 'path') {
+              interpolation={(begValue, endValue, a) => {
+                if (a === 'path') {
                   return interpolatePath(begValue, endValue)
                 }
                 return interpolate(begValue, endValue)
@@ -612,20 +659,21 @@ const GeomArea = <Datum,>({
             >
               {(state) => (
                 <path
+                  // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...attr}
                   d={state.path}
                   fill={state.fill}
                   fillOpacity={state.fillOpacity}
                   stroke={state.stroke}
                   strokeOpacity={state.strokeOpacity}
-                  strokeWidth={strokeWidth}
+                  strokeWidth={geomAttr.strokeWidth}
                   strokeDasharray={thisDasharray}
                   style={{
                     pointerEvents: 'none',
+                    ...geomAttr?.style,
                   }}
                   data-testid="__gg_geom_area"
                   clipPath={`url(#__gg_canvas_${id})`}
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...props}
                 />
               )}
             </Animate>
@@ -660,15 +708,19 @@ const GeomArea = <Datum,>({
           />
           {showTooltip && (
             <>
-              <LineMarker
-                x={x}
-                y={y}
-                y0={y0}
-                y1={y1}
-                aes={geomAes}
-                markerRadius={markerRadius}
-                markerStroke={markerStroke}
-              />
+              {showLineMarker && (
+                <LineMarker
+                  x={x}
+                  y={y}
+                  y0={y0}
+                  y1={y1}
+                  aes={geomAes}
+                  markerRadius={markerRadius}
+                  markerStroke={markerStroke}
+                  stackedData={stackedData}
+                  position={position}
+                />
+              )}
               <Tooltip
                 x={x}
                 y={y}
@@ -676,6 +728,7 @@ const GeomArea = <Datum,>({
                 y1={y1}
                 aes={geomAes}
                 geomID={geomID}
+                position={position}
               />
             </>
           )}

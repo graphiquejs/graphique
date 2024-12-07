@@ -1,13 +1,67 @@
-# GeomArea
+import Readme from '#/input/geom-area/README.mdx'
+import { Basic, Stacked, Filled, Streamed, Bands } from '#/components/demo/geoms/geom-area'
+import { fetchDocs } from '#/utils/geoms/geom-area'
+import { useGetData } from '#/utils/geoms/geom-area/useGetData'
+import { Exports } from '#/components/Exports'
 
-For area charts, stacked area charts, and streamgraphs in Graphique.
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
 
-## Install
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
-```sh npm2yarn copy
-npm i @graphique/geom-area
-```
+export const Intro = () => (
+  <Readme />
+)
+
+<Intro />
 
 ## Examples
 
-## Props
+### Basics
+
+<Basic />
+
+---
+
+### Stacked
+
+<Stacked />
+
+---
+
+### Filled
+
+<Filled />
+
+---
+
+### Streamed
+
+<Streamed />
+
+---
+
+### Bands
+
+<Bands />
+
+---
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

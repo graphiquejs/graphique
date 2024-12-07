@@ -1,6 +1,8 @@
-import { SideBySideEditor } from '../SideBySideEditor';
+import dependencies from '#/input/geom-line/build/dependencies'
+import { CodeEditor } from '../../CodeEditor'
+import { additionalFiles } from './additionalFiles'
 
-const src = `import { GG } from '@graphique/graphique';
+const src = `import { GG, BrushAction } from '@graphique/graphique';
 import { stocks } from '@graphique/datasets';
 import { GeomLine } from '@graphique/geom-line';
 
@@ -20,18 +22,18 @@ const App = () => (
     height={350}
     isContainerWidth
   >
-    <GeomLine stroke="#6aafa3" />
+    <GeomLine
+      attr={{ stroke: "#6aafa3" }}
+      brushAction={BrushAction.ZOOM}
+    />
   </GG>
-);`;
-
-const additionalDeps = {
-  '@graphique/geom-line': 'latest',
-};
+);`
 
 export const Basic = () => (
-  <SideBySideEditor
+  <CodeEditor
     src={src}
-    additionalDeps={additionalDeps}
-    editorHeight={370}
+    height={370}
+    additionalDeps={dependencies}
+    additionalFiles={additionalFiles}
   />
-);
+)

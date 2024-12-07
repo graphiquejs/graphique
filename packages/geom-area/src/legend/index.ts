@@ -1,1 +1,1 @@
-export { Legend } from "./AppearanceLegend"
+export { Legend, LegendProps } from './AppearanceLegend'

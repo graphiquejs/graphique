@@ -4,5 +4,10 @@
     "src/index.ts"
   ],
   "tsconfig": "tsconfig.json",
+  "sort": [
+    "kind",
+    "instance-first",
+    "source-order"
+  ],
   "treatWarningsAsErrors": true
 }

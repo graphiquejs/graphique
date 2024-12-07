@@ -1,6 +1,7 @@
 {
   "name": "@graphique/monorepo",
   "version": "0.0.1",
+  "type": "module",
   "description": "A container repo for all things Graphique",
   "license": "MIT",
   "private": true,
@@ -35,6 +36,7 @@
     "react-dom": "^18.3.1",
     "resize-observer-polyfill": "^1.5.1",
     "ts-jest": "^29.2.5",
+    "ts-json-schema-generator": "^2.3.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
@@ -45,10 +47,10 @@
     "prepare": "husky",
     "build": "lerna run build",
     "demo": "npm run dev -w @graphique/demo",
-    "docs:prepare": "npm run docs:prepare -w ./packages --if-present",
+    "docs:generate": "node scripts/generateDocs",
     "docs:start": "npm run dev -w @graphique/docs",
     "docs:build": "npm run build -w @graphique/docs",
-    "docs:typecheck": "npm run typecheck:src -w @graphique/docs",
+    "typecheck:docs": "npm run typecheck:src -w @graphique/docs",
     "typecheck:src": "npm run typecheck:src -w ./packages",
     "typecheck:build": "npm run typecheck:build -w ./packages",
     "release": "lerna changed && npm run typecheck:build && lerna publish --no-private"

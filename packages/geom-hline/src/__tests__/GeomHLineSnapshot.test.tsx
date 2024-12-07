@@ -21,7 +21,7 @@ xdescribe('a chart with vertical lines matches a snapshot', () => {
           aes={{
             y: (d) => d.count!,
           }}
-          strokeDasharray="2,1"
+          attr={{ strokeDasharray: '2,1' }}
         />
       </GGHLine>,
     )
@@ -46,7 +46,7 @@ xdescribe('a chart with vertical lines matches a snapshot', () => {
           aes={{
             y: (d) => d.count!,
           }}
-          strokeDasharray="2,1"
+          attr={{ strokeDasharray: '2,1' }}
           showTooltip={false}
         />
         <GeomPoint />

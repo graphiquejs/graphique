@@ -1,0 +1,1 @@
+export { fetchDocs } from './fetchDocs'

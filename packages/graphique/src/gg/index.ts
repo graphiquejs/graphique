@@ -1,8 +1,8 @@
-export { GG } from "./GG"
-export { useGG } from "./GGBase"
-export { Labels } from "./labels"
-export { Theme } from "./theme"
-export { Zoom } from "./zoom"
-export * from "./tooltip"
-export * from "./types"
-export * from "./scales"
+export { GG } from './GG'
+export { useGG } from './GGBase'
+export { Labels } from './labels'
+export { Theme } from './theme'
+export { Zoom, useUnZoom } from './zoom'
+export * from './tooltip'
+export * from './types'
+export * from './scales'

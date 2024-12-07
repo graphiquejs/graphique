@@ -39,10 +39,6 @@
     "prepublishOnly": "npm run lint && npm run build",
     "typecheck:src": "tsc --noEmit",
     "typecheck:build": "attw --pack",
-    "docs:parse": "typedoc-json-parser",
-    "docs:copy-readme": "cp README.md ../../docs/input/geom-line/README.mdx",
-    "docs:generateTypes": "quicktype ../../docs/input/geom-line/api.json -o ../../docs/input/geom-line/api.ts",
-    "docs:prepare": "npm run docs:parse && npm run docs:copy-readme && npm run docs:generateTypes",
     "build": "tsup --minify",
     "watch": "tsup --watch"
   },

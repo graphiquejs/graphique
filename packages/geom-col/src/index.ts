@@ -1,3 +1,9 @@
-export { GeomCol, type GeomColProps } from './geomCol'
-export { Legend } from './legend'
-export type { HistogramBin } from './types'
+export { GeomCol, type GeomProps } from './geomCol'
+export { Legend, type LegendProps } from './legend'
+export {
+  type HistogramBin,
+  type GeomAes,
+  FocusType,
+  Alignment,
+  Position,
+} from './types'

@@ -3,7 +3,7 @@ interface Props {
 }
 
 const LogoButton: React.FC<Props> = ({ isSmall }) => {
-  const width = isSmall ? 110 : 170;
+  const width = isSmall ? 110 : 170
 
   return (
     <div className="dark:_text-slate-700" style={{ width }}>
@@ -145,7 +145,7 @@ const LogoButton: React.FC<Props> = ({ isSmall }) => {
         </g>
       </svg>
     </div>
-  );
-};
+  )
+}
 
-export default LogoButton;
+export default LogoButton

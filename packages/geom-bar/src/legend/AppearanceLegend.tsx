@@ -1,28 +1,35 @@
 import React, { useEffect, useState, CSSProperties } from 'react'
-import { useGG, themeState } from '@graphique/graphique'
+import { useGG, themeState, LegendOrientation } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 import { ColorBandLegend } from './ColorBandLegend'
 
-export interface AppearanceLegendProps {
+export interface LegendProps {
+  /** title of legend */
   title?: React.ReactNode
-  style?: CSSProperties
-  orientation?: 'horizontal' | 'vertical'
-  format?: (v: any, i: number) => string
-  numTicks?: number
+  /** determines vertical/horizontal orientation of categorical legend members (defaults to `LegendOrientation.V`) */
+  orientation?: LegendOrientation
+  /** function for formatting legend member labels (categorical) or tick labels (continuous) */
+  format?: (v: string, i: number) => string
+  /** width of continuous legend in px (defaults to `320`) */
   width?: number
+  /** approximate number of ticks for continuous legend (defaults to `width / 64`) */
+  numTicks?: number
+  /** callback called for click events on legend members */
   onSelection?: (v: string) => void
+  /** additional styles passed to legend container */
+  style?: CSSProperties
 }
 
 export const Legend = <Datum,>({
   title,
   style,
-  orientation = 'vertical',
+  orientation = LegendOrientation.V,
   format,
   numTicks,
   width,
   onSelection,
-}: AppearanceLegendProps) => {
+}: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font }] = useAtom(themeState)

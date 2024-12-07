@@ -20,6 +20,7 @@
       ]
     },
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
@@ -29,6 +30,9 @@
       {
         "name": "@mdx-js/typescript-plugin"
       }
+    ],
+    "types": [
+      "@graphique/graphique/dist/index.d.ts"
     ]
   },
   "mdx": {

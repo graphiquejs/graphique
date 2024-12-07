@@ -1,13 +1,61 @@
-# GeomBar
+import Readme from '#/input/geom-bar/README.mdx'
+import { Basic, Stacked, Filled, Dodged } from '#/components/demo/geoms/geom-bar'
+import { fetchDocs } from '#/utils/geoms/geom-bar'
+import { useGetData } from '#/utils/geoms/geom-bar/useGetData'
+import { Exports } from '#/components/Exports'
 
-For visualizing data as horizontal bars in Graphique. For vertical bars/columns, try [GeomCol](/docs/geoms/col).
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
 
-## Install
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
-```sh npm2yarn copy
-npm i @graphique/geom-bar
-```
+export const Intro = () => (
+  <Readme />
+)
+
+<Intro />
 
 ## Examples
 
-## Props
+### Basics
+
+<Basic />
+
+---
+
+### Stacked
+
+<Stacked />
+
+---
+
+### Filled
+
+<Filled />
+
+---
+
+### Dodged
+
+<Dodged />
+
+---
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

@@ -38,10 +38,6 @@
     "prepublishOnly": "npm run lint && npm run build",
     "typecheck:src": "tsc --noEmit",
     "typecheck:build": "attw --pack",
-    "docs:parse": "typedoc-json-parser",
-    "docs:copy-readme": "cp README.md ../../docs/input/datasets/README.mdx",
-    "docs:generateTypes": "quicktype ../../docs/input/datasets/api.json -o ../../docs/input/datasets/api.ts",
-    "docs:prepare": "npm run docs:parse && npm run docs:copy-readme && npm run docs:generateTypes",
     "build": "tsup --minify --cjsInterop",
     "watch": "tsup --watch"
   }

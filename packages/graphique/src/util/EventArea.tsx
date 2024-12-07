@@ -12,7 +12,7 @@ import {
   zoomState,
   TooltipProps,
 } from '../atoms'
-import type { Aes, DataValue, BrushAction } from '../gg'
+import { Aes, DataValue, BrushAction } from '../gg/types'
 import { useGG } from '../gg/GGBase'
 import { ZoomOutButton, useUnZoom } from '../gg/zoom'
 import {
@@ -696,7 +696,7 @@ export const EventArea = <Datum,>({
     ) => {
       handleMouseOut(event)
 
-      if (brushAction === 'zoom') {
+      if (brushAction === BrushAction.ZOOM) {
         unZoom({ customXExtent, customYExtent })
       }
 

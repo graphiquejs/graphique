@@ -17,6 +17,6 @@
   "editor.formatOnType": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.associations": {
-    "*.json": "jsonc"
+    "*.json(?!package)": "jsonc"
   }
 }

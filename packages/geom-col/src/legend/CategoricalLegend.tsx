@@ -6,14 +6,16 @@ import {
   strokeScaleState,
   IScale,
   formatMissing,
+  LegendOrientation,
+  useUnZoom,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface Props<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
-  orientation?: 'vertical' | 'horizontal'
-  labelFormat?: (v: any, i: number) => string
+  orientation?: LegendOrientation
+  labelFormat?: (v: string, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
 }
@@ -21,18 +23,21 @@ export interface Props<Datum> {
 export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
-  orientation = 'vertical',
+  orientation,
   labelFormat,
   fontSize = 12,
   onSelection,
 }: Props<Datum>) => {
   const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
+    legendScales.groups || [],
   )
 
   const [{ geoms }] = useAtom(themeState)
   const [{ domain: fillDomain }] = useAtom(fillScaleState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
+
+  const unZoom = useUnZoom()
+  const isHistogram = !!geoms?.histogram
 
   const legendGroups =
     ((fillDomain || strokeDomain) as string[]) || legendScales.groups
@@ -48,9 +53,13 @@ export const CategoricalLegend = <Datum,>({
     ? legendScales.groupAccessor
     : () => legendScales.groups && legendScales.groups[0]
 
-  const isHorizontal = orientation === 'horizontal'
+  const isHorizontal = orientation === LegendOrientation.H
 
   const toggleLegendGroup = (g: string) => {
+    if (isHistogram) {
+      unZoom({})
+    }
+
     const prevFocused = isFocused
     let focusedGroups
     if (prevFocused.includes(g)) {
@@ -79,7 +88,7 @@ export const CategoricalLegend = <Datum,>({
         }
       } else {
         updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g,
         )
       }
       updateData(updatedData)

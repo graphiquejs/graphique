@@ -1,21 +1,32 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState, IScale } from '@graphique/graphique'
+import {
+  useGG,
+  themeState,
+  IScale,
+  LegendOrientation,
+} from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 
 export interface LegendProps {
+  /** title of legend */
   title?: React.ReactNode
+  /** additional styles passed to legend container */
   style?: CSSProperties
-  orientation?: 'horizontal' | 'vertical'
+  /** determines vertical/horizontal orientation of legend members (defaults to `LegendOrientation.V`) */
+  orientation?: LegendOrientation
+  /** function for formatting legend member labels */
   format?: (v: string, i: number) => string
+  /** callback called for click events on legend members */
   onSelection?: (v: string) => void
+  /** should legend member stroke symbols include stroke dasharrays (defaults to `true`) */
   ignoreDasharray?: boolean
 }
 
 export const Legend = <Datum,>({
   title,
   style,
-  orientation = 'vertical',
+  orientation = LegendOrientation.V,
   format,
   onSelection,
   ignoreDasharray = false,
@@ -28,7 +39,11 @@ export const Legend = <Datum,>({
   const { groups } = copiedScales || {}
 
   const hasAppearanceAes =
-    line?.strokeScale || aes?.fill || aes?.stroke || aes?.strokeDasharray
+    line?.strokeScale ||
+    line?.strokeDasharrayScale ||
+    aes?.fill ||
+    aes?.stroke ||
+    aes?.strokeDasharray
 
   const { fontSize } = { ...style }
 

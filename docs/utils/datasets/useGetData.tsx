@@ -43,12 +43,6 @@ export const useGetData = () => {
     })),
   }
 
-  console.log({
-    docs,
-    variableData,
-    interfaceTableData,
-  })
-
   const summary = (
     <Markdown components={components}>
       {variableInfo.comment.description}

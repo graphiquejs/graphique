@@ -103,6 +103,7 @@ export const GGBase = <Datum,>({
   const geomAesY1s: DataValue<Datum>[] = []
   const geomGroupAccessors: DataValue<Datum>[] = []
   const geomAesStrokes: DataValue<Datum>[] = []
+  const geomAesStrokeDasharrays: DataValue<Datum>[] = []
   const geomAesFills: DataValue<Datum>[] = []
 
   geoms.forEach((g: any) => {
@@ -117,6 +118,8 @@ export const GGBase = <Datum,>({
     if (geomProps.aes?.y1) geomAesY1s.push(geomProps.aes.y1)
 
     if (geomProps.aes?.stroke) geomAesStrokes.push(geomProps.aes.stroke)
+    if (geomProps.aes?.strokeDasharray)
+      geomAesStrokeDasharrays.push(geomProps.aes.strokeDasharray)
     if (geomProps.aes?.fill) geomAesFills.push(geomProps.aes.fill)
 
     const isBar = g.type.displayName.includes('Bar')
@@ -164,6 +167,7 @@ export const GGBase = <Datum,>({
           hasZeroYBaseLine,
           geomGroupAccessors,
           geomAesStrokes,
+          geomAesStrokeDasharrays,
           geomAesFills,
           fill: fillScale,
           stroke: strokeScale,
@@ -188,6 +192,7 @@ export const GGBase = <Datum,>({
           hasZeroYBaseLine,
           geomGroupAccessors,
           geomAesStrokes,
+          geomAesStrokeDasharrays,
           geomAesFills,
           fill: fillScale,
           stroke: strokeScale,

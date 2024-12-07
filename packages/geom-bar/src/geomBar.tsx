@@ -18,6 +18,7 @@ import {
   Aes,
   usePageVisibility,
   defineGroupAccessor,
+  fillScaleState,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { NodeGroup } from 'react-move'
@@ -27,26 +28,43 @@ import { scaleBand } from 'd3-scale'
 import { max, sum } from 'd3-array'
 import { stack, stackOffsetExpand, stackOffsetNone } from 'd3-shape'
 import { Tooltip } from './tooltip'
+import { FocusType, Position } from './types'
 
-export interface BarProps<Datum> extends SVGAttributes<SVGRectElement> {
+export interface GeomProps<Datum> {
+  /**
+   * **data used by this Geom**
+   *
+   * This will overwrite top-level `data` passed to `GG` as it relates to mappings defined in `aes`.
+   */
   data?: Datum[]
+  /**
+   * **functional mapping applied to `data` for this Geom**
+   *
+   * This extends the top-level `aes` passed to `GG`. Any repeated mappings defined here will take precedence within the Geom.
+   */
   aes?: Aes<Datum>
-  focusedStyle?: CSSProperties
-  unfocusedStyle?: CSSProperties
-  yPadding?: number
-  dodgePadding?: number
-  xDomain?: unknown[]
-  yDomain?: unknown[]
+  /** attributes passed to the underlying SVG elements */
+  attr?: SVGAttributes<SVGRectElement>
+  /** determines how grouped elements are positioned relative to each other (defaults to `Position.STACK`) */
+  position?: Position
+  /** determines how elements within bar groups are focused (defaults to `FocusType.GROUP`)  */
+  focusType?: FocusType
+  /** should this Geom have a tooltip associated with it (defaults to `true`) */
   showTooltip?: boolean
+  /** padding value (0-1) that sets the space between bars/bar groups (defaults to `0.2`) */
+  yPadding?: number
+  /** padding value (0-1) that sets the space between elements positioned with `position={POSITION.DODGE}` (defaults to `0.05`) */
+  dodgePadding?: number
+  /** styles applied to focused elements */
+  focusedStyle?: CSSProperties
+  /** styles applied to unfocused elements */
+  unfocusedStyle?: CSSProperties
+  /** callback called for mousemove events on the drawing area when focusing data */
   onDatumFocus?: (data: Datum[], index: number[]) => void
+  /** callback called for click events on the drawing area when selecting focused data */
   onDatumSelection?: (data: Datum[], index: number[]) => void
+  /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
-  fillOpacity?: number
-  strokeOpacity?: number
-  freeBaseLine?: boolean
-  position?: 'identity' | 'stack' | 'dodge' | 'fill'
-  animateOnEnter?: boolean
-  focusType?: 'group' | 'individual'
 }
 
 const GeomBar = <Datum,>({
@@ -54,22 +72,16 @@ const GeomBar = <Datum,>({
   aes: localAes,
   focusedStyle,
   unfocusedStyle,
+  attr,
   onDatumFocus,
   onDatumSelection,
   onExit,
-  xDomain,
-  yDomain,
   yPadding = 0.2,
   dodgePadding = 0.05,
   showTooltip = true,
-  fillOpacity = 1,
-  strokeOpacity = 1,
-  freeBaseLine,
-  position = 'stack',
-  animateOnEnter = true,
-  focusType = 'group',
-  ...props
-}: BarProps<Datum>) => {
+  position = Position.STACK,
+  focusType = FocusType.GROUP,
+}: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
 
@@ -86,17 +98,10 @@ const GeomBar = <Datum,>({
 
   const [theme, setTheme] = useAtom(themeState)
   const [{ datum: tooltipDatum }] = useAtom(tooltipState)
+  const [{ domain: fillDomain }] = useAtom(fillScaleState)
 
   const isVisible = usePageVisibility()
 
-  const {
-    fill: fillColor,
-    stroke: strokeColor,
-    strokeWidth,
-    opacity,
-  } = {
-    ...props,
-  }
   const { defaultFill, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
@@ -105,49 +110,49 @@ const GeomBar = <Datum,>({
     return () => clearTimeout(timeout)
   }, [])
 
+  const baseAttr: SVGAttributes<SVGRectElement> = {
+    fillOpacity: 1,
+    strokeOpacity: 1,
+  }
+
+  const geomAttr: SVGAttributes<SVGRectElement> = {
+    ...baseAttr,
+    ...attr,
+  }
+
   useEffect(() => {
     setTheme((prev) => ({
       ...prev,
       geoms: {
         ...prev.geoms,
         bar: {
-          position,
           fillOpacity:
-            props.style?.fillOpacity ||
-            props.style?.opacity ||
-            opacity ||
-            fillOpacity,
-          stroke: strokeColor,
-          strokeWidth: props.style?.strokeWidth || strokeWidth,
-          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
+            geomAttr.style?.fillOpacity ||
+            geomAttr.style?.opacity ||
+            geomAttr.opacity ||
+            geomAttr.fillOpacity,
+          stroke: geomAttr.stroke,
+          strokeWidth: geomAttr.style?.strokeWidth || geomAttr.strokeWidth,
+          strokeOpacity:
+            geomAttr.style?.strokeOpacity || geomAttr.strokeOpacity,
         },
       },
     }))
-  }, [
-    fillOpacity,
-    setTheme,
-    strokeColor,
-    strokeOpacity,
-    strokeWidth,
-    props.style,
-    position,
-  ])
+  }, [setTheme, attr])
 
-  const baseStyles = {
+  const baseStyles: CSSProperties = {
     transition: 'fill-opacity 200ms',
-    fillOpacity,
-    strokeOpacity,
-    ...props.style,
+    fillOpacity: geomAttr.fillOpacity,
+    strokeOpacity: geomAttr.strokeOpacity,
+    ...geomAttr.style,
   }
 
-  const focusedStyles = {
+  const focusedStyles: CSSProperties = {
     ...baseStyles,
-    fillOpacity,
-    strokeOpacity,
     ...focusedStyle,
   }
 
-  const unfocusedStyles = {
+  const unfocusedStyles: CSSProperties = {
     ...baseStyles,
     fillOpacity: 0.5,
     strokeOpacity: 0.5,
@@ -156,27 +161,27 @@ const GeomBar = <Datum,>({
 
   const fill = useCallback(
     (d: Datum) =>
-      fillColor ||
+      geomAttr.fill ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, fillColor, defaultFill],
+    [geomAes, copiedScales, geomAttr, defaultFill],
   )
 
   const stroke = useCallback(
     (d: Datum) =>
-      strokeColor ||
+      geomAttr.stroke ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
             | string
             | undefined)
         : 'none'),
-    [geomAes, copiedScales, strokeColor],
+    [geomAes, copiedScales, geomAttr],
   )
 
   // reset the xScale based on position
   if (
-    ['stack', 'fill'].includes(position) &&
+    [Position.STACK, Position.FILL].includes(position) &&
     scales?.groups &&
     geomData &&
     geomAes?.x &&
@@ -186,7 +191,7 @@ const GeomBar = <Datum,>({
       new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d))),
     )
     let maxVal
-    if (position === 'stack') {
+    if (position === Position.STACK) {
       maxVal = max(
         uniqueYs.map((yVal) => {
           const groupData = geomData.filter(
@@ -200,9 +205,7 @@ const GeomBar = <Datum,>({
       maxVal = 1
     }
 
-    if (!xDomain) {
-      scales.xScale.domain([0, maxVal])
-    }
+    scales.xScale.domain([0, maxVal])
   }
 
   const x = useCallback(
@@ -220,13 +223,16 @@ const GeomBar = <Datum,>({
       const uniqueYs = Array.from(
         new Set(geomData?.map((d) => geomAes?.y && geomAes.y(d))),
       )
+
+      const givenDomain = scales.yScale.domain() as unknown
+
       return scaleBand()
         .range([margin.bottom, height - margin.bottom])
-        .domain((yDomain || uniqueYs) as string[])
+        .domain((givenDomain || uniqueYs) as string[])
         .paddingInner(usedYPadding)
     }
     return null
-  }, [height, scales, margin, yPadding, yDomain, geomData, geomAes])
+  }, [height, scales, margin, yPadding, geomData, geomAes])
 
   const y = useCallback(
     (d: Datum) => {
@@ -280,13 +286,15 @@ const GeomBar = <Datum,>({
       geomData &&
       geomAes?.x &&
       geomAes?.y &&
-      ['stack', 'fill'].includes(position) &&
+      [Position.STACK, Position.FILL].includes(position) &&
       scales?.groups &&
       scales?.groupAccessor
     ) {
       const stackWideData = stack()
-        .keys(scales.groups)
-        .offset(position === 'fill' ? stackOffsetExpand : stackOffsetNone)
+        .keys(fillDomain ?? scales.groups)
+        .offset(
+          position === Position.FILL ? stackOffsetExpand : stackOffsetNone,
+        )
 
       const wideData = widen(
         geomData,
@@ -298,21 +306,21 @@ const GeomBar = <Datum,>({
       return stackWideData(wideData)
     }
     return null
-  }, [geomData, geomAes, scales, position])
+  }, [geomData, geomAes, scales, position, fillDomain])
 
   const dodgeYScale = useMemo(() => {
-    if (position === 'dodge' && scales?.groups && yBandScale) {
+    if (position === Position.DODGE && scales?.groups && yBandScale) {
       return scaleBand()
-        .domain(scales?.groups.reverse())
+        .domain(fillDomain ?? scales?.groups)
         .range([0, yBandScale.bandwidth()])
         .padding(dodgePadding)
     }
     return null
-  }, [scales, position, yBandScale, dodgePadding])
+  }, [scales, position, yBandScale, dodgePadding, fillDomain])
 
   const resolvedYScale = useCallback(
     (d: Datum) => {
-      if (position === 'dodge') {
+      if (position === Position.DODGE) {
         return (y(d) ?? 0) + (dodgeYScale?.(group?.(d) as string) ?? 0)
       }
       return y(d)
@@ -342,7 +350,7 @@ const GeomBar = <Datum,>({
   )
 
   const stackMidpoints = useMemo(() => {
-    if (!stackedData || focusType === 'group') return undefined
+    if (!stackedData || focusType === FocusType.GROUP) return undefined
 
     return stackedData.flatMap((sd) => {
       const groupVal = sd.key
@@ -362,43 +370,43 @@ const GeomBar = <Datum,>({
   }, [stackedData, geomData, focusType])
 
   const dodgeYAdj = useMemo(() => {
+    const isDodged = position === Position.DODGE
     const bw = yBandScale?.bandwidth() ?? 0
     const paddingAdj =
-      (position === 'dodge' ? dodgePadding : 0) / (groups ? groups.length : 1)
-    const isGroupFocused = focusType === 'group'
+      (isDodged ? dodgePadding : 0) / (groups ? groups.length : 1)
+    const isGroupFocused = focusType === FocusType.GROUP
 
-    return position === 'dodge' && !isGroupFocused
+    return isDodged && !isGroupFocused
       ? (dodgeYScale?.bandwidth() ?? 0) / 2
       : bw / 2 - paddingAdj * bw
   }, [groups, yBandScale, dodgePadding, focusType])
 
-  return yBandScale ? (
+  const yAdj = useMemo(() => {
+    if (position === Position.DODGE && focusType === FocusType.INDIVIDUAL)
+      return (dodgeYScale?.bandwidth() ?? 0) / 2
+
+    if (focusType === FocusType.INDIVIDUAL) return margin.top * 2
+
+    return (yBandScale?.bandwidth() ?? 0) / 2
+  }, [position, focusType, dodgeYScale, margin, yBandScale])
+
+  return yBandScale && !firstRender ? (
     <>
       <g ref={groupRef}>
         {isVisible && (
           <NodeGroup
             data={[...geomData] as Datum[]}
             keyAccessor={keyAccessor}
-            start={(d) => {
-              const groupData = getGroupStack(d)
-              const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
-              const thisX1 = groupData && scales?.xScale(groupData[1])
-              const barWidth = stackedData
-                ? thisX1 - (thisX0 || 0)
-                : (x(d) || 0) - leftEdge
-              const actualWidth =
-                typeof x(d) === 'undefined' ? leftEdge : barWidth
-              return {
-                width: animateOnEnter ? 0 : actualWidth,
-                height: dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
-                x: leftEdge,
-                y: resolvedYScale(d),
-                fill: 'transparent',
-                stroke: 'transparent',
-                fillOpacity: 0,
-                strokeOpacity: 0,
-              }
-            }}
+            start={(d) => ({
+              width: 0,
+              height: dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
+              x: leftEdge,
+              y: resolvedYScale(d),
+              fill: 'transparent',
+              stroke: 'transparent',
+              fillOpacity: 0,
+              strokeOpacity: 0,
+            })}
             enter={(d) => {
               const groupData = getGroupStack(d)
               const thisX0 = groupData ? scales?.xScale(groupData[0]) : leftEdge
@@ -410,14 +418,14 @@ const GeomBar = <Datum,>({
                 typeof x(d) === 'undefined' ? leftEdge : barWidth
 
               return {
-                width: animateOnEnter ? [actualWidth] : actualWidth,
+                width: [actualWidth],
                 height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
                 x: [thisX0],
                 y: [resolvedYScale(d)],
                 fill: [fill(d)],
                 stroke: [stroke(d)],
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
+                fillOpacity: [geomAttr.fillOpacity],
+                strokeOpacity: [geomAttr.strokeOpacity],
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -429,19 +437,22 @@ const GeomBar = <Datum,>({
                 ? thisX1 - (thisX0 || 0)
                 : (x(d) || 0) - leftEdge
 
+              const thisWidth =
+                typeof x(d) === 'undefined' ? leftEdge : barWidth
+              const thisY =
+                typeof resolvedYScale(d) === 'undefined'
+                  ? height
+                  : resolvedYScale(d)
+
               return {
-                width: [typeof x(d) === 'undefined' ? leftEdge : barWidth],
+                width: [thisWidth],
                 height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
                 x: [thisX0],
-                y: [
-                  typeof resolvedYScale(d) === 'undefined'
-                    ? height
-                    : resolvedYScale(d),
-                ],
-                fill: firstRender ? fill(d) : [fill(d)],
-                stroke: firstRender ? stroke(d) : [stroke(d)],
-                fillOpacity: [fillOpacity],
-                strokeOpacity: [strokeOpacity],
+                y: [thisY],
+                fill: [fill(d)],
+                stroke: [stroke(d)],
+                fillOpacity: [geomAttr.fillOpacity],
+                strokeOpacity: [geomAttr.strokeOpacity],
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -467,7 +478,7 @@ const GeomBar = <Datum,>({
                     <rect
                       key={key}
                       // eslint-disable-next-line react/jsx-props-no-spreading
-                      {...props}
+                      {...attr}
                       fill={state.fill}
                       stroke={state.stroke}
                       x={state.x}
@@ -478,6 +489,7 @@ const GeomBar = <Datum,>({
                       strokeOpacity={state.strokeOpacity}
                       style={{
                         pointerEvents: 'none',
+                        ...baseStyles,
                         ...styles,
                       }}
                       data-testid="__gg_geom_bar"
@@ -496,16 +508,14 @@ const GeomBar = <Datum,>({
             aes={geomAes}
             x={() => 0}
             y={
-              position === 'dodge' && focusType === 'group' ? y : resolvedYScale
+              position === Position.DODGE && focusType === FocusType.GROUP
+                ? y
+                : resolvedYScale
             }
             yBandScale={yBandScale}
-            fill={position === 'fill' ? 'x' : undefined}
-            group={focusType === 'group' ? 'y' : undefined}
-            yAdj={
-              position === 'dodge' && focusType === 'individual'
-                ? (dodgeYScale?.bandwidth() ?? 0) / 2
-                : yBandScale.bandwidth() / 2
-            }
+            fill={position === Position.FILL ? 'x' : undefined}
+            group={focusType === FocusType.GROUP ? 'y' : undefined}
+            yAdj={yAdj}
             stackXMidpoints={stackMidpoints}
             onDatumFocus={onDatumFocus}
             onMouseOver={({ i }: { d: Datum[]; i: number[] }) => {
@@ -534,12 +544,16 @@ const GeomBar = <Datum,>({
           />
           <Tooltip
             x={x}
-            y={focusType === 'group' ? y : resolvedYScale}
+            y={focusType === FocusType.GROUP ? y : resolvedYScale}
             aes={geomAes}
             stackMidpoints={stackMidpoints}
-            yAdj={position === 'dodge' ? dodgeYAdj : yBandScale.bandwidth() / 2}
+            yAdj={
+              position === Position.DODGE
+                ? dodgeYAdj
+                : yBandScale.bandwidth() / 2
+            }
             focusType={focusType}
-            align={position === 'dodge' ? 'left' : 'center'}
+            position={position}
           />
         </>
       )}

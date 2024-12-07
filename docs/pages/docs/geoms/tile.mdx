@@ -1,13 +1,44 @@
-# GeomTile
+import Readme from '#/input/geom-tile/README.mdx'
+import { Continuous } from '#/components/demo/geoms/geom-tile'
+import { fetchDocs } from '#/utils/geoms/geom-tile'
+import { useGetData } from '#/utils/geoms/geom-tile/useGetData'
+import { Exports } from '#/components/Exports'
+import { Callout } from 'nextra/components'
 
-For rectangular charts like heatmaps in Graphique.
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
 
-## Install
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
-```sh npm2yarn copy
-npm i @graphique/geom-tile
-```
+export const Intro = () => (
+  <Readme />
+)
 
-## Examples
+<Intro />
 
-## Props
+## Example
+
+<Continuous />
+
+<Callout type="info">
+  Check out [`ScaleFill`](/docs/graphique/scales/fill) to see related options for coloring tiles in different ways.
+</Callout>
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

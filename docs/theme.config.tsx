@@ -21,10 +21,16 @@ const config: DocsThemeConfig = {
     const { asPath } = useRouter()
     const { title } = useConfig()
 
+    const isGeom = asPath.includes('/geoms/')
+
     if (asPath === '/') {
       return <title>{G}</title>
     }
-    return <title>{`${G} | ${asPath === '/docs' ? 'Docs' : title}`}</title>
+    return (
+      <title>{`${G} | ${
+        asPath === '/docs' ? 'Docs' : `${isGeom ? 'Geom' : ''}${title}`
+      }`}</title>
+    )
   },
   // faviconGlyph: '◈',
   logo: <LogoButton />,
@@ -47,6 +53,7 @@ const config: DocsThemeConfig = {
   docsRepositoryBase: 'https://github.com/graphiquejs/graphique.dev',
   toc: {
     backToTop: true,
+    // component: <></>,
   },
   editLink: {
     content: null,

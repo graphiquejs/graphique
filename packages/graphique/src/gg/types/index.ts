@@ -6,4 +6,5 @@ export type {
   VisualEncodingTypes,
 } from './Scales'
 export * from './Brush'
+export * from './Legend'
 export type { RootGGProps, GGProps } from './GG'

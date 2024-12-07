@@ -1,5 +1,5 @@
 import React from 'react'
-import { GG, type Aes, Theme } from '@graphique/graphique'
+import { GG, type Aes, Theme, LegendOrientation } from '@graphique/graphique'
 import { screen, act } from '@testing-library/react'
 import { GeomLine, Legend } from '..'
 import { type Stock } from '../../../datasets'
@@ -28,9 +28,9 @@ const TestComponent = ({
   data = undefinedYValData,
 }: TestComponentProps) => (
   <GG data={data} aes={aes}>
-    <GeomLine strokeWidth="1.8" opacity={0.7} />
+    <GeomLine attr={{ strokeWidth: 1.8, opacity: 0.7 }} />
     <Theme animationDuration={0} />
-    <Legend title="Stonks" orientation="horizontal" />
+    <Legend title="Stonks" orientation={LegendOrientation.H} />
   </GG>
 )
 

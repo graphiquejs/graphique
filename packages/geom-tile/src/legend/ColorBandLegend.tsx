@@ -21,7 +21,7 @@ import {
 
 export interface ColorBandLegendProps<Datum> {
   scales: IScale<Datum>
-  tickFormat?: (v: unknown, i: number) => string
+  tickFormat?: (v: number, i: number) => string
   width?: number
   tickSize?: number
   height?: number

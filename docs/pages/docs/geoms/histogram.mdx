@@ -1,15 +1,49 @@
----
-title: '@graphique/geom-histogram'
----
+import Readme from '#/input/geom-histogram/README.mdx'
+import { Basic, Legend } from '#/components/demo/geoms/geom-histogram'
+import { fetchDocs } from '#/utils/geoms/geom-histogram'
+import { useGetData } from '#/utils/geoms/geom-histogram/useGetData'
+import { Exports } from '#/components/Exports'
 
-For visualizing histograms in Graphique.
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
 
-## Install
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
-```sh npm2yarn copy
-npm i @graphique/geom-histogram
-```
+export const Intro = () => (
+  <Readme />
+)
+
+<Intro />
 
 ## Examples
 
-## Props
+### Basics
+
+<Basic />
+
+---
+
+### Using `aes` to group
+
+<Legend />
+
+---
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

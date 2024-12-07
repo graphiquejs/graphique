@@ -24,6 +24,7 @@
   "homepage": "https://graphique.dev",
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.10",
+    "@codesandbox/sandpack-themes": "^2.0.21",
     "next": "^13.0.6",
     "next-mdx-remote": "^5.0.0",
     "nextra": "latest",

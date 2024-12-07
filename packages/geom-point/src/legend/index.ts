@@ -1,2 +1,2 @@
-export { Legend } from "./AppearanceLegend"
-export { SizeLegend } from "./SizeLegend"
+export { Legend, type LegendProps } from './AppearanceLegend'
+export { SizeLegend, type SizeLegendProps } from './SizeLegend'

@@ -6,14 +6,15 @@ import {
   strokeScaleState,
   formatMissing,
   IScale,
+  LegendOrientation,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface Props<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
-  orientation?: 'vertical' | 'horizontal'
-  labelFormat?: (v: any, i: number) => string
+  orientation?: LegendOrientation
+  labelFormat?: (v: string, i: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
 }
@@ -21,13 +22,13 @@ export interface Props<Datum> {
 export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
-  orientation = 'vertical',
+  orientation,
   labelFormat,
   fontSize = 12,
   onSelection,
 }: Props<Datum>) => {
   const [isFocused, setIsFocused] = useState<string[]>(
-    legendScales.groups || []
+    legendScales.groups || [],
   )
 
   const [{ geoms }] = useAtom(themeState)
@@ -48,7 +49,7 @@ export const CategoricalLegend = <Datum,>({
     ? legendScales.groupAccessor
     : () => legendScales.groups && legendScales.groups[0]
 
-  const isHorizontal = orientation === 'horizontal'
+  const isHorizontal = orientation === LegendOrientation.H
 
   const toggleLegendGroup = (g: string) => {
     const prevFocused = isFocused
@@ -79,7 +80,7 @@ export const CategoricalLegend = <Datum,>({
         }
       } else {
         updatedData = legendData.filter(
-          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g
+          (d) => includedGroups.includes(getGroup(d)) || getGroup(d) === g,
         )
       }
       updateData(updatedData)
@@ -111,10 +112,6 @@ export const CategoricalLegend = <Datum,>({
               role="button"
               style={{
                 cursor: 'pointer',
-                // scales?.fillScale?.domain().includes(g) ||
-                // legendScales.groups?.includes(g)
-                //   ? "pointer"
-                //   : "not-allowed",
                 marginRight: i < groups.length - 1 && isHorizontal ? 12 : 2,
                 fontSize,
                 opacity: isFocused.includes(g) ? 1 : 0.5,

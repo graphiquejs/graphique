@@ -6,8 +6,8 @@ import {
   formatMissing,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
-import { sum, min } from 'd3-array'
-import type { GeomAes } from '../types'
+import { min } from 'd3-array'
+import { GeomAes, Position, StackedArea } from '../types'
 
 export interface LineMarkerProps<Datum> {
   x: (d: Datum) => number | undefined
@@ -17,6 +17,8 @@ export interface LineMarkerProps<Datum> {
   aes: GeomAes<Datum>
   markerRadius: number
   markerStroke: string
+  stackedData: StackedArea[] | null
+  position: Position
 }
 
 export const LineMarker = <Datum,>({
@@ -27,6 +29,8 @@ export const LineMarker = <Datum,>({
   aes,
   markerRadius,
   markerStroke,
+  stackedData,
+  position,
 }: LineMarkerProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { scales, copiedScales, width, height, margin, id } = ggState || {}
@@ -37,12 +41,8 @@ export const LineMarker = <Datum,>({
   const { area } = geoms || {}
 
   const left = useMemo(
-    () =>
-      min([
-        datum && x(datum[0]),
-        width && margin?.right && width - margin.right,
-      ] as number[]),
-    [datum, x, width]
+    () => min([datum && x(datum[0]), width - (margin?.right ?? 0)] as number[]),
+    [datum, x, width],
   )
 
   const getY = useMemo(() => (aes?.y1 ? y1 : y), [y1, y, aes])
@@ -61,68 +61,69 @@ export const LineMarker = <Datum,>({
             stroke="#888"
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
-            data-testid='__gg_geom_area_marker'
+            data-testid="__gg_geom_area_marker"
           />
-          {datum.map((d, i, stacks) => {
+          {datum.map((d, i) => {
             const formattedGroup = copiedScales?.groupAccessor
               ? formatMissing(copiedScales?.groupAccessor(d))
               : '__group'
-            
+
             const inGroups = scales?.groups
               ? scales.groups.includes(formattedGroup)
               : true
-            
-            let thisYCoord: any[]
+
+            let thisYCoord: any[] = [y(d)]
 
             // not in groups
             if (!inGroups) {
               thisYCoord = []
-            }
+            } else if (stackedData) {
+              const stackData = stackedData.find(
+                (s) =>
+                  aes.x &&
+                  s.group === formattedGroup &&
+                  Number(s.x) === Number(aes.x(d)),
+              )
 
-            // stacked area (sum)
-            else if (area?.position === 'stack') {
-              const yTotal = stacks
-                .slice(0, i + 1)
-                // @ts-ignore
-                .map(aes.y)
-                .reduce((a, b) => (a as number) + (b as number), 0) as number
+              // stream
+              if (position === Position.STREAM) {
+                thisYCoord = [
+                  scales?.yScale(stackData?.y0),
+                  scales?.yScale(stackData?.y1),
+                ]
+              }
 
-              thisYCoord = [scales?.yScale(yTotal)]
-            } else if (area?.position === 'fill' && aes?.y) {
-              const yTotal = stacks
-                .slice(0, i + 1)
-                .map(
-                  (s) =>
-                    // @ts-ignore
-                    aes.y(s) / sum(stacks, aes.y)
-                )
-                .reduce((a, b) => (a as number) + (b as number), 0) as number
-
-              thisYCoord = [scales?.yScale(yTotal)]
+              // stacked/filled area
+              if ([Position.STACK, Position.FILL].includes(position)) {
+                thisYCoord = [scales?.yScale(stackData?.y1)]
+              }
             } else if (aes.y0 && aes.y1) {
               thisYCoord = [y0(d), y1(d)]
-            } else {
-              thisYCoord = [y(d)]
             }
 
             const thisFill =
-              area?.fill && !['none', 'transparent'].includes(area?.fill ?? '') ? area.fill : 
-              (area?.fillScale && aes.fill && area.fillScale(aes.fill(d))) ||
-              (copiedScales?.fillScale && aes?.fill
-                ? (copiedScales.fillScale(aes.fill(d)))
-                : ((area?.stroke ||
-                  (area?.strokeScale && aes.stroke && area.strokeScale(aes.stroke(d))) ||
-                    (copiedScales?.strokeScale?.(aes?.stroke?.(d)))
-                ) ?? defaultFill)
-              )
+              area?.fill && !['none', 'transparent'].includes(area?.fill ?? '')
+                ? area.fill
+                : (area?.fillScale &&
+                    aes.fill &&
+                    area.fillScale(aes.fill(d))) ||
+                  (copiedScales?.fillScale && aes?.fill
+                    ? copiedScales.fillScale(aes.fill(d))
+                    : (area?.stroke ||
+                        (area?.strokeScale &&
+                          aes.stroke &&
+                          area.strokeScale(aes.stroke(d))) ||
+                        copiedScales?.strokeScale?.(aes?.stroke?.(d))) ??
+                      defaultFill)
 
             return thisYCoord?.map((c, j) => {
               const inRange =
-                c <= copiedScales?.yScale.range()[0] &&
-                c >= copiedScales?.yScale.range()[1]
-              
+                position === Position.FILL ||
+                (c <= copiedScales?.yScale.range()[0] &&
+                  c >= copiedScales?.yScale.range()[1])
+
               return (
-                getY(d) &&
+                typeof getY(d) !== 'undefined' &&
                 inRange && (
                   <g
                     key={`marker-${
@@ -138,8 +139,8 @@ export const LineMarker = <Datum,>({
                         0.5,
                         Math.max(
                           ((area?.strokeOpacity || 0.9) as number) - 0.35,
-                          0
-                        )
+                          0,
+                        ),
                       )}
                     />
                     <circle
@@ -150,7 +151,7 @@ export const LineMarker = <Datum,>({
                       cy={c as number}
                       fillOpacity={area?.strokeOpacity || 0.9}
                       strokeOpacity={0.7}
-                      data-testid='__gg_geom_area_marker_point'
+                      data-testid="__gg_geom_area_marker_point"
                     />
                   </g>
                 )

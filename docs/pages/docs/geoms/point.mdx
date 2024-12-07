@@ -1,13 +1,61 @@
-# GeomPoint
+import Readme from '#/input/geom-point/README.mdx'
+import { Basic, Categorical, Continuous, Sized } from '#/components/demo/geoms/geom-point'
+import { fetchDocs } from '#/utils/geoms/geom-point'
+import { useGetData } from '#/utils/geoms/geom-point/useGetData'
+import { Exports } from '#/components/Exports'
 
-For points, scatterplots, and bubbles in Graphique.
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
 
-## Install
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
-```sh npm2yarn copy
-npm i @graphique/geom-point
-```
+export const Intro = () => (
+  <Readme />
+)
+
+<Intro />
 
 ## Examples
 
-## Props
+### Basics
+
+<Basic />
+
+---
+
+### Categorical fill
+
+<Categorical />
+
+---
+
+### Continuous fill
+
+<Continuous />
+
+---
+
+### Sized points
+
+<Sized />
+
+---
+
+## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

@@ -1,0 +1,17 @@
+.link {
+  transition: all 300ms;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+.link:hover {
+  opacity: 0.8;
+  text-decoration: underline transparent;
+}
+
+.link-icon {
+  margin-left: 1px;
+  margin-top: 2px;
+  opacity: 0.9;
+}

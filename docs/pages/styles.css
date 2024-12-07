@@ -28,6 +28,7 @@ iframe:is(html[class~='dark'] *) {
   scrollbar-width: thin;
   scrollbar-color: #73737366 transparent;
   scrollbar-gutter: stable;
+  padding-bottom: 0 !important;
 }
 
 .cm-gutter.cm-lineNumbers {
@@ -35,10 +36,14 @@ iframe:is(html[class~='dark'] *) {
   user-select: none;
 }
 
-.sp-preview-actions {
-  right: var(--sp-space-3) !important;
-  top: var(--sp-space-2) !important;
-  bottom: unset !important;
+.sp-preview-action {
+  opacity: 0.5;
+  transition: all 300ms;
+
+  &:hover {
+    opacity: 1;
+    transition: all 300ms;
+  }
 }
 
 .sp-button {
@@ -61,4 +66,13 @@ iframe:is(html[class~='dark'] *) {
   [role='tabpanel'] {
     margin-top: 0;
   }
+}
+
+.hover\:_opacity-75 {
+  transition: opacity 300ms;
+}
+
+.hover\:_opacity-75:hover {
+  opacity: 0.75;
+  transition: opacity 300ms;
 }

@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useMemo,
-  CSSProperties,
   SVGAttributes,
   useRef,
   useState,
@@ -19,35 +18,29 @@ import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { Tooltip } from './tooltip'
 
-type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'fill' | 'size'>
+export type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'fill' | 'size'>
 
 const DEFAULT_TICK_SIZE = 6
 
-export interface GeomHLineProps<Datum> extends SVGAttributes<SVGLineElement> {
+export interface GeomProps<Datum> {
   data?: Datum[]
   aes?: GeomAes<Datum>
-  focusedStyle?: CSSProperties
-  unfocusedStyle?: CSSProperties
+  attr?: SVGAttributes<SVGLineElement>
   showTooltip?: boolean
   onDatumFocus?: (data: Datum[], index: number[]) => void
   onDatumSelection?: (data: Datum[], index: number[]) => void
   onExit?: () => void
-  strokeOpacity?: number
 }
 
 const GeomHLine = <Datum,>({
   data: localData,
   aes: localAes,
-  focusedStyle,
-  unfocusedStyle,
+  attr,
   onDatumFocus,
   onDatumSelection,
   onExit,
   showTooltip = true,
-  strokeWidth = 1.5,
-  strokeOpacity = 1,
-  ...props
-}: GeomHLineProps<Datum>) => {
+}: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, width, margin } = ggState || {}
 
@@ -64,10 +57,19 @@ const GeomHLine = <Datum,>({
 
   const [theme, setTheme] = useAtom(themeState)
 
-  const { stroke: strokeColor, strokeDasharray } = { ...props }
   const { defaultStroke, animationDuration: duration } = theme
 
   const isVisible = usePageVisibility()
+
+  const baseAttr: SVGAttributes<SVGLineElement> = {
+    strokeOpacity: 1,
+    strokeWidth: 1.5,
+  }
+
+  const geomAttr: SVGAttributes<SVGLineElement> = {
+    ...baseAttr,
+    ...attr,
+  }
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
@@ -80,25 +82,26 @@ const GeomHLine = <Datum,>({
       ...prev,
       geoms: {
         ...prev.geoms,
-        vline: {
-          strokeWidth: props.style?.strokeWidth || strokeWidth,
-          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
-          strokeDasharray,
-          stroke: strokeColor,
+        hline: {
+          strokeWidth: geomAttr?.style?.strokeWidth || geomAttr?.strokeWidth,
+          strokeOpacity:
+            geomAttr?.style?.strokeOpacity || geomAttr?.strokeOpacity,
+          strokeDasharray: geomAttr?.strokeDasharray,
+          stroke: geomAttr?.stroke,
         },
       },
     }))
-  }, [setTheme, strokeColor, strokeOpacity, strokeWidth, props.style])
+  }, [setTheme, attr])
 
   const stroke = useMemo(
     () => (d: Datum) =>
-      strokeColor ||
+      geomAttr?.stroke ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
             | string
             | undefined)
         : defaultStroke),
-    [geomAes, copiedScales, strokeColor, defaultStroke],
+    [geomAes, copiedScales, geomAttr, defaultStroke],
   )
 
   const y = useMemo(
@@ -171,7 +174,7 @@ const GeomHLine = <Datum,>({
                 y1: [y(d) - yAdj],
                 y2: [y(d) - yAdj],
                 stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                strokeOpacity: [isOutsideDomain ? 0 : geomAttr?.strokeOpacity],
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -183,7 +186,7 @@ const GeomHLine = <Datum,>({
                 y1: [y(d) - yAdj],
                 y2: [y(d) - yAdj],
                 stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                strokeOpacity: [isOutsideDomain ? 0 : geomAttr?.strokeOpacity],
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -201,13 +204,13 @@ const GeomHLine = <Datum,>({
                   <line
                     key={key}
                     // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
+                    {...attr}
                     x1={state.x1}
                     x2={state.x2}
                     y1={state.y1}
                     y2={state.y2}
                     stroke={state.stroke}
-                    strokeWidth={strokeWidth}
+                    strokeWidth={geomAttr?.strokeWidth}
                     strokeOpacity={state.strokeOpacity}
                     style={{ pointerEvents: 'none' }}
                     data-testid="__gg_geom_hline"

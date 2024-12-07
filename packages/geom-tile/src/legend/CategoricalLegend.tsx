@@ -6,13 +6,14 @@ import {
   strokeScaleState,
   IScale,
   formatMissing,
+  LegendOrientation,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface Props<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
-  orientation?: 'vertical' | 'horizontal'
+  orientation?: LegendOrientation
   labelFormat?: (v: any, i: number) => string
   fontSize?: string | number
   onSelection?: (
@@ -24,7 +25,7 @@ export interface Props<Datum> {
 export const CategoricalLegend = <Datum,>({
   legendData,
   legendScales,
-  orientation = 'vertical',
+  orientation,
   labelFormat,
   fontSize = 12,
   onSelection,
@@ -51,7 +52,7 @@ export const CategoricalLegend = <Datum,>({
     ? legendScales.groupAccessor
     : () => legendScales.groups && legendScales.groups[0]
 
-  const isHorizontal = orientation === 'horizontal'
+  const isHorizontal = orientation === LegendOrientation.H
 
   const toggleLegendGroup = (
     g: string,

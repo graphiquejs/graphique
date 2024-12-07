@@ -11,4 +11,4 @@ export default {
     type: 'page',
     title: 'Docs',
   },
-};
+}

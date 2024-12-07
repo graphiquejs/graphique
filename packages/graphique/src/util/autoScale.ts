@@ -43,6 +43,7 @@ export interface AutoScale<Datum> extends GGProps<Datum> {
     y1Aes?: DataValue<Datum>
     geomAesYs: DataValue<Datum>[]
     geomAesStrokes: DataValue<Datum>[]
+    geomAesStrokeDasharrays: DataValue<Datum>[]
     geomAesFills: DataValue<Datum>[]
     fill?: VisualEncodingProps
     stroke?: VisualEncodingProps
@@ -84,6 +85,7 @@ export const autoScale = <Datum>({
     geomAesYs,
     geomAesStrokes,
     geomAesFills,
+    geomAesStrokeDasharrays,
   } = scalesState
   const {
     domain: xScaleDomain,
@@ -135,6 +137,9 @@ export const autoScale = <Datum>({
     aes.stroke || (geomAesStrokes.length ? geomAesStrokes[0] : undefined)
   const thisFillAes =
     aes.fill || (geomAesFills.length ? geomAesFills[0] : undefined)
+  const thisStrokeDasharrayAes =
+    aes.strokeDasharray ||
+    (geomAesStrokeDasharrays.length ? geomAesStrokeDasharrays[0] : undefined)
 
   /// SCALING ///
 
@@ -408,9 +413,9 @@ export const autoScale = <Datum>({
   }
   if (strokeScaleReverse) strokeScale?.domain(strokeScale.domain().reverse())
 
-  // stroke
+  // strokeDasharray
   let strokeDasharrayScale
-  if (aes.strokeDasharray) {
+  if (thisStrokeDasharrayAes) {
     hasCategoricalVar = true
     const domain = (strokeDasharrayDomain as string[]) || calculatedGroups
 
@@ -428,6 +433,9 @@ export const autoScale = <Datum>({
     strokeScale,
     strokeDasharrayScale,
     groupAccessor: group,
-    groups: hasCategoricalVar ? calculatedGroups : undefined,
+    groups: hasCategoricalVar
+      ? calculatedGroups
+      : // ? fillScale?.domain() ?? calculatedGroups
+        undefined,
   }
 }

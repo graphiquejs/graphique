@@ -9,8 +9,10 @@ import {
   XTooltip,
   Aes,
   themeState,
+  TooltipPosition,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
+import { FocusType, Position } from '../types'
 
 interface StackMidpoint {
   groupVal: string
@@ -23,8 +25,9 @@ export interface TooltipProps<Datum> {
   y: (d: Datum) => number | undefined
   xAdj?: number
   aes?: Aes<Datum>
-  focusType: 'group' | 'individual'
+  focusType: FocusType
   stackMidpoints?: StackMidpoint[]
+  position: Position
 }
 
 export const Tooltip = <Datum,>({
@@ -34,6 +37,7 @@ export const Tooltip = <Datum,>({
   aes,
   focusType,
   stackMidpoints,
+  position,
 }: TooltipProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, id, scales, copiedScales, height, margin } = ggState || {
@@ -41,40 +45,43 @@ export const Tooltip = <Datum,>({
     height: 0,
   }
 
-  const [{ datum, position, xAxis, xFormat, yFormat, content }] = useAtom<TooltipState<Datum>>(tooltipState)
+  const [
+    { datum, position: tooltipPosition, xAxis, xFormat, yFormat, content },
+  ] = useAtom<TooltipState<Datum>>(tooltipState)
 
   const [{ geoms }] = useAtom(themeState)
 
   const xVal = useMemo(
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
-    [datum, aes]
+    [datum, aes],
   )
 
   const xCoord = useMemo(
-    () => datum?.[0] && (x(datum[0]) ?? 0) + xAdj,
-    [datum, x, xAdj]
+    () => x && datum?.[0] && (x(datum[0]) ?? 0) + xAdj,
+    [datum, x, xAdj],
   )
 
   const group = useMemo(
     () => geoms?.col?.groupAccessor || (() => '__group'),
-    [geoms]
+    [geoms],
   )
 
   const yVal = useMemo(() => {
-    const isYFilled = geoms?.col?.position === 'fill'
+    const isYFilled = position === Position.FILL
 
-    if (focusType === 'individual' && stackMidpoints && datum) {
-
+    if (focusType === FocusType.INDIVIDUAL && stackMidpoints && datum) {
       const datumGroup = group(datum[0])
       const focusedStack = stackMidpoints.find(
         ({ xVal: stackX, groupVal }) =>
-          stackX === xVal?.valueOf() && groupVal === datumGroup
+          stackX === xVal?.valueOf() && groupVal === datumGroup,
       )
 
       const yAesVal = aes?.y?.(datum[0]) as number
       const yAesTotal = sum(
-        data?.filter((d) => aes?.x(d)?.valueOf() === focusedStack?.xVal.valueOf()) as [],
-        (d) => aes?.y?.(d) as number
+        data?.filter(
+          (d) => aes?.x(d)?.valueOf() === focusedStack?.xVal.valueOf(),
+        ) as [],
+        (d) => aes?.y?.(d) as number,
       )
 
       const dy = isYFilled ? yAesVal / yAesTotal / 2 : yAesVal / 2
@@ -85,31 +92,40 @@ export const Tooltip = <Datum,>({
 
     if (isYFilled) return scales?.yScale(1)
     if (
-      geoms?.col?.position === 'stack' &&
+      position === Position.STACK &&
       datum &&
       scales?.groups &&
       scales?.yScale
     ) {
       return scales.yScale(
-        sum(datum.map((d) => aes?.y && (aes.y(d) as number)))
+        sum(datum.map((d) => aes?.y && (aes.y(d) as number))),
       )
     }
-    return datum ? min(datum, (d) => y(d)) : null
+    return datum && y ? min(datum, (d) => y(d)) : null
   }, [data, datum, scales, geoms, aes, y])
+
+  const fillDomain = copiedScales?.fillScale?.domain()
 
   const groupVals = useMemo(() => {
     const vals =
       datum &&
       datum
-        .filter((d) => (
-          aes?.y &&
-            typeof aes.y(d) !== 'undefined' &&
-            aes.y(d) !== null
-        ))
+        .filter(
+          (d) => aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null,
+        )
+        .sort(
+          (a, b) =>
+            fillDomain!.indexOf(String(group(a))) -
+            fillDomain!.indexOf(String(group(b))),
+        )
         .map((md) => {
           const thisGroup = group(md)
+          const hasMark =
+            !!copiedScales?.fillScale ||
+            !!copiedScales?.strokeScale ||
+            !!copiedScales?.strokeDasharrayScale
 
-          const mark = (
+          const mark = hasMark ? (
             <svg width={12} height={12}>
               <rect
                 transform="translate(1, 1)"
@@ -138,7 +154,7 @@ export const Tooltip = <Datum,>({
                 strokeOpacity={geoms?.col?.strokeOpacity}
               />
             </svg>
-          )
+          ) : undefined
           return {
             datum,
             group: thisGroup,
@@ -172,7 +188,11 @@ export const Tooltip = <Datum,>({
     <XTooltip
       id={id as string}
       left={xCoord}
-      top={position === 'data' ? -(height - (groupVals[0].y || 0)) : (-height + margin?.top)}
+      top={
+        tooltipPosition === TooltipPosition.DATA
+          ? -(height - (groupVals[0].y || 0))
+          : -height + margin?.top
+      }
       value={typeof xAxis === 'function' ? xAxis(xVal) : tooltipValue}
       yPosition="above"
     />
