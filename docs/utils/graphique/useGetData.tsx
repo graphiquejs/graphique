@@ -27,7 +27,7 @@ export const useGetData = () => {
         description: d.comment.description,
         typeLabel:
           d.type.kind === 'array' && d.type.type
-            ? `${(d.type.type as TypeArgument).name?.replace(`${prop}.`, '')}[]`
+            ? `${(d.type.type as any).name?.replace(`${prop}.`, '')}[]`
             : d.type.name ?? (d.type.type as TypeEnum) ?? '',
       }),
     })),
