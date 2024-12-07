@@ -1,9 +1,3 @@
-<style>
-  .t {
-    color: red;
-  }
-</style>
-
 <div align="center">
   <a href="https://graphique.dev">
     <img src="./assets/graphique_logo.png" width=300px />
@@ -158,11 +152,11 @@ You can add one or more `Scale`s directly to customize things like its type ([d3
 - `GeomTile`: rectangular charts like heatmaps
 - `GeomBar`: bar charts (horizontal bars)
 - `GeomCol`: column charts (vertical bars)
-- `GeomHist`: histograms
+- `GeomHistogram`: histograms
 - `GeomArea`: area + stacked area charts and ribbon-like things
 - `GeomVLine`: vertical lines / markers
 - `GeomHLine`: horizontal lines / markers
-- TODO: `GeomLabel`, `GeomSmooth`, `GeomSegment`, `GeomDensity`, and more on the way!
+- `GeomLabel`: labels based on data
 
 <h3 id='labels'><code>Labels</code></h2>
 
@@ -194,12 +188,19 @@ Customize the look and feel of your Graphique visualizations.
 />
 ```
 
-## Roadmap
-
-- more `Geom`s
-- linked graphics inside `<GGgroup>`
-
 ## Dev
+
+To start working on Graphique, first install the necessary dependencies for the monorepo.
+
+```sh
+npm install
+```
+
+Then build the individual packages.
+
+```sh
+npm run build
+```
 
 ### Testing
 
@@ -227,6 +228,34 @@ You can start the demo app with:
 
 ```sh
 npm run demo
+```
+
+### Building and running docs site
+
+The source for the docs site is located in `./docs`.
+
+After building the individual packages, scaffold and generate inputs for the docs site from the project's root.
+
+```sh
+npm run generate:docs
+```
+
+To start the docs site locally:
+
+```sh
+npm run docs:start
+```
+
+Typecheck:
+
+```sh
+npm run typecheck:docs
+```
+
+To build the docs site:
+
+```sh
+npm run docs:build
 ```
 
 ### Publishing and releasing
