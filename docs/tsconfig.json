@@ -31,9 +31,6 @@
         "name": "@mdx-js/typescript-plugin"
       }
     ],
-    "types": [
-      "@graphique/graphique/dist/index.d.ts"
-    ]
   },
   "mdx": {
     "checkMdx": true // Enable strict type checking in MDX files
