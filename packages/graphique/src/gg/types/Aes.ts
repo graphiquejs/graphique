@@ -22,12 +22,8 @@ export interface Aes<Datum> {
   /** functional mapping to `data` used to create
    * distinct groups explicitly (without an associated scale) */
   group?: DataValue<Datum>
-  /** functional mapping to `data` used to label tooltips */
+  /** functional mapping to `data` used to label tooltips and for text values created with `GeomLabel` */
   label?: (d: Datum) => string
-  /** functional mapping to `data` used to distinguish
-   * individual data points
-   *
-   * (useful for `<GeomPoint>`)
-   * */
+  /** functional mapping to `data` used to distinguish individual data points */
   key?: (d: Datum) => string
 }

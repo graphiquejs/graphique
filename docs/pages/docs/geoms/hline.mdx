@@ -1,4 +1,19 @@
 import Readme from '#/input/geom-hline/README.mdx'
+import { fetchDocs } from '#/utils/geoms/geom-hline'
+import { useGetData } from '#/utils/geoms/geom-hline/useGetData'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
 
 export const Intro = () => (
   <Readme />
@@ -9,3 +24,13 @@ export const Intro = () => (
 ## Examples
 
 ## API
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

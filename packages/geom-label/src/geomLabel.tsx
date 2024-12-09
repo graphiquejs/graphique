@@ -43,7 +43,6 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGTextElement>
-  label?: string
   /** should this Geom have a tooltip associated with it (defaults to `true`) */
   showTooltip?: boolean
   /** determines what happens when brushing (clicking and dragging) over the drawing area  */
@@ -64,13 +63,11 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
-  parameterizedFill?: (d?: Datum) => string
 }
 
 const GeomLabel = <Datum,>({
   data: localData,
   aes: localAes,
-  label,
   attr,
   focusedStyle,
   unfocusedStyle,
@@ -82,7 +79,6 @@ const GeomLabel = <Datum,>({
   showTooltip = false,
   brushAction,
   isClipped = false,
-  parameterizedFill,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales, width, height, margin } =
@@ -137,13 +133,11 @@ const GeomLabel = <Datum,>({
   )
 
   const getLabel = useMemo(() => {
-    if (!geomAes?.label && !label)
-      throw new Error(
-        'You need to provide a `label` or map a `label` in `aes` in order to use GeomLabel',
-      )
+    if (!geomAes?.label)
+      throw new Error('GeomLabel needs a label mapped in `aes.label`')
 
-    return label ? () => label : geomAes?.label ?? (() => '')
-  }, [geomAes, label])
+    return geomAes?.label ?? (() => '')
+  }, [geomAes])
 
   const undefinedX = useMemo(
     () =>
@@ -264,11 +258,10 @@ const GeomLabel = <Datum,>({
   const fill = useMemo(
     () => (d: Datum) =>
       geomAttr.fill ||
-      (parameterizedFill && parameterizedFill(d)) ||
       (geomAes?.fill && copiedScales?.fillScale
         ? (copiedScales.fillScale(geomAes.fill(d)) as string | undefined)
         : defaultFill),
-    [geomAes, copiedScales, geomAttr, defaultFill, parameterizedFill],
+    [geomAes, copiedScales, geomAttr, defaultFill],
   )
 
   const getStroke = useMemo(

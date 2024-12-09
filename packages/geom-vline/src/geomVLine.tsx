@@ -26,12 +26,27 @@ export type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'y' | 'fill' | 'size'> & {
 const DEFAULT_TICK_SIZE = 6
 
 export interface GeomProps<Datum> {
+  /**
+   * **data used by this Geom**
+   *
+   * This will overwrite top-level `data` passed to `GG` as it relates to mappings defined in `aes`.
+   */
   data?: Datum[]
+  /**
+   * **functional mapping applied to `data` for this Geom**
+   *
+   * This extends the top-level `aes` passed to `GG`. Any repeated mappings defined here will take precedence within the Geom.
+   */
   aes?: GeomAes<Datum>
+  /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGLineElement>
+  /** should this Geom have a tooltip associated with it (defaults to `true`) */
   showTooltip?: boolean
+  /** callback called for mousemove events on the drawing area when focusing data */
   onDatumFocus?: (data: Datum[], index: number[]) => void
+  /** callback called for click events on the drawing area when selecting focused data */
   onDatumSelection?: (data: Datum[], index: number[]) => void
+  /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
 }
 

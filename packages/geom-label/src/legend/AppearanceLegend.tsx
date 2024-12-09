@@ -8,7 +8,7 @@ export interface LegendProps {
   title?: React.ReactNode
   style?: CSSProperties
   orientation?: LegendOrientation
-  format?: (v: any, i: number) => string
+  format?: (v: string, i: number) => string
   numTicks?: number
   width?: number
   onSelection?: (v: string) => void
