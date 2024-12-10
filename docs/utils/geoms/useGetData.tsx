@@ -1,18 +1,40 @@
-import { API } from '#/input/geom-area/api'
 import { useConfig } from 'nextra-theme-docs'
 import { ApiItemKind } from '#/utils/constants'
-import { useData } from 'nextra/hooks'
 import { formatFunctionType } from '#/components/typography/utils'
 import { getGeomPropTableData } from '#/utils/getGeomPropTableData'
 
-export const useGetData = () => {
-  const { title } = useConfig()
-  const { docs }: { docs: API } = useData()
+export const useGetData = ({
+  docs,
+  includeLegend = true,
+}: {
+  docs: any
+  includeLegend?: boolean
+}) => {
+  const { frontMatter } = useConfig()
 
   const geomData = docs.functions.find(
-    (f) => f.name.replace('Geom', '') === title,
+    (f: any) => f.name.replace('Geom', '').toLowerCase() === frontMatter.slug,
   )!
-  const legendData = docs.functions.find((f) => f.name === 'Legend')!
+
+  let legendApiItems: any[] = []
+
+  if (includeLegend) {
+    const legendData = docs.functions.find((f: any) => f.name === 'Legend')!
+
+    legendApiItems = [
+      {
+        kind: ApiItemKind.REFERENCE,
+        data: formatFunctionType({
+          data: legendData,
+          shouldFormat: true,
+        }),
+      },
+      {
+        kind: ApiItemKind.INTERFACE,
+        data: getGeomPropTableData(docs, legendData.signatures?.[0]),
+      },
+    ]
+  }
 
   return {
     apiItems: [
@@ -27,17 +49,7 @@ export const useGetData = () => {
         kind: ApiItemKind.INTERFACE,
         data: getGeomPropTableData(docs, geomData.signatures?.[0]),
       },
-      {
-        kind: ApiItemKind.REFERENCE,
-        data: formatFunctionType({
-          data: legendData,
-          shouldFormat: true,
-        }),
-      },
-      {
-        kind: ApiItemKind.INTERFACE,
-        data: getGeomPropTableData(docs, legendData.signatures?.[0]),
-      },
+      ...legendApiItems,
     ],
   }
 }

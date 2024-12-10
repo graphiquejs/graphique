@@ -9,10 +9,12 @@ const G = 'Graphique'
 
 const config: DocsThemeConfig = {
   main: ({ children }) => {
-    const { frontMatter, title } = useConfig()
+    const { asPath } = useRouter()
+    const isGeom = asPath.includes('/geoms/')
+    const { frontMatter } = useConfig()
     return (
       <>
-        <H1>{frontMatter.title}</H1>
+        <H1>{!isGeom && frontMatter.title}</H1>
         {children}
       </>
     )

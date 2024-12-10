@@ -1,8 +1,14 @@
+---
+title: GeomArea
+slug: area
+---
+
 import Readme from '#/input/geom-area/README.mdx'
 import { Basic, Stacked, Filled, Streamed, Bands } from '#/components/demo/geoms/geom-area'
 import { fetchDocs } from '#/utils/geoms/geom-area'
-import { useGetData } from '#/utils/geoms/geom-area/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -57,7 +63,8 @@ export const Intro = () => (
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

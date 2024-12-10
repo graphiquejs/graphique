@@ -1,8 +1,14 @@
+---
+title: GeomPoint
+slug: point
+---
+
 import Readme from '#/input/geom-point/README.mdx'
 import { Basic, Categorical, Continuous, Sized } from '#/components/demo/geoms/geom-point'
 import { fetchDocs } from '#/utils/geoms/geom-point'
-import { useGetData } from '#/utils/geoms/geom-point/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -51,7 +57,8 @@ export const Intro = () => (
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

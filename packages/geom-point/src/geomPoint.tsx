@@ -51,7 +51,7 @@ export interface GeomProps<Datum> {
   showTooltip?: boolean
   /** determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction
-  /** where elements should start as they enter the drawing area (defaults to `Entrance.MIDPOINT`) */
+  /** where elements should start as they enter the drawing area (defaults to `Entrance.BOTTOM`) */
   entrance?: Entrance
   /** should elements be strictly clipped at the bounds of the drawing area (defaults to `false`) */
   isClipped?: boolean
@@ -78,7 +78,7 @@ const GeomPoint = <Datum,>({
   focusedKeys = [],
   onDatumFocus,
   onDatumSelection,
-  entrance = Entrance.MIDPOINT,
+  entrance = Entrance.BOTTOM,
   onExit,
   showTooltip = true,
   brushAction,
@@ -353,7 +353,7 @@ const GeomPoint = <Datum,>({
             }
             start={(d) => ({
               cx: x(d),
-              cy: entrance === 'data' ? y(d) : bottomPos,
+              cy: entrance === Entrance.DATA ? y(d) : bottomPos,
               fill: fill(d),
               stroke: stroke(d),
               r: 0,

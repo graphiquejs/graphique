@@ -1,9 +1,15 @@
+---
+title: GeomTile
+slug: tile
+---
+
 import Readme from '#/input/geom-tile/README.mdx'
 import { Continuous } from '#/components/demo/geoms/geom-tile'
 import { fetchDocs } from '#/utils/geoms/geom-tile'
-import { useGetData } from '#/utils/geoms/geom-tile/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
 import { Callout } from 'nextra/components'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -34,7 +40,8 @@ export const Intro = () => (
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

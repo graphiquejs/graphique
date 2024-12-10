@@ -1,8 +1,14 @@
+---
+title: GeomCol
+slug: col
+---
+
 import Readme from '#/input/geom-col/README.mdx'
 import { Basic, Stacked, Filled, Dodged } from '#/components/demo/geoms/geom-col'
 import { fetchDocs } from '#/utils/geoms/geom-col'
-import { useGetData } from '#/utils/geoms/geom-col/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -51,7 +57,8 @@ export const Intro = () => (
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

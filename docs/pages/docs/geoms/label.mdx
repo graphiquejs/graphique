@@ -1,7 +1,14 @@
+---
+title: GeomLabel
+slug: label
+---
+
 import Readme from '#/input/geom-label/README.mdx'
+import { Basic, Data } from '#/components/demo/geoms/geom-label'
 import { fetchDocs } from '#/utils/geoms/geom-label'
-import { useGetData } from '#/utils/geoms/geom-label/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -9,25 +16,33 @@ export const getStaticProps = async () => {
   return {
     props: {
       ssg: {
-        docs
+      docs
       }
     }
   }
 }
 
-
-export const Intro = () => (
-  <Readme />
-)
+export const Intro = () => <Readme />
 
 <Intro />
 
 ## Examples
 
+### Basics
+
+<Basic />
+
+---
+
+### Geom-level data
+
+<Data />
+
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

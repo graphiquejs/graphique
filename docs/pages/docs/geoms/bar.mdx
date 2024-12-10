@@ -1,8 +1,14 @@
+---
+title: GeomBar
+slug: bar
+---
+
 import Readme from '#/input/geom-bar/README.mdx'
 import { Basic, Stacked, Filled, Dodged } from '#/components/demo/geoms/geom-bar'
 import { fetchDocs } from '#/utils/geoms/geom-bar'
-import { useGetData } from '#/utils/geoms/geom-bar/useGetData'
+import { useGetData } from '#/utils/geoms/useGetData'
 import { Exports } from '#/components/Exports'
+import { useData } from 'nextra/hooks'
 
 export const getStaticProps = async () => {
   const docs = await fetchDocs()
@@ -51,7 +57,8 @@ export const Intro = () => (
 ## API
 
 export const E = () => {
-  const { apiItems } = useGetData()
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
 
   return (
     <Exports apiItems={apiItems} />

@@ -1,9 +1,5 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    // "airbnb",
-    // "airbnb-typescript"
-  ],
+  "extends": ["next/core-web-vitals"],
   "rules": {
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",

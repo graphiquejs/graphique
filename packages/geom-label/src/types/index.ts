@@ -2,7 +2,7 @@ import { Aes, DataValue } from '@graphique/graphique'
 
 export enum Entrance {
   DATA = 'data',
-  MIDPOINT = 'midpoint',
+  BOTTOM = 'bottom',
 }
 
 export type GeomAes<Datum> = Omit<Aes<Datum>, 'x'> & {

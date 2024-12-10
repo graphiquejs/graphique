@@ -43,11 +43,11 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGTextElement>
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (defaults to `false`) */
   showTooltip?: boolean
   /** determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction
-  /** where elements should start as they enter the drawing area (defaults to `Entrance.MIDPOINT`) */
+  /** where elements should start as they enter the drawing area (defaults to `Entrance.BOTTOM`) */
   entrance?: Entrance
   /** should elements be strictly clipped at the bounds of the drawing area (defaults to `false`) */
   isClipped?: boolean
@@ -74,7 +74,7 @@ const GeomLabel = <Datum,>({
   focusedKeys = [],
   onDatumFocus,
   onDatumSelection,
-  entrance = Entrance.MIDPOINT,
+  entrance = Entrance.BOTTOM,
   onExit,
   showTooltip = false,
   brushAction,
@@ -327,26 +327,27 @@ const GeomLabel = <Datum,>({
             start={(d) => ({
               x: x(d),
               y: entrance === Entrance.DATA ? y(d) : bottomPos,
-              fill: fill(d),
-              stroke: getStroke(d),
+              fill: 'transparent',
+              stroke: 'transparent',
             })}
             enter={(d) => ({
               x: [x(d)],
               y: [y(d)],
-              fill: fill(d),
-              stroke: getStroke(d),
+              fill: [fill(d)],
+              stroke: [getStroke(d)],
               timing: { duration, ease: easeCubic },
             })}
             update={(d) => ({
               x: [x(d)],
               y: [y(d)],
-              fill: fill(d),
-              stroke: getStroke(d),
+              fill: [fill(d)],
+              stroke: [getStroke(d)],
               timing: { duration, ease: easeCubic },
             })}
             leave={() => ({
-              fill: 'transparent',
-              stroke: 'transparent',
+              fill: ['transparent'],
+              stroke: ['transparent'],
+              y: [bottomPos],
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
