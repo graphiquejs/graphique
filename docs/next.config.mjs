@@ -1,4 +1,7 @@
 import createNextra from 'nextra'
+import createVercelToolbar from '@vercel/toolbar/plugins/next'
+
+const withVercelToolbar = createVercelToolbar()
 
 const withNextra = createNextra({
   theme: 'nextra-theme-docs',
@@ -17,4 +20,4 @@ const nextConfig = {
   },
 }
 
-export default withNextra(nextConfig)
+export default withNextra(withVercelToolbar(nextConfig))
