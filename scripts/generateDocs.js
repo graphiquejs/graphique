@@ -40,7 +40,7 @@ packages.forEach((p) => {
 
     const dts = readFileSync('dist/index.d.ts', {
       encoding: 'utf-8',
-    }).replaceAll('`', '\\`')
+    }).replace(/`/g, '\\`')
 
     writeFileSync(`${docsInputDir}/build/dts.ts`, `export default \`${dts}\`;`)
 
