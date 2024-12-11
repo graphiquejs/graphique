@@ -7,6 +7,10 @@ const withNextra = createNextra({
 
 const nextConfig = {
   reactStrictMode: false,
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
   webpack: (config) => {
     config.module.rules.push({
       resourceQuery: /raw/,

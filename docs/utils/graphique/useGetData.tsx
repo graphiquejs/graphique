@@ -14,7 +14,7 @@ export const useGetData = () => {
   const { title } = useConfig()
   const { docs }: { docs: API } = useData()
 
-  console.log({ graphiqueDocs: docs })
+  // console.log({ graphiqueDocs: docs })
 
   const topLevelData = docs.functions.find((f) => f.name === title)!
   const prop = topLevelData.signatures[0].parameters[0].type.name
