@@ -1,4 +1,4 @@
-export default {
+const meta = {
   index: 'Getting started',
   graphique: 'Graphique',
   geoms: 'Geoms',
@@ -8,4 +8,6 @@ export default {
   advanced: {
     display: 'hidden',
   },
-};
+}
+
+export default meta

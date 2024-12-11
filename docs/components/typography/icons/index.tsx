@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 const SVG: React.FC<React.SVGAttributes<unknown>> = (props) => (
   <svg
     fill="currentColor"
@@ -36,6 +37,6 @@ export const PreviewIcon = (
     {...props}
   >
     <title>Preview</title>
-    <path d="M16 37.85v-28l22 14Zm3-14Zm0 8.55 13.45-8.55L19 15.3Z"></path>
+    <path d="M16 37.85v-28l22 14Zm3-14Zm0 8.55 13.45-8.55L19 15.3Z" />
   </SVG>
 )

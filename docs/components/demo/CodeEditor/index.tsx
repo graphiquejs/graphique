@@ -12,11 +12,11 @@ import {
 import { githubLight } from '@codesandbox/sandpack-themes'
 import { useTheme } from 'nextra-theme-docs'
 import { PreviewIcon } from '#/components/typography/icons'
-import styles from './CodeEditor.module.css'
 
 import graphiqueRaw from '#/input/graphique/build?raw'
 import dts from '#/input/graphique/build/dts'
 import dependencies from '#/input/graphique/build/dependencies'
+import styles from './CodeEditor.module.css'
 
 const indexSrc = `import React from "react";
 import { createRoot } from "react-dom/client";

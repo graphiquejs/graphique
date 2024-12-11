@@ -6,7 +6,7 @@ import {
   formatPropertyDescription,
   formatFunctionType,
 } from '#/components/typography/utils'
-import { API, TypeArgument, TypeEnum } from '#/input/graphique/api'
+import { API, TypeEnum } from '#/input/graphique/api'
 import { ApiItemKind } from '../constants'
 
 export const useGetData = () => {

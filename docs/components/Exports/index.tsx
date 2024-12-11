@@ -33,11 +33,14 @@ interface Props {
   apiItems?: (Definition | Interface)[]
 }
 
-const H3 = (props: HtmlHTMLAttributes<HTMLHeadingElement>) => (
+const H3 = ({ children, ...props }: HtmlHTMLAttributes<HTMLHeadingElement>) => (
   <h3
     className={`${styles.h2} _font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100`}
+    // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
-  />
+  >
+    {children}
+  </h3>
 )
 
 const Hr = () => (
@@ -111,10 +114,13 @@ export const Exports = ({ apiItems }: Props) => (
                     </Tr>
                   </thead>
                   <tbody>
-                    {itemData.data.map((row, i: number) => (
-                      <Tr key={String(i)} className={styles.tr}>
+                    {itemData.data.map((row) => (
+                      <Tr key={row.name} className={styles.tr}>
                         {Object.values(row).map((cell, j: number) => (
-                          <Td key={`${i}-${j}`} className={styles.td}>
+                          <Td
+                            key={`${row.name}-${String(j)}`}
+                            className={styles.td}
+                          >
                             {j === 0 ? (
                               <code
                                 dangerouslySetInnerHTML={{ __html: cell }}
@@ -133,6 +139,7 @@ export const Exports = ({ apiItems }: Props) => (
             </Fragment>
           )
         }
+        return null
       })}
   </>
 )

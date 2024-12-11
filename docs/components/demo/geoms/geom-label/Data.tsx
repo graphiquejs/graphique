@@ -1,5 +1,5 @@
-import dependencies from '#/input/geom-label/build/dependencies'
 import { useTheme } from 'nextra-theme-docs'
+import dependencies from '#/input/geom-label/build/dependencies'
 import { CodeEditor } from '../../CodeEditor'
 import { additionalFiles } from './additionalFiles'
 

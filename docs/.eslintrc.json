@@ -9,7 +9,9 @@
         "namedComponents": "arrow-function"
       }
     ],
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "react/no-danger": "off",
+    "import/extensions": "off"
   },
   "parserOptions": {
     "project": "./tsconfig.json"

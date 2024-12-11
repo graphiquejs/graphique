@@ -6,4 +6,3 @@ packages/*/dist
 .DS_Store
 testData*.json
 .vercel
-out

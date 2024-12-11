@@ -21,6 +21,32 @@ export const formatCode = (str: string) =>
     defaultColor: false,
   })
 
+export const formatUnion = (types: any[]) => {
+  const strings = types
+    .map((t) => {
+      const isNull = t.value === 'null'
+      if (isNull) return t.value
+
+      const isTuple = t.kind === 'tuple'
+      if (isTuple) {
+        const tupleTypes = t.types.map(({ type }: { type: string }) => type)
+
+        return `[${tupleTypes.join(', ')}]`
+      }
+
+      const isLiteral = t.kind === 'literal'
+      const val = isLiteral && !Number(t.value) ? `"${t.value}"` : t.value
+
+      return !isNull && t?.value ? val : t.type ?? t.name
+    })
+    .sort((a, b) => (a && b && a < b ? 1 : -1))
+    .sort((a) => (a === 'Date' ? -1 : 1))
+    .sort((a) => (a === 'null' ? 1 : -1))
+    .sort((_, b) => (b === 'undefined' ? -1 : 1))
+    .join(' | ')
+  return strings
+}
+
 interface FunctionProps {
   data: any
   shouldFormat?: boolean
@@ -80,32 +106,6 @@ export const formatFunctionType = ({
 
 export const formatTuple = (types: any[]) =>
   `[${types.map((t: any) => t.type).join(', ')}]`
-
-export const formatUnion = (types: any[]) => {
-  const strings = types
-    .map((t) => {
-      const isNull = t.value === 'null'
-      if (isNull) return t.value
-
-      const isTuple = t.kind === 'tuple'
-      if (isTuple) {
-        const tupleTypes = t.types.map(({ type }: { type: string }) => type)
-
-        return `[${tupleTypes.join(', ')}]`
-      }
-
-      const isLiteral = t.kind === 'literal'
-      const val = isLiteral && !Number(t.value) ? `"${t.value}"` : t.value
-
-      return !isNull && t?.value ? val : t.type ?? t.name
-    })
-    .sort((a, b) => (a && b && a < b ? 1 : -1))
-    .sort((a) => (a === 'Date' ? -1 : 1))
-    .sort((a) => (a === 'null' ? 1 : -1))
-    .sort((_, b) => (b === 'undefined' ? -1 : 1))
-    .join(' | ')
-  return strings
-}
 
 interface Description {
   description: string | null
