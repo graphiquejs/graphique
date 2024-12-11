@@ -2,7 +2,7 @@ import { getSandpackCssText } from '@codesandbox/sandpack-react'
 import { Html, Head, Main, NextScript } from 'next/document'
 
 const Document = () => (
-  <Html>
+  <Html lang="en">
     <Head>
       <style
         dangerouslySetInnerHTML={{ __html: getSandpackCssText() }}

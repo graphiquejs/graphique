@@ -144,6 +144,7 @@ const LogoButton: React.FC<Props> = ({ isSmall }) => {
           </g>
         </g>
       </svg>
+      <span className="_sr-only">Graphique</span>
     </div>
   )
 }

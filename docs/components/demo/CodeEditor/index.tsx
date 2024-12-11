@@ -11,6 +11,7 @@ import {
 } from '@codesandbox/sandpack-react'
 import { githubLight } from '@codesandbox/sandpack-themes'
 import { useTheme } from 'nextra-theme-docs'
+import { useMounted } from 'nextra/hooks'
 import { PreviewIcon } from '#/components/typography/icons'
 
 import graphiqueRaw from '#/input/graphique/build?raw'
@@ -53,7 +54,6 @@ body {
 }`
 
 interface Props {
-  /** { pkgName: pkgVersion }  */
   additionalDeps?: Record<string, string>
   additionalFiles?: Record<
     string,
@@ -77,6 +77,7 @@ const CustomResetButton = () => {
   return (
     <button className="sp-preview-action" type="button" onClick={handleReset}>
       <RestartIcon />
+      <span className="_sr-only">Reset demo</span>
     </button>
   )
 }
@@ -93,7 +94,9 @@ export const CodeEditor = ({
   const isDark =
     typeof resolvedTheme === 'undefined' || resolvedTheme === 'dark'
 
-  return (
+  const isMounted = useMounted()
+
+  return isMounted ? (
     <div className={styles.wrapper}>
       <SandpackProvider
         template="react-ts"
@@ -163,5 +166,7 @@ export const CodeEditor = ({
         </SandpackLayout>
       </SandpackProvider>
     </div>
+  ) : (
+    <div style={{ height: height + 360 }} />
   )
 }

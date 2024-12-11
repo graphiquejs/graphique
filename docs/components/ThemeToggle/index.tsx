@@ -31,6 +31,7 @@ const ThemeToggle = () => {
       ) : (
         <MoonIcon width={14} height={14} />
       )}
+      <span className="_sr-only">Theme Toggle</span>
     </button>
   )
 }

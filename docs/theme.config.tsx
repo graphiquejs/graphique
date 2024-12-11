@@ -5,6 +5,7 @@ import LogoButton from './components/LogoButton'
 import Footer from './components/Footer'
 import { P, H1, A } from './components/typography'
 import ThemeToggle from './components/ThemeToggle'
+import { Spacer } from './components/Spacer'
 
 const G = 'Graphique'
 
@@ -13,9 +14,11 @@ const config: DocsThemeConfig = {
     const { asPath } = useRouter()
     const isGeom = asPath.includes('/geoms/')
     const { frontMatter } = useConfig()
+
     return (
       <>
-        <H1>{!isGeom && frontMatter.title}</H1>
+        {isGeom && <Spacer />}
+        {!isGeom && frontMatter.title && <H1>{frontMatter.title}</H1>}
         {children}
       </>
     )
@@ -56,7 +59,6 @@ const config: DocsThemeConfig = {
   docsRepositoryBase: 'https://github.com/graphiquejs/graphique.dev',
   toc: {
     backToTop: true,
-    // component: <></>,
   },
   editLink: {
     content: null,

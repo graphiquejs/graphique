@@ -1,5 +1,11 @@
 .wrapper {
-  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.wrapper:is(html[class~='dark'] *) {
+  border: 1px solid #333;
 }
 
 .layout-container-top {
