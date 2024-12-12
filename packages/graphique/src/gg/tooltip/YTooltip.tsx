@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAtom } from 'jotai'
 import { YTooltipPortal } from './TooltipPortals'
 import { useGG } from '../GGBase'
-import { tooltipState, themeState } from '../../atoms'
+import { tooltipState, themeState, TooltipPosition } from '../../atoms'
 
 export interface YTooltipProps {
   id: string
@@ -68,7 +68,10 @@ export const YTooltip = ({ id, left, top, value, wait }: YTooltipProps) => {
       setLeftPos(leftPosition)
 
       const topPosition =
-        top - (position === 'data' ? containerHeight / 2 : 0) - 5 + yAdj
+        top -
+        (position === TooltipPosition.DATA ? containerHeight / 2 : 0) -
+        5 +
+        yAdj
       setTopPos(topPosition)
     }
   }, [width, left, top, position, shouldKeepInParent, xAdj, yAdj])

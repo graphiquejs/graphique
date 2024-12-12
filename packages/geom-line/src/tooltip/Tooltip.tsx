@@ -8,6 +8,7 @@ import {
   YTooltip,
   TooltipContainer,
   TooltipProps,
+  TooltipPosition,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, min, max } from 'd3-array'
@@ -152,7 +153,9 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
         <YTooltip
           id={id as string}
           left={left}
-          top={position === 'data' ? -(height - cappedYVal) : -height}
+          top={
+            position === TooltipPosition.DATA ? -(height - cappedYVal) : -height
+          }
           value={tooltipValue}
         />
       )}
