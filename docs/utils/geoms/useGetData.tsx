@@ -19,21 +19,23 @@ export const useGetData = ({
   let legendApiItems: any[] = []
 
   if (includeLegend) {
-    const legendData = docs.functions.find((f: any) => f.name === 'Legend')!
+    const legendData = docs.functions.filter((f: any) =>
+      String(f.name).includes('Legend'),
+    )!
 
-    legendApiItems = [
+    legendApiItems = legendData.flatMap((ld: any) => [
       {
         kind: ApiItemKind.REFERENCE,
         data: formatFunctionType({
-          data: legendData,
+          data: ld,
           shouldFormat: true,
         }),
       },
       {
         kind: ApiItemKind.INTERFACE,
-        data: getGeomPropTableData(docs, legendData.signatures?.[0]),
+        data: getGeomPropTableData(docs, ld.signatures?.[0]),
       },
-    ]
+    ])
   }
 
   return {
