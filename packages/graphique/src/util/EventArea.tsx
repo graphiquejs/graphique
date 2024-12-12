@@ -510,7 +510,8 @@ export const EventArea = <Datum,>({
         | React.PointerEvent<SVGRectElement>,
     ) => {
       if (readyToFocusRef.current && data && data.length) {
-        const [posX, posY] = pointer(event, rectRef.current)
+        const [pointerX, pointerY] = pointer(event, rectRef.current)
+        const [posX, posY] = [Math.floor(pointerX), Math.floor(pointerY)]
 
         if (isHeldDownRef.current && brushAction && !hasCategoricalAxis) {
           handleBrush(posX, posY)
