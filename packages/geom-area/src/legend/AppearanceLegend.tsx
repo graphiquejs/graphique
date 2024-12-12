@@ -11,7 +11,7 @@ import { CategoricalLegend } from './CategoricalLegend'
 export interface LegendProps {
   /** title of legend */
   title?: React.ReactNode
-  /** determines vertical/horizontal orientation of legend members (defaults to `LegendOrientation.V`) */
+  /** determines vertical/horizontal orientation of legend members (_default_: `LegendOrientation.V`) */
   orientation?: LegendOrientation
   /** function for formatting legend member labels */
   format?: (v: string, i: number) => string

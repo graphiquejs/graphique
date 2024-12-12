@@ -7,13 +7,13 @@ import { ColorBandLegend } from './ColorBandLegend'
 export interface LegendProps {
   /** title of legend */
   title?: React.ReactNode
-  /** determines vertical/horizontal orientation of categorical legend members (defaults to `LegendOrientation.V`) */
+  /** determines vertical/horizontal orientation of categorical legend members (_default_: `LegendOrientation.V`) */
   orientation?: LegendOrientation
   /** function for formatting legend member labels (categorical) or tick labels (continuous) */
   format?: (v: string, i: number) => string
-  /** width of continuous legend in px (defaults to `320`) */
+  /** width of continuous legend in px (_default_: `320`) */
   width?: number
-  /** approximate number of ticks for continuous legend (defaults to `width / 64`) */
+  /** approximate number of ticks for continuous legend (_default_: `width / 64`) */
   numTicks?: number
   /** callback called for click events on legend members */
   onSelection?: (v: string) => void

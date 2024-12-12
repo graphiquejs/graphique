@@ -38,13 +38,13 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGRectElement>
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
-  /** where elements should start as they enter the drawing area (defaults to `Entrance.DATA`) */
+  /** where elements should start as they enter the drawing area (_default_: `Entrance.DATA`) */
   entrance?: Entrance
-  /** padding value (0-1) that sets the space between tile columns (defaults to `0`) */
+  /** padding value (0-1) that sets the space between tile columns (_default_: `0`) */
   xPadding?: number
-  /** padding value (0-1) that sets the space between tile rows (defaults to `0`) */
+  /** padding value (0-1) that sets the space between tile rows (_default_: `0`) */
   yPadding?: number
   /** input x domain to use with continuous x scales (unique, sequential values across `[min, max]`).
    * For example, if a column represents a day, `xDomain` should include the full sequence of days between the min and max values. */

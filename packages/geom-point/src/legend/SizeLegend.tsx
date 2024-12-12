@@ -16,15 +16,15 @@ import { SizeLabelDirection } from '../types'
 export interface SizeLegendProps {
   /** title of legend */
   title?: React.ReactNode
-  /** which side of legend to draw labels (defaults to `SizeLabelDirection.R`) */
+  /** which side of legend to draw labels (_default_: `SizeLabelDirection.R`) */
   labelDirection?: SizeLabelDirection
-  /** number of circles to use as references in legend (defaults to `3`) */
+  /** number of circles to use as references in legend (_default_: `3`) */
   numCircles?: 2 | 3
   /** fixed breakpoints within size range for circle references (takes precedence over `numCircles`) */
   radiiVals?: [number, number] | [number, number, number]
   /** function for formatting labels */
   format?: (v: string, i: number) => string
-  /** width of legend in px (defaults to `120`) */
+  /** width of legend in px (_default_: `120`) */
   width?: number
   /** additional styles passed to legend container */
   style?: CSSProperties

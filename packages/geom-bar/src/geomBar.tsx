@@ -45,15 +45,15 @@ export interface GeomProps<Datum> {
   aes?: Aes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGRectElement>
-  /** determines how grouped elements are positioned relative to each other (defaults to `Position.STACK`) */
+  /** determines how grouped elements are positioned relative to each other (_default_: `Position.STACK`) */
   position?: Position
-  /** determines how elements within bar groups are focused (defaults to `FocusType.GROUP`)  */
+  /** determines how elements within bar groups are focused (_default_: `FocusType.GROUP`)  */
   focusType?: FocusType
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
-  /** padding value (0-1) that sets the space between bars/bar groups (defaults to `0.2`) */
+  /** padding value (0-1) that sets the space between bars/bar groups (_default_: `0.2`) */
   yPadding?: number
-  /** padding value (0-1) that sets the space between elements positioned with `position={POSITION.DODGE}` (defaults to `0.05`) */
+  /** padding value (0-1) that sets the space between elements positioned with `position={POSITION.DODGE}` (_default_: `0.05`) */
   dodgePadding?: number
   /** styles applied to focused elements */
   focusedStyle?: CSSProperties

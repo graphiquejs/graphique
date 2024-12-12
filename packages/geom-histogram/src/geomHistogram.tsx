@@ -26,15 +26,15 @@ import { bin, min, max } from 'd3-array'
 import { useAtom } from 'jotai'
 
 export interface GeomProps {
-  /** approximate number of equal-width bins that the x domain is divided into (defaults to `30`) */
+  /** approximate number of equal-width bins that the x domain is divided into (_default_: `30`) */
   bins?: number
   /** function for customizing bin range format in tooltips */
   rangeFormat?: (x0: number, x1: number) => string
-  /** should y values for bins be displayed as relative frequencies instead of counts (defaults to `false`) */
+  /** should y values for bins be displayed as relative frequencies instead of counts (_default_: `false`) */
   isRelative?: boolean
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGRectElement>
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
   /** determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction

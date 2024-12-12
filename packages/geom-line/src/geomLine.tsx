@@ -48,23 +48,23 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGPathElement>
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
   /** determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction
   /** used for programmatic zooming, should the zoom out button be hidden */
   isZoomedOut?: boolean
-  /** [d3 curve](https://d3js.org/d3-shape/curve) factory imported from `d3-shape` (defaults to `curveLinear`) */
+  /** [d3 curve](https://d3js.org/d3-shape/curve) factory imported from `d3-shape` (_default_: `curveLinear`) */
   curve?: CurveFactory
-  /** should this Geom have a line marker for its focused data (defaults to `true`) */
+  /** should this Geom have a line marker for its focused data (_default_: `true`) */
   showLineMarker?: boolean
-  /** radius in px of the line marker's points (defaults to `3.5`) */
+  /** radius in px of the line marker's points (_default_: `3.5`) */
   markerRadius?: number
-  /** stroke color of the line marker's points (defaults to `"#ffffff"`) */
+  /** stroke color of the line marker's points (_default_: `"#ffffff"`) */
   markerStroke?: string
-  /** where elements should start as they enter the drawing area (defaults to `Entrance.MIDPOINT`) */
+  /** where elements should start as they enter the drawing area (_default_: `Entrance.MIDPOINT`) */
   entrance?: Entrance
-  /** determines how pointer events focus data (defaults to `FocusType.X`) */
+  /** determines how pointer events focus data (_default_: `FocusType.X`) */
   focusType?: FocusType
   /** styles applied to focused elements */
   focusedStyle?: CSSProperties

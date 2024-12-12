@@ -40,7 +40,7 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGLineElement>
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
   /** callback called for mousemove events on the drawing area when focusing data */
   onDatumFocus?: (data: Datum[], index: number[]) => void

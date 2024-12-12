@@ -13,13 +13,13 @@ export interface LegendProps {
   title?: React.ReactNode
   /** additional styles passed to legend container */
   style?: CSSProperties
-  /** determines vertical/horizontal orientation of legend members (defaults to `LegendOrientation.V`) */
+  /** determines vertical/horizontal orientation of legend members (_default_: `LegendOrientation.V`) */
   orientation?: LegendOrientation
   /** function for formatting legend member labels */
   format?: (v: string, i: number) => string
   /** callback called for click events on legend members */
   onSelection?: (v: string) => void
-  /** should legend member stroke symbols include stroke dasharrays (defaults to `true`) */
+  /** should legend member stroke symbols include stroke dasharrays (_default_: `true`) */
   ignoreDasharray?: boolean
 }
 

@@ -13,12 +13,12 @@ export interface RootGGProps<Datum> {
   data: Datum[]
   /** the functional mapping of data characteristics to visual characteristics */
   aes: Aes<Datum>
-  /** the width of the visualization area in pixels (defaults to `550`)
+  /** the width of the visualization area in pixels (_default_: `550`)
    *
    * Use `isContainerWidth` if you'd like it to be as wide as the parent container.
    */
   width?: number
-  /** the height of the visualization area in pixels (defaults to `450`) */
+  /** the height of the visualization area in pixels (_default_: `450`) */
   height?: number
   /** an object specifying the margins surrounding the visualization area */
   margin?: Margin

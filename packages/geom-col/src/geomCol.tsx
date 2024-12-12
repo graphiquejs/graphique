@@ -52,20 +52,20 @@ export interface GeomProps<Datum> {
   aes?: GeomAes<Datum>
   /** attributes passed to the underlying SVG elements */
   attr?: SVGAttributes<SVGRectElement>
-  /** determines how grouped elements are positioned relative to each other (defaults to `Position.STACK`) */
+  /** determines how grouped elements are positioned relative to each other (_default_: `Position.STACK`) */
   position?: Position
-  /** determines where columns are aligned relative to their scaled values (defaults to `Alignment.CENTER`) */
+  /** determines where columns are aligned relative to their scaled values (_default_: `Alignment.CENTER`) */
   align?: Alignment
-  /** determines how elements within column groups are focused (defaults to `FocusType.GROUP`)  */
+  /** determines how elements within column groups are focused (_default_: `FocusType.GROUP`)  */
   focusType?: FocusType
-  /** should this Geom have a tooltip associated with it (defaults to `true`) */
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
   /** input x domain to use with continuous x scales (unique, sequential values across `[min, max]`).
    * For example, if a column represents a day, `xDomain` should include the full sequence of days between the min and max values. */
   xDomain?: (number | Date)[]
-  /** padding value (0-1) that sets the space between columns/column groups (defaults to `0.2`) */
+  /** padding value (0-1) that sets the space between columns/column groups (_default_: `0.2`) */
   xPadding?: number
-  /** padding value (0-1) that sets the space between elements positioned with `position={POSITION.DODGE}` (defaults to `0.05`) */
+  /** padding value (0-1) that sets the space between elements positioned with `position={POSITION.DODGE}` (_default_: `0.05`) */
   dodgePadding?: number
   /** for continuous x scales, determines what happens when brushing (clicking and dragging) over the drawing area  */
   brushAction?: BrushAction
