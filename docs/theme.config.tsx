@@ -68,8 +68,18 @@ const config: DocsThemeConfig = {
   },
   gitTimestamp: null,
   color: {
-    hue: 170,
-    saturation: 40,
+    hue: {
+      dark: 170,
+      light: 170,
+    },
+    saturation: {
+      dark: 70,
+      light: 35,
+    },
+    lightness: {
+      dark: 50,
+      light: 45,
+    },
   },
   components: {
     h1: H1,
