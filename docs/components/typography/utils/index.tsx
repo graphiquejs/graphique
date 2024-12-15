@@ -34,6 +34,12 @@ export const formatUnion = (types: any[]) => {
         return `[${tupleTypes.join(', ')}]`
       }
 
+      const isReflection = t.kind === 'reflection'
+      if (isReflection) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        return formatFunctionType({ data: t })
+      }
+
       const isLiteral = t.kind === 'literal'
       const val = isLiteral && !Number(t.value) ? `"${t.value}"` : t.value
 
@@ -62,10 +68,15 @@ export const formatFunctionType = ({
   const signature = data?.signatures?.[0] ?? data.type.signatures[0]
   const name = data?.name ?? signature.name
 
+  console.log(signature)
+
   const returnType =
     signature.returnType.kind === 'union'
       ? formatUnion(signature.returnType.types)
-      : signature.returnType.name ?? signature.returnType.type ?? ''
+      : signature.returnType.name ??
+        signature.returnType.type ??
+        signature.returnType.value ??
+        ''
 
   if (signature?.parameters?.length === 0) {
     rawLabel = `() => ${returnType}`

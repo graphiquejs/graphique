@@ -26,14 +26,14 @@ export const getGeomPropTableData = (docs: any, f?: any) => {
       let typeLabel: string
       if (isArray) {
         const nestedType = d.type.type
-        const isUnion = nestedType?.kind === 'union'
-        const isTuple = nestedType?.kind === 'tuple'
+        const isArrayUnion = nestedType?.kind === 'union'
+        const isArrayTuple = nestedType?.kind === 'tuple'
 
         let arrayString: string
 
-        if (isTuple) {
+        if (isArrayTuple) {
           arrayString = formatTuple(nestedType.types)
-        } else if (isUnion) {
+        } else if (isArrayUnion) {
           arrayString = `(${formatUnion(nestedType.types!)})`
         } else {
           arrayString =

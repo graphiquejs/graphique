@@ -1,1 +1,50 @@
+---
+slug: scalex
+---
+
+import { useData } from 'nextra/hooks'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
 # ScaleX
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary, apiItems } = useGetData({ docs, includeLegend: false, includeSummary: true })
+
+  console.log({ docs, apiItems, summary })
+
+  return summary;
+}
+
+<Summary />
+
+## Examples
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

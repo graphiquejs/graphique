@@ -1,4 +1,4 @@
-import { useThemeConfig, useConfig } from 'nextra-theme-docs'
+import { useThemeConfig } from 'nextra-theme-docs'
 import { useData } from 'nextra/hooks'
 import Markdown from 'react-markdown'
 import {
@@ -9,14 +9,15 @@ import {
 import { API, TypeEnum } from '#/input/graphique/api'
 import { ApiItemKind } from '../constants'
 
+const GG = 'GG'
+
 export const useGetData = () => {
   const { components } = useThemeConfig()
-  const { title } = useConfig()
   const { docs }: { docs: API } = useData()
 
   // console.log({ graphiqueDocs: docs })
 
-  const topLevelData = docs.functions.find((f) => f.name === title)!
+  const topLevelData = docs.functions.find((f) => f.name === GG)!
   const prop = topLevelData.signatures[0].parameters[0].type.name
 
   const propData = docs.interfaces.find((int) => int.name === prop)!
