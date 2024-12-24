@@ -26,6 +26,8 @@ import {
   ScaleSymLog,
   scaleSequentialLog,
   scaleSequentialSymlog,
+  scaleSequential,
+  scaleSequentialSqrt,
 } from 'd3-scale'
 
 export type XYScale =
@@ -52,8 +54,8 @@ export type VisualEncoding =
   | typeof scaleQuantize
   | typeof scaleThreshold
   // continuous
-  | typeof scaleLinear
-  | typeof scaleSqrt
+  | typeof scaleSequential
+  | typeof scaleSequentialSqrt
   | typeof scaleDiverging
   | typeof scaleSequentialLog
   | typeof scaleSequentialSymlog

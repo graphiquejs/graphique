@@ -29,7 +29,7 @@ export const CategoricalLegend = <Datum,>({
   onSelection,
   ignoreDasharray,
 }: CategoricalLegendProps<Datum>) => {
-  const [{ geoms, defaultStroke }] = useAtom(themeState)
+  const [{ geoms, defaultStroke, legend }] = useAtom(themeState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
   const [{ domain: dashArrayDomain }] = useAtom(strokeDasharrayState)
 
@@ -186,7 +186,13 @@ export const CategoricalLegend = <Datum,>({
                     />
                   </svg>
                 </div>
-                <div style={{ marginLeft: 4, fontSize }}>
+                <div
+                  style={{
+                    marginLeft: 4,
+                    fontSize,
+                    color: legend?.labelColor ?? 'currentcolor',
+                  }}
+                >
                   {labelFormat ? labelFormat(g, i) : formatMissing(g)}
                 </div>
               </div>

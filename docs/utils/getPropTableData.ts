@@ -8,12 +8,13 @@ import {
 import { Interface } from '#/input/geom-line/api'
 import { ApiItemKind } from './constants'
 
-export const getGeomPropTableData = (docs: any, f?: any) => {
+export const getPropTableData = (docs: any, f?: any) => {
   const prop = f?.parameters[0].type.name
 
   const propData: any = docs.interfaces.find(
     (int: Interface) => int.name === prop,
   )!
+
   const propTableData = {
     name: propData.name,
     kindLabel: formatCode(ApiItemKind.INTERFACE),

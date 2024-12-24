@@ -48,6 +48,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomVLine = <Datum,>({
@@ -58,6 +60,7 @@ const GeomVLine = <Datum,>({
   onDatumFocus,
   onDatumSelection,
   onExit,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
@@ -194,32 +197,48 @@ const GeomVLine = <Datum,>({
             })}
             enter={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
+              const thisStrokeOpacity = isOutsideDomain
+                ? 0
+                : geomAttr?.strokeOpacity
+
               return {
-                x1: [x(d) - xAdj],
-                x2: [x(d) - xAdj],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : geomAttr?.strokeOpacity],
+                x1: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                x2: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                y1: isAnimated ? [bottomPos] : bottomPos,
+                y2: isAnimated
+                  ? [(margin?.top || 0) - DEFAULT_TICK_SIZE]
+                  : (margin?.top || 0) - DEFAULT_TICK_SIZE,
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                strokeOpacity: isAnimated
+                  ? [thisStrokeOpacity]
+                  : thisStrokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             update={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
+              const thisStrokeOpacity = isOutsideDomain
+                ? 0
+                : geomAttr?.strokeOpacity
+
               return {
-                x1: [x(d) - xAdj],
-                x2: [x(d) - xAdj],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : geomAttr?.strokeOpacity],
+                x1: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                x2: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                y1: isAnimated ? [bottomPos] : bottomPos,
+                y2: isAnimated
+                  ? [(margin?.top || 0) - DEFAULT_TICK_SIZE]
+                  : (margin?.top || 0) - DEFAULT_TICK_SIZE,
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                strokeOpacity: isAnimated
+                  ? [thisStrokeOpacity]
+                  : thisStrokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
-              stroke: ['transparent'],
-              y1: [bottomPos],
-              y2: [bottomPos],
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              y1: isAnimated ? [bottomPos] : bottomPos,
+              y2: isAnimated ? [bottomPos] : bottomPos,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

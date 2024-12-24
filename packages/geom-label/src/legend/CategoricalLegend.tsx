@@ -14,7 +14,7 @@ export interface CategoricalLegendProps<Datum> {
   legendData: Datum[]
   legendScales: IScale<Datum>
   orientation?: LegendOrientation
-  labelFormat?: (v: string, i: number) => string
+  labelFormat?: (v: string, i?: number) => string
   fontSize?: string | number
   onSelection?: (v: string) => void
 }
@@ -31,7 +31,7 @@ export const CategoricalLegend = <Datum,>({
     legendScales.groups || [],
   )
 
-  const [{ geoms }] = useAtom(themeState)
+  const [{ geoms, legend }] = useAtom(themeState)
   const [{ domain: fillDomain }] = useAtom(fillScaleState)
   const [{ domain: strokeDomain }] = useAtom(strokeScaleState)
 
@@ -167,7 +167,13 @@ export const CategoricalLegend = <Datum,>({
                   />
                 </svg>
               </div>
-              <div style={{ marginLeft: 4, fontSize }}>
+              <div
+                style={{
+                  marginLeft: 4,
+                  fontSize,
+                  color: legend?.labelColor ?? 'currentcolor',
+                }}
+              >
                 {labelFormat ? labelFormat(g, i) : formatMissing(g)}
               </div>
             </div>

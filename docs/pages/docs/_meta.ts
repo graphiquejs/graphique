@@ -3,11 +3,7 @@ const meta = {
   graphique: 'Graphique',
   geoms: 'Geoms',
   datasets: 'Datasets',
-  // TODO: uncomment when available
-  // advanced: 'Advanced',
-  advanced: {
-    display: 'hidden',
-  },
+  advanced: 'Advanced',
 }
 
 export default meta

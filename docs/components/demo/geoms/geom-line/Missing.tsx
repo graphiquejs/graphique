@@ -35,12 +35,7 @@ const App = () => (
       x: createMissingX,
       y: createMissingY,
     }}
-    margin={{
-      top: 20,
-      right: 5,
-      bottom: 20,
-      left: 50,
-    }}
+    margin={{ top: 20, right: 5, bottom: 20, left: 50 }}
     height={350}
     isContainerWidth
   >

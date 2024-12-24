@@ -1,4 +1,7 @@
-export { default as Blank } from './Blank';
-export { default as Basic } from './Basic';
-export { default as SomePolish } from './SomePolish';
-export { default as LogX } from './LogX';
+export { default as Blank } from './Blank'
+export { default as Basic } from './Basic'
+export { default as SomePolish } from './SomePolish'
+export { default as LogX } from './LogX'
+export { default as MoreEncoding } from './MoreEncoding'
+export { default as Legends } from './Legends'
+export { default as Labels } from './Labels'

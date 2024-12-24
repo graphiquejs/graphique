@@ -50,7 +50,7 @@ body {
   color: ${isDark ? '#fafafa' : '#111'};
   background: ${isDark ? '#131313' : '#fff'};
   transition: all 200ms linear;
-  margin: 0 0 0 2px;
+  margin: 2px 0 0 2px;
 }`
 
 interface Props {
@@ -86,7 +86,7 @@ export const CodeEditor = ({
   additionalDeps = {},
   additionalFiles = {},
   src,
-  height = 455,
+  height = 456,
   showTabs = false,
   previewTitle = 'Preview',
 }: Props) => {

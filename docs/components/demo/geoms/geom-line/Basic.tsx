@@ -13,12 +13,7 @@ const App = () => (
       x: (d) => new Date(d.date),
       y: (d) => d.marketCap,
     }}
-    margin={{
-      top: 20,
-      right: 5,
-      bottom: 20,
-      left: 50,
-    }}
+    margin={{ top: 20, right: 5, bottom: 20, left: 50 }}
     height={350}
     isContainerWidth
   >

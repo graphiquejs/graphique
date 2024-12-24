@@ -13,14 +13,14 @@ export interface XYScaleProps {
   reverse?: boolean
   /** Function used to format axis tick labels */
   format?: ({ value, index, width }: FormatOptions) => string
-  /** approximate number of ticks to use in axis (_default_: derived from parent container's width) */
+  /** Approximate number of ticks to use in axis (_default_: derived from parent container's width or height) */
   numTicks?: ((widthOrHeight: number) => number | undefined) | number
-  /** Used to create an explicit/fixed scale. Continuous scales should get [min, max] and categorical scales should get an ordered list of each category.  */
-  domain?: any[]
+  /** Used to create an explicit/fixed scale. Continuous scales should get `[min, max]` and categorical scales should get an ordered list of categories.  */
+  domain?: unknown[]
   /** For categorical scales, should the focused data highlight the associated axis tick label */
   highlightOnFocus?: boolean
-  /** For categorical scales, the tick labels that should be explicitly/programatically focused */
+  /** For categorical scales, the tick labels that should be explicitly/programmatically focused */
   focusedTicks?: string[]
-  /** This is passed to top-level axis element, and can be used to control styling */
+  /** This is passed to the top-level axis element, and can be used to control styling */
   className?: string
 }

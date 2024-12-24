@@ -16,12 +16,7 @@ const App = () => (
       y: (d) => d.marketCap,
       stroke: (d) => d.symbol,
     }}
-    margin={{
-      top: 20,
-      right: 5,
-      bottom: 20,
-      left: 50,
-    }}
+    margin={{ top: 20, right: 5, bottom: 20, left: 50 }}
     height={350}
     isContainerWidth
   >

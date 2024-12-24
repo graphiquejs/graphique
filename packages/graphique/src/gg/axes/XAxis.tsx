@@ -102,7 +102,7 @@ export const XAxis = <Datum,>({ ggState, animate }: XAxisProps<Datum>) => {
       .select('path')
       .attr(
         'stroke',
-        axisTheme?.showAxisLines || axisX?.showAxisLine
+        axisTheme?.showAxisLine || axisX?.showAxisLine
           ? axisTheme?.stroke || axisX?.stroke || 'none'
           : 'none',
       )

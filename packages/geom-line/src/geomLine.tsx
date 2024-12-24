@@ -58,7 +58,7 @@ export interface GeomProps<Datum> {
   curve?: CurveFactory
   /** should this Geom have a line marker for its focused data (_default_: `true`) */
   showLineMarker?: boolean
-  /** radius in px of the line marker's points (_default_: `3.5`) */
+  /** radius in pixels of the line marker's points (_default_: `3.5`) */
   markerRadius?: number
   /** stroke color of the line marker's points (_default_: `"#ffffff"`) */
   markerStroke?: string
@@ -76,6 +76,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions */
+  isAnimated?: boolean
 }
 
 const GeomLine = <Datum,>({
@@ -96,6 +98,7 @@ const GeomLine = <Datum,>({
   markerRadius = 3.5,
   markerStroke = '#fff',
   focusType = FocusType.X,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, copiedData, height, id } =
@@ -415,20 +418,28 @@ const GeomLine = <Datum,>({
                       opacity: 0,
                     }}
                     enter={{
-                      path: [drawLine(groupLineData)],
-                      opacity: [geomAttr.opacity ?? 1],
+                      path: isAnimated
+                        ? [drawLine(groupLineData)]
+                        : drawLine(groupLineData),
+                      opacity: isAnimated
+                        ? [geomAttr.opacity ?? 1]
+                        : geomAttr.opacity ?? 1,
                       timing: { duration, ease: easeCubic },
                     }}
                     update={{
-                      path: [drawLine(groupLineData)],
-                      opacity: [geomAttr.opacity ?? 1],
+                      path: isAnimated
+                        ? [drawLine(groupLineData)]
+                        : drawLine(groupLineData),
+                      opacity: isAnimated
+                        ? [geomAttr.opacity ?? 1]
+                        : geomAttr.opacity ?? 1,
                       timing: {
                         duration,
                         ease: easeCubic,
                       },
                     }}
                     leave={() => ({
-                      opacity: [0],
+                      opacity: isAnimated ? [0] : 0,
                       timing: { duration, ease: easeCubic },
                     })}
                     interpolation={(begValue, endValue, a) => {
@@ -466,17 +477,21 @@ const GeomLine = <Datum,>({
                   opacity: 0,
                 }}
                 enter={{
-                  path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
-                  opacity: [1],
+                  path: isAnimated
+                    ? [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])]
+                    : drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
+                  opacity: isAnimated ? [1] : 1,
                   timing: { duration },
                 }}
                 update={{
-                  path: [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])],
-                  opacity: [1],
+                  path: isAnimated
+                    ? [drawLine(geomData?.map((d) => [x(d), y(d)]) as [])]
+                    : drawLine(geomData?.map((d) => [x(d), y(d)]) as []),
+                  opacity: isAnimated ? [1] : 1,
                   timing: { duration, ease: easeCubic },
                 }}
                 leave={() => ({
-                  opacity: [0],
+                  opacity: isAnimated ? [0] : 0,
                   timing: { duration, ease: easeCubic },
                 })}
                 interpolation={(begValue, endValue, a) => {

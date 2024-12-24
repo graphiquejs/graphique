@@ -23,8 +23,8 @@ export interface SizeLegendProps {
   /** fixed breakpoints within size range for circle references (takes precedence over `numCircles`) */
   radiiVals?: [number, number] | [number, number, number]
   /** function for formatting labels */
-  format?: (v: string, i: number) => string
-  /** width of legend in px (_default_: `120`) */
+  format?: (v: number, i?: number) => string
+  /** width of legend in pixels (_default_: `120`) */
   width?: number
   /** additional styles passed to legend container */
   style?: CSSProperties
@@ -85,7 +85,7 @@ export const SizeLegend = ({
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
-    const timeout = setTimeout(() => setFirstRender(false), 0)
+    const timeout = setTimeout(() => setFirstRender(false), 5)
     return () => clearTimeout(timeout)
   }, [])
 

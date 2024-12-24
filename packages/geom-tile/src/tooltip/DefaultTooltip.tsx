@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   TooltipContent,
   TooltipContainer,
   formatMissing,
   labelsState,
   themeState,
+  nodeToString,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
@@ -16,9 +17,16 @@ export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
   const [{ x: xLab, y: yLab }] = useAtom(labelsState)
   const [{ tooltip }] = useAtom(themeState)
 
+  const [yLabel, setYLabel] = useState('')
+  useEffect(() => {
+    const timeout = setTimeout(() => setYLabel(nodeToString(yLab)))
+
+    return () => clearTimeout(timeout)
+  }, [yLab])
+
   return data ? (
     <TooltipContainer>
-      {data.map(d => {
+      {data.map((d) => {
         const formattedGroup = formatMissing(d.group)
         return (
           <div key={`group-tooltip-${d.label || formattedGroup}`}>
@@ -76,14 +84,14 @@ export const DefaultTooltip = <Datum,>({ data }: Props<Datum>) => {
                 </div>
               </div>
               <div style={{ display: 'flex' }}>
-                {yLab && (
+                {yLabel && (
                   <div
                     style={{
                       fontSize:
                         tooltip?.yLabel?.fontSize || tooltip?.font?.size,
                     }}
                   >
-                    {`${yLab}:`}
+                    {`${yLabel}:`}
                   </div>
                 )}
                 <div

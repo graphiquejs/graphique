@@ -30,7 +30,7 @@ export const CategoricalLegend = <Datum,>({
     legendScales.groups || legendScales.fillScale?.domain() || [],
   )
 
-  const [{ geoms, defaultFill }] = useAtom(themeState)
+  const [{ geoms, defaultFill, legend }] = useAtom(themeState)
   const [{ domain }] = useAtom(fillScaleState)
 
   const legendGroups = useMemo(
@@ -166,7 +166,13 @@ export const CategoricalLegend = <Datum,>({
                   />
                 </svg>
               </div>
-              <div style={{ marginLeft: 4, fontSize }}>
+              <div
+                style={{
+                  marginLeft: 4,
+                  fontSize,
+                  color: legend?.labelColor ?? 'currentcolor',
+                }}
+              >
                 {labelFormat ? labelFormat(g, i) : formatMissing(g)}
               </div>
             </div>

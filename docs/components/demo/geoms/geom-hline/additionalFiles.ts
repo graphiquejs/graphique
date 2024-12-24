@@ -1,6 +1,7 @@
-import geom from '#/input/geom-hline/build?raw'
-import dts from '#/input/geom-hline/build/dts'
-import geomPoint from '#/input/geom-point/build?raw'
+import hline from '#/input/geom-hline/build?raw'
+import hlineDts from '#/input/geom-hline/build/dts'
+import point from '#/input/geom-point/build?raw'
+import pointDts from '#/input/geom-point/build/dts'
 
 const [PKG_1, PKG_2] = ['geom-hline', 'geom-point']
 
@@ -15,7 +16,11 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_2}/index.js`]: {
     hidden: true,
-    code: geomPoint,
+    code: point,
+  },
+  [`/node_modules/@graphique/${PKG_2}/index.d.ts`]: {
+    hidden: true,
+    code: pointDts,
   },
   [`/node_modules/@graphique/${PKG_1}/package.json`]: {
     hidden: true,
@@ -27,10 +32,10 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_1}/index.js`]: {
     hidden: true,
-    code: geom,
+    code: hline,
   },
   [`/node_modules/@graphique/${PKG_1}/index.d.ts`]: {
     hidden: true,
-    code: dts,
+    code: hlineDts,
   },
 }

@@ -63,6 +63,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomLabel = <Datum,>({
@@ -79,6 +81,7 @@ const GeomLabel = <Datum,>({
   showTooltip = false,
   brushAction,
   isClipped = false,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales, width, height, margin } =
@@ -331,23 +334,23 @@ const GeomLabel = <Datum,>({
               stroke: 'transparent',
             })}
             enter={(d) => ({
-              x: [x(d)],
-              y: [y(d)],
-              fill: [fill(d)],
-              stroke: [getStroke(d)],
+              x: isAnimated ? [x(d)] : x(d),
+              y: isAnimated ? [y(d)] : y(d),
+              fill: isAnimated ? [fill(d)] : fill(d),
+              stroke: isAnimated ? [getStroke(d)] : getStroke(d),
               timing: { duration, ease: easeCubic },
             })}
             update={(d) => ({
-              x: [x(d)],
-              y: [y(d)],
-              fill: [fill(d)],
-              stroke: [getStroke(d)],
+              x: isAnimated ? [x(d)] : x(d),
+              y: isAnimated ? [y(d)] : y(d),
+              fill: isAnimated ? [fill(d)] : fill(d),
+              stroke: isAnimated ? [getStroke(d)] : getStroke(d),
               timing: { duration, ease: easeCubic },
             })}
             leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              y: [bottomPos],
+              fill: isAnimated ? ['transparent'] : 'transparent',
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              y: isAnimated ? [bottomPos] : bottomPos,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

@@ -79,6 +79,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomCol = <Datum,>({
@@ -98,6 +100,7 @@ const GeomCol = <Datum,>({
   align = Alignment.CENTER,
   position = Position.STACK,
   focusType = FocusType.GROUP,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin, width, id } =
@@ -498,15 +501,24 @@ const GeomCol = <Datum,>({
                 ? thisY0 - thisY1
                 : bottomPos - (y(d) || 0)
 
+              const thisHeight = typeof y(d) === 'undefined' ? 0 : barHeight
+              const thisY = STACKED_OR_FILLED.includes(position) ? thisY1 : y(d)
+
               return {
-                height: [typeof y(d) === 'undefined' ? 0 : barHeight],
-                width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [resolvedXScale(d)],
-                y: [STACKED_OR_FILLED.includes(position) ? thisY1 : y(d)],
+                height: isAnimated ? [thisHeight] : thisHeight,
+                width: isAnimated
+                  ? [dodgeXScale?.bandwidth() || xBandScale.bandwidth()]
+                  : dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
+                x: isAnimated ? [resolvedXScale(d)] : resolvedXScale(d),
+                y: isAnimated ? [thisY] : thisY,
                 fill: fill(d),
                 stroke: stroke(d),
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -519,23 +531,33 @@ const GeomCol = <Datum,>({
               const barHeight = stackedData
                 ? thisY0 - thisY1
                 : bottomPos - (y(d) || 0)
+
+              const thisHeight = typeof y(d) === 'undefined' ? 0 : barHeight
+              const thisY = STACKED_OR_FILLED.includes(position) ? thisY1 : y(d)
+
               return {
-                height: [typeof y(d) === 'undefined' ? 0 : barHeight],
-                width: [dodgeXScale?.bandwidth() || xBandScale.bandwidth()],
-                x: [resolvedXScale(d)],
-                y: [STACKED_OR_FILLED.includes(position) ? thisY1 : y(d)],
+                height: isAnimated ? [thisHeight] : thisHeight,
+                width: isAnimated
+                  ? [dodgeXScale?.bandwidth() || xBandScale.bandwidth()]
+                  : dodgeXScale?.bandwidth() || xBandScale.bandwidth(),
+                x: isAnimated ? [resolvedXScale(d)] : resolvedXScale(d),
+                y: isAnimated ? [thisY] : thisY,
                 fill: fill(d),
                 stroke: stroke(d),
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              height: [0],
-              y: [bottomPos],
+              fill: isAnimated ? ['transparent'] : 'transparent',
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              height: isAnimated ? [0] : 0,
+              y: isAnimated ? [bottomPos] : bottomPos,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

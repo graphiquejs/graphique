@@ -37,7 +37,7 @@ const SomePolish: React.FC = () => {
           x="GDP per capita"
           y="Life expectancy (years)"
           header={
-            <span className={styles.gapMinderHeader}>
+            <span className={styles.title}>
               The health and wealth of nations
             </span>
           }

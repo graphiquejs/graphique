@@ -14,7 +14,7 @@ export interface TooltipContent<Datum> {
   datum?: Datum[]
   containerWidth: number
   xLab?: string
-  yLab?: string
+  yLab?: React.ReactNode
 }
 
 export enum TooltipPosition {
@@ -22,21 +22,36 @@ export enum TooltipPosition {
   DATA = 'data',
 }
 
+interface HorizontalProps {
+  width?: number
+  x?: number
+}
+
+interface VerticalProps {
+  height?: number
+  y?: number
+}
+
 export interface TooltipProps<Datum> {
-  x0?: any
-  y0?: any
-  left?: number
-  dx?: (({ width, x }: { width?: number; x?: number }) => number) | number
-  dy?: (({ height, y }: { height?: number; y?: number }) => number) | number
-  keepInParent?:
-    | (({ width, x }: { width?: number; x?: number }) => boolean)
-    | boolean
+  /** horizontal adjustment in pixels for tooltip's position relative to focused datum */
+  dx?: (({ width, x }: HorizontalProps) => number) | number
+  /** vertical adjustment in pixels for tooltip's position relative to focused datum */
+  dy?: (({ height, y }: VerticalProps) => number) | number
+  /** should the tooltip be contained within the visualization area (_default_: `true`)  */
+  keepInParent?: (({ width, x }: HorizontalProps) => boolean) | boolean
+  /** tooltip's position relative to focused datum (_default_: `TooltipPosition.DATA`) */
   position?: TooltipPosition
+  /** formatting function for tooltip x values */
   xFormat?: (d: any) => string
+  /** formatting function for tooltip y values */
   yFormat?: (d: any) => string
+  /** formatting function for tooltip measure labels created with an [`aes.label`](https://graphique.dev/docs/graphique/gg#Aes) mapping */
   measureFormat?: (d: any) => string
+  /** function that can be used to render a completely custom tooltip component based on the focused datum's individual parts */
   content?: (value?: TooltipContent<Datum>[]) => React.ReactNode | undefined
+  /** should the tooltip x value be rendered as an independent tooltip along the x axis */
   xAxis?: ((x?: string | number | Date | null) => React.ReactNode) | boolean
+  /** used for programmatically focusing Geom elements/displaying tooltip when given a meaningful subset of `data` */
   datum?: Datum[]
 }
 

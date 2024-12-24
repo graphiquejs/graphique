@@ -41,7 +41,7 @@ export const Intro = () => (
 
 export const E = () => {
   const { docs } = useData()
-  const { apiItems } = useGetData({ docs })
+  const { apiItems } = useGetData({ docs, includeLegend: true })
 
   return (
     <Exports apiItems={apiItems} />

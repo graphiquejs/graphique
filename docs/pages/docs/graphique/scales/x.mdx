@@ -3,6 +3,7 @@ slug: scalex
 ---
 
 import { useData } from 'nextra/hooks'
+import { Categorical, Continuous } from '#/components/demo/scales/x'
 import { useGetData } from '#/utils/geoms/useGetData'
 import { fetchDocs } from '#/utils/graphique'
 import { Exports } from '#/components/Exports'
@@ -23,9 +24,7 @@ export const getStaticProps = async () => {
 
 export const Summary = () => {
   const { docs } = useData()
-  const { summary, apiItems } = useGetData({ docs, includeLegend: false, includeSummary: true })
-
-  console.log({ docs, apiItems, summary })
+  const { summary } = useGetData({ docs })
 
   return summary;
 }
@@ -33,6 +32,16 @@ export const Summary = () => {
 <Summary />
 
 ## Examples
+
+### Categorical 
+
+<Categorical />
+
+---
+
+### Continuous
+
+<Continuous />
 
 ---
 

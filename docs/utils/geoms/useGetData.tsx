@@ -2,11 +2,11 @@ import { useConfig, useThemeConfig } from 'nextra-theme-docs'
 import Markdown from 'react-markdown'
 import { ApiItemKind } from '#/utils/constants'
 import { formatFunctionType } from '#/components/typography/utils'
-import { getGeomPropTableData } from '#/utils/getGeomPropTableData'
+import { getPropTableData } from '#/utils/getPropTableData'
 
 export const useGetData = ({
   docs,
-  includeLegend = true,
+  includeLegend = false,
 }: {
   docs: any
   includeLegend?: boolean
@@ -14,11 +14,11 @@ export const useGetData = ({
   const { components } = useThemeConfig()
   const { frontMatter } = useConfig()
 
-  const geomData = docs.functions.find(
+  const mainData = docs.functions.find(
     (f: any) => f.name.replace('Geom', '').toLowerCase() === frontMatter.slug,
   )!
 
-  const summarySrc = geomData?.comment?.description
+  const summarySrc = mainData?.comment?.description
 
   let legendApiItems: any[] = []
 
@@ -37,7 +37,7 @@ export const useGetData = ({
       },
       {
         kind: ApiItemKind.INTERFACE,
-        data: getGeomPropTableData(docs, ld.signatures?.[0]),
+        data: getPropTableData(docs, ld.signatures?.[0]),
       },
     ])
   }
@@ -50,13 +50,13 @@ export const useGetData = ({
       {
         kind: ApiItemKind.REFERENCE,
         data: formatFunctionType({
-          data: geomData,
+          data: mainData,
           shouldFormat: true,
         }),
       },
       {
         kind: ApiItemKind.INTERFACE,
-        data: getGeomPropTableData(docs, geomData.signatures?.[0]),
+        data: getPropTableData(docs, mainData.signatures?.[0]),
       },
       ...legendApiItems,
     ],

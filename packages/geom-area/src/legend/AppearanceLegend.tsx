@@ -14,7 +14,7 @@ export interface LegendProps {
   /** determines vertical/horizontal orientation of legend members (_default_: `LegendOrientation.V`) */
   orientation?: LegendOrientation
   /** function for formatting legend member labels */
-  format?: (v: string, i: number) => string
+  format?: (v: string, i?: number) => string
   /** callback called for click events on legend members */
   onSelection?: (v: string) => void
   /** additional styles passed to legend container */

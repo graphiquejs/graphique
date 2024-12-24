@@ -31,107 +31,103 @@ interface HistProps {
   binWidth?: number
 }
 
-export interface ThemeProps<Datum> {
-  titleColor?: string
-  markerStroke?: string
-  defaultStroke?: string
-  defaultFill?: string
-  geoms?: {
-    point?: PointThemeProps<Datum>
-    line?: PointThemeProps<Datum>
-    vline?: PointThemeProps<Datum>
-    hline?: PointThemeProps<Datum>
-    smooth?: PointThemeProps<Datum>
-    tile?: PointThemeProps<Datum>
-    bar?: PointThemeProps<Datum>
-    col?: PointThemeProps<Datum>
-    histogram?: HistProps
-    area?: AreaProps<Datum>
-    label?: PointThemeProps<Datum>
+interface GeomsTheme<Datum> {
+  point?: PointThemeProps<Datum>
+  line?: PointThemeProps<Datum>
+  vline?: PointThemeProps<Datum>
+  hline?: PointThemeProps<Datum>
+  smooth?: PointThemeProps<Datum>
+  tile?: PointThemeProps<Datum>
+  bar?: PointThemeProps<Datum>
+  col?: PointThemeProps<Datum>
+  histogram?: HistProps
+  area?: AreaProps<Datum>
+  label?: PointThemeProps<Datum>
+}
+
+interface AxisTheme {
+  stroke?: string
+  label?: {
+    fontSize?: number | string
+    fontFamily?: string
+    color?: string
   }
+  tickLabel?: {
+    fontSize?: number | string
+    fontFamily?: string
+    color?: string
+  }
+  tickStroke?: string
+  showAxisLine?: boolean
+}
+
+interface LegendTheme {
+  labelColor?: string
+  tickColor?: string
+}
+
+interface TooltipTheme {
   font?: {
     family?: string
+    size?: number
   }
-  grid?: {
-    stroke?: string | null
+  xLabel?: {
+    fontSize?: number | string
+    fontFamily?: string
+    color?: string
   }
-  axis?: {
-    stroke?: string
-    label?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickStroke?: string
-    showAxisLines?: boolean
+  yLabel?: {
+    fontSize?: number | string
+    fontFamily?: string
+    color?: string
   }
-  axisX?: {
-    stroke?: string
-    label?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickStroke?: string
-    showAxisLine?: boolean
-  } | null
-  axisY?: {
-    stroke?: string
-    label?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    tickStroke?: string
-    showAxisLine?: boolean
-  } | null
-  legend?: {
-    labelColor?: string
-    tickColor?: string
+  groupLabel?: {
+    fontSize?: number | string
+    fontFamily?: string
+    color?: string
   }
-  tooltip?: {
-    font?: {
-      family?: string
-      size?: number
-    }
-    xLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    yLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-    groupLabel?: {
-      fontSize?: number | string
-      fontFamily?: string
-      color?: string
-    }
-  }
+}
+
+interface FontTheme {
+  family?: string
+}
+
+interface GridTheme {
+  stroke?: string | null
+}
+
+export interface ThemeProps<Datum> {
+  /** font color for header */
+  headerColor?: string
+  /** stroke color for marker (_default_: `"#ffffff"`) */
+  markerStroke?: string
+  /** stroke color used for geoms with a default stroke attribute (_default_: `"#777777ee"`) */
+  defaultStroke?: string
+  /** fill color used for geoms with a default fill attribute (_default_: `"#777777ee"`) */
+  defaultFill?: string
+  /** internal state that is set automatically and can be retrieved for each used Geom. _Note: you shouldn't ever need to modify this directly._ */
+  geoms?: GeomsTheme<Datum>
+  /** sets the default font used throughout a visualization */
+  font?: FontTheme
+  /** sets appearance properties for grid lines */
+  grid?: GridTheme
+  /** theme properties applied to x and y axes (ticks, labels, etc.)  */
+  axis?: AxisTheme | null
+  /** theme properties applied to x axis (ticks, labels, etc.)  */
+  axisX?: AxisTheme | null
+  /** theme properties applied to y axis (ticks, labels, etc.)  */
+  axisY?: AxisTheme | null
+  /** theme properties applied to legends */
+  legend?: LegendTheme
+  /** theme properties applied to tooltip */
+  tooltip?: TooltipTheme
+  /** duration in milliseconds for animated transitions (_default_: `1000`) */
   animationDuration?: number
 }
 
 export const pointThemeState = atom<PointThemeProps<any>>({})
 
 export const themeState = atom<ThemeProps<any>>({
-  // titleColor: "#222",
   markerStroke: '#fff',
   defaultStroke: '#777777ee',
   defaultFill: '#777777ee',
@@ -140,32 +136,20 @@ export const themeState = atom<ThemeProps<any>>({
                 Roboto, Oxygen-Sans, Ubuntu, Cantarell,
                 Helvetica Neue, sans-serif`,
   },
-  grid: {
-    // stroke: "#33333313",
-  },
+  grid: {},
   axis: {
-    // labelColor: "#666",
-    // stroke: "#55555533",
-    // tickLabelColor: "#888",
-    showAxisLines: false,
+    showAxisLine: false,
   },
   axisX: {
-    // labelColor: "#666",
     stroke: '#33333333',
-    // tickLabelColor: "#888",
     showAxisLine: false,
   },
   axisY: {
-    // labelColor: "#666",
     stroke: '#33333333',
-    // tickLabelColor: "#888",
     showAxisLine: false,
   },
   geoms: {},
-  legend: {
-    // titleColor: "#666",
-    // tickColor: "#444",
-  },
+  legend: {},
   tooltip: {},
   animationDuration: 1000,
 })

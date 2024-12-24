@@ -76,6 +76,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomArea = <Datum,>({
@@ -92,6 +94,7 @@ const GeomArea = <Datum,>({
   markerRadius = 3.5,
   markerStroke = '#fff',
   position = Position.IDENTITY,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales } = ggState || {}
@@ -622,32 +625,45 @@ const GeomArea = <Datum,>({
                 strokeOpacity: 0,
                 fillOpacity: 0,
               }}
-              enter={{
-                path: shouldStack
-                  ? [drawStackArea(groupStack)]
-                  : [drawArea(groupData)],
-                fill: thisFill,
-                stroke: thisStroke,
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
-                timing: { duration, ease: easeCubic },
+              enter={() => {
+                const path = shouldStack
+                  ? drawStackArea(groupStack)
+                  : drawArea(groupData)
+
+                return {
+                  path: isAnimated ? [path] : path,
+                  fill: thisFill,
+                  stroke: thisStroke,
+                  fillOpacity: isAnimated
+                    ? [geomAttr.fillOpacity]
+                    : geomAttr.fillOpacity,
+                  strokeOpacity: isAnimated
+                    ? [geomAttr.strokeOpacity]
+                    : geomAttr.strokeOpacity,
+                  timing: { duration, ease: easeCubic },
+                }
               }}
-              update={{
-                path: shouldStack
-                  ? [drawStackArea(groupStack)]
-                  : [drawArea(groupData)],
-                fill: thisFill,
-                stroke: thisStroke,
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
-                timing: {
-                  duration,
-                  ease: easeCubic,
-                },
+              update={() => {
+                const path = shouldStack
+                  ? drawStackArea(groupStack)
+                  : drawArea(groupData)
+
+                return {
+                  path: isAnimated ? [path] : path,
+                  fill: thisFill,
+                  stroke: thisStroke,
+                  fillOpacity: isAnimated
+                    ? [geomAttr.fillOpacity]
+                    : geomAttr.fillOpacity,
+                  strokeOpacity: isAnimated
+                    ? [geomAttr.strokeOpacity]
+                    : geomAttr.strokeOpacity,
+                  timing: { duration, ease: easeCubic },
+                }
               }}
               leave={() => ({
-                fill: ['transparent'],
-                stroke: ['transparent'],
+                fill: isAnimated ? ['transparent'] : 'transparent',
+                stroke: isAnimated ? ['transparent'] : 'transparent',
                 timing: { duration, ease: easeCubic },
               })}
               interpolation={(begValue, endValue, a) => {

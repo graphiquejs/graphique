@@ -43,24 +43,24 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
 
   const xAdj = useMemo(
     () => (scales?.xScale.bandwidth ? scales?.xScale.bandwidth() / 2 : 0),
-    [scales]
+    [scales],
   )
   const yAdj = useMemo(
     () => (scales?.yScale?.bandwidth ? scales.yScale.bandwidth() / 2 : 0),
-    [scales]
+    [scales],
   )
 
   const thisGroup = useMemo(
     () => datum && group && group(datum),
-    [datum, group]
+    [datum, group],
   )
 
   const tooltipContents: TooltipContent<Datum>[] = [
     {
       x: datum && aes?.x && xScale && xScale(aes.x(datum)),
       y: datum && aes?.y && yScale && yScale(aes.y(datum)),
-      xLab: xLab?.toString(),
-      yLab: yLab?.toString(),
+      xLab,
+      yLab,
       formattedX:
         datum &&
         aes?.x &&

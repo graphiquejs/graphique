@@ -435,8 +435,8 @@ export const EventArea = <Datum,>({
 
           let reconciledYExtent = givenYDomain
             ? [
-                max([brushedYExtent[0], givenYDomain[0]]),
-                min([brushedYExtent[1], givenYDomain[1]]),
+                max([brushedYExtent[0], givenYDomain[0]] as [number, number]),
+                min([brushedYExtent[1], givenYDomain[1]] as [number, number]),
               ]
             : brushedYExtent
 

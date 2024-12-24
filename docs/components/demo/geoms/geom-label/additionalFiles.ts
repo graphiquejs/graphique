@@ -1,6 +1,7 @@
-import geom from '#/input/geom-label/build?raw'
-import dts from '#/input/geom-label/build/dts'
-import geomPoint from '#/input/geom-point/build?raw'
+import label from '#/input/geom-label/build?raw'
+import labelDts from '#/input/geom-label/build/dts'
+import point from '#/input/geom-point/build?raw'
+import pointDts from '#/input/geom-point/build/dts'
 
 const [PKG_1, PKG_2] = ['geom-label', 'geom-point']
 
@@ -15,7 +16,11 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_2}/index.js`]: {
     hidden: true,
-    code: geomPoint,
+    code: point,
+  },
+  [`/node_modules/@graphique/${PKG_2}/index.d.ts`]: {
+    hidden: true,
+    code: pointDts,
   },
   [`/node_modules/@graphique/${PKG_1}/package.json`]: {
     hidden: true,
@@ -27,10 +32,10 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_1}/index.js`]: {
     hidden: true,
-    code: geom,
+    code: label,
   },
   [`/node_modules/@graphique/${PKG_1}/index.d.ts`]: {
     hidden: true,
-    code: dts,
+    code: labelDts,
   },
 }

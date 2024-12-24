@@ -10,8 +10,8 @@ export interface LegendProps {
   /** determines vertical/horizontal orientation of categorical legend members (_default_: `LegendOrientation.V`) */
   orientation?: LegendOrientation
   /** function for formatting legend member labels (categorical) or tick labels (continuous) */
-  format?: (v: string, i: number) => string
-  /** width of continuous legend in px (_default_: `320`) */
+  format?: (v: string, i?: number) => string
+  /** width of continuous legend in pixels (_default_: `320`) */
   width?: number
   /** approximate number of ticks for continuous legend (_default_: `width / 64`) */
   numTicks?: number

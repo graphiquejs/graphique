@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { tooltipState, TooltipProps } from '../../atoms'
 
+/** A headless component used to customize a visualization's tooltip content and/or appearance. */
 export const Tooltip = <Datum,>({
   keepInParent,
   position,

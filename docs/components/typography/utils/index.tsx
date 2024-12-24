@@ -37,7 +37,13 @@ export const formatUnion = (types: any[]) => {
       const isReflection = t.kind === 'reflection'
       if (isReflection) {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        return formatFunctionType({ data: t })
+        return `(${formatFunctionType({ data: t }).type.label})`
+      }
+
+      const isTypeOperator = t.kind === 'typeOperator'
+      if (isTypeOperator) {
+        const isArray = t.type.kind === 'array'
+        return `${t.operator}${isArray ? ` ${t.type.type.type}[]` : ''}`
       }
 
       const isLiteral = t.kind === 'literal'
@@ -67,8 +73,6 @@ export const formatFunctionType = ({
   let rawLabel: string
   const signature = data?.signatures?.[0] ?? data.type.signatures[0]
   const name = data?.name ?? signature.name
-
-  console.log(signature)
 
   const returnType =
     signature.returnType.kind === 'union'
@@ -130,7 +134,7 @@ export const formatPropertyDescription = ({
   <>
     <Markdown components={{ a: A } as Components}>{description}</Markdown>
     {typeLabel && (
-      <div style={{ marginTop: '0.45rem', fontSize: '0.95rem' }}>
+      <div style={{ marginTop: '0.8rem', fontSize: '0.95rem' }}>
         <Code
           dangerouslySetInnerHTML={{
             __html: formatCode(typeLabel),

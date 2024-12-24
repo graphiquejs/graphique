@@ -48,6 +48,8 @@ export interface GeomProps {
   onDatumSelection?: (data: HistogramBin[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomHistogram = <Datum,>({

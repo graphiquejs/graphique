@@ -1,8 +1,14 @@
-import { useEffect } from "react"
-import { useAtom } from "jotai"
-import { strokeScaleState } from "../../atoms"
-import { VisualEncodingProps } from "../../atoms/scales/types"
+import { useEffect } from 'react'
+import { useAtom } from 'jotai'
+import { strokeScaleState } from '../../atoms'
+import { VisualEncodingProps } from '../../atoms/scales/types'
 
+/**
+ * A headless component used to configure the **stroke color** encoding for a visualization's geometry elements.
+ *
+ * Available configuration options determined by an [`aes.stroke`](https://graphique.dev/docs/graphique/gg#Aes) functional mapping.
+ *
+ * */
 export const ScaleStroke = ({
   type,
   domain,

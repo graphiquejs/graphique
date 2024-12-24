@@ -1,1 +1,59 @@
+---
+slug: scaley
+---
+
+import { useData } from 'nextra/hooks'
+import { Categorical, Continuous } from '#/components/demo/scales/y'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
 # ScaleY
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary } = useGetData({ docs })
+
+  return summary;
+}
+
+<Summary />
+
+## Examples
+
+### Categorical
+
+<Categorical />
+
+---
+
+### Continuous
+
+<Continuous />
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

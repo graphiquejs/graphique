@@ -11,7 +11,7 @@ export interface LegendProps {
   orientation?: LegendOrientation
   /** function for formatting legend member labels (categorical) or tick labels (continuous/ordinal) */
   format?: (v: any, i: number) => string
-  /** width of continuous/ordinal legend in px (_default_: `320`) */
+  /** width of continuous/ordinal legend in pixels (_default_: `320`) */
   width?: number
   /** approximate number of ticks for continuous legend (_default_: `width / 64`) */
   numTicks?: number
@@ -20,7 +20,7 @@ export interface LegendProps {
     v: string | [number, number],
     event: PointerEvent | React.MouseEvent | React.KeyboardEvent,
   ) => void
-  /** when using ordinal [fill scales](https://graphique.dev/docs/graphique/scales/fill), an array of thresholds for programatically focusing legend members */
+  /** when using ordinal [fill scales](https://graphique.dev/docs/graphique/scales/fill), an array of thresholds for programmatically focusing legend members */
   focusedThresholds?: [number, number][]
   /** additional styles passed to legend container */
   style?: CSSProperties

@@ -65,6 +65,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomBar = <Datum,>({
@@ -81,6 +83,7 @@ const GeomBar = <Datum,>({
   showTooltip = true,
   position = Position.STACK,
   focusType = FocusType.GROUP,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
@@ -418,14 +421,20 @@ const GeomBar = <Datum,>({
                 typeof x(d) === 'undefined' ? leftEdge : barWidth
 
               return {
-                width: [actualWidth],
-                height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
-                x: [thisX0],
-                y: [resolvedYScale(d)],
-                fill: [fill(d)],
-                stroke: [stroke(d)],
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
+                width: isAnimated ? [actualWidth] : actualWidth,
+                height: isAnimated
+                  ? [dodgeYScale?.bandwidth() || yBandScale.bandwidth()]
+                  : dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
+                x: isAnimated ? [thisX0] : thisX0,
+                y: isAnimated ? [resolvedYScale(d)] : resolvedYScale(d),
+                fill: isAnimated ? [fill(d)] : fill(d),
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
@@ -445,21 +454,27 @@ const GeomBar = <Datum,>({
                   : resolvedYScale(d)
 
               return {
-                width: [thisWidth],
-                height: [dodgeYScale?.bandwidth() || yBandScale.bandwidth()],
-                x: [thisX0],
-                y: [thisY],
-                fill: [fill(d)],
-                stroke: [stroke(d)],
-                fillOpacity: [geomAttr.fillOpacity],
-                strokeOpacity: [geomAttr.strokeOpacity],
+                width: isAnimated ? [thisWidth] : thisWidth,
+                height: isAnimated
+                  ? [dodgeYScale?.bandwidth() || yBandScale.bandwidth()]
+                  : dodgeYScale?.bandwidth() || yBandScale.bandwidth(),
+                x: isAnimated ? [thisX0] : thisX0,
+                y: isAnimated ? [thisY] : thisY,
+                fill: isAnimated ? [fill(d)] : fill(d),
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              width: [0],
+              fill: isAnimated ? ['transparent'] : 'transparent',
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              width: isAnimated ? [0] : 0,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

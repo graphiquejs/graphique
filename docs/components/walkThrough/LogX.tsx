@@ -4,7 +4,7 @@ import { gapminder } from '@graphique/datasets'
 import { useEffect, useState } from 'react'
 import { scaleLog } from 'd3-scale'
 import styles from './gapMinder.module.css'
-import { formatGDP, formatXTicks, getNumXTicks } from './formattingUtils'
+import { formatGDP, formatXTick, getNumXTicks } from './formattingUtils'
 
 const data = gapminder.filter((d) => d.year === 2007)
 
@@ -34,13 +34,13 @@ const LogX: React.FC = () => {
             r: 3,
           }}
         />
-        <ScaleX type={scaleLog} format={formatXTicks} numTicks={getNumXTicks} />
+        <ScaleX type={scaleLog} format={formatXTick} numTicks={getNumXTicks} />
         <Tooltip xFormat={formatGDP} />
         <Labels
           x="GDP per capita"
           y="Life expectancy (years)"
           header={
-            <span className={styles.gapMinderHeader}>
+            <span className={styles.title}>
               The health and wealth of nations
             </span>
           }

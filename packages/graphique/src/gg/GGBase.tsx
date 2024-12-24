@@ -55,7 +55,7 @@ export const GGBase = <Datum,>({
   children,
 }: GGProps<Datum>) => {
   const [labels] = useAtom(labelsState)
-  const [{ font, titleColor, axis, axisX, axisY, animationDuration }] =
+  const [{ font, headerColor, axis, axisX, axisY, animationDuration }] =
     useAtom(themeState)
   const [xScale] = useAtom(xScaleState)
   const [yScale] = useAtom(yScaleState)
@@ -248,14 +248,14 @@ export const GGBase = <Datum,>({
             data-testid="__gg_header_label"
             style={{
               marginBottom: 4,
-              color: titleColor,
+              color: headerColor,
               fontFamily: font?.family,
             }}
           >
             {labels.header}
           </div>
         )}
-        {labels?.y && (
+        {axis && axisY && labels?.y && (
           <div
             data-testid="__gg_y_label"
             style={{
@@ -280,7 +280,7 @@ export const GGBase = <Datum,>({
         <svg ref={ggRef} width={ggWidth} height={height}>
           {isVisible && (
             <>
-              {axisX && (
+              {axis && axisX && (
                 <XAxis
                   ggState={ggState}
                   animate={
@@ -289,7 +289,7 @@ export const GGBase = <Datum,>({
                   }
                 />
               )}
-              {axisY && (
+              {axis && axisY && (
                 <YAxis
                   ggState={ggState}
                   animate={

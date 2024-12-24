@@ -67,6 +67,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomPoint = <Datum,>({
@@ -83,6 +85,7 @@ const GeomPoint = <Datum,>({
   showTooltip = true,
   brushAction,
   isClipped = false,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, data, aes, scales, copiedScales, height, margin } = ggState || {}
@@ -287,9 +290,9 @@ const GeomPoint = <Datum,>({
   )
 
   const radius = useMemo(() => {
-    if (geomData && geomAes?.size && sizeRange && sizeDomain) {
+    if (geomData && geomAes?.size && sizeRange) {
       const domain =
-        sizeDomain[0] && sizeDomain[1]
+        sizeDomain && sizeDomain[0] && sizeDomain[1]
           ? sizeDomain
           : (extent(geomData, geomAes.size as () => number) as number[])
       return scaleSqrt()
@@ -361,33 +364,57 @@ const GeomPoint = <Datum,>({
               strokeOpacity: 0,
             })}
             enter={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
-              r: [
-                geomAes?.size ? radius(geomAes.size(d) as number) : radius(d),
-              ],
-              fill: [fill(d)],
-              stroke: [stroke(d)],
-              fillOpacity: [geomAttr.fillOpacity],
-              strokeOpacity: [geomAttr.strokeOpacity],
+              cx: isAnimated ? [x(d)] : x(d),
+              cy: isAnimated ? [y(d)] : y(d),
+              r: isAnimated
+                ? [
+                    attr?.r ??
+                      (geomAes?.size
+                        ? radius(geomAes.size(d) as number)
+                        : radius(d)),
+                  ]
+                : attr?.r ??
+                  (geomAes?.size
+                    ? radius(geomAes.size(d) as number)
+                    : radius(d)),
+              fill: isAnimated ? [fill(d)] : fill(d),
+              stroke: isAnimated ? [stroke(d)] : stroke(d),
+              fillOpacity: isAnimated
+                ? [geomAttr.fillOpacity]
+                : geomAttr.fillOpacity,
+              strokeOpacity: isAnimated
+                ? [geomAttr.strokeOpacity]
+                : geomAttr.strokeOpacity,
               timing: { duration, ease: easeCubic },
             })}
             update={(d) => ({
-              cx: [x(d)],
-              cy: [y(d)],
-              fill: firstRender ? fill(d) : [fill(d)],
-              stroke: firstRender ? stroke(d) : [stroke(d)],
-              r: [
-                geomAes?.size ? radius(geomAes.size(d) as number) : radius(d),
-              ],
-              fillOpacity: [geomAttr.fillOpacity],
-              strokeOpacity: [geomAttr.strokeOpacity],
+              cx: isAnimated ? [x(d)] : x(d),
+              cy: isAnimated ? [y(d)] : y(d),
+              r: isAnimated
+                ? [
+                    attr?.r ??
+                      (geomAes?.size
+                        ? radius(geomAes.size(d) as number)
+                        : radius(d)),
+                  ]
+                : attr?.r ??
+                  (geomAes?.size
+                    ? radius(geomAes.size(d) as number)
+                    : radius(d)),
+              fill: isAnimated ? [fill(d)] : fill(d),
+              stroke: isAnimated ? [stroke(d)] : stroke(d),
+              fillOpacity: isAnimated
+                ? [geomAttr.fillOpacity]
+                : geomAttr.fillOpacity,
+              strokeOpacity: isAnimated
+                ? [geomAttr.strokeOpacity]
+                : geomAttr.strokeOpacity,
               timing: { duration, ease: easeCubic },
             })}
             leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              cy: [bottomPos],
+              fill: isAnimated ? ['transparent'] : 'transparent',
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              cy: isAnimated ? [bottomPos] : bottomPos,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

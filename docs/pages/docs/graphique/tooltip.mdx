@@ -1,1 +1,65 @@
+---
+slug: tooltip
+---
+
+import { useData } from 'nextra/hooks'
+import { Basic, Custom, Programmatic } from '#/components/demo/graphique/tooltip'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
 # Tooltip
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary } = useGetData({ docs })
+
+  return summary;
+}
+
+<Summary />
+
+## Examples
+
+### Custom (basics)
+
+<Basic />
+
+---
+
+### Custom (D.I.Y.)
+
+<Custom />
+
+---
+
+### Programmatic (stateful)
+
+<Programmatic />
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

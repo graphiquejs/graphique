@@ -1,6 +1,6 @@
-import geom from '#/input/geom-histogram/build?raw'
-import dts from '#/input/geom-histogram/build/dts'
-import geomCol from '#/input/geom-col/build?raw'
+import histogram from '#/input/geom-histogram/build?raw'
+import histogramDts from '#/input/geom-histogram/build/dts'
+import col from '#/input/geom-col/build?raw'
 
 const [PKG_1, PKG_2] = ['geom-histogram', 'geom-col']
 
@@ -15,7 +15,7 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_2}/index.js`]: {
     hidden: true,
-    code: geomCol,
+    code: col,
   },
   [`/node_modules/@graphique/${PKG_1}/package.json`]: {
     hidden: true,
@@ -27,10 +27,10 @@ export const additionalFiles = {
   },
   [`/node_modules/@graphique/${PKG_1}/index.js`]: {
     hidden: true,
-    code: geom,
+    code: histogram,
   },
   [`/node_modules/@graphique/${PKG_1}/index.d.ts`]: {
     hidden: true,
-    code: dts,
+    code: histogramDts,
   },
 }

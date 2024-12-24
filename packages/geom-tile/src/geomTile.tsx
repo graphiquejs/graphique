@@ -64,6 +64,8 @@ export interface GeomProps<Datum> {
   onDatumSelection?: (data: Datum[], index: number[]) => void
   /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomTile = <Datum,>({
@@ -82,6 +84,7 @@ const GeomTile = <Datum,>({
   onDatumFocus,
   onDatumSelection,
   onExit,
+  isAnimated = true,
 }: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, width, margin } =
@@ -288,28 +291,48 @@ const GeomTile = <Datum,>({
               fillOpacity: 0,
               strokeOpacity: 0,
             })}
-            enter={(d) => ({
-              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
-              y: [y(d) || 0],
-              fill: [fill(d)],
-              stroke: [stroke(d)],
-              fillOpacity: [geomAttr.fillOpacity],
-              strokeOpacity: [geomAttr.strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
-            update={(d) => ({
-              x: [typeof x(d) === 'undefined' ? margin?.left : x(d)],
-              y: [typeof y(d) === 'undefined' ? height - margin?.bottom : y(d)],
-              fill: firstRender ? fill(d) : [fill(d)],
-              stroke: firstRender ? stroke(d) : [stroke(d)],
-              fillOpacity: [geomAttr.fillOpacity],
-              strokeOpacity: [geomAttr.strokeOpacity],
-              timing: { duration, ease: easeCubic },
-            })}
+            enter={(d) => {
+              const thisX = typeof x(d) === 'undefined' ? margin?.left : x(d)
+
+              return {
+                x: isAnimated ? [thisX] : thisX,
+                y: isAnimated ? [y(d) || 0] : y(d) || 0,
+                fill: isAnimated ? [fill(d)] : fill(d),
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
+                timing: { duration, ease: easeCubic },
+              }
+            }}
+            update={(d) => {
+              const thisX = typeof x(d) === 'undefined' ? margin?.left : x(d)
+              const thisY =
+                typeof y(d) === 'undefined' ? height - margin?.bottom : y(d)
+
+              return {
+                x: isAnimated ? [thisX] : thisX,
+                y: isAnimated ? [thisY] : thisY,
+                fill: isAnimated ? [fill(d)] : fill(d),
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                fillOpacity: isAnimated
+                  ? [geomAttr.fillOpacity]
+                  : geomAttr.fillOpacity,
+                strokeOpacity: isAnimated
+                  ? [geomAttr.strokeOpacity]
+                  : geomAttr.strokeOpacity,
+                timing: { duration, ease: easeCubic },
+              }
+            }}
             leave={() => ({
-              fill: ['transparent'],
-              stroke: ['transparent'],
-              y: [height - margin?.bottom],
+              fill: isAnimated ? ['transparent'] : 'transparent',
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              y: isAnimated
+                ? [height - margin?.bottom]
+                : height - margin?.bottom,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}

@@ -4,6 +4,9 @@ import {
   Basic,
   SomePolish,
   LogX,
+  MoreEncoding,
+  Legends,
+  Labels,
 } from '#/components/walkThrough';
 import { Tabs } from 'nextra/components';
 
@@ -16,6 +19,7 @@ By going through it, you should get a sense for how Graphique:
 - maps **data properties to visual properties** using *Aesthetics* and scales
 - includes helpful pieces for **interpreting visualized data** (labels, legends, tooltips, and more)
 - is **configurable** — easily adjust/replace defaults (scales, tooltips, themes, etc.)
+- can be integrated with React's state management to create **stateful** visualizations
 
 First we'll install the necessary dependencies for our example.
 
@@ -136,6 +140,8 @@ We'll add some readable labels and change the look of the points to tighten this
 
 <SomePolish />
 
+<Tabs items={['GapMinder.tsx', 'gapMinder.module.css']}>
+  <Tabs.Tab>
 ```tsx filename="GapMinder.tsx"{1,4,15,19-32}
 import { GG, Labels } from '@graphique/graphique';
 import { GeomPoint } from '@graphique/geom-point';
@@ -166,13 +172,22 @@ export const GapMinderChart = () => {
         x='GDP per capita'
         y='Life expectancy (years)'
         header={
-          <span className={styles.gapMinderHeader}>The health and wealth of nations</span>
+          <span className={styles.title}>The health and wealth of nations</span>
         }
       />
     </GG>
   );
 };
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+  ```css filename="gapMinder.module.css"
+.title {
+    font-weight: 700;
+}
+  ```
+</Tabs.Tab>
+</Tabs>
 
 We're on our way to something useful now — our axes are labeled and and we put a title in our header.
 
@@ -190,14 +205,14 @@ We'll define some utility formatting functions in a separate file to import and 
 
 <LogX />
  
-<Tabs items={['GapMinder.tsx', 'formattingUtils.ts']}>
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
   <Tabs.Tab>
 ```tsx filename="GapMinder.tsx"{1,4,5,28-33}
 import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique';
 import { GeomPoint } from '@graphique/geom-point';
 import { gapminder } from '@graphique/datasets';
 import { scaleLog } from 'd3-scale';
-import { formatGDP, formatXTicks, getNumXTicks } from './formattingUtils';
+import { formatGDP, formatXTick, getNumXTicks } from './formattingUtils';
 import styles from './gapMinder.module.css';
 
 const data = gapminder.filter(d => d.year === 2007);
@@ -222,7 +237,7 @@ export const GapMinderChart = () => {
       />
       <ScaleX
         type={scaleLog}
-        format={formatXTicks}
+        format={formatXTick}
         numTicks={getNumXTicks}
       />
       <Tooltip xFormat={formatGDP} />
@@ -230,7 +245,7 @@ export const GapMinderChart = () => {
         x='GDP per capita'
         y='Life expectancy (years)'
         header={
-          <span className={styles.gapMinderHeader}>The health and wealth of nations</span>
+          <span className={styles.title}>The health and wealth of nations</span>
         }
       />
     </GG>
@@ -259,7 +274,7 @@ export const GapMinderChart = () => {
     const INITIAL_VALS = [1, 2, 5];
     const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
 
-    const formatXTicks = ({ value }: { value: number }): string => (
+    const formatXTick = ({ value }: { value: number }): string => (
       LOG_SCALE_TICKS.includes(value)
         ? formatGDP(value, false) // no decimal
         : ''
@@ -283,11 +298,275 @@ export const GapMinderChart = () => {
       return v.toLocaleString();
     };
 
-    export { formatGDP, formatXTicks, getNumXTicks, formatPop };
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
     ```
   </Tabs.Tab>
+  <Tabs.Tab>
+  ```css filename="gapMinder.module.css"
+.title {
+    font-weight: 700;
+}
+  ```
+</Tabs.Tab>
 </Tabs>
 
 Nice! This is definitely less compressed, and we now have dynamically formatted labels for both the x ticks and tooltip GDP values.
+
+---
+
+### More encoding
+
+Next, let's encode more information that we wanted to include in our chart.
+
+We can do this simply by mapping properties in our data set to additional Aesthetic properties in `aes` (and removing the directly-applied attributes in `<GeomPoint />{:tsx}`).
+
+<MoreEncoding />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{18-19, 23}
+import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique';
+import { GeomPoint } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { formatGDP, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      isContainerWidth
+    >
+      <GeomPoint attr={{ opacity: 0.7 }} />
+      <ScaleX
+        type={scaleLog}
+        format={formatXTick}
+        numTicks={getNumXTicks}
+      />
+      <Tooltip xFormat={formatGDP} />
+      <Labels
+        x='GDP per capita'
+        y='Life expectancy (years)'
+        header={
+          <span className={styles.title}>The health and wealth of nations</span>
+        }
+      />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```css filename="gapMinder.module.css"
+.title {
+    font-weight: 700;
+}
+  ```
+</Tabs.Tab>
+</Tabs>
+
+Notice how we conventiently created a couple of additional scales for the points —
+a categorical **fill scale** for coloring based on the country's continent and a continuous **radius scale** to size the points based on each country's population
+
+To make these new scales interpretable, we'll add legends for them next.
+
+---
+
+### Including legends
+
+Adding legends to explain what the colors and sizes of the points represent is straightforward,
+and we can import these Geom-level legend components alongside `GeomPoint`.
+
+<Legends />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{2,4,7,23,42-51}
+import { 
+  GG, Labels, ScaleX, Tooltip, LegendOrientation,
+} from '@graphique/graphique';
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { formatGDP, formatPop, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      margin={{ top: 30, right: 30, left: 35 }}
+      isContainerWidth
+    >
+      <GeomPoint attr={{ opacity: 0.7 }} />
+      <ScaleX
+        type={scaleLog}
+        format={formatXTick}
+        numTicks={getNumXTicks}
+      />
+      <Tooltip xFormat={formatGDP} />
+      <Labels
+        x='GDP per capita'
+        y='Life expectancy (years)'
+        header={
+          <span className={styles.title}>
+            The health and wealth of nations
+          </span>
+        }
+      />
+      <div className={styles.legends}>
+        <Legend
+          orientation={LegendOrientation.H}
+          title={<span className={styles['legend-title']}>Continent</span>}
+        />
+        <SizeLegend
+          title={<span className={styles['legend-title']}>Population</span>}
+          format={formatPop}
+        />
+      </div>
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```css filename="gapMinder.module.css"
+.title {
+    font-weight: 700;
+}
+  ```
+</Tabs.Tab>
+</Tabs>
+
+These legends are automatically configured based on the `data` we've passed in, and the Aesthetic mappings we've defined.
+If you didn't already, try clicking on the continent legend members and see what happens.
+
+This is a very useful chart at this point, but let's see if we can make it even more engaging by customizing what happens when a user focuses/hovers over a point.
+
+---
+
+## Stateful interactions
+
+### Introducing state
+
+As we start to customize interactions with the points, instead of the default tooltip,
+let's conditionally render a separate Geom (`<GeomLabel />{:tsx}`) based on the currently-focused country.
+
+<Labels />
 
 ## Finished product
