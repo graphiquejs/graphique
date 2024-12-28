@@ -16,7 +16,7 @@ Graphique allows you to create flexible and reusable interactive visualizations 
 - mapping data properties to visual properties — using _aesthetics_ specified by scales (how to draw)
 - composing or layering relatively simple graphical objects or geometries (what to draw)
 - using reasonable defaults that can be configured with components for flexibility
-- updating based on changes in your application's state
+- updating based on changes in your UI's state
 
 ## Examples/Docs
 

@@ -6,8 +6,13 @@ import {
   LogX,
   MoreEncoding,
   Legends,
-  Labels,
+  Themed,
+  State,
+  FixedScales,
+  ConditionalGeoms,
+  Finished,
 } from '#/components/walkThrough';
+import { Spacer } from '#/components/Spacer';
 import { Tabs } from 'nextra/components';
 
 # Walk-through
@@ -230,7 +235,7 @@ export const GapMinderChart = () => {
     >
       <GeomPoint
         attr={{
-          opacity: 0.7,
+          opacity: 0.7
           fill: '#298670',
           r: 3,
         }}
@@ -316,15 +321,17 @@ Nice! This is definitely less compressed, and we now have dynamically formatted 
 
 ### More encoding
 
-Next, let's encode more information that we wanted to include in our chart.
+Next, let's encode more information that we wanted to include in our chart — coloring the points by continent and sizing by population.
 
 We can do this simply by mapping properties in our data set to additional Aesthetic properties in `aes` (and removing the directly-applied attributes in `<GeomPoint />{:tsx}`).
+
+We'll also include a `margin` around the visualization area to account for the variety of point sizes and give our points some room to breathe along the boundaries.
 
 <MoreEncoding />
 
 <Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
   <Tabs.Tab>
-```tsx filename="GapMinder.tsx"{18-19, 23}
+```tsx filename="GapMinder.tsx"{18-20, 23, 25-28}
 import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique';
 import { GeomPoint } from '@graphique/geom-point';
 import { gapminder } from '@graphique/datasets';
@@ -343,11 +350,16 @@ export const GapMinderChart = () => {
         y: (d) => d.lifeExp,
         label: (d) => d.country,
         fill: (d) => d.continent,
+        stroke: (d) => d.continent,
         size: (d) => d.pop,
       }}
       isContainerWidth
+      margin={{ top: 30, right: 30, left: 35 }}
     >
-      <GeomPoint attr={{ opacity: 0.7 }} />
+      <GeomPoint
+        attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+        focusedStyle={{ fillOpacity: 1 }}
+      />
       <ScaleX
         type={scaleLog}
         format={formatXTick}
@@ -423,8 +435,8 @@ export const GapMinderChart = () => {
 </Tabs.Tab>
 </Tabs>
 
-Notice how we conventiently created a couple of additional scales for the points —
-a categorical **fill scale** for coloring based on the country's continent and a continuous **radius scale** to size the points based on each country's population
+Notice how we conventiently created a few additional scales for the points —
+categorical [fill](/docs/graphique/scales/fill) and [stroke](/docs/graphique/scales/stroke) scales for coloring based on the country's continent and a continuous [radius scale](/docs/graphique/scales/radius) to size the points based on each country's population
 
 To make these new scales interpretable, we'll add legends for them next.
 
@@ -465,7 +477,7 @@ export const GapMinderChart = () => {
       margin={{ top: 30, right: 30, left: 35 }}
       isContainerWidth
     >
-      <GeomPoint attr={{ opacity: 0.7 }} />
+      <GeomPoint attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }} />
       <ScaleX
         type={scaleLog}
         format={formatXTick}
@@ -545,28 +557,802 @@ export const GapMinderChart = () => {
     ```
   </Tabs.Tab>
   <Tabs.Tab>
-  ```css filename="gapMinder.module.css"
+  ```css filename="gapMinder.module.css"{5-16}
 .title {
+    font-weight: 700;
+}
+
+.legends {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    column-gap: 1.5rem;
+    padding: 0.5rem 0 1rem 0;
+}
+
+.legend-title {
+    font-size: 0.8rem;
     font-weight: 700;
 }
   ```
 </Tabs.Tab>
 </Tabs>
 
-These legends are automatically configured based on the `data` we've passed in, and the Aesthetic mappings we've defined.
+These legends are automatically configured based on the `data` we've passed in and the Aesthetic mappings we've defined.
 If you didn't already, try clicking on the continent legend members and see what happens.
 
-This is a very useful chart at this point, but let's see if we can make it even more engaging by customizing what happens when a user focuses/hovers over a point.
+---
+
+### Custom `Theme`
+
+Before we go any further, let's make the visualization area a little more minimal
+by removing the grid lines and only drawing the x/y axis lines.
+
+<Themed />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{2,52}
+import { 
+  GG, Labels, ScaleX, Tooltip, LegendOrientation, Theme,
+} from '@graphique/graphique';
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point';
+import { gapminder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { formatGDP, formatPop, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      margin={{ top: 30, right: 30, left: 35 }}
+      isContainerWidth
+    >
+      <GeomPoint attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }} />
+      <ScaleX
+        type={scaleLog}
+        format={formatXTick}
+        numTicks={getNumXTicks}
+      />
+      <Tooltip xFormat={formatGDP} />
+      <Labels
+        x='GDP per capita'
+        y='Life expectancy (years)'
+        header={
+          <span className={styles.title}>
+            The health and wealth of nations
+          </span>
+        }
+      />
+      <div className={styles.legends}>
+        <Legend
+          orientation={LegendOrientation.H}
+          title={<span className={styles['legend-title']}>Continent</span>}
+        />
+        <SizeLegend
+          title={<span className={styles['legend-title']}>Population</span>}
+          format={formatPop}
+        />
+      </div>
+      <Theme grid={{ stroke: null }} axis={{ showAxisLine: true }} />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```css filename="gapMinder.module.css"
+.title {
+    font-weight: 700;
+}
+
+.legends {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    column-gap: 1.5rem;
+    padding: 0.5rem 0 1rem 0;
+}
+
+.legend-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+  ```
+</Tabs.Tab>
+</Tabs>
+
+This is an informative and polished chart at this point, but let's see if we can make it even more engaging and descriptive by customizing what happens when a user focuses/hovers over a point.
 
 ---
 
 ## Stateful interactions
 
+Instead of the default tooltip, let's show the focused country's GDP and life expectancy through the years.
+We can add this historical context in the form of a connected scatterplot by conditionally rendering separate Geoms based on the currently-focused country.
+
+---
+
 ### Introducing state
 
-As we start to customize interactions with the points, instead of the default tooltip,
-let's conditionally render a separate Geom (`<GeomLabel />{:tsx}`) based on the currently-focused country.
+We can use React's `useState` hook to directly modify and respond to changes in our visualization's state.
+Let's start by removing the tooltip for `<GeomPoint />{:tsx}` and instead use `<GeomLabel />{:tsx}`
+to show only the focused country's name.
+We _could_ create this label with a customized tooltip, but why we might start this way should be clear as we continue.
 
-<Labels />
+<State />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{1,6-7,15,31,34-35,37-48,50}
+import { useState } from 'react';
+import {
+  GG, Labels, ScaleX, Tooltip, LegendOrientation, Theme,
+} from '@graphique/graphique';
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point';
+import { GeomLabel } from '@graphique/geom-label';
+import { gapminder, type GapMinder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { formatPop, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+
+export const GapMinderChart = () => {
+  const [focusedCountry, setFocusedCountry] = useState<GapMinder | undefined>();
+
+  return (
+    <GG
+      data={data}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        stroke: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      margin={{ top: 30, right: 30, left: 35 }}
+      isContainerWidth
+    >
+      <GeomPoint<GapMinder>
+        attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+        focusedStyle={{ fillOpacity: 1 }}
+        onDatumFocus={(d) => setFocusedCountry(d?.[0])}
+        onExit={() => setFocusedCountry(undefined)}
+      />
+      {focusedCountry && (
+        <GeomLabel
+          data={[focusedCountry]}
+          attr={{
+            fill: 'currentColor',
+            stroke: themedColor, // (defined outside of demo)
+            strokeOpacity: 0.7,
+            fontSize: '0.8rem',
+          }}
+          isAnimated={false}
+        />
+      )}
+      <ScaleX type={scaleLog} format={formatXTick} numTicks={getNumXTicks} />
+      <Tooltip content={() => null} />
+      <Labels
+        x="GDP per capita"
+        y="Life expectancy (years)"
+        header={
+          <span className={styles.title}>
+            The health and wealth of nations
+          </span>
+        }
+      />
+      <div className={styles.legends}>
+        <Legend
+          orientation={LegendOrientation.H}
+          title={<span className={styles['legend-title']}>Continent</span>}
+        />
+        <SizeLegend
+          title={<span className={styles['legend-title']}>Population</span>}
+          format={formatPop}
+        />
+      </div>
+      <Theme grid={{ stroke: null }} axis={{ showAxisLine: true }} />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```css filename="gapMinder.module.css"
+  .title {
+      font-weight: 700;
+  }
+
+  .legends {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      column-gap: 1.5rem;
+      padding: 0.5rem 0 1rem 0;
+  }
+
+  .legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+  }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+This is a good start to build off of for our connected scatterplot on focus,
+but it'll take some work to manage state more effectively — notice what happens when focusing data after using the continent legend to filter out points 😬.
+
+React is rerendering our chart (with its defaults applied) every time a country is focused (and our component's state is updated).
+To prevent this, we can also use a similar approach with our legend/legend selections and manage those directly.
+
+---
+
+### Fixed scales
+
+Now that we're starting to manage our visualization's state on our own (outside of Graphique), we can also do the same for our legend and control the filtering behavior more directly.
+You can think of this as turning autopilot off.
+
+For our connected scatterplot, we'll also want to account for the full range of countries' x/y values (or at least the full range based on the selected continents), not just for the single year we're visualizing points for now.
+To do this, we can create a fixed [x scale](/docs/graphique/scales/x) and a fixed [y scale](/docs/graphique/scales/y) with custom domains.
+
+<FixedScales />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{1,3,9,14,18-41,45,58,81,83-85,100-114}
+import { useState, useMemo } from 'react';
+import {
+  GG, Labels, ScaleX, ScaleY, ScaleFill, ScaleStroke, Tooltip, LegendOrientation, Theme,
+} from '@graphique/graphique';
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point';
+import { GeomLabel } from '@graphique/geom-label';
+import { gapminder, type GapMinder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { extent } from 'd3-array';
+import { formatPop, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+const continents = Array.from(new Set(data.map((d) => d.continent))).sort();
+
+export const GapMinderChart = () => {
+  const [focusedCountry, setFocusedCountry] = useState<GapMinder | undefined>();
+  const [selectedContinents, setSelectedContinents] = useState(continents);
+
+  const includedCountries = useMemo(
+    () => data.filter((d) => selectedContinents.includes(d.continent)),
+    [selectedContinents],
+  );
+
+  const xExtent = useMemo(
+    () =>
+      extent(
+        gapminder.filter((d) => selectedContinents.includes(d.continent)),
+        (d) => d.gdpPercap,
+      ),
+    [selectedContinents],
+  );
+
+  const yExtent = useMemo(
+    () =>
+      extent(
+        gapminder.filter((d) => selectedContinents.includes(d.continent)),
+        (d) => d.lifeExp,
+      ),
+    [selectedContinents],
+  );
+
+  return (
+    <GG
+      data={includedCountries}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        stroke: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      margin={{ top: 30, right: 30, left: 35 }}
+      isContainerWidth
+    >
+      <GeomPoint<GapMinder>
+        key="countries"
+        aes={{ key: (d) => d.country }}
+        attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+        focusedStyle={{ fillOpacity: 1 }}
+        onDatumFocus={(d) => setFocusedCountry(d?.[0])}
+        onExit={() => setFocusedCountry(undefined)}
+      />
+      {focusedCountry && (
+        <GeomLabel
+          data={[focusedCountry]}
+          attr={{
+            fill: 'currentColor',
+            stroke: themedColor, // (defined outside of demo)
+            strokeOpacity: 0.7,
+            fontSize: '0.8rem',
+          }}
+          isAnimated={false}
+        />
+      )}
+      <ScaleX
+        type={scaleLog}
+        format={formatXTick}
+        numTicks={getNumXTicks}
+        domain={xExtent}
+      />
+      <ScaleY domain={yExtent} />
+      <ScaleFill domain={continents} />
+      <ScaleStroke domain={continents} />
+      <Tooltip content={() => null} />
+      <Labels
+        x="GDP per capita"
+        y="Life expectancy (years)"
+        header={
+          <span className={styles.title}>
+            The health and wealth of nations
+          </span>
+        }
+      />
+      <div className={styles.legends}>
+        <Legend
+          orientation={LegendOrientation.H}
+          title={<span className={styles['legend-title']}>Continent</span>}
+          onSelection={(v) => {
+            setSelectedContinents((prev) => {
+              if (prev.includes(v) && prev.length === 1) {
+                return continents
+              }
+              if (prev.includes(v)) {
+                return prev.filter((p) => p !== v)
+              }
+              return [...prev, v]
+            })
+
+            if (focusedCountry?.continent === v) {
+              setFocusedCountry(undefined)
+            }
+          }}
+        />
+        <SizeLegend
+          title={<span className={styles['legend-title']}>Population</span>}
+          format={formatPop}
+        />
+      </div>
+      <Theme grid={{ stroke: null }} axis={{ showAxisLine: true }} />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```css filename="gapMinder.module.css"
+  .title {
+      font-weight: 700;
+  }
+
+  .legends {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      column-gap: 1.5rem;
+      padding: 0.5rem 0 1rem 0;
+  }
+
+  .legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+  }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Scales updated! Besides the expanded x and y scales, the fill and stroke scales (and continent names in the legend) are now ordered alphabetically,
+and any filters applied with the continent legend remain applied across interactions.
+We left the radius scale as it was, but if we wanted to, we could've just as easily fixed that one, too.
+
+---
+
+### More conditional Geoms
+
+Nearly there! This is where we add the connected scatterplot for each focused country to show the journey it's taken through history.
+
+We already added a conditional `<GeomLabel />{:tsx}`, now let's add `<GeomLine />{:tsx}` and another `<GeomPoint />{:tsx}`
+based on a very similar condition.
+
+<ConditionalGeoms />
+
+<Tabs items={['GapMinder.tsx', 'formattingUtils.ts', 'gapMinder.module.css']}>
+  <Tabs.Tab>
+```tsx filename="GapMinder.tsx"{7,21-24,63-78}
+import { useState, useMemo } from 'react';
+import {
+  GG, Labels, ScaleX, ScaleY, ScaleFill, ScaleStroke, Tooltip, LegendOrientation, Theme,
+} from '@graphique/graphique';
+import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point';
+import { GeomLabel } from '@graphique/geom-label';
+import { GeomLine } from '@graphique/geom-line';
+import { gapminder, type GapMinder } from '@graphique/datasets';
+import { scaleLog } from 'd3-scale';
+import { extent } from 'd3-array';
+import { formatPop, formatXTick, getNumXTicks } from './formattingUtils';
+import styles from './gapMinder.module.css';
+
+const data = gapminder.filter(d => d.year === 2007);
+const continents = Array.from(new Set(data.map((d) => d.continent))).sort();
+
+export const GapMinderChart = () => {
+  const [focusedCountry, setFocusedCountry] = useState<GapMinder | undefined>();
+  const [selectedContinents, setSelectedContinents] = useState(continents);
+
+  const focusedCountryTrend = useMemo(
+    () => gapminder.filter((d) => d.country === focusedCountry?.country),
+    [focusedCountry],
+  );
+
+  const includedCountries = useMemo(
+    () => data.filter((d) => selectedContinents.includes(d.continent)),
+    [selectedContinents],
+  );
+
+  const xExtent = useMemo(
+    () =>
+      extent(
+        gapminder.filter((d) => selectedContinents.includes(d.continent)),
+        (d) => d.gdpPercap,
+      ),
+    [selectedContinents],
+  );
+
+  const yExtent = useMemo(
+    () =>
+      extent(
+        gapminder.filter((d) => selectedContinents.includes(d.continent)),
+        (d) => d.lifeExp,
+      ),
+    [selectedContinents],
+  );
+
+  return (
+    <GG
+      data={includedCountries}
+      aes={{
+        x: (d) => d.gdpPercap,
+        y: (d) => d.lifeExp,
+        label: (d) => d.country,
+        fill: (d) => d.continent,
+        stroke: (d) => d.continent,
+        size: (d) => d.pop,
+      }}
+      margin={{ top: 30, right: 30, left: 35 }}
+      isContainerWidth
+    >
+      {focusedCountryTrend && (
+        <>
+          <GeomLine
+            data={focusedCountryTrend}
+            showTooltip={false}
+            attr={{ strokeWidth: 2, strokeOpacity: 0.8 }}
+            isAnimated={false}
+          />
+          <GeomPoint
+            data={focusedCountryTrend}
+            showTooltip={false}
+            attr={{ fill: themedColor, fillOpacity: 0.8, r: 2.3 }}
+            isAnimated={false}
+          />
+        </>
+      )}
+      <GeomPoint<GapMinder>
+        key="countries"
+        aes={{ key: (d) => d.country }}
+        attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+        focusedStyle={{ fillOpacity: 1 }}
+        onDatumFocus={(d) => setFocusedCountry(d?.[0])}
+        onExit={() => setFocusedCountry(undefined)}
+      />
+      {focusedCountry && (
+        <GeomLabel
+          data={[focusedCountry]}
+          attr={{
+            fill: 'currentColor',
+            stroke: themedColor, // (defined outside of demo)
+            strokeOpacity: 0.7,
+            fontSize: '0.8rem',
+          }}
+          isAnimated={false}
+        />
+      )}
+      <ScaleX
+        type={scaleLog}
+        format={formatXTick}
+        numTicks={getNumXTicks}
+        domain={xExtent}
+      />
+      <ScaleY domain={yExtent} />
+      <ScaleFill domain={continents} />
+      <ScaleStroke domain={continents} />
+      <Tooltip content={() => null} />
+      <Labels
+        x="GDP per capita"
+        y="Life expectancy (years)"
+        header={
+          <span className={styles.title}>
+            The health and wealth of nations
+          </span>
+        }
+      />
+      <div className={styles.legends}>
+        <Legend
+          orientation={LegendOrientation.H}
+          title={<span className={styles['legend-title']}>Continent</span>}
+          onSelection={(v) => {
+            setSelectedContinents((prev) => {
+              if (prev.includes(v) && prev.length === 1) {
+                return continents
+              }
+              if (prev.includes(v)) {
+                return prev.filter((p) => p !== v)
+              }
+              return [...prev, v]
+            })
+
+            if (focusedCountry?.continent === v) {
+              setFocusedCountry(undefined)
+            }
+          }}
+        />
+        <SizeLegend
+          title={<span className={styles['legend-title']}>Population</span>}
+          format={formatPop}
+        />
+      </div>
+      <Theme grid={{ stroke: null }} axis={{ showAxisLine: true }} />
+    </GG>
+  );
+};
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts filename="formattingUtils.ts"
+    // formats numbers as dollar values
+    const formatGDP = (v: number, includeCents = true): string => (
+      v.toLocaleString(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: !includeCents ? 0 : undefined,
+      })
+    );
+
+    // generate sequence of log tick labels and format them as decimal-less $
+    const MAX_EXPONENT = 6;
+    const EXPONENTS = Array.from(Array(MAX_EXPONENT).keys());
+    const BASE = 10;
+    const generateTickSequence = (vals: number[]): number[] => (
+      EXPONENTS.flatMap((x: number) => vals.map((v) => v * (BASE ** x)))
+    );
+    const INITIAL_VALS = [1, 2, 5];
+    const LOG_SCALE_TICKS = [0, ...generateTickSequence(INITIAL_VALS)];
+
+    const formatXTick = ({ value }: { value: number }): string => (
+      LOG_SCALE_TICKS.includes(value)
+        ? formatGDP(value, false) // no decimal
+        : ''
+    );
+
+    // show fewer x ticks when the chart is narrow. otherwise, use Graphique's default
+    const NARROW_WIDTH = 600;
+    const NUM_NARROW_TICKS = 2;
+    const getNumXTicks = (width: number): number | undefined => (
+      width < NARROW_WIDTH ? NUM_NARROW_TICKS : undefined
+    );
+
+    const formatPop = (v: number): string => {
+      const B = 1000000000;
+      const M = 1000000;
+
+      if (v >= B)
+        return `${(v / B).toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
+      if (v >= M)
+        return `${(v / M)}M`;
+      return v.toLocaleString();
+    };
+
+    export { formatGDP, formatXTick, getNumXTicks, formatPop };
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```css filename="gapMinder.module.css"
+  .title {
+      font-weight: 700;
+  }
+
+  .legends {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      column-gap: 1.5rem;
+      padding: 0.5rem 0 1rem 0;
+  }
+
+  .legend-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+  }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+This is the visualization we were hoping to create! Pretty useful (especially when combined with React's state management), relatively engaging and informative, and not too painful to make.
+The only thing left is a matter of organization/composition and structuring this relatively complex visualization in a more "idiomatic React" way.
+
+---
 
 ## Finished product
+
+As a last step, instead of one big component that does everything, let's extract some of this functionality into separate React components and handle our related state with a [React Context](https://react.dev/reference/react/createContext).
+
+<Spacer />
+<Finished />
+<Spacer />
+
+That's all for now, but this should open up the world of possibilities when using Graphique to create
+interactive visualizations in your React UIs. Enjoy!

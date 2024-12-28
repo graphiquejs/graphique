@@ -300,9 +300,7 @@ const GeomLabel = <Datum,>({
   const groupRef = useRef<SVGGElement>(null)
   const texts = groupRef.current?.getElementsByTagName('text')
 
-  const [shouldClip, setShouldClip] = useState(
-    isClipped || isFixedX || isFixedY,
-  )
+  const [shouldClip, setShouldClip] = useState(isClipped)
   useEffect(() => {
     if (xZoomDomain?.current || yZoomDomain?.current) {
       setShouldClip(true)

@@ -31,7 +31,6 @@ const SomePolish: React.FC = () => {
             fill: '#298670',
             r: 3,
           }}
-          isClipped={false}
         />
         <Labels
           x="GDP per capita"

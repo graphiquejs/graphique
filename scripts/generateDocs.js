@@ -52,7 +52,11 @@ packages.forEach((p) => {
 
     writeFileSync(
       `${docsInputDir}/build/dependencies.ts`,
-      `export default ${JSON.stringify(dependencies, null, 2)};`,
+      `const deps = ${JSON.stringify(
+        dependencies,
+        null,
+        2,
+      )};\n\nexport default deps;`,
     )
   }
 

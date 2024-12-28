@@ -10,8 +10,7 @@ import {
   Theme,
 } from '@graphique/graphique'
 import { GeomPoint, Legend, SizeLegend } from '@graphique/geom-point'
-import { GeomLabel, Entrance as LabelEntrance } from '@graphique/geom-label'
-import { GeomLine, Entrance as LineEntrance } from '@graphique/geom-line'
+import { GeomLabel } from '@graphique/geom-label'
 import { GapMinder, gapminder } from '@graphique/datasets'
 import { useEffect, useState, useMemo } from 'react'
 import { scaleLog } from 'd3-scale'
@@ -21,9 +20,9 @@ import styles from './gapMinder.module.css'
 import { formatPop, formatXTick, getNumXTicks } from './formattingUtils'
 
 const data = gapminder.filter((d) => d.year === 2007)
-const continents = Array.from(new Set(data.map((d) => d.continent)))
+const continents = Array.from(new Set(data.map((d) => d.continent))).sort()
 
-const WithLabels: React.FC = () => {
+const FixedScales: React.FC = () => {
   const [isServer, setIsServer] = useState(true)
   useEffect(() => {
     setIsServer(false)
@@ -35,10 +34,6 @@ const WithLabels: React.FC = () => {
 
   const [selectedContinents, setSelectedContinents] = useState(continents)
   const [focusedCountry, setFocusedCountry] = useState<GapMinder | undefined>()
-  const focusedCountryTrend = useMemo(
-    () => gapminder.filter((d) => d.country === focusedCountry?.country),
-    [focusedCountry],
-  )
 
   const includedCountries = useMemo(
     () => data.filter((d) => selectedContinents.includes(d.continent)),
@@ -80,23 +75,6 @@ const WithLabels: React.FC = () => {
         margin={{ top: 30, right: 30, left: 35 }}
         isContainerWidth
       >
-        {focusedCountryTrend && (
-          <>
-            <GeomLine
-              data={focusedCountryTrend}
-              showTooltip={false}
-              entrance={LineEntrance.DATA}
-              attr={{ strokeWidth: 2, strokeOpacity: 0.8 }}
-              isAnimated={false}
-            />
-            <GeomPoint
-              data={focusedCountryTrend}
-              showTooltip={false}
-              attr={{ fill: themedColor, fillOpacity: 0.8, r: 2.3 }}
-              isAnimated={false}
-            />
-          </>
-        )}
         <GeomPoint<GapMinder>
           key="countries"
           aes={{ key: (d) => d.country }}
@@ -110,7 +88,6 @@ const WithLabels: React.FC = () => {
         {focusedCountry && (
           <GeomLabel
             data={[focusedCountry]}
-            entrance={LabelEntrance.DATA}
             attr={{
               fill: 'currentColor',
               stroke: themedColor,
@@ -139,7 +116,6 @@ const WithLabels: React.FC = () => {
             </span>
           }
         />
-        <Theme grid={{ stroke: null }} axisX={{ showAxisLine: true }} />
         <div className={styles.legends}>
           <Legend
             orientation={LegendOrientation.H}
@@ -154,6 +130,10 @@ const WithLabels: React.FC = () => {
                 }
                 return [...prev, v]
               })
+
+              if (focusedCountry?.continent === v) {
+                setFocusedCountry(undefined)
+              }
             }}
           />
           <SizeLegend
@@ -161,9 +141,10 @@ const WithLabels: React.FC = () => {
             format={formatPop}
           />
         </div>
+        <Theme grid={{ stroke: null }} axis={{ showAxisLine: true }} />
       </GG>
     </div>
   )
 }
 
-export default WithLabels
+export default FixedScales

@@ -8,6 +8,7 @@ import {
   UnstyledOpenInCodeSandboxButton,
   ExportIcon,
   RestartIcon,
+  SandpackFileExplorer,
 } from '@codesandbox/sandpack-react'
 import { githubLight } from '@codesandbox/sandpack-themes'
 import { useTheme } from 'nextra-theme-docs'
@@ -21,7 +22,7 @@ import styles from './CodeEditor.module.css'
 
 const indexSrc = `import React from "react";
 import { createRoot } from "react-dom/client";
-import './index.css'
+import './index.css';
 
 import App from "./App";
 
@@ -65,7 +66,9 @@ interface Props {
   height?: number
   src: string
   showTabs?: boolean
+  showFileExplorer?: boolean
   previewTitle?: string
+  customIndexSrc?: string
 }
 
 const CustomResetButton = () => {
@@ -88,7 +91,9 @@ export const CodeEditor = ({
   src,
   height = 456,
   showTabs = false,
+  showFileExplorer = false,
   previewTitle = 'Preview',
+  customIndexSrc,
 }: Props) => {
   const { resolvedTheme } = useTheme()
   const isDark =
@@ -126,8 +131,8 @@ export const CodeEditor = ({
             code: dts,
           },
           '/index.tsx': {
-            code: indexSrc,
-            hidden: true,
+            code: customIndexSrc ?? indexSrc,
+            hidden: !customIndexSrc,
           },
           '/App.tsx': {
             code: appSrc(src),
@@ -162,7 +167,14 @@ export const CodeEditor = ({
           </div>
         </SandpackLayout>
         <SandpackLayout className={styles['layout-container-bottom']}>
-          <SandpackCodeEditor showTabs={showTabs} className={styles.editor} />
+          {showFileExplorer && (
+            <SandpackFileExplorer className={styles.editor} autoHiddenFiles />
+          )}
+          <SandpackCodeEditor
+            showTabs={showTabs}
+            closableTabs={showFileExplorer}
+            className={styles.editor}
+          />
         </SandpackLayout>
       </SandpackProvider>
     </div>

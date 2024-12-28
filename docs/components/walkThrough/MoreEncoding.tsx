@@ -25,11 +25,16 @@ const MoreEncoding: React.FC = () => {
           y: (d) => d.lifeExp,
           label: (d) => d.country,
           fill: (d) => d.continent,
+          stroke: (d) => d.continent,
           size: (d) => d.pop,
         }}
         isContainerWidth
+        margin={{ top: 30, right: 30, left: 35 }}
       >
-        <GeomPoint attr={{ opacity: 0.7 }} />
+        <GeomPoint
+          attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+          focusedStyle={{ fillOpacity: 1 }}
+        />
         <ScaleX type={scaleLog} format={formatXTick} numTicks={getNumXTicks} />
         <Tooltip xFormat={formatGDP} />
         <Labels

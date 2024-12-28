@@ -16,7 +16,7 @@ const App = () => (
       stroke: (d) => d.species,
       size: (d) => d.bodyMass,
     }}
-    margin={{ left: 45 }}
+    margin={{ top: 30, right: 30, left: 45 }}
     isContainerWidth
   >
     <GeomPoint

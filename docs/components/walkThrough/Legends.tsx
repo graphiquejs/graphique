@@ -26,7 +26,7 @@ const Legends: React.FC = () => {
   }, [])
 
   return isServer ? (
-    <div style={{ height: 500 }} />
+    <div style={{ height: 700 }} />
   ) : (
     <div className={styles.gapMinderContainer} style={{ paddingBottom: 160 }}>
       <GG
@@ -36,12 +36,16 @@ const Legends: React.FC = () => {
           y: (d) => d.lifeExp,
           label: (d) => d.country,
           fill: (d) => d.continent,
+          stroke: (d) => d.continent,
           size: (d) => d.pop,
         }}
         margin={{ top: 30, right: 30, left: 35 }}
         isContainerWidth
       >
-        <GeomPoint attr={{ opacity: 0.7 }} />
+        <GeomPoint
+          attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+          focusedStyle={{ fillOpacity: 1 }}
+        />
         <ScaleX type={scaleLog} format={formatXTick} numTicks={getNumXTicks} />
         <Tooltip xFormat={formatGDP} />
         <Labels
