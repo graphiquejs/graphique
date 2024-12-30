@@ -5,3 +5,4 @@ packages/*/dist
 .storybook
 .DS_Store
 testData*.json
+.vercel

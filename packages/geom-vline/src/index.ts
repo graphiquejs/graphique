@@ -1,1 +1,1 @@
-export { GeomVLine } from "./geomVLine"
+export { GeomVLine, GeomAes, GeomProps } from './geomVLine'

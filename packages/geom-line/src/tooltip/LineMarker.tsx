@@ -33,12 +33,8 @@ export const LineMarker = <Datum,>({
   const { line } = geoms || {}
 
   const left = useMemo(
-    () =>
-      min([
-        datum && x(datum[0]),
-        width && margin?.right && width - margin.right,
-      ] as number[]),
-    [datum, x, width]
+    () => min([datum && x(datum[0]), width - (margin?.right ?? 0)] as number[]),
+    [datum, x, width],
   )
 
   return height && margin ? (
@@ -55,7 +51,7 @@ export const LineMarker = <Datum,>({
             stroke="#888"
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
-            data-testid='__gg_geom_line_marker'
+            data-testid="__gg_geom_line_marker"
           />
           {datum.map((d, i) => {
             const formattedGroup = copiedScales?.groupAccessor
@@ -65,7 +61,7 @@ export const LineMarker = <Datum,>({
             const inRange =
               (y(d) as number) <= copiedScales?.yScale.range()[0] &&
               (y(d) as number) >= copiedScales?.yScale.range()[1]
-            
+
             const inGroups = scales?.groups
               ? scales.groups.includes(formattedGroup)
               : true
@@ -77,7 +73,8 @@ export const LineMarker = <Datum,>({
                 : defaultStroke)
             return (
               typeof y(d) !== 'undefined' &&
-              inRange && inGroups && (
+              inRange &&
+              inGroups && (
                 <g
                   key={`group-marker-${
                     d.label || formattedGroup
@@ -92,8 +89,8 @@ export const LineMarker = <Datum,>({
                       0.5,
                       Math.max(
                         ((line?.strokeOpacity || 0.9) as number) - 0.35,
-                        0
-                      )
+                        0,
+                      ),
                     )}
                   />
                   <circle
@@ -104,7 +101,7 @@ export const LineMarker = <Datum,>({
                     cy={y(d)}
                     fillOpacity={line?.strokeOpacity || 0.9}
                     strokeOpacity={0.7}
-                    data-testid='__gg_geom_line_marker_point'
+                    data-testid="__gg_geom_line_marker_point"
                   />
                 </g>
               )

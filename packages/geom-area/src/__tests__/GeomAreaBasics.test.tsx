@@ -12,6 +12,7 @@ import {
   undefinedYValData,
 } from './shared'
 import { GeomArea } from '../geomArea'
+import { Position } from '../types'
 
 jest.useFakeTimers()
 
@@ -90,7 +91,7 @@ describe('area chart basics with GeomArea', () => {
   it('renders stacked areas as expected', async () => {
     render(
       <GGArea {...DEFAULT_AREA_PROPS}>
-        <GeomArea position="stack" />
+        <GeomArea position={Position.STACK} />
       </GGArea>,
     )
 
@@ -100,7 +101,7 @@ describe('area chart basics with GeomArea', () => {
   it('renders filled areas as expected', async () => {
     render(
       <GGArea {...DEFAULT_AREA_PROPS}>
-        <GeomArea position="fill" />
+        <GeomArea position={Position.FILL} />
       </GGArea>,
     )
 
@@ -157,7 +158,7 @@ describe('area chart basics with GeomArea', () => {
               y0: (d) => d.marketCap - d.marketCap * 0.1,
               y1: (d) => d.marketCap + d.marketCap * 0.1,
             }}
-            position="stack"
+            position={Position.STACK}
           />
         </GGArea>,
       )

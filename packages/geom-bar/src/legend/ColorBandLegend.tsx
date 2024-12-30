@@ -15,7 +15,7 @@ import { transition } from 'd3-transition'
 
 export interface ColorBandLegendProps<Datum> {
   scales: IScale<Datum>
-  tickFormat?: (v: unknown, i: number) => string
+  tickFormat?: (v: string, i?: number) => string
   width?: number
   tickSize?: number
   height?: number

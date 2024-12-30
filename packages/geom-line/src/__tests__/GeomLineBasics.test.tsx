@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { stocks } from '@graphique/datasets'
 import { undefinedYValData } from './__data__/discontinuousData'
 import { GeomLine } from '..'
@@ -154,14 +154,19 @@ describe('line chart basics with GeomLine', () => {
     render(
       <GGLine>
         <GeomLine
-          opacity={OPACITY}
-          stroke={STROKE}
-          strokeDasharray={DASHARRAY}
+          attr={{
+            opacity: OPACITY,
+            stroke: STROKE,
+            strokeDasharray: DASHARRAY,
+          }}
         />
       </GGLine>,
     )
 
     const lines = await screen.findAllByTestId('__gg_geom_line')
+
+    act(() => jest.runAllTimers())
+
     expect(
       lines.every((l) => {
         const lineOpacity = Number(l.getAttribute('opacity'))

@@ -23,7 +23,7 @@ xdescribe('a chart with vertical lines matches a snapshot', () => {
           aes={{
             x: (d) => d.count!,
           }}
-          strokeDasharray="2,1"
+          attr={{ strokeDasharray: '2,1' }}
         />
       </GGVLine>,
     )
@@ -48,7 +48,7 @@ xdescribe('a chart with vertical lines matches a snapshot', () => {
           aes={{
             x: (d) => d.count!,
           }}
-          strokeDasharray="2,1"
+          attr={{ strokeDasharray: '2,1' }}
           showTooltip={false}
         />
         <GeomPoint />
@@ -78,7 +78,10 @@ xdescribe('a chart with vertical lines matches a snapshot', () => {
           y: (d) => d.marketCap,
         }}
       >
-        <GeomVLine data={[aaplMarketcap[45]]} strokeDasharray="2,1" />
+        <GeomVLine
+          data={[aaplMarketcap[45]]}
+          attr={{ strokeDasharray: '2,1' }}
+        />
       </GGVLine>,
     )
 

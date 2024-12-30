@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
-import { ScaleStroke } from '@graphique/graphique'
+import { ScaleStroke, LegendOrientation } from '@graphique/graphique'
 import { schemeDark2 } from 'd3-scale-chromatic'
 import { GeomLine, Legend } from '..'
 import {
@@ -96,7 +96,7 @@ describe("GeomLine's legend", () => {
   it('draws legend items horizontally when it should', async () => {
     render(
       <GGLineLegend>
-        <Legend orientation="horizontal" />
+        <Legend orientation={LegendOrientation.H} />
       </GGLineLegend>,
     )
 

@@ -1,0 +1,59 @@
+---
+slug: scaleradius
+---
+
+import { useData } from 'nextra/hooks'
+import { Callout } from 'nextra/components'
+import { Basic } from '#/components/demo/scales/radius'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+import { Spacer } from '#/components/Spacer'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
+# ScaleRadius
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary } = useGetData({ docs })
+
+  return summary;
+}
+
+<Summary />
+
+<Spacer height="1rem" />
+
+<Callout>
+  ScaleRadius is only intended to be used with [GeomPoint](/docs/geoms/point).
+</Callout>
+
+## Example
+
+<Basic />
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

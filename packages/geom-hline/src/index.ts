@@ -1,1 +1,1 @@
-export { GeomHLine } from "./geomHLine"
+export { GeomHLine, GeomProps, GeomAes } from './geomHLine'

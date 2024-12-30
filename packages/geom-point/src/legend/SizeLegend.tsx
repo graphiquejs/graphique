@@ -11,22 +11,27 @@ import { extent, max } from 'd3-array'
 import { useGG, radiusScaleState, themeState } from '@graphique/graphique'
 import { scaleSqrt } from 'd3-scale'
 import { transition } from 'd3-transition'
+import { SizeLabelDirection } from '../types'
 
 export interface SizeLegendProps {
-  labelDirection?: 'left' | 'right'
-  numCircles?: 2 | 3
-  radiiVals?:
-    | [number, number]
-    | [number, number, number]
-    | [undefined, undefined]
-  format?: (v: any, i: number) => string
-  width?: number
-  style?: CSSProperties
+  /** title of legend */
   title?: React.ReactNode
+  /** which side of legend to draw labels (_default_: `SizeLabelDirection.R`) */
+  labelDirection?: SizeLabelDirection
+  /** number of circles to use as references in legend (_default_: `3`) */
+  numCircles?: 2 | 3
+  /** fixed breakpoints within size range for circle references (takes precedence over `numCircles`) */
+  radiiVals?: [number, number] | [number, number, number]
+  /** function for formatting labels */
+  format?: (v: number, i?: number) => string
+  /** width of legend in pixels (_default_: `120`) */
+  width?: number
+  /** additional styles passed to legend container */
+  style?: CSSProperties
 }
 
 export const SizeLegend = ({
-  labelDirection = 'right',
+  labelDirection = SizeLabelDirection.R,
   radiiVals,
   width = 120,
   numCircles = 3,
@@ -65,10 +70,13 @@ export const SizeLegend = ({
   const tickVals = useMemo(() => {
     const ticks = scale.ticks()
     return (
-      radiiVals || numCircles === 3
+      radiiVals ||
+      (numCircles === 3
         ? [ticks[0], ticks[3], ticks[ticks.length - 1]]
-        : extent(ticks)
-    ) as [number, number, number] | [number, number]
+        : (extent(ticks) as [number, number]))
+    ).filter((v) => v >= domain[0]) as
+      | [number, number, number]
+      | [number, number]
   }, [radiiVals, numCircles, scale])
 
   const maxVal = useMemo(() => max(tickVals) || 0, [tickVals])
@@ -77,14 +85,14 @@ export const SizeLegend = ({
 
   const [firstRender, setFirstRender] = useState(true)
   useEffect(() => {
-    const timeout = setTimeout(() => setFirstRender(false), 0)
+    const timeout = setTimeout(() => setFirstRender(false), 5)
     return () => clearTimeout(timeout)
   }, [])
 
   useEffect(() => {
     const legendData = tickVals.map((v) => ({
       value: v,
-      r: scale(v),
+      r: scale(v) < 0 ? 0 : scale(v),
     }))
 
     const duration = animationDuration ?? 1000
@@ -120,13 +128,15 @@ export const SizeLegend = ({
       .selectAll('line')
       .attr('stroke', 'currentColor')
       .attr('x1', (d: any, i) =>
-        labelDirection === 'right'
+        labelDirection === SizeLabelDirection.R
           ? d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2
           : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2),
       )
       .attr(
         'x2',
-        labelDirection === 'right' ? scale(maxVal) + 15 : -scale(maxVal) - 12,
+        labelDirection === SizeLabelDirection.R
+          ? scale(maxVal) + 15
+          : -scale(maxVal) - 12,
       )
       .data(legendData, (_, i) => i)
       .join(
@@ -141,7 +151,7 @@ export const SizeLegend = ({
             toUpdate
               .transition(t)
               .attr('x1', (d, i) =>
-                labelDirection === 'right'
+                labelDirection === SizeLabelDirection.R
                   ? d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2
                   : -(d.r / 2 + (i + 15) * 0.5 - (i + 1) * 2),
               )
@@ -157,11 +167,16 @@ export const SizeLegend = ({
       .data(legendData, (_, i) => i)
       .attr(
         'x',
-        labelDirection === 'right' ? scale(maxVal) + 18 : -scale(maxVal) - 15,
+        labelDirection === SizeLabelDirection.R
+          ? scale(maxVal) + 18
+          : -scale(maxVal) - 15,
       )
       .style('font-size', fontSize || 10)
       .attr('dominant-baseline', 'central')
-      .attr('text-anchor', labelDirection === 'right' ? 'start' : 'end')
+      .attr(
+        'text-anchor',
+        labelDirection === SizeLabelDirection.R ? 'start' : 'end',
+      )
       .attr('fill', color || 'currentColor')
       .text((d: any, i) =>
         format ? format(d.value, i) : d.value.toLocaleString(),
@@ -175,7 +190,7 @@ export const SizeLegend = ({
               .transition(t)
               .attr(
                 'x',
-                labelDirection === 'right'
+                labelDirection === SizeLabelDirection.R
                   ? scale(maxVal) + 18
                   : -scale(maxVal) - 15,
               )
@@ -197,7 +212,9 @@ export const SizeLegend = ({
   ])
 
   const xTranslation =
-    labelDirection === 'right' ? scale(maxVal) + 2 : width - scale(maxVal) - 2
+    labelDirection === SizeLabelDirection.R
+      ? scale(maxVal) + 2
+      : width - scale(maxVal) - 2
 
   const yTranslation = scale(maxVal) + 2
 

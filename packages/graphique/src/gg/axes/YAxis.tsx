@@ -105,7 +105,7 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
       .select('path')
       .attr(
         'stroke',
-        axisTheme?.showAxisLines || axisY?.showAxisLine
+        axisTheme?.showAxisLine || axisY?.showAxisLine
           ? axisTheme?.stroke || axisY?.stroke || 'none'
           : 'none',
       )
@@ -132,12 +132,6 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
     axis
       .selectAll('text')
       .data(scale.bandwidth ? scale.domain() : [])
-      .attr(
-        'fill',
-        axisY?.tickLabel?.color ||
-          axisTheme?.tickLabel?.color ||
-          'currentColor',
-      )
       .style('opacity', (d) => {
         if (scale.bandwidth && datum && highlightOnFocus && aes?.y) {
           return aes?.y(datum[0]) === d || focusedTicks?.includes(String(d))
@@ -155,6 +149,12 @@ export const YAxis = <Datum,>({ ggState, animate }: YAxisProps<Datum>) => {
 
     axis
       .selectAll('text')
+      .attr(
+        'fill',
+        axisY?.tickLabel?.color ||
+          axisTheme?.tickLabel?.color ||
+          'currentColor',
+      )
       .attr('data-testid', '__gg_y_tick_label')
       .style(
         'font-size',

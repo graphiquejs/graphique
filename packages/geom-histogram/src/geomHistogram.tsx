@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  CSSProperties,
+  SVGAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {
   useGG,
   usePageVisibility,
@@ -7,26 +14,51 @@ import {
   xScaleState,
   yScaleState,
   zoomState,
+  BrushAction,
 } from '@graphique/graphique'
-import { GeomCol, GeomColProps, type HistogramBin } from '@graphique/geom-col'
+import {
+  GeomCol,
+  type HistogramBin,
+  Alignment,
+  Position,
+} from '@graphique/geom-col'
 import { bin, min, max } from 'd3-array'
 import { useAtom } from 'jotai'
 
-export interface HistogramProps<Datum> extends GeomColProps<Datum> {
+export interface GeomProps {
+  /** approximate number of equal-width bins that the x domain is divided into (_default_: `30`) */
   bins?: number
+  /** function for customizing bin range format in tooltips */
   rangeFormat?: (x0: number, x1: number) => string
+  /** should y values for bins be displayed as relative frequencies instead of counts (_default_: `false`) */
   isRelative?: boolean
+  /** attributes passed to the underlying SVG elements */
+  attr?: SVGAttributes<SVGRectElement>
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
+  showTooltip?: boolean
+  /** determines what happens when brushing (clicking and dragging) over the drawing area  */
+  brushAction?: BrushAction
+  /** styles applied to focused elements */
+  focusedStyle?: CSSProperties
+  /** styles applied to unfocused elements */
+  unfocusedStyle?: CSSProperties
+  /** callback called for mousemove events on the drawing area when focusing data */
+  onDatumFocus?: (data: HistogramBin[], index: number[]) => void
+  /** callback called for click events on the drawing area when selecting focused data */
+  onDatumSelection?: (data: HistogramBin[], index: number[]) => void
+  /** callback called for mouseleave events on the drawing area */
+  onExit?: () => void
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomHistogram = <Datum,>({
-  xPadding = 0,
-  align = 'left',
   bins = 30,
   isRelative = false,
   rangeFormat,
   showTooltip = true,
-  ...props
-}: HistogramProps<Datum>) => {
+  ...props // pass these on to GeomCol
+}: GeomProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales } = ggState || {}
 
@@ -43,9 +75,10 @@ const GeomHistogram = <Datum,>({
 
   const rangeFormatter = useCallback(
     (x0: number, x1: number) => {
+      if (rangeFormat) return rangeFormat(x0, x1)
+
       const [x0String, x1String] = [x0?.toLocaleString(), x1?.toLocaleString()]
 
-      if (rangeFormat) return rangeFormat(x0, x1)
       if (reversedX) return `${x1String} \u2013 ${x0String}`
       return `${x0String} \u2013 ${x1String}`
     },
@@ -73,8 +106,8 @@ const GeomHistogram = <Datum,>({
 
     groups.forEach((g) => {
       const thisBinData: HistogramBin[] = binned.map((thisBin) => ({
-        n: thisBin.filter((b) => (group ? group(b) === g : true)).length,
         group: g,
+        n: thisBin.filter((b) => (group ? group(b) === g : true)).length,
         x0: thisBin.x0,
         x1: thisBin.x1,
       }))
@@ -91,8 +124,8 @@ const GeomHistogram = <Datum,>({
 
     groups.forEach((g) => {
       const thisBinData: HistogramBin[] = binned.map((thisBin) => ({
-        n: thisBin.filter((b) => (group ? group(b) === g : true)).length,
         group: g,
+        n: thisBin.filter((b) => (group ? group(b) === g : true)).length,
         x0: thisBin.x0,
         x1: thisBin.x1,
       }))
@@ -193,9 +226,9 @@ const GeomHistogram = <Datum,>({
               stroke: aes?.stroke ? (d: HistogramBin) => d.group : undefined,
               key: (d: HistogramBin) => `${d.group}-${d.n}-${d.x0}`,
             }}
-            xPadding={xPadding}
-            align={reversedX ? 'right' : align}
-            position="identity"
+            xPadding={0}
+            align={reversedX ? Alignment.RIGHT : Alignment.LEFT}
+            position={Position.IDENTITY}
             showTooltip={showTooltip}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}

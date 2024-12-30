@@ -8,6 +8,7 @@ import {
   YTooltip,
   TooltipContainer,
   TooltipProps,
+  TooltipPosition,
 } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { mean, min, max } from 'd3-array'
@@ -34,85 +35,100 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
 
   const left = useMemo(
     () =>
-      min([
-        datum && x(datum[0]),
-        width && margin?.right && width - margin.right,
-      ] as number[]),
-    [datum, x, width]
+      x
+        ? min([datum && x(datum[0]), width - (margin?.right ?? 0)] as number[])
+        : undefined,
+    [datum, x, width],
   )
-  const hasYVal = useMemo(() => datum?.some(y), [datum, y])
+  const hasYVal = useMemo(() => (y ? datum?.some(y) : undefined), [datum, y])
 
   const datumInGroups = useMemo(() => {
-    const groups = scales?.strokeScale?.domain() ?? scales?.strokeDasharrayScale?.domain() ?? geoms?.line?.usableGroups
+    const groups =
+      scales?.strokeScale?.domain() ??
+      scales?.strokeDasharrayScale?.domain() ??
+      geoms?.line?.usableGroups
 
     return groups
       ? datum?.filter((d) => {
           const group = geoms?.line?.groupAccessor?.(d)
           const inGroups = groups.includes(group as string)
-            
+
           return inGroups
-      })
+        })
       : datum
   }, [datum, geoms, scales])
 
-  const meanYVal = useMemo(() => (
-    datumInGroups && (mean(datumInGroups.map(y))) || 0
-  ), [datumInGroups, y])
+  const meanYVal = useMemo(
+    () => (y && datumInGroups && mean(datumInGroups.map(y))) || 0,
+    [datumInGroups, y],
+  )
 
   const xVal = useMemo(
     () => datum && datum[0] && aes?.x && aes.x(datum[0]),
-    [datum, aes]
+    [datum, aes],
   )
 
   const cappedYVal = max([0, min([meanYVal, height]) as number]) as number
 
   const lineVals = useMemo(() => {
-    const vals = datumInGroups?.filter((d) => (
-          aes?.y &&
-            typeof aes.y(d) !== 'undefined' &&
-            aes.y(d) !== null
-        ))
-        .map((md) => {
-          const group = aes?.stroke?.(md) ?? aes?.strokeDasharray?.(md) ?? geoms?.line?.groupAccessor?.(md)
+    const vals = datumInGroups
+      ?.filter(
+        (d) => aes?.y && typeof aes.y(d) !== 'undefined' && aes.y(d) !== null,
+      )
+      .map((md) => {
+        const group =
+          aes?.stroke?.(md) ??
+          aes?.strokeDasharray?.(md) ??
+          geoms?.line?.groupAccessor?.(md)
 
-          const dashArray = geoms?.line?.strokeDasharray ?? (
-            aes.strokeDasharray && copiedScales?.strokeDasharrayScale
-              ? copiedScales.strokeDasharrayScale(aes.strokeDasharray(md))
-              : undefined
-          )
+        const dashArray =
+          geoms?.line?.strokeDasharray ??
+          (aes.strokeDasharray && copiedScales?.strokeDasharrayScale
+            ? copiedScales.strokeDasharrayScale(aes.strokeDasharray(md))
+            : undefined)
 
-          const stroke = geoms?.line?.stroke ?? (
-            aes.stroke && copiedScales?.strokeScale
-              ? copiedScales.strokeScale(aes.stroke(md))
-              : defaultStroke
-          )
+        const stroke =
+          geoms?.line?.stroke ??
+          (aes.stroke && copiedScales?.strokeScale
+            ? copiedScales.strokeScale(aes.stroke(md))
+            : defaultStroke)
 
-          const mark = (
-            <svg width={18} height={8}>
-              <line
-                x1={0}
-                x2={18}
-                y1={4}
-                y2={4}
-                stroke={stroke}
-                strokeDasharray={dashArray}
-                strokeWidth={geoms?.line?.strokeWidth}
-                strokeOpacity={geoms?.line?.strokeOpacity}
-              />
-            </svg>
-          )
-          return {
-            datum,
-            group,
-            mark,
-            x: xVal,
-            y: aes?.y && aes.y(md),
-            formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
-            formattedX: xFormat ? xFormat(xVal) : xVal?.toString(),
-          }
-        })
+        const mark = (
+          <svg width={18} height={8}>
+            <line
+              x1={0}
+              x2={18}
+              y1={4}
+              y2={4}
+              stroke={stroke}
+              strokeDasharray={dashArray}
+              strokeWidth={geoms?.line?.strokeWidth}
+              strokeOpacity={geoms?.line?.strokeOpacity}
+            />
+          </svg>
+        )
+        return {
+          datum,
+          group,
+          mark,
+          x: xVal,
+          y: aes?.y && aes.y(md),
+          formattedY: aes?.y && (yFormat ? yFormat(aes.y(md)) : aes.y(md)),
+          formattedX: xFormat ? xFormat(xVal) : xVal?.toString(),
+        }
+      })
     return vals as TooltipContent<Datum>[]
-  }, [datum, datumInGroups, xVal, aes, yFormat, xFormat, copiedScales, geoms, defaultStroke])
+  }, [
+    datum,
+    datumInGroups,
+    xVal,
+    aes,
+    yFormat,
+    xFormat,
+    copiedScales,
+    geoms,
+    defaultStroke,
+  ])
 
   const tooltipValue = content ? (
     <div>{content(lineVals)}</div>
@@ -140,7 +156,9 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
         <YTooltip
           id={id as string}
           left={left}
-          top={position === 'data' ? -(height - cappedYVal) : -height}
+          top={
+            position === TooltipPosition.DATA ? -(height - cappedYVal) : -height
+          }
           value={tooltipValue}
         />
       )}

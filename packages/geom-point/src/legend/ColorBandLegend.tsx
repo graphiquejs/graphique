@@ -14,8 +14,8 @@ import { transition } from 'd3-transition'
 
 export interface ColorBandLegendProps<Datum> {
   scales: IScale<Datum>
-  tickFormat?: (v: unknown, i: number) => string
-  width?: number
+  tickFormat?: (v: string, i?: number) => string
+  width: number
   tickSize?: number
   height?: number
   margin?: {
@@ -24,18 +24,18 @@ export interface ColorBandLegendProps<Datum> {
     bottom?: number
     left?: number
   }
-  numTicks?: number
+  numTicks: number
   fontSize?: number | string
 }
 
 export const ColorBandLegend = <Datum,>({
   scales,
   tickFormat,
-  width = 320,
+  width,
   tickSize = 6,
   height = 30 + tickSize,
   margin,
-  numTicks = width / 64,
+  numTicks,
   fontSize = 10,
 }: ColorBandLegendProps<Datum>) => {
   const legendRef = useRef<SVGSVGElement | null>(null)

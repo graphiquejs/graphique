@@ -55,7 +55,7 @@ export const GGBase = <Datum,>({
   children,
 }: GGProps<Datum>) => {
   const [labels] = useAtom(labelsState)
-  const [{ font, titleColor, axis, axisX, axisY, animationDuration }] =
+  const [{ font, headerColor, axis, axisX, axisY, animationDuration }] =
     useAtom(themeState)
   const [xScale] = useAtom(xScaleState)
   const [yScale] = useAtom(yScaleState)
@@ -103,6 +103,7 @@ export const GGBase = <Datum,>({
   const geomAesY1s: DataValue<Datum>[] = []
   const geomGroupAccessors: DataValue<Datum>[] = []
   const geomAesStrokes: DataValue<Datum>[] = []
+  const geomAesStrokeDasharrays: DataValue<Datum>[] = []
   const geomAesFills: DataValue<Datum>[] = []
 
   geoms.forEach((g: any) => {
@@ -117,6 +118,8 @@ export const GGBase = <Datum,>({
     if (geomProps.aes?.y1) geomAesY1s.push(geomProps.aes.y1)
 
     if (geomProps.aes?.stroke) geomAesStrokes.push(geomProps.aes.stroke)
+    if (geomProps.aes?.strokeDasharray)
+      geomAesStrokeDasharrays.push(geomProps.aes.strokeDasharray)
     if (geomProps.aes?.fill) geomAesFills.push(geomProps.aes.fill)
 
     const isBar = g.type.displayName.includes('Bar')
@@ -164,6 +167,7 @@ export const GGBase = <Datum,>({
           hasZeroYBaseLine,
           geomGroupAccessors,
           geomAesStrokes,
+          geomAesStrokeDasharrays,
           geomAesFills,
           fill: fillScale,
           stroke: strokeScale,
@@ -188,6 +192,7 @@ export const GGBase = <Datum,>({
           hasZeroYBaseLine,
           geomGroupAccessors,
           geomAesStrokes,
+          geomAesStrokeDasharrays,
           geomAesFills,
           fill: fillScale,
           stroke: strokeScale,
@@ -243,14 +248,14 @@ export const GGBase = <Datum,>({
             data-testid="__gg_header_label"
             style={{
               marginBottom: 4,
-              color: titleColor,
+              color: headerColor,
               fontFamily: font?.family,
             }}
           >
             {labels.header}
           </div>
         )}
-        {labels?.y && (
+        {axis && axisY && labels?.y && (
           <div
             data-testid="__gg_y_label"
             style={{
@@ -275,7 +280,7 @@ export const GGBase = <Datum,>({
         <svg ref={ggRef} width={ggWidth} height={height}>
           {isVisible && (
             <>
-              {axisX && (
+              {axis && axisX && (
                 <XAxis
                   ggState={ggState}
                   animate={
@@ -284,7 +289,7 @@ export const GGBase = <Datum,>({
                   }
                 />
               )}
-              {axisY && (
+              {axis && axisY && (
                 <YAxis
                   ggState={ggState}
                   animate={

@@ -1,29 +1,33 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState, IScale } from '@graphique/graphique'
+import {
+  useGG,
+  themeState,
+  IScale,
+  LegendOrientation,
+} from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
-// import { ColorBandLegend } from "./ColorBandLegend"
-// import { IScale } from "util/autoScale"
 
-export interface AppearanceLegendProps {
+export interface LegendProps {
+  /** title of legend */
   title?: React.ReactNode
-  style?: CSSProperties
-  orientation?: 'horizontal' | 'vertical'
-  format?: (v: any, i: number) => string
-  // numTicks?: number
-  // width?: number
+  /** determines vertical/horizontal orientation of legend members (_default_: `LegendOrientation.V`) */
+  orientation?: LegendOrientation
+  /** function for formatting legend member labels */
+  format?: (v: string, i?: number) => string
+  /** callback called for click events on legend members */
   onSelection?: (v: string) => void
+  /** additional styles passed to legend container */
+  style?: CSSProperties
 }
 
 export const Legend = <Datum,>({
   title,
-  style,
-  orientation = 'vertical',
+  orientation = LegendOrientation.V,
   format,
-  // numTicks,
-  // width,
   onSelection,
-}: AppearanceLegendProps) => {
+  style,
+}: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font, geoms }] = useAtom(themeState)
@@ -46,35 +50,24 @@ export const Legend = <Datum,>({
       }}
     >
       {title}
-      {
-        copiedData &&
-        (copiedScales || area?.fillScale) &&
-        (groups || area?.usableGroups) ? (
-          <CategoricalLegend
-            legendData={copiedData}
-            orientation={orientation}
-            legendScales={
-              {
-                ...copiedScales,
-                strokeScale: area
-                  ? area.strokeScale
-                  : copiedScales?.strokeScale,
-                fillScale: area ? area.fillScale : copiedScales?.fillScale,
-              } as IScale<Datum>
-            }
-            labelFormat={format}
-            fontSize={fontSize}
-            onSelection={onSelection}
-          />
-        ) : null
-        // <ColorBandLegend
-        //   scales={copiedScales as IScale}
-        //   tickFormat={format}
-        //   numTicks={numTicks}
-        //   fontSize={fontSize}
-        //   width={width}
-        // />
-      }
+      {copiedData &&
+      (copiedScales || area?.fillScale) &&
+      (groups || area?.usableGroups) ? (
+        <CategoricalLegend
+          legendData={copiedData}
+          orientation={orientation}
+          legendScales={
+            {
+              ...copiedScales,
+              strokeScale: area ? area.strokeScale : copiedScales?.strokeScale,
+              fillScale: area ? area.fillScale : copiedScales?.fillScale,
+            } as IScale<Datum>
+          }
+          labelFormat={format}
+          fontSize={fontSize}
+          onSelection={onSelection}
+        />
+      ) : null}
     </div>
   ) : null
 }

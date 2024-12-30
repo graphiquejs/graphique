@@ -14,7 +14,7 @@
   },
   "overrides": [
     {
-      "files": ["**/__tests__/**"],
+      "files": ["**/__tests__/**", "docs/**"],
       "rules": {
         "import/no-extraneous-dependencies": "off"
       }

@@ -1,0 +1,33 @@
+# Graphique
+
+Graphique is a toolkit for visualizing data in [React](https://react.dev) UIs and is based on the _grammar of graphics_.
+
+Use it to concisely build flexible, production-worthy data visualizations that are as interactive (and just as much React components) as the rest of your UI.
+
+## Install
+
+Install Graphique and only the necessary geometries you'd like to use to create your visualization(s).
+
+```sh npm2yarn copy
+npm i @graphique/graphique # @graphique/geom-line @graphique/geom-point, etc
+```
+
+## How it works
+
+Graphique allows you to create flexible and reusable interactive visualizations in a structured way by:
+
+- mapping data properties to visual properties — using [aesthetics](/docs/graphique/gg#Aes) specified by scales (how to draw)
+- composing or layering relatively simple graphical objects or geometries (what to draw)
+- using reasonable defaults that can be configured with components for flexibility
+- updating based on changes in your UI's state
+
+Start at [the beginning](/docs/graphique/gg) or follow an in-depth [walk-through](/docs/advanced/walk-through) to see what it's like to use Graphique.
+
+## Design philosophy
+
+Relative to existing data visualization tools and libraries that can be used with React, Graphique exists "above" low-level APIs and "below" high-level/out-of-the-box/"named chart" charting libraries.
+
+As much as possible, the routine parts of visualizing data should be taken care of for you. This means (by default) you shouldn't need to manually create your own scales, axes, coordinate systems, tooltips, interactive legends, animated transitions, or responsive logic. But when it comes time, you can customize/override nearly everything to suit your specific needs.
+
+With sensible defaults, Graphique aims to be just opinionated enough to make the process of creating highly customizable visualizations as streamlined as possible. Graphique is directly inspired by R's [ggplot2](https://ggplot2.tidyverse.org/), and under the hood it's built on [D3](https://d3js.org).
+Special credits and acknowledgement to Leland Wilkinson — the godfather of the modern [Grammar of Graphics](https://link.springer.com/book/10.1007/0-387-28695-0).

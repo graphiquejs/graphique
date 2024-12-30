@@ -12,6 +12,7 @@ import {
   TooltipProps,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
+import { FocusType, Position } from '../types'
 
 interface StackMidpoint {
   groupVal: string
@@ -24,9 +25,9 @@ interface Props<Datum> {
   y: (d: Datum) => number | undefined
   yAdj?: number
   aes?: Aes<Datum>
-  focusType: 'group' | 'individual'
-  align: 'left' | 'center' | 'right'
+  focusType: FocusType
   stackMidpoints?: StackMidpoint[]
+  position: Position
 }
 
 export const Tooltip = <Datum,>({
@@ -35,31 +36,35 @@ export const Tooltip = <Datum,>({
   yAdj = 0,
   aes,
   focusType,
-  align,
   stackMidpoints,
+  position,
 }: Props<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, scales, copiedScales, height } = ggState || {
     height: 0,
   }
 
-  const [{ datum, xFormat, yFormat, content }] = useAtom<TooltipProps<Datum>>(tooltipState)
+  const [{ datum, xFormat, yFormat, content }] =
+    useAtom<TooltipProps<Datum>>(tooltipState)
 
   const [{ geoms }] = useAtom(themeState)
 
   const yVal = useMemo(
     () => datum && datum[0] && aes?.y && aes.y(datum[0]),
-    [datum, aes]
+    [datum, aes],
   )
 
   const yCoord = useMemo(
-    () => (datum?.[0] && (y(datum?.[0]) ?? 0) + (focusType === 'group' ? yAdj : 0)) || 0,
-    [yAdj, datum, y, focusType]
+    () =>
+      (datum?.[0] &&
+        (y(datum?.[0]) ?? 0) + (focusType === FocusType.GROUP ? yAdj : 0)) ||
+      0,
+    [yAdj, datum, y, focusType],
   )
 
   const group = useMemo(
     () => scales?.groupAccessor || (() => '__group'),
-    [scales]
+    [scales],
   )
 
   const hasGroup = useMemo(() => {
@@ -68,19 +73,24 @@ export const Tooltip = <Datum,>({
   }, [scales?.groups, group, datum])
 
   const xVal = useMemo(() => {
-    if (focusType === 'individual' && stackMidpoints && datum && datum?.length) {
+    if (
+      focusType === FocusType.INDIVIDUAL &&
+      stackMidpoints &&
+      datum &&
+      datum?.length
+    ) {
       const datumGroup = group(datum[0])
       const focusedStack = stackMidpoints.find(
         ({ yVal: stackY, groupVal }) =>
-          stackY === yVal && groupVal === datumGroup
+          stackY === yVal && groupVal === datumGroup,
       )
 
       return focusedStack ? scales?.xScale(focusedStack.xVal) : undefined
     }
 
-    if (geoms?.bar?.position === 'fill') return scales?.xScale(1)
+    if (position === Position.FILL) return scales?.xScale(1)
     if (
-      geoms?.bar?.position === 'stack' &&
+      position === Position.STACK &&
       datum &&
       scales?.groups &&
       aes?.x &&
@@ -91,14 +101,18 @@ export const Tooltip = <Datum,>({
     return datum ? max(datum, (d) => x(d)) : undefined
   }, [datum, scales, geoms, aes, focusType, stackMidpoints, yVal, group])
 
+  const fillDomain = copiedScales?.fillScale?.domain()
+
   const groupVals = useMemo(() => {
     const vals =
       datum &&
       datum
         .filter((d) => aes?.x(d))
-        // .sort((a, b) =>
-        //   (group(a)?.toString() || 0) < (group(b)?.toString() || 0) ? -1 : 1
-        // )
+        .sort(
+          (a, b) =>
+            fillDomain!.indexOf(String(group(a))) -
+            fillDomain!.indexOf(String(group(b))),
+        )
         .map((md) => {
           const thisGroup = group(md)
 
@@ -160,7 +174,7 @@ export const Tooltip = <Datum,>({
     ? datum && <div>{content(groupVals)}</div>
     : datum && <DefaultTooltip data={groupVals} />
 
-  if (datum && groupVals[0] && focusType === 'individual' && hasGroup)
+  if (datum && groupVals[0] && focusType === FocusType.INDIVIDUAL && hasGroup)
     return (
       <div>
         <XTooltip
@@ -169,7 +183,7 @@ export const Tooltip = <Datum,>({
           top={-(height - yCoord)}
           value={tooltipValue}
           yPosition="above"
-          align={align}
+          align={position === Position.DODGE ? 'left' : 'center'}
         />
       </div>
     )

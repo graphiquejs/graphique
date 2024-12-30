@@ -21,7 +21,7 @@ export const XTooltip = ({
   yPosition = 'below',
   align = 'center',
 }: XTooltipProps) => {
-  const { width } = useGG()?.ggState || { width: 0 }
+  const { width, margin } = useGG()?.ggState || { width: 0 }
   const [{ font }] = useAtom(themeState)
   const [{ keepInParent }] = useAtom(tooltipState)
   const [leftPos, setLeftPos] = useState<number | undefined>(0)
@@ -45,8 +45,8 @@ export const XTooltip = ({
     let leftPosition = containerWidth && left - dx
     const rightX =
       leftPosition && containerWidth && leftPosition + containerWidth
-    if (keepInParent && leftPosition && leftPosition < 2) {
-      leftPosition = 2
+    if (keepInParent && leftPosition && leftPosition < margin.left) {
+      leftPosition = margin.left
     } else if (
       keepInParent &&
       leftPosition &&

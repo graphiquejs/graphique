@@ -1,4 +1,4 @@
-export type Penguin = {
+export interface Penguin {
   /** species of penguin */
   species: 'Adelie' | 'Chinstrap' | 'Gentoo'
   /** island of penguin */
@@ -11,13 +11,15 @@ export type Penguin = {
   flipperLength: number | null
   /** body mass (g) */
   bodyMass: number | null
-  /** 'Male' vs. 'Female' (contains uncategorized) */
+  /** 'Male', 'Female' (contains uncategorized) */
   sex: string | null
 }
 
-/** **Physical characteristics of penguins on Antarctic islands**. Data were collected and made available by [Dr. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) and the [Palmer Station, Antarctica LTER](https://pallter.marine.rutgers.edu/), a member of the [Long Term Ecological Research Network](https://lternet.edu/)
-
-Horst AM, Hill AP, Gorman KB (2020). palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/). doi: [10.5281/zenodo.3960218](https://doi.org/10.5281/zenodo.3960218). */
+/**
+ * **Physical characteristics of penguins on Antarctic islands**. Data were collected and made available by [Dr. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) and the [Palmer Station, Antarctica LTER](https://pallter.marine.rutgers.edu/), a member of the [Long Term Ecological Research Network](https://lternet.edu/)
+ *
+ * Horst AM, Hill AP, Gorman KB (2020). palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/). doi: [10.5281/zenodo.3960218](https://doi.org/10.5281/zenodo.3960218).
+ */
 export const penguins: Penguin[] = [
   {
     species: 'Adelie',

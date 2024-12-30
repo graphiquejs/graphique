@@ -1,1 +1,4 @@
-export type BrushAction = 'zoom'
+export enum BrushAction {
+  ZOOM = 'zoom',
+  // SELECT = 'select',
+}

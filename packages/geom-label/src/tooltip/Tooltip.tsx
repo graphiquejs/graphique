@@ -8,6 +8,7 @@ import {
   YTooltip,
   DataValue,
   TooltipProps,
+  TooltipPosition,
 } from '@graphique/graphique'
 import { DefaultTooltip } from './DefaultTooltip'
 import { type GeomAes } from '../types'
@@ -43,16 +44,16 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
 
   const xAdj = useMemo(
     () => (scales?.xScale.bandwidth ? scales?.xScale.bandwidth() / 2 : 0),
-    [scales]
+    [scales],
   )
   const yAdj = useMemo(
     () => (scales?.yScale?.bandwidth ? scales.yScale.bandwidth() / 2 : 0),
-    [scales]
+    [scales],
   )
 
   const thisGroup = useMemo(
     () => datum && group && group(datum),
-    [datum, group]
+    [datum, group],
   )
 
   const tooltipContents: TooltipContent<Datum>[] = [
@@ -95,7 +96,7 @@ export const Tooltip = <Datum,>({ aes, group }: Props<Datum>) => {
         id={id as string}
         left={(tooltipContents[0].x || 0) + xAdj}
         top={
-          position === 'data'
+          position === TooltipPosition.DATA
             ? -(height - (tooltipContents[0].y || 0) - yAdj)
             : -height
         }

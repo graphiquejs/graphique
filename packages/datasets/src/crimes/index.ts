@@ -1,4 +1,4 @@
-export type Crime = {
+export interface Crime {
   /** crime arrested for */
   offenseCategory: string
   /** formatted day of week arrest made */
@@ -9,7 +9,9 @@ export type Crime = {
   count: number
 }
 
-/** **Crime counts in Orlando, FL summarized by offense and time of day between 2009 and 2015**. Data originally collected from [City of Orlando Open Data](https://data.cityoforlando.net/). */
+/**
+ * **Crime counts in Orlando, FL summarized by offense and time of day between 2009 and 2015**. Data originally collected from [City of Orlando Open Data](https://data.cityoforlando.net/).
+ */
 export const crimes: Crime[] = [
   {
     offenseCategory: 'Theft',

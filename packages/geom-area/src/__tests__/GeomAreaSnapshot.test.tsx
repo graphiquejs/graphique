@@ -5,13 +5,13 @@ import {
   GG,
   Theme,
   type DataValue,
-  type AreaPositions,
   type Aes,
+  LegendOrientation,
 } from '@graphique/graphique'
 import { act, screen } from '@testing-library/react'
 import { type UserEvent } from '@testing-library/user-event'
 import { DEFAULT_AES, DEFAULT_DATA, setup, undefinedYValData } from './shared'
-import { GeomArea, Legend } from '..'
+import { GeomArea, Legend, Position } from '..'
 
 // useful for controlling the randomly-generated ID given to graphique objects
 jest.mock('nanoid', () => ({
@@ -23,7 +23,7 @@ jest.useFakeTimers()
 interface TestComponentProps {
   aes?: Aes<Stock>
   data?: Stock[]
-  position?: AreaPositions
+  position?: Position
   y0?: DataValue<Stock>
   y1?: DataValue<Stock>
 }
@@ -31,14 +31,14 @@ interface TestComponentProps {
 const TestComponent = ({
   aes = DEFAULT_AES,
   data = DEFAULT_DATA,
-  position = 'identity',
+  position = Position.IDENTITY,
   y0,
   y1,
 }: TestComponentProps) => (
   <GG data={data} aes={aes} margin={{ left: 50 }}>
-    <GeomArea position={position} opacity={0.5} aes={{ y0, y1 }} />
+    <GeomArea position={position} attr={{ opacity: 0.5 }} aes={{ y0, y1 }} />
     <Theme animationDuration={0} />
-    <Legend title="Stocks" orientation="horizontal" />
+    <Legend title="Stocks" orientation={LegendOrientation.H} />
   </GG>
 )
 
@@ -79,14 +79,18 @@ xdescribe('area charts match snapshots', () => {
   })
 
   it('position="stack", filled', async () => {
-    const { user, asFragment } = setup(<TestComponent position="stack" />)
+    const { user, asFragment } = setup(
+      <TestComponent position={Position.STACK} />,
+    )
     await prepareTesting(user)
 
     expect(asFragment()).toMatchSnapshot()
   })
 
   it('position="fill", filled', async () => {
-    const { user, asFragment } = setup(<TestComponent position="fill" />)
+    const { user, asFragment } = setup(
+      <TestComponent position={Position.FILL} />,
+    )
     await prepareTesting(user)
 
     expect(asFragment()).toMatchSnapshot()
@@ -110,7 +114,7 @@ xdescribe('area charts match snapshots', () => {
 
   it('discontinuous data, filled', async () => {
     const { user, asFragment } = setup(
-      <TestComponent position="stack" data={undefinedYValData} />,
+      <TestComponent position={Position.STACK} data={undefinedYValData} />,
     )
     await prepareTesting(user)
 

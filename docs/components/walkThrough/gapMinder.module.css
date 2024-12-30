@@ -1,0 +1,21 @@
+.gapMinderContainer {
+  width: 100%;
+  margin-top: 28px;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.legends {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  column-gap: 1.5rem;
+  padding: 0.5rem 0 1rem 0;
+}
+
+.legend-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+}

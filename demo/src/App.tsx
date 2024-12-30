@@ -1,4 +1,9 @@
-import { GG, Labels } from '@graphique/graphique'
+import {
+  BrushAction,
+  GG,
+  Labels,
+  LegendOrientation,
+} from '@graphique/graphique'
 import { GeomLine, Legend } from '@graphique/geom-line'
 import { stocks } from '@graphique/datasets'
 import './App.css'
@@ -18,8 +23,8 @@ function App() {
           isContainerWidth
           margin={{ left: 50 }}
         >
-          <GeomLine brushAction="zoom" />
-          <Labels header={<Legend orientation="horizontal" />} />
+          <GeomLine brushAction={BrushAction.ZOOM} />
+          <Labels header={<Legend orientation={LegendOrientation.H} />} />
         </GG>
       </div>
     </section>

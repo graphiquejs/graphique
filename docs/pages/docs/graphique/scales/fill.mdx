@@ -1,0 +1,65 @@
+---
+slug: scalefill
+---
+
+import { useData } from 'nextra/hooks'
+import { Categorical, Continuous, Ordinal } from '#/components/demo/scales/fill'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
+# ScaleFill
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary } = useGetData({ docs })
+
+  return summary;
+}
+
+<Summary />
+
+## Examples
+
+### Categorical
+
+<Categorical />
+
+---
+
+### Continuous
+
+<Continuous />
+
+---
+
+### Ordinal
+
+<Ordinal />
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

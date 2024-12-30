@@ -5,11 +5,18 @@ type PenguinSummary = Penguin & {
   count?: number
 }
 
-const beakLengthsBySpecies: PenguinSummary[] = bivariateSummary(penguins, 'species', undefined, d => d?.beakLength!, 'avg')
-const flipperLengthsBySpecies: PenguinSummary[] = bivariateSummary(penguins, 'species', undefined, d => d?.flipperLength!, 'avg')
+const beakLengthsBySpecies: PenguinSummary[] = bivariateSummary({
+  data: penguins,
+  var1: 'species',
+  countAccessor: (d) => d?.beakLength!,
+  summaryType: 'avg',
+})
 
-export {
-  beakLengthsBySpecies,
-  flipperLengthsBySpecies,
-  type PenguinSummary
-}
+const flipperLengthsBySpecies: PenguinSummary[] = bivariateSummary({
+  data: penguins,
+  var1: 'species',
+  countAccessor: (d) => d?.flipperLength!,
+  summaryType: 'avg',
+})
+
+export { beakLengthsBySpecies, flipperLengthsBySpecies, type PenguinSummary }

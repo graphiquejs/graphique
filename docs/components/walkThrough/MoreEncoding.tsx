@@ -1,0 +1,54 @@
+import { GG, Labels, ScaleX, Tooltip } from '@graphique/graphique'
+import { GeomPoint } from '@graphique/geom-point'
+import { gapminder } from '@graphique/datasets'
+import { useEffect, useState } from 'react'
+import { scaleLog } from 'd3-scale'
+import styles from './gapMinder.module.css'
+import { formatGDP, formatXTick, getNumXTicks } from './formattingUtils'
+
+const data = gapminder.filter((d) => d.year === 2007)
+
+const MoreEncoding: React.FC = () => {
+  const [isServer, setIsServer] = useState(true)
+  useEffect(() => {
+    setIsServer(false)
+  }, [])
+
+  return isServer ? (
+    <div style={{ height: 500 }} />
+  ) : (
+    <div className={styles.gapMinderContainer} style={{ paddingBottom: 60 }}>
+      <GG
+        data={data}
+        aes={{
+          x: (d) => d.gdpPercap,
+          y: (d) => d.lifeExp,
+          label: (d) => d.country,
+          fill: (d) => d.continent,
+          stroke: (d) => d.continent,
+          size: (d) => d.pop,
+        }}
+        isContainerWidth
+        margin={{ top: 30, right: 30, left: 35 }}
+      >
+        <GeomPoint
+          attr={{ fillOpacity: 0.35, strokeOpacity: 0.4 }}
+          focusedStyle={{ fillOpacity: 1 }}
+        />
+        <ScaleX type={scaleLog} format={formatXTick} numTicks={getNumXTicks} />
+        <Tooltip xFormat={formatGDP} />
+        <Labels
+          x="GDP per capita"
+          y="Life expectancy (years)"
+          header={
+            <span className={styles.title}>
+              The health and wealth of nations
+            </span>
+          }
+        />
+      </GG>
+    </div>
+  )
+}
+
+export default MoreEncoding

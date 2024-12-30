@@ -1,0 +1,30 @@
+{
+  "extends": "../tsconfig.json",
+  "exclude": ["node_modules", "tests"],
+  "compilerOptions": {
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "#/components/*": ["./components/*"],
+      "#/input/*": ["./input/*"],
+      "#/utils/*": ["./utils/*"]
+    },
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "@mdx-js/typescript-plugin"
+      }
+    ]
+  },
+  "mdx": {
+    "checkMdx": true // Enable strict type checking in MDX files
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
+}

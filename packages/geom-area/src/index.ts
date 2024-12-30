@@ -1,2 +1,3 @@
-export { GeomArea } from "./geomArea"
-export { Legend } from "./legend"
+export { GeomArea, GeomProps } from './geomArea'
+export { Legend, LegendProps } from './legend'
+export { GeomAes, Position } from './types'

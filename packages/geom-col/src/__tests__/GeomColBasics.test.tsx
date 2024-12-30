@@ -11,6 +11,7 @@ import {
   DEFAULT_GROUP_FILLS,
 } from './shared'
 import { GeomCol } from '../geomCol'
+import { Position } from '../types'
 
 jest.useFakeTimers()
 
@@ -79,7 +80,7 @@ describe('column chart basics with GeomCol', () => {
   it('renders dodged (side-by-side) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position="dodge" />
+        <GeomCol position={Position.DODGE} />
       </GGCol>,
     )
 
@@ -101,7 +102,7 @@ describe('column chart basics with GeomCol', () => {
   it('renders filled (relative y-scaled) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position="fill" />
+        <GeomCol position={Position.FILL} />
       </GGCol>,
     )
 
@@ -123,7 +124,7 @@ describe('column chart basics with GeomCol', () => {
   it('renders identity positioned (overlaid) columns as expected', async () => {
     render(
       <GGCol>
-        <GeomCol position="identity" />
+        <GeomCol position={Position.IDENTITY} />
       </GGCol>,
     )
 

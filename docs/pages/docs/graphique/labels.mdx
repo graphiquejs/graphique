@@ -1,0 +1,51 @@
+---
+slug: labels
+---
+
+import { useData } from 'nextra/hooks'
+import { Basic } from '#/components/demo/graphique/labels'
+import { useGetData } from '#/utils/geoms/useGetData'
+import { fetchDocs } from '#/utils/graphique'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  }
+}
+
+# Labels
+
+export const Summary = () => {
+  const { docs } = useData()
+  const { summary } = useGetData({ docs })
+
+  return summary;
+}
+
+<Summary />
+
+## Example
+
+<Basic />
+
+---
+
+## API
+
+export const E = () => {
+  const { docs } = useData()
+  const { apiItems } = useGetData({ docs })
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

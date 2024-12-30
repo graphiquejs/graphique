@@ -8,7 +8,7 @@ interface XScaleProps extends XYScaleProps {
 export const xScaleState = atom<XScaleProps>({
   numTicks: (width) => {
     if (width && width < 500) return 3
-    if (width < 800) return 6
+    if (width < 800) return 5
     return undefined
   },
 })

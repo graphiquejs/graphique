@@ -2,13 +2,14 @@ import React from 'react'
 import {
   GG,
   type Aes,
-  type BarColPositions,
   Theme,
   Tooltip,
+  LegendOrientation,
+  TooltipPosition,
 } from '@graphique/graphique'
 import { screen, act } from '@testing-library/react'
 import { stocks } from '@graphique/datasets'
-import { GeomCol, Legend } from '..'
+import { GeomCol, Legend, Position, Alignment, FocusType } from '..'
 import { arrestsByDay, arrestsByDayAndCrime } from './__data__/crimeTotals'
 import { type CrimeCount, DEFAULT_AES, GGCol, setup } from './shared'
 
@@ -22,21 +23,25 @@ jest.useFakeTimers()
 interface TestComponentProps<CrimeTotal> {
   aes?: Aes<CrimeTotal>
   data?: CrimeTotal[]
-  position?: BarColPositions
-  focusType?: 'group' | 'individual'
+  position?: Position
+  focusType?: FocusType
 }
 
 const TestComponent = ({
   aes = DEFAULT_AES,
   data = arrestsByDayAndCrime,
-  position = 'stack',
-  focusType = 'individual',
+  position,
+  focusType = FocusType.INDIVIDUAL,
 }: TestComponentProps<CrimeCount>) => (
   <GG data={data} aes={aes}>
-    <GeomCol position={position} focusType={focusType} opacity={0.7} />
-    <Tooltip position="top" />
+    <GeomCol
+      position={position}
+      focusType={focusType}
+      attr={{ opacity: 0.7 }}
+    />
+    <Tooltip position={TooltipPosition.TOP} />
     <Theme animationDuration={0} />
-    <Legend title="Crime" orientation="horizontal" />
+    <Legend title="Crime" orientation={LegendOrientation.H} />
   </GG>
 )
 
@@ -50,8 +55,8 @@ xdescribe('column charts match snapshots', () => {
           fill: undefined,
         }}
       >
-        <GeomCol opacity={0.7} />
-        <Tooltip position="top" />
+        <GeomCol attr={{ opacity: 0.7 }} />
+        <Tooltip position={TooltipPosition.TOP} />
         <Theme animationDuration={0} />
       </GGCol>,
     )
@@ -73,7 +78,9 @@ xdescribe('column charts match snapshots', () => {
   })
 
   it('default (stacked) with multiple settings', async () => {
-    const { user, asFragment } = setup(<TestComponent focusType="group" />)
+    const { user, asFragment } = setup(
+      <TestComponent focusType={FocusType.GROUP} />,
+    )
 
     await screen.findAllByTestId('__gg_geom_col')
 
@@ -98,7 +105,7 @@ xdescribe('column charts match snapshots', () => {
           ...DEFAULT_AES,
           stroke: (d) => d.offenseCategory!,
         }}
-        position="dodge"
+        position={Position.DODGE}
       />,
     )
 
@@ -119,7 +126,9 @@ xdescribe('column charts match snapshots', () => {
   })
 
   it('fill with multiple settings', async () => {
-    const { user, asFragment } = setup(<TestComponent position="fill" />)
+    const { user, asFragment } = setup(
+      <TestComponent position={Position.FILL} />,
+    )
 
     await screen.findAllByTestId('__gg_geom_col')
 
@@ -139,7 +148,10 @@ xdescribe('column charts match snapshots', () => {
 
   it('identity with multiple settings', async () => {
     const { user, asFragment } = setup(
-      <TestComponent focusType="group" position="identity" />,
+      <TestComponent
+        focusType={FocusType.GROUP}
+        position={Position.IDENTITY}
+      />,
     )
 
     await screen.findAllByTestId('__gg_geom_col')
@@ -170,8 +182,11 @@ xdescribe('column charts match snapshots', () => {
           y: (d) => d.marketCap,
         }}
       >
-        <GeomCol opacity={0.7} align="left" fill="steelblue" />
-        <Tooltip position="top" />
+        <GeomCol
+          attr={{ opacity: 0.7, fill: 'steelblue' }}
+          align={Alignment.LEFT}
+        />
+        <Tooltip position={TooltipPosition.TOP} />
       </GGCol>,
     )
 

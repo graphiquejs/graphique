@@ -1,0 +1,45 @@
+---
+title: stocks
+---
+
+import { fetchDocs } from '#/utils/datasets';
+import { useGetData } from '#/utils/datasets/useGetData'
+import { Exports } from '#/components/Exports'
+
+export const getStaticProps = async () => {
+  const docs = await fetchDocs()
+
+  return {
+    props: {
+      ssg: {
+        docs
+      }
+    }
+  };
+}
+
+export const Summary = () => {
+  const { summary } = useGetData()
+
+  return summary
+}
+
+<Summary />
+
+## Usage
+
+```tsx copy
+import { stocks, type Stock } from '@graphique/datasets';
+```
+
+## Exports
+
+export const E = () => {
+  const { apiItems } = useGetData()
+
+  return (
+    <Exports apiItems={apiItems} />
+  )
+}
+
+<E />

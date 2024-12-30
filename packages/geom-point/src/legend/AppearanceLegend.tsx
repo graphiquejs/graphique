@@ -1,29 +1,40 @@
 import React, { CSSProperties } from 'react'
-import { useGG, themeState, IScale } from '@graphique/graphique'
+import {
+  useGG,
+  themeState,
+  IScale,
+  LegendOrientation,
+} from '@graphique/graphique'
 import { useAtom } from 'jotai'
 import { CategoricalLegend } from './CategoricalLegend'
 import { ColorBandLegend } from './ColorBandLegend'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface AppearanceLegendProps<Datum> {
+export interface LegendProps {
+  /** title of legend */
   title?: React.ReactNode
-  style?: CSSProperties
-  orientation?: 'horizontal' | 'vertical'
-  format?: (v: any, i: number) => string
-  numTicks?: number
+  /** determines vertical/horizontal orientation of categorical legend members (_default_: `LegendOrientation.V`) */
+  orientation?: LegendOrientation
+  /** function for formatting legend member labels (categorical) or tick labels (continuous) */
+  format?: (v: string, i?: number) => string
+  /** width of continuous legend in pixels (_default_: `320`) */
   width?: number
+  /** approximate number of ticks for continuous legend (_default_: `width / 64`) */
+  numTicks?: number
+  /** callback called for click events on legend members */
   onSelection?: (v: string) => void
+  /** additional styles passed to legend container */
+  style?: CSSProperties
 }
 
 export const Legend = <Datum,>({
   title,
   style,
-  orientation = 'vertical',
+  orientation = LegendOrientation.V,
   format,
-  numTicks,
-  width,
+  width = 320,
+  numTicks = width / 64,
   onSelection,
-}: AppearanceLegendProps<Datum>) => {
+}: LegendProps) => {
   const { ggState } = useGG<Datum>() || {}
   const { copiedScales, copiedData, aes } = ggState || {}
   const [{ font }] = useAtom(themeState)

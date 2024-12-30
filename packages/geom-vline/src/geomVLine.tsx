@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useMemo,
-  CSSProperties,
   SVGAttributes,
   useRef,
   useState,
@@ -20,37 +19,49 @@ import { easeCubic } from 'd3-ease'
 import { interpolate } from 'd3-interpolate'
 import { Tooltip } from './tooltip'
 
-type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'y' | 'fill' | 'size'> & {
+export type GeomAes<Datum> = Omit<Aes<Datum>, 'x' | 'y' | 'fill' | 'size'> & {
   x?: DataValue<Datum>
 }
 
 const DEFAULT_TICK_SIZE = 6
 
-export interface GeomVLineProps<Datum> extends SVGAttributes<SVGLineElement> {
+export interface GeomProps<Datum> {
+  /**
+   * **data used by this Geom**
+   *
+   * This will overwrite top-level `data` passed to `GG` as it relates to mappings defined in `aes`.
+   */
   data?: Datum[]
+  /**
+   * **functional mapping applied to `data` for this Geom**
+   *
+   * This extends the top-level `aes` passed to `GG`. Any repeated mappings defined here will take precedence within the Geom.
+   */
   aes?: GeomAes<Datum>
-  focusedStyle?: CSSProperties
-  unfocusedStyle?: CSSProperties
+  /** attributes passed to the underlying SVG elements */
+  attr?: SVGAttributes<SVGLineElement>
+  /** should this Geom have a tooltip associated with it (_default_: `true`) */
   showTooltip?: boolean
+  /** callback called for mousemove events on the drawing area when focusing data */
   onDatumFocus?: (data: Datum[], index: number[]) => void
+  /** callback called for click events on the drawing area when selecting focused data */
   onDatumSelection?: (data: Datum[], index: number[]) => void
+  /** callback called for mouseleave events on the drawing area */
   onExit?: () => void
-  strokeOpacity?: number
+  /** should elements enter/update/exit with animated transitions (_default_: `true`) */
+  isAnimated?: boolean
 }
 
 const GeomVLine = <Datum,>({
   data: localData,
   aes: localAes,
-  focusedStyle,
-  unfocusedStyle,
+  attr,
+  showTooltip = true,
   onDatumFocus,
   onDatumSelection,
   onExit,
-  showTooltip = true,
-  strokeWidth = 1.5,
-  strokeOpacity = 1,
-  ...props
-}: GeomVLineProps<Datum>) => {
+  isAnimated = true,
+}: GeomProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { data, aes, scales, copiedScales, height, margin } = ggState || {}
 
@@ -69,7 +80,16 @@ const GeomVLine = <Datum,>({
 
   const isVisible = usePageVisibility()
 
-  const { stroke: strokeColor, strokeDasharray } = { ...props }
+  const baseAttr: SVGAttributes<SVGLineElement> = {
+    strokeOpacity: 1,
+    strokeWidth: 1.5,
+  }
+
+  const geomAttr: SVGAttributes<SVGLineElement> = {
+    ...baseAttr,
+    ...attr,
+  }
+
   const { defaultStroke, animationDuration: duration } = theme
 
   const [firstRender, setFirstRender] = useState(true)
@@ -92,24 +112,25 @@ const GeomVLine = <Datum,>({
       geoms: {
         ...prev.geoms,
         vline: {
-          strokeWidth: props.style?.strokeWidth || strokeWidth,
-          strokeOpacity: props.style?.strokeOpacity || strokeOpacity,
-          strokeDasharray,
-          stroke: strokeColor,
+          strokeWidth: geomAttr?.style?.strokeWidth || geomAttr?.strokeWidth,
+          strokeOpacity:
+            geomAttr?.style?.strokeOpacity || geomAttr?.strokeOpacity,
+          strokeDasharray: geomAttr?.strokeDasharray,
+          stroke: geomAttr?.stroke,
         },
       },
     }))
-  }, [setTheme, strokeColor, strokeOpacity, strokeWidth, props.style])
+  }, [setTheme, attr])
 
   const stroke = useMemo(
     () => (d: Datum) =>
-      strokeColor ||
+      geomAttr.stroke ||
       (geomAes?.stroke && copiedScales?.strokeScale
         ? (copiedScales.strokeScale(geomAes.stroke(d) as any) as
             | string
             | undefined)
         : defaultStroke),
-    [geomAes, copiedScales, strokeColor, defaultStroke],
+    [geomAes, copiedScales, geomAttr, defaultStroke],
   )
 
   const x = useMemo(
@@ -176,32 +197,48 @@ const GeomVLine = <Datum,>({
             })}
             enter={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
+              const thisStrokeOpacity = isOutsideDomain
+                ? 0
+                : geomAttr?.strokeOpacity
+
               return {
-                x1: [x(d) - xAdj],
-                x2: [x(d) - xAdj],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                x1: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                x2: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                y1: isAnimated ? [bottomPos] : bottomPos,
+                y2: isAnimated
+                  ? [(margin?.top || 0) - DEFAULT_TICK_SIZE]
+                  : (margin?.top || 0) - DEFAULT_TICK_SIZE,
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                strokeOpacity: isAnimated
+                  ? [thisStrokeOpacity]
+                  : thisStrokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             update={(d) => {
               const isOutsideDomain = checkIsOutisdeDomain(d)
+              const thisStrokeOpacity = isOutsideDomain
+                ? 0
+                : geomAttr?.strokeOpacity
+
               return {
-                x1: [x(d) - xAdj],
-                x2: [x(d) - xAdj],
-                y1: [bottomPos],
-                y2: [(margin?.top || 0) - DEFAULT_TICK_SIZE],
-                stroke: [stroke(d)],
-                strokeOpacity: [isOutsideDomain ? 0 : strokeOpacity],
+                x1: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                x2: isAnimated ? [x(d) - xAdj] : x(d) - xAdj,
+                y1: isAnimated ? [bottomPos] : bottomPos,
+                y2: isAnimated
+                  ? [(margin?.top || 0) - DEFAULT_TICK_SIZE]
+                  : (margin?.top || 0) - DEFAULT_TICK_SIZE,
+                stroke: isAnimated ? [stroke(d)] : stroke(d),
+                strokeOpacity: isAnimated
+                  ? [thisStrokeOpacity]
+                  : thisStrokeOpacity,
                 timing: { duration, ease: easeCubic },
               }
             }}
             leave={() => ({
-              stroke: ['transparent'],
-              y1: [bottomPos],
-              y2: [bottomPos],
+              stroke: isAnimated ? ['transparent'] : 'transparent',
+              y1: isAnimated ? [bottomPos] : bottomPos,
+              y2: isAnimated ? [bottomPos] : bottomPos,
               timing: { duration, ease: easeCubic },
             })}
             interpolation={(begVal, endVal) => interpolate(begVal, endVal)}
@@ -212,13 +249,13 @@ const GeomVLine = <Datum,>({
                   <line
                     key={key}
                     // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...props}
+                    {...attr}
                     x1={state.x1}
                     x2={state.x2}
                     y1={state.y1}
                     y2={state.y2}
                     stroke={state.stroke}
-                    strokeWidth={strokeWidth}
+                    strokeWidth={geomAttr?.strokeWidth}
                     strokeOpacity={state.strokeOpacity}
                     style={{ pointerEvents: 'none' }}
                     data-testid="__gg_geom_vline"

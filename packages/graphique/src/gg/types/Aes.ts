@@ -1,39 +1,29 @@
 export type DataValue<Datum> = (
-  d: Datum
-) =>
-  | number
-  | Date
-  | null
-  | ({ valueOf(): number } & string)
-  | (Date & { valueOf(): number } & string)
-  | ({ toString(): string } & string)
+  d: Datum,
+) => number | string | Date | null | undefined
 
 export interface Aes<Datum> {
-  /** a functional mapping to `data` used to create an **x** scale */
+  /** functional mapping to `data` used to create an [x scale](https://graphique.dev/docs/graphique/scales/x) */
   x: DataValue<Datum>
-  /** a functional mapping to `data` used to create a **y** scale */
+  /** functional mapping to `data` used to create a [y scale](https://graphique.dev/docs/graphique/scales/y) */
   y?: DataValue<Datum>
-  /** a functional mapping to `data` used to create a **stroke** scale */
+  /** functional mapping to `data` used to create a [stroke scale](https://graphique.dev/docs/graphique/scales/stroke) */
   stroke?: DataValue<Datum>
-  /** a functional mapping to `data` used to create a **strokeDasharray** scale */
+  /** functional mapping to `data` used to create a [strokeDasharray scale](https://graphique.dev/docs/graphique/scales/stroke-dasharray) */
   strokeDasharray?: DataValue<Datum>
-  /** a functional mapping to `data` used to create a
+  /** functional mapping to `data` used to create a
    * continuous **size** scale
    *
-   * Right now it's only used with `<GeomPoint>` to create a radius scale for points.
+   * Right now it's only used with `<GeomPoint>` to create a [radius scale](https://graphique.dev/docs/graphique/scales/radius) for points.
    */
   size?: (d: Datum) => number | null | undefined
-  /** a functional mapping to `data` used to create a **fill** scale */
+  /** functional mapping to `data` used to create a [fill scale](https://graphique.dev/docs/graphique/scales/fill) */
   fill?: DataValue<Datum>
-  /** a functional mapping to `data` used to create
+  /** functional mapping to `data` used to create
    * distinct groups explicitly (without an associated scale) */
   group?: DataValue<Datum>
-  /** a functional mapping to `data` used to label tooltips */
-  label?: (d?: Datum) => string
-  /** a functional mapping to `data` used to distinguish
-   * individual data points
-   *
-   * (useful for `<GeomPoint>`)
-   * */
-  key?: (d?: Datum) => string
+  /** functional mapping to `data` used to label tooltips and text values created with `GeomLabel` */
+  label?: (d: Datum) => string
+  /** functional mapping to `data` used to distinguish individual data points */
+  key?: (d: Datum) => string
 }

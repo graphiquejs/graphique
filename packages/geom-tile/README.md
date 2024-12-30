@@ -1,13 +1,13 @@
+<div style={{ height: 4 }}>
+<img alt="NPM Version" src="https://img.shields.io/npm/v/%40graphique%2Fgeom-tile" />
+</div>
+
 # @graphique/geom-tile
 
-For rectangular charts like heatmaps [Graphique](https://github.com/graphiquejs/graphique).
+For rectangular charts like heatmaps in [Graphique](https://graphique.dev).
 
-```shell
-npm install @graphique/graphique @graphique/geom-tile
-```
+## Install
 
-or
-
-```shell
-yarn add @graphique/graphique @graphique/geom-tile
+```sh npm2yarn copy
+npm install @graphique/geom-tile # @graphique/graphique is a peer dependency
 ```

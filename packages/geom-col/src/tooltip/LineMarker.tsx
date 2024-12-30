@@ -1,9 +1,5 @@
 import React, { useMemo } from 'react'
-import {
-  TooltipProps,
-  tooltipState,
-  useGG,
-} from '@graphique/graphique'
+import { TooltipProps, tooltipState, useGG } from '@graphique/graphique'
 import { useAtom } from 'jotai'
 
 export interface LineMarkerProps<Datum> {
@@ -11,10 +7,7 @@ export interface LineMarkerProps<Datum> {
   xAdj?: number
 }
 
-export const LineMarker = <Datum,>({
-  x,
-  xAdj = 0,
-}: LineMarkerProps<Datum>) => {
+export const LineMarker = <Datum,>({ x, xAdj = 0 }: LineMarkerProps<Datum>) => {
   const { ggState } = useGG<Datum>() || {}
   const { id, height, margin } = ggState || {
     height: 0,
@@ -23,8 +16,8 @@ export const LineMarker = <Datum,>({
   const [{ datum }] = useAtom<TooltipProps<Datum>>(tooltipState)
 
   const xCoord = useMemo(
-    () => datum?.[0] && (x(datum[0]) ?? 0) + xAdj,
-    [datum, x, xAdj]
+    () => datum?.[0] && x && (x(datum[0]) ?? 0) + xAdj,
+    [datum, x, xAdj],
   )
 
   return xCoord ? (
@@ -36,12 +29,12 @@ export const LineMarker = <Datum,>({
         >
           <line
             y1={height - (margin?.bottom ?? 0)}
-            y2={(margin?.top ?? 0)}
+            y2={margin?.top ?? 0}
             strokeDasharray={2}
             stroke="#888"
             strokeWidth={1.5}
             style={{ pointerEvents: 'none' }}
-            data-testid='__gg_geom_col_marker'
+            data-testid="__gg_geom_col_marker"
           />
         </g>
       )}

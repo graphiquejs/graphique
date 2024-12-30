@@ -1,4 +1,4 @@
-export type GapMinder = {
+export interface GapMinder {
   /** country name */
   country: string
   /** continent name */
@@ -13,7 +13,9 @@ export type GapMinder = {
   gdpPercap: number
 }
 
-/** **A subset of economic and health indicators for countries of the world between 1952 and 2007**. Based on free material from [gapminder.org](https://gapminder.org), CC-BY license. */
+/**
+ * **A subset of economic and health indicators for countries of the world between 1952 and 2007**. Based on free material from [gapminder.org](https://gapminder.org), CC-BY license.
+ */
 export const gapminder: GapMinder[] = [
   {
     country: 'Afghanistan',

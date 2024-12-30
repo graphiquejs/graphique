@@ -1,2 +1,2 @@
-export { GeomHistogram } from './geomHistogram'
-export { Legend } from '@graphique/geom-col'
+export { GeomHistogram, type GeomProps } from './geomHistogram'
+export { Legend, type LegendProps } from '@graphique/geom-col'
