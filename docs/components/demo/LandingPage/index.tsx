@@ -71,6 +71,8 @@ const App = () => (
   </GG>
 );`
 
+const HEIGHT = 590
+
 export const Demo = () => {
   const { resolvedTheme } = useTheme()
   const isDark =
@@ -84,7 +86,7 @@ export const Demo = () => {
         template="react-ts"
         theme={isDark ? 'dark' : githubLight}
         options={{
-          editorHeight: 580,
+          editorHeight: HEIGHT,
           rtl: true,
           showLineNumbers: true,
           showRefreshButton: false,
@@ -132,6 +134,6 @@ export const Demo = () => {
       />
     </div>
   ) : (
-    <div style={{ height: 500 }} />
+    <div style={{ height: HEIGHT }} />
   )
 }
