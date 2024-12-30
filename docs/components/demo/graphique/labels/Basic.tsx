@@ -1,5 +1,5 @@
 import dependencies from '#/input/geom-point/build/dependencies'
-import { CodeEditor } from '../../CodeEditor'
+import { CodeEditor } from '#/components/demo/CodeEditor'
 import { additionalFiles } from './additionalFiles'
 
 const files = {
@@ -24,12 +24,10 @@ const files = {
   },
 }
 
-const src = `import {
-  GG, Labels, BrushAction, LegendOrientation,
-} from '@graphique/graphique';
-import { penguins } from '@graphique/datasets';
+const src = `import { GG, Labels, BrushAction, LegendOrientation } from '@graphique/graphique';
 import { GeomPoint, Legend } from '@graphique/geom-point';
-import styles from './penguinsStyles.module.css'
+import { penguins } from '@graphique/datasets';
+import styles from './penguinsStyles.module.css';
 
 const App = () => (
   <GG

@@ -8,6 +8,22 @@
   }
 }
 
+nav._mx-auto {
+  @media screen and (max-width: 615px) {
+    padding: 0 1rem 0 0.5rem;
+  }
+}
+
+article._w-full {
+  @media screen and (max-width: 440px) {
+    padding: 0 0.25rem;
+  }
+}
+
+h2 {
+  margin-top: 2.7rem !important;
+}
+
 h5 {
   margin-top: 1.2rem !important;
 }
@@ -47,6 +63,12 @@ iframe:is(html[class~='dark'] *) {
   }
 }
 
+.sp-tabs-scrollable-container {
+  scrollbar-width: thin;
+  scrollbar-color: #73737366 transparent;
+  scrollbar-gutter: stable;
+}
+
 .sp-button {
   transition: all 200ms linear !important;
   transition-delay: 250ms !important;
@@ -80,4 +102,7 @@ iframe:is(html[class~='dark'] *) {
 
 pre.nextra-focus {
   max-height: 500px;
+  scrollbar-width: thin;
+  scrollbar-color: #73737366 transparent;
+  scrollbar-gutter: stable;
 }

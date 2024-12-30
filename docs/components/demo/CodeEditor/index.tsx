@@ -20,7 +20,7 @@ import dts from '#/input/graphique/build/dts'
 import dependencies from '#/input/graphique/build/dependencies'
 import styles from './CodeEditor.module.css'
 
-const indexSrc = `import React from "react";
+export const indexSrc = `import React from "react";
 import { createRoot } from "react-dom/client";
 import './index.css';
 
@@ -33,12 +33,12 @@ root.render(
   </>
 );`
 
-const appSrc = (src: string) => `${src}
+export const appSrc = (src: string) => `${src}
 
 export default App;
 `
 
-const indexCssSrc = (isDark: boolean) => `:root {
+export const indexCssSrc = (isDark: boolean) => `:root {
   color-scheme: dark;
 }
 html {
@@ -71,11 +71,15 @@ interface Props {
   customIndexSrc?: string
 }
 
-const CustomResetButton = () => {
-  const { sandpack } = useSandpack()
+export const CustomResetButton = () => {
+  const { sandpack, dispatch } = useSandpack()
   const handleReset = useCallback(() => {
     sandpack.resetAllFiles()
-  }, [sandpack])
+
+    setTimeout(() => {
+      dispatch({ type: 'refresh' })
+    }, 100)
+  }, [sandpack, dispatch])
 
   return (
     <button className="sp-preview-action" type="button" onClick={handleReset}>

@@ -34,10 +34,13 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
   const [{ geoms, defaultStroke }] = useAtom(themeState)
 
   const left = useMemo(
-    () => min([datum && x(datum[0]), width - (margin?.right ?? 0)] as number[]),
+    () =>
+      x
+        ? min([datum && x(datum[0]), width - (margin?.right ?? 0)] as number[])
+        : undefined,
     [datum, x, width],
   )
-  const hasYVal = useMemo(() => datum?.some(y), [datum, y])
+  const hasYVal = useMemo(() => (y ? datum?.some(y) : undefined), [datum, y])
 
   const datumInGroups = useMemo(() => {
     const groups =
@@ -56,7 +59,7 @@ export const Tooltip = <Datum,>({ x, y, aes }: Props<Datum>) => {
   }, [datum, geoms, scales])
 
   const meanYVal = useMemo(
-    () => (datumInGroups && mean(datumInGroups.map(y))) || 0,
+    () => (y && datumInGroups && mean(datumInGroups.map(y))) || 0,
     [datumInGroups, y],
   )
 

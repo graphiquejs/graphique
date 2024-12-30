@@ -43,9 +43,9 @@ const H3 = ({ children, ...props }: HtmlHTMLAttributes<HTMLHeadingElement>) => (
   </h3>
 )
 
-const Hr = () => (
+export const Hr = ({ className }: { className?: string }) => (
   <hr
-    className={`${styles.hr} _border-neutral-200/70 contrast-more:_border-neutral-400 dark:_border-primary-100/10 contrast-more:dark:_border-neutral-400 _mt-6`}
+    className={`${className} ${styles.hr} _border-neutral-200/70 contrast-more:_border-neutral-400 dark:_border-primary-100/10 contrast-more:dark:_border-neutral-400 _mt-6`}
   />
 )
 

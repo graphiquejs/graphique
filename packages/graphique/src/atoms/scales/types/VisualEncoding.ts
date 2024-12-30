@@ -12,7 +12,7 @@ export interface VisualEncodingProps {
 }
 
 export interface SizeEncodingProps {
-  /** Used to create an explicit/fixed scale given a `[min`, max]` for the input domain (mapped data property) */
+  /** Used to create an explicit/fixed scale given a `[min, max]` for the input domain (mapped data property) */
   domain?: [number, number]
   /** Used to create an explicit/fixed scale given a `[min, max]` for the output range in pixels (_default_: `[3, 30]`) */
   range?: [number, number]

@@ -1,0 +1,9 @@
+.container {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 16px;
+  border: 1px solid rgb(226, 226, 226);
+  border-radius: 4px;
+}
+
+.container:is(html[class~='dark'] *) {
+  border: 1px solid rgb(51, 51, 51);
+}

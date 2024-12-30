@@ -98,7 +98,7 @@ Using the defaults, our (empty) graphic gets:
 
 - a coordinate system with a grid
 - scaled axes with ticks and tick labels
-- and dimensions (`its parent container's width` × `450 px`)
+- and dimensions (`its parent container's width` × `450px`)
 
 This is a good start but isn't very useful without including any Geometries (`Geoms`).
 
@@ -106,7 +106,7 @@ This is a good start but isn't very useful without including any Geometries (`Ge
 
 ### Draw the countries
 
-Let's draw these countries in the form of a scatterplot. We can turn what we have into a scatterplot simply by including `<GeomPoint />{:tsx}` as a child.
+Let's draw these countries in the form of a scatterplot. We can turn what we have into a scatterplot simply by including `GeomPoint{:tsx}` as a child.
 
 <Basic />
 
@@ -323,7 +323,7 @@ Nice! This is definitely less compressed, and we now have dynamically formatted 
 
 Next, let's encode more information that we wanted to include in our chart — coloring the points by continent and sizing by population.
 
-We can do this simply by mapping properties in our data set to additional Aesthetic properties in `aes` (and removing the directly-applied attributes in `<GeomPoint />{:tsx}`).
+We can do this simply by mapping properties in our data set to additional Aesthetic properties in `aes` (and removing the directly-applied attributes in `GeomPoint{:tsx}`).
 
 We'll also include a `margin` around the visualization area to account for the variety of point sizes and give our points some room to breathe along the boundaries.
 
@@ -734,7 +734,7 @@ We can add this historical context in the form of a connected scatterplot by con
 ### Introducing state
 
 We can use React's `useState` hook to directly modify and respond to changes in our visualization's state.
-Let's start by removing the tooltip for `<GeomPoint />{:tsx}` and instead use `<GeomLabel />{:tsx}`
+Let's start by removing the tooltip for `GeomPoint{:tsx}` and instead use `GeomLabel{:tsx}`
 to show only the focused country's name.
 We _could_ create this label with a customized tooltip, but why we might start this way should be clear as we continue.
 
@@ -1115,7 +1115,7 @@ We left the radius scale as it was, but if we wanted to, we could've just as eas
 
 Nearly there! This is where we add the connected scatterplot for each focused country to show the journey it's taken through history.
 
-We already added a conditional `<GeomLabel />{:tsx}`, now let's add `<GeomLine />{:tsx}` and another `<GeomPoint />{:tsx}`
+We already added a conditional `GeomLabel{:tsx}`, now let's add `GeomLine{:tsx}` and another `GeomPoint{:tsx}`
 based on a very similar condition.
 
 <ConditionalGeoms />
