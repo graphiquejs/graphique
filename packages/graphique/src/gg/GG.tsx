@@ -13,7 +13,7 @@ import type { RootGGProps } from './types/GG'
 /**
  * **The top-level component and starting point for creating Graphique visualizations**.
  *
- * Pass in data, map data properties to visual properties (`aes`), and fill with child Geoms
+ * Pass in data, map data properties to visual properties ([`aes`](https://graphique.dev/docs/graphique/gg#Aes)), and fill with child Geoms
  * to start visualizing data. Configure and customize with a friendly, component-based API.
  *
  * @param data - the data used to create the base, an array of objects

@@ -8,19 +8,13 @@
   }
 }
 
-nav._mx-auto {
+nav._mx-auto :first-child {
   @media screen and (max-width: 615px) {
-    padding: 0 1rem 0 0.5rem;
+    margin-left: -5px;
   }
 }
 
-article._w-full {
-  @media screen and (max-width: 440px) {
-    padding: 0 0.25rem;
-  }
-}
-
-h2 {
+h2._text-3xl {
   margin-top: 2.7rem !important;
 }
 
@@ -51,6 +45,12 @@ iframe:is(html[class~='dark'] *) {
 .cm-gutter.cm-lineNumbers {
   font-size: 0.8rem !important;
   user-select: none;
+}
+
+.cm-line {
+  @media screen and (max-width: 615px) {
+    font-size: 0.75rem;
+  }
 }
 
 .sp-preview-action {

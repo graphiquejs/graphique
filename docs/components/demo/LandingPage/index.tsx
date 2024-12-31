@@ -65,8 +65,8 @@ const App = () => (
           />
         </div>
       }
-      x="&rarr; Body mass (g)"
-      y="&uarr; Flipper length (mm)"
+      x="→ Body mass (g)"
+      y="↑ Flipper length (mm)"
     />
   </GG>
 );`

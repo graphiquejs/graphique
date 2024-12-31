@@ -8,17 +8,17 @@ import { GeomHLine } from '@graphique/geom-hline';
 
 const App = () => (
   <div style={{ marginTop: 25 }}>
-  <GG
-    data={penguins.filter((d) => d.species === 'Chinstrap')}
-    aes={{
-      x: (d) => d.beakLength,
-      y: (d) => d.flipperLength,
-    }}
-    margin={{ left: 45 }}
-    isContainerWidth
-  >
-    <GeomHLine attr={{ stroke: '#6aafa3', strokeWidth: 1 }} />
-  </GG>
+    <GG
+      data={penguins.filter((d) => d.species === 'Chinstrap')}
+      aes={{
+        x: (d) => d.beakLength,
+        y: (d) => d.flipperLength,
+      }}
+      margin={{ left: 45 }}
+      isContainerWidth
+    >
+      <GeomHLine attr={{ stroke: '#6aafa3', strokeWidth: 1 }} />
+    </GG>
   </div>
 );`
 
