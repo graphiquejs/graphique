@@ -30,15 +30,15 @@ export const LandingPage = () => (
       <div className={styles.cta}>
         <a className={styles['cta-button']} href="/docs">
           Get Started
-          <div className={styles['forward-icon']}>&rarr;</div>
+          <div className={styles['forward-icon']}>→</div>
         </a>
       </div>
-    </main>
-    <Hr className={styles.hr} />
-    <div className={styles['landing-demo-wrapper']}>
-      <div className={styles['landing-demo-container']}>
-        <Demo />
+      <Hr className={styles.hr} />
+      <div className={styles['landing-demo-wrapper']}>
+        <div className={styles['landing-demo-container']}>
+          <Demo />
+        </div>
       </div>
-    </div>
+    </main>
   </>
 )
