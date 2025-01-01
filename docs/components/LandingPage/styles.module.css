@@ -27,9 +27,10 @@
 
   .hero-text {
     line-height: 1.2;
-    font-weight: 800;
+    font-weight: 900;
     color: #111;
     text-align: center;
+    letter-spacing: -0.7px;
 
     @media screen and (min-width: 1250px) {
       font-size: 4.2rem;
@@ -63,7 +64,7 @@
     font-size: 1.5rem;
     padding: 0 2rem;
     font-weight: 300;
-    margin-top: 1rem;
+    margin-top: 1.75rem;
   }
 
   @media screen and (min-width: 1250px) {
