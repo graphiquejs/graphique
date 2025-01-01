@@ -1,13 +1,17 @@
 import { Code } from 'nextra/components'
-import { createHighlighter } from 'shiki'
+import { createHighlighterCoreSync } from 'shiki/core'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+import tsx from 'shiki/langs/tsx.mjs'
+import githubDark from 'shiki/themes/github-dark.mjs'
+import githubLight from 'shiki/themes/github-light.mjs'
+
 import Markdown, { Components } from 'react-markdown'
 import A from '../A'
 
-// `createHighlighter` is async, it initializes the internal and
-// loads the themes and languages specified.
-const highlighter = await createHighlighter({
-  themes: ['one-dark-pro', 'one-light', 'github-light', 'github-dark'],
-  langs: ['tsx'],
+const highlighter = createHighlighterCoreSync({
+  themes: [githubDark, githubLight],
+  langs: [tsx],
+  engine: createJavaScriptRegexEngine(),
 })
 
 export const formatCode = (str: string) =>
