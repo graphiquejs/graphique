@@ -1,12 +1,13 @@
 interface Props {
   isSmall?: boolean
+  className?: string
 }
 
-const LogoButton: React.FC<Props> = ({ isSmall }) => {
+const LogoButton: React.FC<Props> = ({ isSmall, className }) => {
   const width = isSmall ? 110 : 170
 
   return (
-    <div className="dark:_text-slate-700" style={{ width }}>
+    <div className={`dark:_text-slate-700 ${className}`} style={{ width }}>
       <svg
         clipRule="evenodd"
         strokeLinecap="round"
