@@ -8,9 +8,9 @@
   }
 }
 
-nav._mx-auto :first-child {
+.header-logo {
   @media screen and (max-width: 615px) {
-    margin-left: -5px;
+    margin-left: -12px;
   }
 }
 

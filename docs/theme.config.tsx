@@ -39,7 +39,7 @@ const config: DocsThemeConfig = {
     )
   },
   // faviconGlyph: '◈',
-  logo: <LogoButton />,
+  logo: <LogoButton className="header-logo" />,
   navbar: {
     extraContent: <ThemeToggle />,
   },

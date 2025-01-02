@@ -38,6 +38,7 @@
 
     @media screen and (max-width: 685px) {
       font-size: 2.5rem;
+      line-height: 1.13;
     }
   }
 
