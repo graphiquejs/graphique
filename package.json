@@ -49,6 +49,7 @@
     "demo": "npm run dev -w @graphique/demo",
     "docs:generate": "node scripts/generateDocs",
     "docs:start": "npm run dev -w @graphique/docs",
+    "docs:lint": "npm run lint -w @graphique/docs",
     "docs:build": "npm run build -w @graphique/docs",
     "typecheck:docs": "npm run typecheck:src -w @graphique/docs",
     "typecheck:src": "npm run typecheck:src -w ./packages",
