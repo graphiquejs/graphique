@@ -1,6 +1,9 @@
 <div align="center">
   <a href="https://graphique.dev">
-    <img src="./assets/graphique_logo.png" width=300px />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/graphique_logo_dark_bg.png">
+      <img alt="Graphique logo" src="./assets/graphique_logo_light_bg.png" width=300px />
+      </picture>
   </a>
   <p>
   An interactive visualization system for React based on the Grammar of Graphics
@@ -20,9 +23,15 @@ Graphique allows you to create flexible and reusable interactive visualizations 
 
 ## Examples/Docs
 
-Examples and docs: https://graphique.dev
+Examples and docs are available at https://graphique.dev.
 
-## Dev
+## Development
+
+<details>
+
+<summary style="font-weight: bold">Get started with local development</summary>
+
+<br />
 
 To start working on Graphique, first install the necessary dependencies for the monorepo.
 
@@ -64,34 +73,8 @@ You can start the demo app with:
 npm run demo
 ```
 
-### Building and running docs site
-
-The source for the docs site is located in `./docs`.
-
-After building the individual packages, scaffold and generate inputs for the docs site from the project's root.
-
-```sh
-npm run generate:docs
-```
-
-To start the docs site locally:
-
-```sh
-npm run docs:start
-```
-
-Typecheck:
-
-```sh
-npm run typecheck:docs
-```
-
-To build the docs site:
-
-```sh
-npm run docs:build
-```
-
 ### Publishing and releasing
 
 Use `npm run release` to publish and release new version(s) of package(s).
+
+</details>
