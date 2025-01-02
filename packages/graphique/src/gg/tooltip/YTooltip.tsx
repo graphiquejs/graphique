@@ -12,14 +12,16 @@ export interface YTooltipProps {
   wait?: boolean
 }
 
+const MIN_X = 2
+const X_BUFFER = 8
+const Y_BUFFER = 5
+
 export const YTooltip = ({ id, left, top, value, wait }: YTooltipProps) => {
   const { ggState } = useGG() || {}
   const { width, height } = ggState || { width: 0, height: 0 }
   const [{ position, keepInParent, dx, dy }] = useAtom(tooltipState)
   const [{ font }] = useAtom(themeState)
 
-  // const [containerHeight, setContainerHeight] = useState(0)
-  // const [containerWidth, setContainerWidth] = useState(0)
   const [leftPos, setLeftPos] = useState<number | undefined>(undefined)
   const [topPos, setTopPos] = useState<number | undefined>(undefined)
 
@@ -59,32 +61,28 @@ export const YTooltip = ({ id, left, top, value, wait }: YTooltipProps) => {
       const containerWidth = containerRef.current?.clientWidth || 0
       const containerHeight = containerRef.current?.clientHeight || 0
 
-      let leftPosition = left + 8 + xAdj
-      if (shouldKeepInParent && leftPosition && leftPosition < 2) {
-        leftPosition = 2
+      let leftPosition = left + X_BUFFER + xAdj
+      if (shouldKeepInParent && leftPosition && leftPosition < MIN_X) {
+        leftPosition = MIN_X
       } else if (shouldKeepInParent && left > width / 2) {
-        leftPosition = left - containerWidth - 8 - xAdj
+        leftPosition = left - containerWidth - X_BUFFER - xAdj
       }
       setLeftPos(leftPosition)
 
       const topPosition =
         top -
         (position === TooltipPosition.DATA ? containerHeight / 2 : 0) -
-        5 +
+        Y_BUFFER +
         yAdj
       setTopPos(topPosition)
     }
   }, [width, left, top, position, shouldKeepInParent, xAdj, yAdj])
 
   useEffect(() => {
-    if (wait) {
-      const dummyTimeout = setTimeout(() => {
-        calcPositions()
-      }, 0)
-      return () => clearTimeout(dummyTimeout)
-    }
-    calcPositions()
-    return () => undefined
+    const dummyTimeout = setTimeout(() => {
+      calcPositions()
+    }, 10)
+    return () => clearTimeout(dummyTimeout)
   }, [calcPositions, wait])
 
   return (
