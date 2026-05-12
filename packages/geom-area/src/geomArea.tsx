@@ -402,6 +402,9 @@ const GeomArea = <Datum,>({
     if (yZoomDomain?.original && !yZoomDomain?.current)
       return yZoomDomain?.original
 
+    if (yZoomDomain?.current)
+      return yZoomDomain.current
+
     return zoomedData ? getYValExtent(zoomedData) : [0, 1]
   }, [zoomedData, yZoomDomain])
 
